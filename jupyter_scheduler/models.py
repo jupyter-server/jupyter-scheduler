@@ -1,24 +1,22 @@
 from dataclasses import dataclass
 from enum import Enum
-
-from pydantic import BaseModel
 from typing import Dict, List, Optional, Union
 
-
+from pydantic import BaseModel
 
 Tags = List[str]
 ParameterValues = Union[int, str, float, bool]
 EnvironmentParameterValues = Union[int, str, float, bool]
 
-EMAIL_RE = ''
-SCHEDULE_RE = ''
-
+EMAIL_RE = ""
+SCHEDULE_RE = ""
 
 
 class OutputFormat(BaseModel):
     """Output format for job run, for example html, notebook"""
-    name: str # coded name for the output format, e.g., ipynb
-    label: str # label used on the UI, e.g., Notebook
+
+    name: str  # coded name for the output format, e.g., ipynb
+    label: str  # label used on the UI, e.g., Notebook
 
 
 class RuntimeEnvironment(BaseModel):
@@ -26,12 +24,13 @@ class RuntimeEnvironment(BaseModel):
     execution will happen. For example, conda
     environment
     """
-    name: str 
+
+    name: str
     label: str
     description: str
-    file_extensions: List[str] # Supported input file types
-    output_formats: List[OutputFormat] # Supported output formats
-    metadata: Optional[Dict[str, str]] # Optional metadata
+    file_extensions: List[str]  # Supported input file types
+    output_formats: List[OutputFormat]  # Supported output formats
+    metadata: Optional[Dict[str, str]]  # Optional metadata
 
     def __str__(self):
         return self.json()
@@ -57,51 +56,55 @@ class Status(str, Enum):
     def __str__(self):
         return self.value
 
-""" 
+
+"""
 A string template to use for naming the output file,
 this template will interpolate values from DescribeJob,
 filename is a special variable, because there is no
 matching attribute in DescribeJob, but probably the most
-expected in the output filename. These templates are 
+expected in the output filename. These templates are
 expecting jinja2 format for attributes. Attributes that
-don't follow valid filenames will be normalized. 
+don't follow valid filenames will be normalized.
 
 Examples of other formats:
 "{{name}}-{{timestamp}}"
-"{{runtime_environment_name}}_{{filename}}_{{job_id}}" 
+"{{runtime_environment_name}}_{{filename}}_{{job_id}}"
 """
 OUTPUT_FILENAME_TEMPLATE = "{{filename}}-{{timestamp}}"
 
 
 class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
-    input_uri: str # input file name or path
-    output_prefix: str # folder or path where outputs should be stored
-    runtime_environment_name: str # runtime environment name, see `RuntimeEnvironment`
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] # overrides to runtime environment attributes
-    output_formats: Optional[List[str]] = None # output formats to be generated
-    idempotency_token: Optional[str] = None # token to resolve redundant executions
-    job_definition_id: Optional[str] = None # for jobs created with job definition 
-    parameters: Optional[Dict[str, ParameterValues]] = None # notebook parameters
-    tags: Optional[Tags] = None # arbitrary tags useful for filtering
-    name: Optional[str] = None # job name for display
-    email_notifications: Optional[EmailNotifications] = None # email notifications
+
+    input_uri: str  # input file name or path
+    output_prefix: str  # folder or path where outputs should be stored
+    runtime_environment_name: str  # runtime environment name, see `RuntimeEnvironment`
+    runtime_environment_parameters: Optional[
+        Dict[str, EnvironmentParameterValues]
+    ]  # overrides to runtime environment attributes
+    output_formats: Optional[List[str]] = None  # output formats to be generated
+    idempotency_token: Optional[str] = None  # token to resolve redundant executions
+    job_definition_id: Optional[str] = None  # for jobs created with job definition
+    parameters: Optional[Dict[str, ParameterValues]] = None  # notebook parameters
+    tags: Optional[Tags] = None  # arbitrary tags useful for filtering
+    name: Optional[str] = None  # job name for display
+    email_notifications: Optional[EmailNotifications] = None  # email notifications
     timeout_seconds: Optional[int] = 600
     retry_on_timeout: Optional[bool] = False
     max_retries: Optional[int] = 0
     min_retry_interval_millis: Optional[int] = 0
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
-    
+
 
 class DescribeJob(CreateJob):
     job_id: str
-    output_uri: str 
+    output_uri: str
     url: str
     start_time: Optional[int] = None
     end_time: Optional[int] = None
     status: Status = Status.STOPPED
-    status_message: str = None
+    status_message: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -117,10 +120,9 @@ class SortField(BaseModel):
     direction: SortDirection
 
 
-DEFAULT_SORT = SortField(
-    name="start_time",
-    direction=SortDirection.desc
-)
+DEFAULT_SORT = SortField(name="start_time", direction=SortDirection.desc)
+
+DEFAULT_MAX_ITEMS = 1000
 
 
 class ListJobsQuery(BaseModel):
@@ -130,7 +132,7 @@ class ListJobsQuery(BaseModel):
     start_time: Optional[int] = None
     tags: Optional[Tags] = None
     sort_by: List[SortField] = [DEFAULT_SORT]
-    max_items: Optional[int] = 1000
+    max_items: Optional[int] = DEFAULT_MAX_ITEMS
     next_token: Optional[str] = None
 
 
@@ -147,15 +149,15 @@ class UpdateJob(BaseModel):
     job_id: str
     end_time: Optional[int] = None
     status: Optional[Status] = None
-    status_message: str = None
+    status_message: Optional[str] = None
     name: Optional[str] = None
-    
+
 
 class DeleteJob(BaseModel):
     job_id: str
-    
 
-class CreateJobDefinition(CreateJob): 
+
+class CreateJobDefinition(CreateJob):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
 
@@ -183,7 +185,7 @@ class UpdateJobDefinition(BaseModel):
     min_retry_interval_millis: Optional[int] = 0
     retry_on_timeout: Optional[bool] = False
     url: Optional[str] = None
-    timezone: Optional[str] = None # Should be a timezone e.g., US/Eastern, Asia/Kolkata
+    timezone: Optional[str] = None  # Should be a timezone e.g., US/Eastern, Asia/Kolkata
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
 
 
@@ -205,4 +207,4 @@ class JobFeature(str, Enum):
     min_retry_interval_millis = "min_retry_interval_millis"
     output_filename_template = "output_filename_template"
     stop_job = "stop_job"
-    delete_job  = "delete_job"
+    delete_job = "delete_job"
