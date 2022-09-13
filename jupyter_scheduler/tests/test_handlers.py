@@ -51,7 +51,7 @@ async def test_post_scheduled_jobs(jp_fetch, job_id, payload):
 
         assert response.code == 200
         body = json.loads(response.body)
-        assert body["job_id"]
+        assert body["job_id"] == job_id
 
 
 async def test_get_jobs_for_single_job(jp_fetch):
