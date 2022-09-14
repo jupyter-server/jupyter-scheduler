@@ -3,3 +3,237 @@
 
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+.jp-notebook-jobs-panel {
+  background: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  font-size: var(--jp-ui-font-size1);
+  overflow-y: scroll;
+}
+
+.jp-notebook-jobs-header {
+  padding: 0px 12px;
+  margin-bottom: 15px;
+}
+
+.jp-notebook-jobs-header h2 {
+  margin-bottom: 5px;
+}
+
+.jp-notebook-jobs-search {
+  display: flex;
+  gap: 12px;
+  padding: 0px 12px 15px;
+}
+
+.jp-notebook-jobs-search .jp-InputGroup {
+  width: 100%;
+}
+
+.jp-notebook-jobs-search button {
+  width: 120px;
+}
+
+.jp-notebook-job-list {
+  /* This is itself a flex container */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 10px;
+}
+
+a.jp-notebook-job-name {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+}
+
+.jp-notebook-job-name-details-button {
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+}
+
+.jp-notebook-job-list-item {
+  flex: 1 1 auto;
+  width: 100%;
+  padding: 6px;
+
+  border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
+
+  display: flex;
+  flex-direction: row;
+}
+
+.jp-notebook-job-list-item:hover {
+  background-color: var(--jp-layout-color2);
+}
+
+.jp-notebook-job-list-item:active {
+  background-color: var(--jp-layout-color3);
+}
+
+.jp-notebook-job-list-item.details-visible {
+  background-color: var(--jp-layout-color3);
+}
+
+.jp-notebook-job-list-trait {
+  flex: 0 0 calc(100% / 6);
+  display: flex; /* This cell can contain multiple elements */
+}
+
+.jp-notebook-job-list-header {
+  border-bottom: var(--jp-border-width) solid var(--jp-border-color1);
+}
+
+.jp-notebook-job-list-header .jp-notebook-job-list-trait {
+  font-weight: bold;
+}
+
+.jp-notebook-job-list-item-deleted {
+  background-color: var(--jp-layout-color3);
+  opacity: 0.3;
+}
+
+.jp-notebook-job-list-item strong {
+  font-weight: bold;
+}
+
+.jp-notebook-jobs-panel a {
+    color: var(--jp-content-link-color);
+}
+
+.jp-notebook-job-list-empty {
+  margin-top: 12px;
+}
+
+.jp-notebook-jobs-list-container {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+ul.jp-notebook-job-output-formats-options {
+  list-style: none;
+  margin: 0px 0px 0px -40px;
+}
+
+.jp-create-job-form-container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+  min-width: 400px;
+  border: var(--jp-border-width) solid var(--jp-border-color1);
+  padding: 12px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.jp-create-job-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 10px;
+}
+
+.jp-create-job-row {
+  flex: 1 1 auto;
+  width: 100%;
+  margin-bottom: 10px;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.jp-create-job-row:last-child {
+  margin-bottom: 0;
+}
+
+.jp-create-job-label {
+  flex: 0 0 25%;
+}
+
+.jp-create-job-input {
+  flex: 0 0 75%;
+}
+
+.jp-create-job-parameter-row {
+  display: flex;
+}
+
+.jp-create-job-submit-container {
+  text-align: right;
+}
+
+/* Job details widget */
+
+.jp-notebook-job-details {
+  background-color: var(--jp-layout-color2);
+
+  width: 100%;
+  margin-bottom: 12px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.jp-notebook-job-details.details-hidden {
+  display: none;
+}
+
+.jp-notebook-job-details.details-visible {
+  display: flex;
+}
+
+.jp-notebook-job-details-grid {
+  /* This div both displays in a flex container and is itself a flex container */
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 10px;
+}
+
+.jp-notebook-job-details-row {
+  flex: 1 1 auto;
+  width: 100%;
+  margin-bottom: 10px;
+
+  display: flex;
+  flex-direction: row;
+}
+
+.jp-notebook-job-details-key {
+  font-weight: bold;
+  flex: 0 0 40%;
+}
+
+.jp-notebook-job-details-value {
+  flex: 0 0 60%;
+}
+
+.jp-notebook-job-parameter {
+  margin: 0;
+}
+
+.jp-notebook-job-navigation  {
+  margin: 16px 8px 0;
+  padding: 0 0;
+  text-align: start;
+  border-block-end: 1px solid var(--jp-layout-color4);
+}
+
+.jp-notebook-job-navigation-tab {
+  display: inline-block;
+  padding: 5px 20px;
+}
+
+ .jp-notebook-job-navigation-tab:hover {
+  background-color: var(--jp-layout-color2);
+  border-block-end: 2px solid var(--jp-layout-color2);
+}
+
+.jp-notebook-job-navigation-tab.active {
+  border-block-end: 2px solid var(--jp-brand-color1);
+}

@@ -20,5 +20,8 @@
     "target": "es2017",
     "types": ["jest"]
   },
-  "include": ["src/*"]
+  "include": [
+    "src/*",
+    "src/components/*"
+  ]
 }
