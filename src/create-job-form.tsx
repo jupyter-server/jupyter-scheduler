@@ -3,9 +3,13 @@ import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 
 import { EnvironmentPicker } from './components/environment-picker';
-import { OutputFormatOption, OutputFormatPicker, outputFormatsForEnvironment } from './components/output-format-picker';
+import {
+  OutputFormatOption,
+  OutputFormatPicker,
+  outputFormatsForEnvironment
+} from './components/output-format-picker';
 
-import { Scheduler, SchedulerService } from "./handler";
+import { Scheduler, SchedulerService } from './handler';
 import { useTranslator } from './hooks';
 
 export type CreateJobFormProps = {
@@ -13,7 +17,7 @@ export type CreateJobFormProps = {
   cancelClick: () => void;
   // Function to run after a create job request completes successfully
   postCreateJob: () => void;
-}
+};
 
 export type JobParameter = {
   name: string;
@@ -40,12 +44,12 @@ export function CreateJobForm(props: CreateJobFormProps) {
     outputPath: '',
     environment: '',
     parameters: [],
-    outputFormats: [],
+    outputFormats: []
   });
 
   useEffect(() => {
-    if(props.initialState) {
-      setState((prevState) => ({ ...props.initialState }))
+    if (props.initialState) {
+      setState(prevState => ({ ...props.initialState }));
     }
   }, [props.initialState]);
 
@@ -60,20 +64,18 @@ export function CreateJobForm(props: CreateJobFormProps) {
       const newParams = state.parameters || [];
       newParams[idx].name = target.value;
       setState({ ...state, parameters: newParams });
-    }
-    else if (parameterValueMatch !== null) {
+    } else if (parameterValueMatch !== null) {
       const idx = parseInt(parameterValueMatch[1]);
       // Update the parameters
       const newParams = state.parameters || [];
       newParams[idx].value = target.value;
-      setState((prevState) => ({ ...prevState, parameters: newParams }));
-    }
-    else {
+      setState(prevState => ({ ...prevState, parameters: newParams }));
+    } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
-      setState((prevState) => ({ ...prevState, [name]: value }));
+      setState(prevState => ({ ...prevState, [name]: value }));
     }
-  }
+  };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const outputFormatsList = outputFormatsForEnvironment(state.environment);
@@ -95,16 +97,19 @@ export function CreateJobForm(props: CreateJobFormProps) {
       // Get the output format matching the given name
       const newFormat = outputFormatsList.find(of => of.name === formatName);
       if (newFormat) {
-        setState({ ...state, outputFormats: [ ...oldOutputFormats, newFormat ] });
+        setState({ ...state, outputFormats: [...oldOutputFormats, newFormat] });
       }
     }
     // Go from checked to unchecked
     else if (!isChecked && wasChecked) {
-      setState({ ...state, outputFormats: oldOutputFormats.filter(of => of.name !== formatName) });
+      setState({
+        ...state,
+        outputFormats: oldOutputFormats.filter(of => of.name !== formatName)
+      });
     }
 
     // If no change in checkedness, don't do anything
-  }
+  };
 
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
     const api = new SchedulerService({});
@@ -114,19 +119,24 @@ export function CreateJobForm(props: CreateJobFormProps) {
       name: state.jobName,
       input_uri: state.inputFile,
       output_prefix: state.outputPath,
-      runtime_environment_name: state.environment,
+      runtime_environment_name: state.environment
     };
 
     if (state.parameters !== undefined) {
-      let jobParameters: {[key: string]: any} = {};
+      let jobParameters: { [key: string]: any } = {};
 
       state.parameters.forEach(param => {
         const { name, value } = param;
         if (jobParameters.hasOwnProperty(name)) {
-          console.error('Parameter ' + name + ' already set to ' + jobParameters[name] +
-            ' and is about to be set again to ' + value);
-        }
-        else {
+          console.error(
+            'Parameter ' +
+              name +
+              ' already set to ' +
+              jobParameters[name] +
+              ' and is about to be set again to ' +
+              value
+          );
+        } else {
           jobParameters[name] = value;
         }
       });
@@ -140,22 +150,22 @@ export function CreateJobForm(props: CreateJobFormProps) {
 
     api.createJob(jobOptions).then(response => {
       props.postCreateJob();
-    })
-  }
+    });
+  };
 
   const removeParameter = (idx: number) => {
     const newParams = state.parameters || [];
     newParams.splice(idx, 1);
 
     setState({ ...state, parameters: newParams });
-  }
+  };
 
   const addParameter = () => {
     const newParams = state.parameters || [];
-    newParams.push({name: '', value: ''});
+    newParams.push({ name: '', value: '' });
 
     setState({ ...state, parameters: newParams });
-  }
+  };
 
   const api = new SchedulerService({});
   const environmentsPromise = async () => {
@@ -186,50 +196,66 @@ export function CreateJobForm(props: CreateJobFormProps) {
         <div className={formRow}>
           <label
             className={formLabel}
-            htmlFor={`${formPrefix}${nameInputName}`}>{trans.__('Job name')}</label>
+            htmlFor={`${formPrefix}${nameInputName}`}
+          >
+            {trans.__('Job name')}
+          </label>
           <input
-            type='text'
+            type="text"
             className={formInput}
             name={nameInputName}
             id={`${formPrefix}${nameInputName}`}
             value={state.jobName}
-            onChange={handleInputChange} />
+            onChange={handleInputChange}
+          />
         </div>
         <div className={formRow}>
           <label
             className={formLabel}
-            htmlFor={`${formPrefix}${inputFileInputName}`}>{trans.__('Input file')}</label>
+            htmlFor={`${formPrefix}${inputFileInputName}`}
+          >
+            {trans.__('Input file')}
+          </label>
           <input
-            type='text'
+            type="text"
             className={formInput}
             name={inputFileInputName}
             id={`${formPrefix}${inputFileInputName}`}
             value={state.inputFile}
-            onChange={handleInputChange} />
+            onChange={handleInputChange}
+          />
         </div>
         <div className={formRow}>
           <label
             className={formLabel}
-            htmlFor={`${formPrefix}${outputPathInputName}`}>{trans.__('Output prefix')}</label>
+            htmlFor={`${formPrefix}${outputPathInputName}`}
+          >
+            {trans.__('Output prefix')}
+          </label>
           <input
-            type='text'
+            type="text"
             className={formInput}
             name={outputPathInputName}
             id={`${formPrefix}${outputPathInputName}`}
             value={state.outputPath}
-            onChange={handleInputChange} />
+            onChange={handleInputChange}
+          />
         </div>
         <div className={formRow}>
           <label
             className={formLabel}
-            htmlFor={`${formPrefix}${environmentInputName}`}>{trans.__('Environment')}</label>
+            htmlFor={`${formPrefix}${environmentInputName}`}
+          >
+            {trans.__('Environment')}
+          </label>
           <div className={formInput}>
             <EnvironmentPicker
               name={environmentInputName}
               id={`${formPrefix}${environmentInputName}`}
               onChange={handleInputChange}
               environmentsPromise={environmentsPromise()}
-              initialValue={state.environment} />
+              initialValue={state.environment}
+            />
           </div>
         </div>
         <OutputFormatPicker
@@ -241,37 +267,48 @@ export function CreateJobForm(props: CreateJobFormProps) {
           rowClassName={formRow}
           labelClassName={formLabel}
           inputClassName={formInput}
-          />
+        />
         <div className={formRow}>
           <label className={formLabel}>{trans.__('Parameters')}</label>
           <div className={formInput}>
-            {state.parameters && state.parameters.map((param, idx) => (
-              <div key={idx} className={`${formPrefix}parameter-row`}>
-                <input
-                  name={`parameter-${idx}-name`}
-                  size={15}
-                  value={param.name}
-                  type='text'
-                  placeholder={trans.__('Name')}
-                  onChange={handleInputChange} />
-                <input
-                  name={`parameter-${idx}-value`}
-                  size={15}
-                  value={param.value}
-                  type='text'
-                  placeholder={trans.__('Value')}
-                  onChange={handleInputChange} />
-                <ToolbarButtonComponent
-                  className={`${formPrefix}inline-button`}
-                  icon={closeIcon}
-                  onClick={() => { removeParameter(idx); return false; } }
-                  tooltip={trans.__('Delete this parameter')} />
-              </div>
-            ))}
+            {state.parameters &&
+              state.parameters.map((param, idx) => (
+                <div key={idx} className={`${formPrefix}parameter-row`}>
+                  <input
+                    name={`parameter-${idx}-name`}
+                    size={15}
+                    value={param.name}
+                    type="text"
+                    placeholder={trans.__('Name')}
+                    onChange={handleInputChange}
+                  />
+                  <input
+                    name={`parameter-${idx}-value`}
+                    size={15}
+                    value={param.value}
+                    type="text"
+                    placeholder={trans.__('Value')}
+                    onChange={handleInputChange}
+                  />
+                  <ToolbarButtonComponent
+                    className={`${formPrefix}inline-button`}
+                    icon={closeIcon}
+                    onClick={() => {
+                      removeParameter(idx);
+                      return false;
+                    }}
+                    tooltip={trans.__('Delete this parameter')}
+                  />
+                </div>
+              ))}
             <Button
               minimal={true}
-              onClick={(e: React.MouseEvent) => { addParameter(); ; return false; }}
-              title={trans.__('Add new parameter')}>
+              onClick={(e: React.MouseEvent) => {
+                addParameter();
+                return false;
+              }}
+              title={trans.__('Add new parameter')}
+            >
               <LabIcon.resolveReact icon={addIcon} tag="span" />
             </Button>
           </div>
@@ -281,16 +318,24 @@ export function CreateJobForm(props: CreateJobFormProps) {
           <div className={`${formInput} ${formPrefix}submit-container`}>
             <Button
               type="button"
-              className='jp-Dialog-button jp-mod-styled'
-              onClick={props.cancelClick}>{trans.__('Cancel')}</Button>
+              className="jp-Dialog-button jp-mod-styled"
+              onClick={props.cancelClick}
+            >
+              {trans.__('Cancel')}
+            </Button>
             <Button
               type="submit"
-              className='jp-Dialog-button jp-mod-accept jp-mod-styled'
-              onClick={(e: React.MouseEvent) => {submitCreateJobRequest(e); return false; } }
-            >{trans.__('Run Job')}</Button>
+              className="jp-Dialog-button jp-mod-accept jp-mod-styled"
+              onClick={(e: React.MouseEvent) => {
+                submitCreateJobRequest(e);
+                return false;
+              }}
+            >
+              {trans.__('Run Job')}
+            </Button>
           </div>
         </div>
       </form>
     </div>
-  )
-};
+  );
+}
