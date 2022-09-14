@@ -69,11 +69,9 @@ export class SchedulerService {
                   )}(${encodeURIComponent(sort.name)})`
               ).join('&');
             }
-
             //@ts-ignore
-            return `${encodeURIComponent(prop)}=${encodeURIComponent(
-              jobQuery[prop]
-            )}`;
+            const value = jobQuery[prop];
+            return `${encodeURIComponent(prop)}=${encodeURIComponent(value)}`;
           })
           .join('&');
     }
