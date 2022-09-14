@@ -1,29 +1,29 @@
-from abc import ABC, abstractclassmethod, abstractmethod
-from datetime import datetime
 import os
 import traceback
+from abc import ABC, abstractclassmethod, abstractmethod
+from datetime import datetime
 from typing import Dict, List
 
-import nbformat
 import nbconvert
+import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
-from jupyter_scheduler.config import ExecutionConfig
 
+from jupyter_scheduler.config import ExecutionConfig
 from jupyter_scheduler.models import DescribeJob, JobFeature, OutputFormat, Status
+from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp, resolve_path
-from jupyter_scheduler.orm import Job, create_session
 
 
 class ExecutionManager(ABC):
-    """ Base execution manager.
+    """Base execution manager.
     Clients are expected to override this class
     to provide concrete implementations of the
     execution manager. At the minimum, subclasses
-    should provide implementation of the 
+    should provide implementation of the
     execute, and supported_features methods.
     """
-    
+
     _model = None
     _db_session = None
 
@@ -36,12 +36,9 @@ class ExecutionManager(ABC):
     def model(self):
         if self._model is None:
             with self.db_session() as session:
-                job = session.query(Job).filter(
-                    Job.job_id == self.job_id
-                ).first()
+                job = session.query(Job).filter(Job.job_id == self.job_id).first()
                 self._model = DescribeJob.from_orm(job)
         return self._model
-
 
     @property
     def db_session(self):
@@ -51,9 +48,9 @@ class ExecutionManager(ABC):
         return self._db_session
 
     def process(self):
-        """The template method called by the 
-        Scheduler, backend implementations 
-        should not override this method. 
+        """The template method called by the
+        Scheduler, backend implementations
+        should not override this method.
         """
         self.before_start()
         try:
@@ -86,13 +83,8 @@ class ExecutionManager(ABC):
         """Called before start of execute"""
         job = self.model
         with self.db_session() as session:
-            session.query(Job).filter(
-                Job.job_id == job.job_id
-            ).update(
-                {
-                    "start_time": get_utc_timestamp(),
-                    "status": Status.IN_PROGRESS
-                }
+            session.query(Job).filter(Job.job_id == job.job_id).update(
+                {"start_time": get_utc_timestamp(), "status": Status.IN_PROGRESS}
             )
             session.commit()
 
@@ -100,13 +92,8 @@ class ExecutionManager(ABC):
         """Called after failure of execute"""
         job = self.model
         with self.db_session() as session:
-            session.query(Job).filter(
-                Job.job_id == job.job_id
-            ).update(
-                {
-                    "status": Status.FAILED,
-                    "status_message": str(e)
-                }
+            session.query(Job).filter(Job.job_id == job.job_id).update(
+                {"status": Status.FAILED, "status_message": str(e)}
             )
             session.commit()
 
@@ -116,20 +103,18 @@ class ExecutionManager(ABC):
         """Called after job is completed"""
         job = self.model
         with self.db_session() as session:
-            session.query(Job).filter(
-                Job.job_id == job.job_id
-            ).update({
-                "status": Status.COMPLETED,
-                "end_time": get_utc_timestamp()
-            })
+            session.query(Job).filter(Job.job_id == job.job_id).update(
+                {"status": Status.COMPLETED, "end_time": get_utc_timestamp()}
+            )
             session.commit()
 
 
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
+
     def execute(self):
         job = self.model
-        
+
         output_dir = os.path.dirname(resolve_path(job.output_uri, self.root_dir))
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -141,42 +126,26 @@ class DefaultExecutionManager(ExecutionManager):
             nb = add_parameters(nb, job.parameters)
 
         ep = ExecutePreprocessor(
-            timeout=job.timeout_seconds, 
-            kernel_name=nb.metadata.kernelspec['name'],
-            store_widget_state=True
+            timeout=job.timeout_seconds,
+            kernel_name=nb.metadata.kernelspec["name"],
+            store_widget_state=True,
         )
 
         ep.preprocess(
-            nb, 
-            {
-                'metadata': {
-                    'path': os.path.dirname(
-                        resolve_path(job.output_uri, self.root_dir)
-                    )
-                }
-            }
+            nb, {"metadata": {"path": os.path.dirname(resolve_path(job.output_uri, self.root_dir))}}
         )
-        
+
         if job.output_formats:
             filepath = resolve_path(job.output_uri, self.root_dir)
             base_filepath = os.path.splitext(filepath)[-2]
             for output_format in job.output_formats:
                 cls = nbconvert.get_exporter(output_format)
                 output, resources = cls().from_notebook_node(nb)
-                with open(
-                    f'{base_filepath}.{output_format}', 
-                    'w', 
-                    encoding='utf-8'
-                ) as f:
+                with open(f"{base_filepath}.{output_format}", "w", encoding="utf-8") as f:
                     f.write(output)
         else:
-            with open(
-                resolve_path(job.output_uri, self.root_dir), 
-                'w', 
-                encoding='utf-8'
-            ) as f:
+            with open(resolve_path(job.output_uri, self.root_dir), "w", encoding="utf-8") as f:
                 nbformat.write(nb, f)
-
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
@@ -192,7 +161,5 @@ class DefaultExecutionManager(ExecutionManager):
             JobFeature.min_retry_interval_millis: False,
             JobFeature.output_filename_template: False,
             JobFeature.stop_job: True,
-            JobFeature.delete_job: True
-        } 
-
-        
+            JobFeature.delete_job: True,
+        }
