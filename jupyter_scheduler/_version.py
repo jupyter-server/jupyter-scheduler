@@ -3,4 +3,5 @@ from pathlib import Path
 
 __all__ = ["__version__"]
 
-__version__ = "0.1.0"
+version_info = (0, 1, 0, "", "")
+__version__ = ".".join(map(str, version_info[:3])) + "".join(version_info[3:])

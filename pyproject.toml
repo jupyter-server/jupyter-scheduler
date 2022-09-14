@@ -75,24 +75,33 @@ npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyter_scheduler/labextension"
 
-[tool.tbump]
-field = [
-    { name = "channel", default = "" },
-    { name = "release", default = "" },
-]
-file = [
-    { src = "pyproject.toml", version_template = "version = \"{major}.{minor}.{patch}{channel}{release}\"" },
-    { src = "jupyter_scheduler/_version.py" },
-    { src = "package.json" },
-]
-
 [tool.tbump.version]
-current = "0.1.0"
+current = "0.2.0"
 regex = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)((?P<channel>a|b|rc|.dev)(?P<release>\\d+))?"
+
+[[tool.tbump.file]]
+src = "pyproject.toml"
+version_template = "version = \"{major}.{minor}.{patch}{channel}{release}\""
+
+[[tool.tbump.file]]
+src = "jupyter_scheduler/_version.py"
+version_template = '({major}, {minor}, {patch}, "{channel}", "{release}")'
+
+[[tool.tbump.file]]
+src = "package.json"
+search = '"version": "{current_version}"'
 
 [tool.tbump.git]
 message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
+
+[[tool.tbump.field]]
+name = "channel"
+default = ""
+
+[[tool.tbump.field]]
+name = "release"
+default = ""
 
 [tool.black]
 line_length = 100
