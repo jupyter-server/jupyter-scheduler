@@ -1,6 +1,7 @@
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
+import { CreateJobFormInputs } from './components/create-job-form-inputs';
 
 import { EnvironmentPicker } from './components/environment-picker';
 import { OutputFormatOption, OutputFormatPicker, outputFormatsForEnvironment } from './components/output-format-picker';
@@ -42,7 +43,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
     parameters: [],
     outputFormats: [],
   });
-
+  
   useEffect(() => {
     if(props.initialState) {
       setState((prevState) => ({ ...props.initialState }))
@@ -116,14 +117,14 @@ export function CreateJobForm(props: CreateJobFormProps) {
       output_prefix: state.outputPath,
       runtime_environment_name: state.environment,
     };
-
+    
     if (state.parameters !== undefined) {
       let jobParameters: {[key: string]: any} = {};
 
       state.parameters.forEach(param => {
         const { name, value } = param;
         if (jobParameters.hasOwnProperty(name)) {
-          console.error('Parameter ' + name + ' already set to ' + jobParameters[name] +
+          console.error('Parameter ' + name + ' already set to ' + jobParameters[name] + 
             ' and is about to be set again to ' + value);
         }
         else {
@@ -170,9 +171,6 @@ export function CreateJobForm(props: CreateJobFormProps) {
     });
   };
 
-  const nameInputName = 'jobName';
-  const inputFileInputName = 'inputFile';
-  const outputPathInputName = 'outputPath';
   const environmentInputName = 'environment';
   const outputFormatInputName = 'outputFormat';
   const formPrefix = 'jp-create-job-';
@@ -180,45 +178,37 @@ export function CreateJobForm(props: CreateJobFormProps) {
   const formLabel = `${formPrefix}label`;
   const formInput = `${formPrefix}input`;
 
+  const formFields = [
+    {
+      label: trans.__('Job name'),
+      inputName: 'jobName',
+      value: state.jobName,
+      onChange: handleInputChange,
+    },
+    {
+      label: trans.__('Input file'),
+      inputName: 'inputFile',
+      value: state.inputFile,
+      onChange: handleInputChange,
+    },
+    {
+      label: trans.__('Output prefix'),
+      inputName: 'outputPath',
+      value: state.outputPath,
+      onChange: handleInputChange,
+    },
+  ];
+
   return (
     <div className={`${formPrefix}form-container`}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
-        <div className={formRow}>
-          <label
-            className={formLabel}
-            htmlFor={`${formPrefix}${nameInputName}`}>{trans.__('Job name')}</label>
-          <input
-            type='text'
-            className={formInput}
-            name={nameInputName}
-            id={`${formPrefix}${nameInputName}`}
-            value={state.jobName}
-            onChange={handleInputChange} />
-        </div>
-        <div className={formRow}>
-          <label
-            className={formLabel}
-            htmlFor={`${formPrefix}${inputFileInputName}`}>{trans.__('Input file')}</label>
-          <input
-            type='text'
-            className={formInput}
-            name={inputFileInputName}
-            id={`${formPrefix}${inputFileInputName}`}
-            value={state.inputFile}
-            onChange={handleInputChange} />
-        </div>
-        <div className={formRow}>
-          <label
-            className={formLabel}
-            htmlFor={`${formPrefix}${outputPathInputName}`}>{trans.__('Output prefix')}</label>
-          <input
-            type='text'
-            className={formInput}
-            name={outputPathInputName}
-            id={`${formPrefix}${outputPathInputName}`}
-            value={state.outputPath}
-            onChange={handleInputChange} />
-        </div>
+        <CreateJobFormInputs
+          formRow={formRow}
+          formLabel={formLabel}
+          formPrefix={formPrefix}
+          formInput={formInput}
+          fields={formFields}
+        />
         <div className={formRow}>
           <label
             className={formLabel}
@@ -235,7 +225,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
         <OutputFormatPicker
           name={outputFormatInputName}
           id={`${formPrefix}${outputFormatInputName}`}
-          onChange={handleOutputFormatsChange}
+          onChange={handleOutputFormatsChange}      
           environment={state.environment}
           value={state.outputFormats || []}
           rowClassName={formRow}
