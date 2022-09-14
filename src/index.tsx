@@ -4,7 +4,11 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { MainAreaWidget, ReactWidget, WidgetTracker } from '@jupyterlab/apputils';
+import {
+  MainAreaWidget,
+  ReactWidget,
+  WidgetTracker
+} from '@jupyterlab/apputils';
 import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { Contents } from '@jupyterlab/services';
@@ -19,7 +23,11 @@ import { SchedulerService } from './handler';
 import { NotebookJobsListingModel } from './model';
 import { CreateJobFormState } from './create-job-form';
 import { JobsPanelView, NotebookJobsPanel } from './notebook-jobs-panel';
-import { calendarAddOnIcon, calendarMonthIcon, eventNoteIcon } from './components/icons';
+import {
+  calendarAddOnIcon,
+  calendarMonthIcon,
+  eventNoteIcon
+} from './components/icons';
 
 namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -57,7 +65,7 @@ function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   return firstItem;
 }
 
-function getSelectedFilePath(widget: FileBrowser | null): string | null{
+function getSelectedFilePath(widget: FileBrowser | null): string | null {
   const selectedItem = getSelectedItem(widget);
   if (selectedItem === null) {
     return null;
@@ -93,7 +101,7 @@ async function activatePlugin(
   translator: ITranslator,
   restorer: ILayoutRestorer,
   statusBar: IStatusBar | null,
-  launcher: ILauncher | null,
+  launcher: ILauncher | null
 ): Promise<void> {
   const { commands } = app;
   const trans = translator.load('jupyterlab');
@@ -101,7 +109,7 @@ async function activatePlugin(
   const api = new SchedulerService({});
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel>;
   let widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
-    namespace: 'jupyterlab-scheduler',
+    namespace: 'jupyterlab-scheduler'
   });
   restorer.restore(widgetTracker, {
     command: CommandIDs.showNotebookJobs,
@@ -127,13 +135,15 @@ async function activatePlugin(
       await api.deleteJob(id);
     },
     // TODO: Use args to name command dynamically
-    label: trans.__('Delete Job'),
+    label: trans.__('Delete Job')
   });
 
   const showJobsPane = async (view: JobsPanelView) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
       // Create a new widget
-      mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({content: jobsPanel});
+      mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
+        content: jobsPanel
+      });
       mainAreaWidget.content.view = view;
       mainAreaWidget.id = NotebookJobsPanelId;
       mainAreaWidget.title.icon = calendarMonthIcon;
@@ -158,7 +168,7 @@ async function activatePlugin(
   commands.addCommand(CommandIDs.showNotebookJobs, {
     execute: async () => showJobsPane('JobsList'),
     label: trans.__('Show Notebook Jobs'),
-    icon: eventNoteIcon,
+    icon: eventNoteIcon
   });
 
   commands.addCommand(CommandIDs.runNotebook, {
@@ -174,13 +184,13 @@ async function activatePlugin(
         inputFile: filePath,
         jobName: fileName,
         outputPath: '',
-        environment: '',
+        environment: ''
       };
 
       _signal.emit(newState);
     },
     label: trans.__('Create Notebook Job'),
-    icon: calendarAddOnIcon,
+    icon: calendarAddOnIcon
   });
 
   commands.addCommand(CommandIDs.stopJob, {
@@ -189,7 +199,7 @@ async function activatePlugin(
       await api.setJobStatus(id, 'STOPPED');
     },
     // TODO: Use args to name command dynamically
-    label: trans.__('Stop Job'),
+    label: trans.__('Stop Job')
   });
 
   if (!statusBar) {
@@ -199,10 +209,12 @@ async function activatePlugin(
 
   statusBar.registerStatusItem('jupyterlab-scheduler:status', {
     align: 'middle',
-    item: ReactWidget.create(<RunningJobsIndicator
-      onClick={async () => showJobsPane('JobsList')}
-      model={model}
-    />),
+    item: ReactWidget.create(
+      <RunningJobsIndicator
+        onClick={async () => showJobsPane('JobsList')}
+        model={model}
+      />
+    )
   });
 
   const statusPoll = new Poll({
@@ -217,14 +229,16 @@ async function activatePlugin(
   // Add to launcher
   if (launcher) {
     launcher.add({
-      command: CommandIDs.showNotebookJobs,
+      command: CommandIDs.showNotebookJobs
     });
   }
 
   console.log('JupyterLab extension jupyterlab-scheduler is activated!');
 }
 
-let _signal: Signal<NotebookJobsPluginType, CreateJobFormState> =
-  new Signal<NotebookJobsPluginType, CreateJobFormState>(plugin);
+let _signal: Signal<NotebookJobsPluginType, CreateJobFormState> = new Signal<
+  NotebookJobsPluginType,
+  CreateJobFormState
+>(plugin);
 
 export default plugin;

@@ -24,7 +24,7 @@ export class NotebookJobsPanel extends ReactWidget {
   private _view: JobsPanelView;
 
   constructor(options: NotebookJobsPanel.IOptions) {
-    super()
+    super();
     this.addClass('jp-notebook-jobs-panel');
     const trans = options.translator.load('jupyterlab');
 
@@ -53,27 +53,34 @@ export class NotebookJobsPanel extends ReactWidget {
   render(): JSX.Element {
     return (
       <TranslatorContext.Provider value={this._translator}>
-          <NotebookJobsNavigation
-            currentView={this._view}
-            toggleSignal={this._signal}
-            toggleFunction={() => this.toggleView()} />
+        <NotebookJobsNavigation
+          currentView={this._view}
+          toggleSignal={this._signal}
+          toggleFunction={() => this.toggleView()}
+        />
         <div
-          id='jp-create-job-form-container'
-          style={{display: this._view === 'CreateJobForm' ? 'block' : 'none'}}>
+          id="jp-create-job-form-container"
+          style={{ display: this._view === 'CreateJobForm' ? 'block' : 'none' }}
+        >
           <UseSignal signal={this._signal}>
-            {(_, newState) => <CreateJobForm
-              initialState={newState!}
-              cancelClick={() => this.toggleView()}
-              postCreateJob={() => this.toggleView()} />}
+            {(_, newState) => (
+              <CreateJobForm
+                initialState={newState!}
+                cancelClick={() => this.toggleView()}
+                postCreateJob={() => this.toggleView()}
+              />
+            )}
           </UseSignal>
         </div>
         <div
           className="jp-notebook-jobs-list-container"
-          style={{display: this._view === 'JobsList' ? 'block' : 'none'}}>
-            <NotebookJobsList
-              app={this._app}
-              createJobFormSignal={this._signal}
-              showCreateJob={() => this.toggleView()} />
+          style={{ display: this._view === 'JobsList' ? 'block' : 'none' }}
+        >
+          <NotebookJobsList
+            app={this._app}
+            createJobFormSignal={this._signal}
+            showCreateJob={() => this.toggleView()}
+          />
         </div>
       </TranslatorContext.Provider>
     );
