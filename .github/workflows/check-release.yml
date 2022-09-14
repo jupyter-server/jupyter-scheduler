@@ -25,8 +25,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
-      
-      
+
+
       - name: Get pip cache dir
         id: pip-cache
         run: |
@@ -55,7 +55,7 @@ jobs:
         uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Upload Distributions
         uses: actions/upload-artifact@v2
         with:
