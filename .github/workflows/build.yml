@@ -41,7 +41,7 @@ jobs:
         jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
 
         jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "jupyter-scheduler.*OK"
+        jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
         python -m jupyterlab.browser_check
 
     - name: Package the extension
@@ -88,7 +88,7 @@ jobs:
         jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
 
         jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "jupyter-scheduler.*OK"
+        jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
         python -m jupyterlab.browser_check --no-chrome-test
 
   integration-tests:
