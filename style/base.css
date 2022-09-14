@@ -12,7 +12,7 @@
 }
 
 .jp-notebook-jobs-header {
-  padding: 0px 12px;
+  padding: 0 12px;
   margin-bottom: 15px;
 }
 
@@ -23,7 +23,7 @@
 .jp-notebook-jobs-search {
   display: flex;
   gap: 12px;
-  padding: 0px 12px 15px;
+  padding: 0 12px 15px;
 }
 
 .jp-notebook-jobs-search .jp-InputGroup {
@@ -58,9 +58,7 @@ a.jp-notebook-job-name {
   flex: 1 1 auto;
   width: 100%;
   padding: 6px;
-
   border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
-
   display: flex;
   flex-direction: row;
 }
@@ -100,7 +98,7 @@ a.jp-notebook-job-name {
 }
 
 .jp-notebook-jobs-panel a {
-    color: var(--jp-content-link-color);
+  color: var(--jp-content-link-color);
 }
 
 .jp-notebook-job-list-empty {
@@ -114,7 +112,7 @@ a.jp-notebook-job-name {
 
 ul.jp-notebook-job-output-formats-options {
   list-style: none;
-  margin: 0px 0px 0px -40px;
+  margin: 0 0 0 -40px;
 }
 
 .jp-create-job-form-container {
@@ -140,7 +138,6 @@ ul.jp-notebook-job-output-formats-options {
   flex: 1 1 auto;
   width: 100%;
   margin-bottom: 10px;
-
   display: flex;
   flex-direction: row;
 }
@@ -169,7 +166,6 @@ ul.jp-notebook-job-output-formats-options {
 
 .jp-notebook-job-details {
   background-color: var(--jp-layout-color2);
-
   width: 100%;
   margin-bottom: 12px;
   padding-left: 6px;
@@ -187,7 +183,6 @@ ul.jp-notebook-job-output-formats-options {
 .jp-notebook-job-details-grid {
   /* This div both displays in a flex container and is itself a flex container */
   flex: 1;
-
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -199,7 +194,6 @@ ul.jp-notebook-job-output-formats-options {
   flex: 1 1 auto;
   width: 100%;
   margin-bottom: 10px;
-
   display: flex;
   flex-direction: row;
 }
@@ -217,9 +211,9 @@ ul.jp-notebook-job-output-formats-options {
   margin: 0;
 }
 
-.jp-notebook-job-navigation  {
+.jp-notebook-job-navigation {
   margin: 16px 8px 0;
-  padding: 0 0;
+  padding: 0;
   text-align: start;
   border-block-end: 1px solid var(--jp-layout-color4);
 }
@@ -229,7 +223,7 @@ ul.jp-notebook-job-output-formats-options {
   padding: 5px 20px;
 }
 
- .jp-notebook-job-navigation-tab:hover {
+.jp-notebook-job-navigation-tab:hover {
   background-color: var(--jp-layout-color2);
   border-block-end: 2px solid var(--jp-layout-color2);
 }
