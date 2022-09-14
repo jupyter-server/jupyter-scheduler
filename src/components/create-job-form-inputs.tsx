@@ -4,6 +4,7 @@ import { JobParameter } from '../create-job-form';
 // import { useTranslator } from '../hooks';
 
 import { OutputFormatOption } from '../components/output-format-picker';
+import { EnvironmentPicker } from './environment-picker';
 
 export interface CreateJobFormField {
   label: string;
@@ -48,17 +49,35 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
         return;
       }
 
-      return <div className={props.formRow} key={idx}>
-        <label
-          className={props.formLabel}
-          htmlFor={`${props.formPrefix}${field.inputName}`}>{field.label}</label>
-        <input
+      // Handle environment selector
+      let formInputElement: JSX.Element | null = null;
+      const formInputId = `${props.formPrefix}${field.inputName}`;
+      if (field.hasOwnProperty('environmentsPromise')) {
+        const envField = field as CreateJobFormEnvironmentField;
+        formInputElement = <EnvironmentPicker
+          name={field.inputName}
+          id={formInputId}
+          onChange={field.onChange}
+          environmentsPromise={envField.environmentsPromise()}
+          initialValue={field.value} />;  
+      }
+      else {
+        formInputElement = <input
           type='text'
           className={props.formInput}
           name={field.inputName}
-          id={`${props.formPrefix}${field.inputName}`}
+          id={formInputId}
           value={field.value}
-          onChange={field.onChange} />
+          onChange={field.onChange} />;
+      }
+
+      return <div className={props.formRow} key={idx}>
+        <label
+          className={props.formLabel}
+          htmlFor={`${props.formPrefix}${field.inputName}`}>{field.label}*</label>
+        <div className={props.formInput}>
+          {formInputElement}
+        </div>
       </div>;
     })}
   </>;

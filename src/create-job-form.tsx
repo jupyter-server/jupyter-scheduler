@@ -3,7 +3,6 @@ import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CreateJobFormInputs } from './components/create-job-form-inputs';
 
-import { EnvironmentPicker } from './components/environment-picker';
 import { OutputFormatOption, OutputFormatPicker, outputFormatsForEnvironment } from './components/output-format-picker';
 
 import { Scheduler, SchedulerService } from "./handler";
@@ -171,7 +170,6 @@ export function CreateJobForm(props: CreateJobFormProps) {
     });
   };
 
-  const environmentInputName = 'environment';
   const outputFormatInputName = 'outputFormat';
   const formPrefix = 'jp-create-job-';
   const formRow = `${formPrefix}row`;
@@ -197,6 +195,13 @@ export function CreateJobForm(props: CreateJobFormProps) {
       value: state.outputPath,
       onChange: handleInputChange,
     },
+    {
+      label: trans.__('Environment'),
+      inputName: 'environment',
+      value: state.environment,
+      environmentsPromise: environmentsPromise(),
+      onChange: handleInputChange,
+    },
   ];
 
   return (
@@ -209,19 +214,6 @@ export function CreateJobForm(props: CreateJobFormProps) {
           formInput={formInput}
           fields={formFields}
         />
-        <div className={formRow}>
-          <label
-            className={formLabel}
-            htmlFor={`${formPrefix}${environmentInputName}`}>{trans.__('Environment')}</label>
-          <div className={formInput}>
-            <EnvironmentPicker
-              name={environmentInputName}
-              id={`${formPrefix}${environmentInputName}`}
-              onChange={handleInputChange}
-              environmentsPromise={environmentsPromise()}
-              initialValue={state.environment} />
-          </div>
-        </div>
         <OutputFormatPicker
           name={outputFormatInputName}
           id={`${formPrefix}${outputFormatInputName}`}
