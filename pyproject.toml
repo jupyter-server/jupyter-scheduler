@@ -48,7 +48,7 @@ Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
 artifacts = ["jupyter_scheduler/labextension"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyter_scheduler/labextension" = "share/jupyter/labextensions/jupyter_scheduler"
+"jupyter_scheduler/labextension" = "share/jupyter/labextensions/@jupyterlab/scheduler"
 "install.json" = "share/jupyter/labextensions/jupyter_scheduler/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
