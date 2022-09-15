@@ -2,7 +2,7 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
-## 0.1.0
+## 0.1.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/4dab98695d7251ae61bd224c18609efe9b6daf44...40d15d9fc3a4e7ea5d6e594c662a61a1ac4a43f7))
 
