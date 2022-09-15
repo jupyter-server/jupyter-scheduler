@@ -39,17 +39,21 @@ export type CreateJobFormState = {
   outputFormats?: IOutputFormatOption[];
 };
 
+export const BlankCreateJobFormState: CreateJobFormState = {
+  jobName: '',
+  inputFile: '',
+  outputPath: '',
+  environment: '',
+  parameters: [],
+  outputFormats: []
+};
+
 export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  const [state, setState] = useState<CreateJobFormState>({
-    jobName: '',
-    inputFile: '',
-    outputPath: '',
-    environment: '',
-    parameters: [],
-    outputFormats: []
-  });
+  const [state, setState] = useState<CreateJobFormState>(
+    BlankCreateJobFormState
+  );
 
   useEffect(() => {
     if (props.initialState) {

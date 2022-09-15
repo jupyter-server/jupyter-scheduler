@@ -18,10 +18,10 @@ export class NotebookJobsListingModel implements INotebookJobsListingModel {
     this.inProgressJobCountChanged = new Signal(this);
   }
 
-  updateJobs(jobs: Scheduler.IDescribeJob[]) {
+  updateJobs(jobs: Scheduler.IDescribeJob[]): void {
     let jobsChanged = false;
 
-    if (jobs.length != this._scheduled_jobs.length) {
+    if (jobs.length !== this._scheduled_jobs.length) {
       jobsChanged = true;
     }
     if (!jobsChanged) {
@@ -40,7 +40,7 @@ export class NotebookJobsListingModel implements INotebookJobsListingModel {
     }
   }
 
-  updateJobsCount(jobCount: number) {
+  updateJobsCount(jobCount: number): void {
     if (jobCount !== this.inProgressJobCount) {
       this.inProgressJobCount = jobCount;
       this.inProgressJobCountChanged.emit(jobCount);
