@@ -72,7 +72,7 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
           formInputElement = <OutputFormatPicker
             name={field.inputName}
             id={formInputId}
-            onChange={field.onChange}      
+            onChange={field.onChange}
             environment={ofField.environment}
             value={ofField.value}
           />;

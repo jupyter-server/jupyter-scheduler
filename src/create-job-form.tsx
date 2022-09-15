@@ -47,7 +47,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
     parameters: [],
     outputFormats: []
   });
-  
+
   useEffect(() => {
     if (props.initialState) {
       setState(prevState => ({ ...props.initialState }));
@@ -122,7 +122,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       output_prefix: state.outputPath,
       runtime_environment_name: state.environment
     };
-    
+
     if (state.parameters !== undefined) {
       let jobParameters: { [key: string]: any } = {};
 
