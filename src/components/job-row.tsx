@@ -69,12 +69,19 @@ function RefillButton(props: {
     ? trans.__('Rerun "%1" …', props.job.name)
     : trans.__('Rerun job …');
 
+  // Retrieve the key from the parameters list or return a parameter with a null value
+  function getParam(key: string) {
+    return {
+      name: key,
+      value: props.job.parameters?.[key]
+    };
+  }
+
   // Convert the hash of parameters to an array.
-  const jobParameters: JobParameter[] | undefined = props.job.parameters
-    ? Object.keys(props.job.parameters).map(key => {
-        return { name: key, value: props.job.parameters![key] };
-      })
-    : undefined;
+  const jobParameters: JobParameter[] | undefined =
+    props.job.parameters !== undefined
+      ? Object.keys(props.job.parameters).map(key => getParam(key))
+      : undefined;
 
   const clickHandler = (): void => {
     const initialState: CreateJobFormState = {
@@ -92,7 +99,7 @@ function RefillButton(props: {
     );
     if (jobOutputFormats && outputFormats) {
       initialState.outputFormats = outputFormats.filter(of =>
-        jobOutputFormats.some(jof => of.name == jof)
+        jobOutputFormats.some(jof => of.name === jof)
       );
     }
 
@@ -165,7 +172,7 @@ export type JobRowProps = {
 };
 
 // Add a row for a job, with columns for each of its traits and a details view below.
-export function JobRow(props: JobRowProps) {
+export function JobRow(props: JobRowProps): JSX.Element {
   const [detailsVisible, setDetailsVisible] = useState(false);
 
   const job = props.job;

@@ -12,7 +12,7 @@ export function NotebookJobsNavigationTabList(props: {
   onTabClick: tabClickProps;
   views: JobsPanelView[];
   currentView: JobsPanelView;
-}) {
+}): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   const viewToTitle: { [key in JobsPanelView]: string } = {
