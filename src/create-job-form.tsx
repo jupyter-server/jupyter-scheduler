@@ -131,7 +131,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
 
       state.parameters.forEach(param => {
         const { name, value } = param;
-        if (jobParameters.hasOwnProperty(name)) {
+        if (jobParameters[name] !== undefined) {
           console.error(
             'Parameter ' +
               name +

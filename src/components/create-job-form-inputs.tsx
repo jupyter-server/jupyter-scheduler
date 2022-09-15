@@ -58,22 +58,23 @@ export function CreateJobFormInputs(
         switch (field.inputType) {
           // Environment picker
           case 'environment':
-            const envField = field as ICreateJobFormEnvironmentField;
             formInputElement = (
               <EnvironmentPicker
                 name={field.inputName}
                 id={formInputId}
                 onChange={field.onChange}
-                environmentsPromise={envField.environmentsPromise()}
+                environmentsPromise={(
+                  field as ICreateJobFormEnvironmentField
+                ).environmentsPromise()}
                 initialValue={field.value}
               />
             );
             break;
           case 'outputFormats':
-            const ofField = field as ICreateJobFormOutputFormatsField;
-
             // If no environment is selected, do not display output formats.
-            if (ofField.environment === '') {
+            if (
+              (field as ICreateJobFormOutputFormatsField).environment === ''
+            ) {
               return null;
             }
 
@@ -82,22 +83,26 @@ export function CreateJobFormInputs(
                 name={field.inputName}
                 id={formInputId}
                 onChange={field.onChange}
-                environment={ofField.environment}
-                value={ofField.value}
+                environment={
+                  (field as ICreateJobFormOutputFormatsField).environment
+                }
+                value={(field as ICreateJobFormOutputFormatsField).value}
               />
             );
             break;
           case 'parameters':
-            const pField = field as ICreateJobFormParametersField;
-
             formInputElement = (
               <ParametersPicker
                 name={field.inputName}
                 id={formInputId}
-                value={pField.value}
+                value={(field as ICreateJobFormParametersField).value}
                 onChange={field.onChange}
-                addParameter={pField.addParameter}
-                removeParameter={pField.removeParameter}
+                addParameter={
+                  (field as ICreateJobFormParametersField).addParameter
+                }
+                removeParameter={
+                  (field as ICreateJobFormParametersField).removeParameter
+                }
                 formPrefix={props.formPrefix}
               />
             );
