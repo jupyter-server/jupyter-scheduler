@@ -7,7 +7,7 @@ import { closeIcon, stopIcon } from '@jupyterlab/ui-components';
 
 import { Signal } from '@lumino/signaling';
 
-import { Scheduler } from "../handler";
+import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { JobParameter, CreateJobFormState } from '../create-job-form';
 
@@ -20,8 +20,8 @@ function get_file_from_path(path: string): string {
 }
 
 function StopButton(props: {
-  job: Scheduler.IDescribeJob,
-  clickHandler: () => void
+  job: Scheduler.IDescribeJob;
+  clickHandler: () => void;
 }): JSX.Element | null {
   if (props.job.status !== 'IN_PROGRESS') {
     return null;
@@ -32,31 +32,37 @@ function StopButton(props: {
     ? trans.__('Stop "%1"', props.job.name)
     : trans.__('Stop job');
 
-  return <ToolbarButtonComponent
-    onClick={props.clickHandler}
-    tooltip={buttonTitle}
-    icon={stopIcon} />;
-};
+  return (
+    <ToolbarButtonComponent
+      onClick={props.clickHandler}
+      tooltip={buttonTitle}
+      icon={stopIcon}
+    />
+  );
+}
 
 function DeleteButton(props: {
-  job: Scheduler.IDescribeJob,
-  clickHandler: () => void
+  job: Scheduler.IDescribeJob;
+  clickHandler: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const buttonTitle = props.job.name
     ? trans.__('Delete "%1"', props.job.name)
     : trans.__('Delete job');
 
-  return <ToolbarButtonComponent
-    onClick={props.clickHandler}
-    tooltip={buttonTitle}
-    icon={closeIcon} />;
-};
+  return (
+    <ToolbarButtonComponent
+      onClick={props.clickHandler}
+      tooltip={buttonTitle}
+      icon={closeIcon}
+    />
+  );
+}
 
 function RefillButton(props: {
-  job: Scheduler.IDescribeJob,
-  signal: Signal<any, CreateJobFormState>,
-  showCreateJob: () => void,
+  job: Scheduler.IDescribeJob;
+  signal: Signal<any, CreateJobFormState>;
+  showCreateJob: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const buttonTitle = props.job.name
@@ -65,9 +71,9 @@ function RefillButton(props: {
 
   // Convert the hash of parameters to an array.
   const jobParameters: JobParameter[] | undefined = props.job.parameters
-    ? Object.keys(props.job.parameters).map(
-      key => { return { name: key, value: props.job.parameters![key] } }
-    )
+    ? Object.keys(props.job.parameters).map(key => {
+        return { name: key, value: props.job.parameters![key] };
+      })
     : undefined;
 
   const clickHandler = (): void => {
@@ -76,15 +82,17 @@ function RefillButton(props: {
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,
       environment: props.job.runtime_environment_name,
-      parameters: jobParameters,
+      parameters: jobParameters
     };
 
     // Convert the list of output formats, if any, into a list for the initial state
     const jobOutputFormats = props.job.output_formats;
-    const outputFormats = outputFormatsForEnvironment(props.job.runtime_environment_name);
+    const outputFormats = outputFormatsForEnvironment(
+      props.job.runtime_environment_name
+    );
     if (jobOutputFormats && outputFormats) {
-      initialState.outputFormats = outputFormats.filter((of) =>
-        jobOutputFormats.some((jof) => of.name == jof)
+      initialState.outputFormats = outputFormats.filter(of =>
+        jobOutputFormats.some(jof => of.name == jof)
       );
     }
 
@@ -93,25 +101,30 @@ function RefillButton(props: {
     props.signal.emit(initialState);
   };
 
-  return <ToolbarButtonComponent
-    onClick={clickHandler}
-    tooltip={buttonTitle}
-    icon={replayIcon} />;
-};
+  return (
+    <ToolbarButtonComponent
+      onClick={clickHandler}
+      tooltip={buttonTitle}
+      icon={replayIcon}
+    />
+  );
+}
 
-function Timestamp(props: {
-  job: Scheduler.IDescribeJob,
-}): JSX.Element | null {
-  const start_date: Date | null = props.job.start_time ? new Date(props.job.start_time) : null;
-  const start_display_date: string | null = start_date ? start_date.toLocaleString() : null;
+function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
+  const start_date: Date | null = props.job.start_time
+    ? new Date(props.job.start_time)
+    : null;
+  const start_display_date: string | null = start_date
+    ? start_date.toLocaleString()
+    : null;
 
   return <>{start_display_date}</>;
 }
 
 function OutputFiles(props: {
-  job: Scheduler.IDescribeJob,
-  openOnClick: (e: any, output_uri: string) => void,
-  outputUri: string
+  job: Scheduler.IDescribeJob;
+  openOnClick: (e: any, output_uri: string) => void;
+  outputUri: string;
 }): JSX.Element | null {
   if (props.job.status !== 'COMPLETED') {
     return null;
@@ -121,28 +134,34 @@ function OutputFiles(props: {
 
   // Get all output files.
   const outputTypes = props.job.output_formats || ['ipynb'];
-  return <>
-    {outputTypes.map(outputType => {
-      // Compose a specific link.
-      const outputName = props.job.output_uri.replace(/ipynb$/, outputType);
-      return <a
-        key={outputType}
-        href={`/lab/tree/${outputName}`}
-        title={trans.__('Open "%1"', outputName)}
-        onClick={(e) => props.openOnClick(e, outputName)}
-        style={{paddingRight: '1em'}}
-        >{outputType}</a>;
-    })}
-  </>;
+  return (
+    <>
+      {outputTypes.map(outputType => {
+        // Compose a specific link.
+        const outputName = props.job.output_uri.replace(/ipynb$/, outputType);
+        return (
+          <a
+            key={outputType}
+            href={`/lab/tree/${outputName}`}
+            title={trans.__('Open "%1"', outputName)}
+            onClick={e => props.openOnClick(e, outputName)}
+            style={{ paddingRight: '1em' }}
+          >
+            {outputType}
+          </a>
+        );
+      })}
+    </>
+  );
 }
 
 export type JobRowProps = {
-  job: Scheduler.IDescribeJob,
-  createJobFormSignal: Signal<any, CreateJobFormState>,
-  rowClass: string,
-  cellClass: string,
-  app: JupyterFrontEnd
-  showCreateJob: () => void
+  job: Scheduler.IDescribeJob;
+  createJobFormSignal: Signal<any, CreateJobFormState>;
+  rowClass: string;
+  cellClass: string;
+  app: JupyterFrontEnd;
+  showCreateJob: () => void;
 };
 
 // Add a row for a job, with columns for each of its traits and a details view below.
@@ -153,7 +172,7 @@ export function JobRow(props: JobRowProps) {
   const rowClass = props.rowClass;
   const cellClass = props.cellClass;
   const detailsVisibleClass = 'details-visible';
-  const trans = useTranslator('jupyterlab')
+  const trans = useTranslator('jupyterlab');
 
   const input_relative_uri = job.input_uri;
   const output_relative_uri = job.output_uri;
@@ -162,11 +181,8 @@ export function JobRow(props: JobRowProps) {
 
   const openFileClickHandler = (e: any, output_uri: string) => {
     e.preventDefault();
-    props.app.commands.execute(
-      'docmanager:open',
-      {path: output_uri}
-    );
-  }
+    props.app.commands.execute('docmanager:open', { path: output_uri });
+  };
 
   const openDetailsClickHandler = () => {
     setDetailsVisible(!detailsVisible);
@@ -194,60 +210,71 @@ export function JobRow(props: JobRowProps) {
     ? trans.__('View details for "%1"', job.name)
     : trans.__('View job details');
 
-  return <>
-    <div
-      className={rowClass + (detailsVisible ? (' ' + detailsVisibleClass) : '')}
-      id={`${rowClass}-${job.job_id}`}
-      data-job-id={job.job_id}
-    >
-      <div className={cellClass}>
-        <a
-          className='jp-notebook-job-name'
-          onClick={openDetailsClickHandler}
-          title={viewJobDetailsTitle}>
-          {job.name || <em>{trans.__('unnamed')}</em>}
-        </a>
-      </div>
-      <div className={cellClass}>
-        <a
-          href={`/lab/tree/${input_relative_uri}`}
-          title={trans.__('Open "%1"', input_relative_uri)}
-          onClick={(e) => openFileClickHandler(e, input_relative_uri)}
-        >{input_file}</a>
-      </div>
-      <div className={cellClass}>
-        <OutputFiles
-          job={job}
-          openOnClick={openFileClickHandler}
-          outputUri={output_relative_uri} />
-      </div>
-      <div className={cellClass}>
-        <Timestamp job={job} />
-      </div>
-      <div className={cellClass}>
-        {translatedStatus(job.status)}
-      </div>
-      <div className={cellClass}>
-        <StopButton
-          job={job}
-          clickHandler={
-            () => props.app.commands.execute('scheduling:stop-job', { id: job.job_id })}
+  return (
+    <>
+      <div
+        className={rowClass + (detailsVisible ? ' ' + detailsVisibleClass : '')}
+        id={`${rowClass}-${job.job_id}`}
+        data-job-id={job.job_id}
+      >
+        <div className={cellClass}>
+          <a
+            className="jp-notebook-job-name"
+            onClick={openDetailsClickHandler}
+            title={viewJobDetailsTitle}
+          >
+            {job.name || <em>{trans.__('unnamed')}</em>}
+          </a>
+        </div>
+        <div className={cellClass}>
+          <a
+            href={`/lab/tree/${input_relative_uri}`}
+            title={trans.__('Open "%1"', input_relative_uri)}
+            onClick={e => openFileClickHandler(e, input_relative_uri)}
+          >
+            {input_file}
+          </a>
+        </div>
+        <div className={cellClass}>
+          <OutputFiles
+            job={job}
+            openOnClick={openFileClickHandler}
+            outputUri={output_relative_uri}
           />
-        <DeleteButton
-          job={job}
-          clickHandler={
-            () => {
-              props.app.commands.execute('scheduling:delete-job', { id: job.job_id });
-              const jobContainer = document.getElementById(`${rowClass}-${job.job_id}`);
-              jobContainer?.classList.add(`${rowClass}-deleted`);
+        </div>
+        <div className={cellClass}>
+          <Timestamp job={job} />
+        </div>
+        <div className={cellClass}>{translatedStatus(job.status)}</div>
+        <div className={cellClass}>
+          <StopButton
+            job={job}
+            clickHandler={() =>
+              props.app.commands.execute('scheduling:stop-job', {
+                id: job.job_id
+              })
             }
-          } />
-        <RefillButton
-          job={job}
-          signal={props.createJobFormSignal}
-          showCreateJob={props.showCreateJob} />
+          />
+          <DeleteButton
+            job={job}
+            clickHandler={() => {
+              props.app.commands.execute('scheduling:delete-job', {
+                id: job.job_id
+              });
+              const jobContainer = document.getElementById(
+                `${rowClass}-${job.job_id}`
+              );
+              jobContainer?.classList.add(`${rowClass}-deleted`);
+            }}
+          />
+          <RefillButton
+            job={job}
+            signal={props.createJobFormSignal}
+            showCreateJob={props.showCreateJob}
+          />
+        </div>
       </div>
-    </div>
-    <JobDetails job={job} isVisible={detailsVisible} />
-  </>;
+      <JobDetails job={job} isVisible={detailsVisible} />
+    </>
+  );
 }

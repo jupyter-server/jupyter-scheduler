@@ -1,131 +1,123 @@
-import { URLExt } from "@jupyterlab/coreutils";
-import { ServerConnection } from "@jupyterlab/services";
+import { URLExt } from '@jupyterlab/coreutils';
+import { ServerConnection } from '@jupyterlab/services';
 
 const API_NAMESPACE = 'scheduler';
 
 export class SchedulerService {
-    constructor(options: SchedulerService.IOptions) {
-      this.serverSettings =
-        options.serverSettings || ServerConnection.makeSettings();
+  constructor(options: SchedulerService.IOptions) {
+    this.serverSettings =
+      options.serverSettings || ServerConnection.makeSettings();
+  }
+
+  async getJobDefinitions(
+    definition_id: string
+  ): Promise<Scheduler.IDescribeJobDefinition[]> {
+    let data;
+    let query = '';
+    if (definition_id) {
+      query = `/${definition_id}`;
+    }
+    try {
+      data = await requestAPI(this.serverSettings, `job_definitions${query}`, {
+        method: 'GET'
+      });
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJobDefinition[];
+  }
+
+  async createJobDefinition(
+    definition: Scheduler.IBaseJobDefinition
+  ): Promise<Scheduler.IDescribeJobDefinition> {
+    let data;
+    try {
+      data = await requestAPI(this.serverSettings, 'job_definitions', {
+        method: 'POST',
+        body: JSON.stringify(definition)
+      });
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJobDefinition;
+  }
+
+  async getJobs(
+    jobQuery: Scheduler.IListJobsQuery,
+    job_id?: string
+  ): Promise<Scheduler.IListJobsResponse> {
+    let data;
+    let query = '';
+
+    if (job_id) {
+      query = `/${job_id}`;
+    } else if (jobQuery) {
+      query =
+        '?' +
+        Object.keys(jobQuery)
+          .map(prop => {
+            if (prop === 'sort_by') {
+              if (jobQuery[prop] === undefined) {
+                return null;
+              }
+              // Serialize sort_by as a series of parameters in the firm dir(name)
+              // where 'dir' is the direction and 'name' the sort field
+              return jobQuery[prop]!.map(
+                sort =>
+                  `sort_by=${encodeURIComponent(
+                    sort.direction
+                  )}(${encodeURIComponent(sort.name)})`
+              ).join('&');
+            }
+            //@ts-ignore
+            const value = jobQuery[prop];
+            return `${encodeURIComponent(prop)}=${encodeURIComponent(value)}`;
+          })
+          .join('&');
     }
 
-    async getJobDefinitions(
-        definition_id: string
-    ): Promise<Scheduler.IDescribeJobDefinition[]> {
-      let data;
-      let query = '';
-      if(definition_id){
-          query = `/${definition_id}`;
-      }
-      try {
-        data = await requestAPI(
-            this.serverSettings,
-            `job_definitions${query}`,
-            { method: 'GET' }
-        );
-      } catch (e: any) {
-        console.error(e);
-      }
-      return data as Scheduler.IDescribeJobDefinition[];
+    try {
+      data = await requestAPI(this.serverSettings, `jobs${query}`, {
+        method: 'GET'
+      });
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IListJobsResponse;
+  }
+
+  async getJobsCount(status?: string): Promise<number> {
+    let data: { count: number } = { count: 0 }; // Fail safe
+    let query = '';
+    if (status) {
+      query = `?status=${encodeURIComponent(status)}`;
     }
 
-    async createJobDefinition(
-        definition: Scheduler.IBaseJobDefinition
-    ): Promise<Scheduler.IDescribeJobDefinition> {
-        let data;
-        try {
-            data = await requestAPI(
-                this.serverSettings,
-                'job_definitions',
-                {
-                    method: 'POST',
-                    body: JSON.stringify(definition)
-                }
-            );
-        } catch (e: any) {
-            console.error(e);
-        }
-        return data as Scheduler.IDescribeJobDefinition;
+    try {
+      data = await requestAPI(this.serverSettings, `jobs/count${query}`, {
+        method: 'GET'
+      });
+    } catch (e) {
+      console.error(e);
     }
 
-    async getJobs(
-      jobQuery: Scheduler.IListJobsQuery,
-      job_id?: string
-    ): Promise<Scheduler.IListJobsResponse> {
-      let data;
-      let query = '';
+    return data.count;
+  }
 
-      if (job_id){
-        query = `/${job_id}`;
-      }
-      else if (jobQuery) {
-        query = '?' + Object.keys(jobQuery).map((prop) => {
-          if (prop === 'sort_by') {
-            if (jobQuery[prop] === undefined) { return null; }
-            // Serialize sort_by as a series of parameters in the firm dir(name)
-            // where 'dir' is the direction and 'name' the sort field
-            return jobQuery[prop]!.map((sort) =>
-              `sort_by=${encodeURIComponent(sort.direction)}(${encodeURIComponent(sort.name)})`
-            ).join('&');
-          }
-
-          //@ts-ignore
-          return `${encodeURIComponent(prop)}=${encodeURIComponent(jobQuery[prop])}`;
-        }).join('&');
-      }
-
-      try {
-        data = await requestAPI(
-          this.serverSettings,
-          `jobs${query}`,
-          { method: 'GET' }
-        );
-      } catch (e: any) {
-        console.error(e);
-      }
-      return data as Scheduler.IListJobsResponse;
+  async createJob(
+    model: Scheduler.ICreateJob
+  ): Promise<Scheduler.ICreateJobResponse> {
+    let data;
+    try {
+      data = await requestAPI(this.serverSettings, 'jobs', {
+        method: 'POST',
+        body: JSON.stringify(model)
+      });
+    } catch (e) {
+      console.error(e);
     }
-
-    async getJobsCount(
-      status?: string
-    ): Promise<number> {
-      let data: { count: number } = { count: 0 }; // Fail safe
-      let query = '';
-      if (status) {
-        query = `?status=${encodeURIComponent(status)}`;
-      }
-
-      try {
-        data = await requestAPI(
-          this.serverSettings,
-          `jobs/count${query}`,
-          { method: 'GET' }
-        );
-      } catch(e) {
-        console.error(e);
-      }
-
-      return data.count;
-    }
-
-    async createJob(
-        model: Scheduler.ICreateJob
-    ): Promise<Scheduler.ICreateJobResponse> {
-        let data;
-        try {
-            data = await requestAPI(
-                this.serverSettings,
-                'jobs',
-                {
-                    method: 'POST',
-                    body: JSON.stringify(model)
-                }
-            )
-        } catch(e) {
-            console.error(e);
-        }
-        return data as Scheduler.ICreateJobResponse;
-    }
+    return data as Scheduler.ICreateJobResponse;
+  }
 
   async setJobStatus(
     job_id: string,
@@ -133,15 +125,11 @@ export class SchedulerService {
   ): Promise<Scheduler.IDescribeJob> {
     let data;
     try {
-      data = await requestAPI(
-        this.serverSettings,
-        `jobs/${job_id}`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ status })
-        }
-      );
-    } catch(e) {
+      data = await requestAPI(this.serverSettings, `jobs/${job_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status })
+      });
+    } catch (e) {
       console.error(e);
     }
 
@@ -151,14 +139,10 @@ export class SchedulerService {
   async getRuntimeEnvironments(): Promise<Scheduler.IRuntimeEnvironment[]> {
     let data;
     try {
-      data = await requestAPI(
-        this.serverSettings,
-        'runtime_environments',
-        {
-          method: 'GET'
-        }
-      );
-    } catch(e) {
+      data = await requestAPI(this.serverSettings, 'runtime_environments', {
+        method: 'GET'
+      });
+    } catch (e) {
       console.error(e);
     }
 
@@ -167,14 +151,10 @@ export class SchedulerService {
 
   async deleteJob(job_id: string) {
     try {
-      await requestAPI(
-        this.serverSettings,
-        `jobs/${job_id}`,
-        {
-          method: 'DELETE'
-        }
-      );
-    } catch(e) {
+      await requestAPI(this.serverSettings, `jobs/${job_id}`, {
+        method: 'DELETE'
+      });
+    } catch (e) {
       console.error(e);
     }
   }
@@ -185,7 +165,6 @@ export class SchedulerService {
   readonly serverSettings: ServerConnection.ISettings;
 }
 
-
 /**
  * Call the API extension
  *
@@ -194,145 +173,148 @@ export class SchedulerService {
  * @param expectData Is response data expected
  * @returns The response body interpreted as JSON
  */
- async function requestAPI<T>(
-    settings: ServerConnection.ISettings,
-    endPoint = '',
-    init: RequestInit = {},
-    expectData = true
-  ): Promise<T> {
-    // Make request to Jupyter API
-    const requestUrl = URLExt.join(settings.baseUrl, API_NAMESPACE, endPoint);
+async function requestAPI<T>(
+  settings: ServerConnection.ISettings,
+  endPoint = '',
+  init: RequestInit = {},
+  expectData = true
+): Promise<T> {
+  // Make request to Jupyter API
+  const requestUrl = URLExt.join(settings.baseUrl, API_NAMESPACE, endPoint);
 
-    let response: Response;
+  let response: Response;
+  try {
+    response = await ServerConnection.makeRequest(requestUrl, init, settings);
+  } catch (error: any) {
+    throw new ServerConnection.NetworkError(error);
+  }
+
+  let data: any = await response.text();
+
+  if (expectData && data.length > 0) {
     try {
-      response = await ServerConnection.makeRequest(requestUrl, init, settings);
-    } catch (error: any) {
-      throw new ServerConnection.NetworkError(error);
-    }
-
-    let data: any = await response.text();
-
-    if (expectData && data.length > 0) {
-      try {
-        data = JSON.parse(data);
-      } catch (error) {
-        console.error('Not a JSON response body.', response);
-      }
-    }
-
-    if (!response.ok) {
-      throw new ServerConnection.ResponseError(response, data.message || data);
-    }
-
-    return data;
-  }
-
-  export namespace SchedulerService {
-    /**
-     * The instantiation options for a data registry handler.
-     */
-    export interface IOptions {
-      serverSettings?: ServerConnection.ISettings;
+      data = JSON.parse(data);
+    } catch (error) {
+      console.error('Not a JSON response body.', response);
     }
   }
 
-  export namespace Scheduler {
-    export interface IBaseJobDefinition {
-        input_path: string
-        output_path: string
-        name?: string
-    }
-
-    export interface IUpdateJobDefinition extends IBaseJobDefinition {
-
-    }
-
-    export interface IDescribeJobDefinition extends IBaseJobDefinition{
-        job_definition_id: string
-        last_modified_time: string
-        job_ids: string[]
-        url?: string
-        name?: string
-    }
-
-    export interface IEmailNotifications {
-        on_start?: string[]
-        on_success?: string[]
-        on_failure?: string[]
-        no_alert_for_skipped_rows: boolean
-    }
-
-    export interface ICreateJob {
-        input_uri: string
-        output_prefix: string
-        runtime_environment_name: string
-        idempotency_token?: string
-        job_definition_id?: string
-        parameters?: {[key: string]: any}
-        tags?: string[]
-        name?: string
-        email_notifications?: IEmailNotifications
-        timeout_seconds?: number
-        max_retries?: number
-        min_retry_interval_millis?: number
-        retry_on_timeout?: boolean
-        start_time?: number
-        output_filename_template?: string
-        output_formats?: string[]
-    }
-
-    export type Status = 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'STOPPING' | 'STOPPED';
-
-    export interface IDescribeJob extends ICreateJob{
-        job_id: string
-        output_uri: string
-        url: string
-        status: Status
-        status_message: string
-        start_time?: number
-        end_time?: number
-    }
-
-    export interface ICreateJobResponse {
-        job_id: string
-    }
-
-    export enum SortDirection {
-      ASC = "asc",
-      DESC = "desc"
-    }
-
-    export interface ISortField {
-        name: string,
-        direction: SortDirection
-    }
-
-    export interface IListJobsQuery {
-        status?: Status
-        job_definition_id?: string
-        name?: string
-        start_time?: number
-        sort_by?: ISortField[]
-        max_items?: number
-        next_token?: string
-    }
-
-    export interface IListJobsResponse {
-      jobs: IDescribeJob[],
-      next_token?: string
-    }
-
-    export interface IRuntimeEnvironment {
-      name: string,
-      label: string,
-      description: string,
-      file_extensions: string[],
-      output_formats: IOutputFormat[],
-      metadata: {[key: string]: any}
-    }
-
-    export interface IOutputFormat {
-      name: string,
-      label: string
-    }
+  if (!response.ok) {
+    throw new ServerConnection.ResponseError(response, data.message || data);
   }
+
+  return data;
+}
+
+export namespace SchedulerService {
+  /**
+   * The instantiation options for a data registry handler.
+   */
+  export interface IOptions {
+    serverSettings?: ServerConnection.ISettings;
+  }
+}
+
+export namespace Scheduler {
+  export interface IBaseJobDefinition {
+    input_path: string;
+    output_path: string;
+    name?: string;
+  }
+
+  export interface IUpdateJobDefinition extends IBaseJobDefinition {}
+
+  export interface IDescribeJobDefinition extends IBaseJobDefinition {
+    job_definition_id: string;
+    last_modified_time: string;
+    job_ids: string[];
+    url?: string;
+    name?: string;
+  }
+
+  export interface IEmailNotifications {
+    on_start?: string[];
+    on_success?: string[];
+    on_failure?: string[];
+    no_alert_for_skipped_rows: boolean;
+  }
+
+  export interface ICreateJob {
+    input_uri: string;
+    output_prefix: string;
+    runtime_environment_name: string;
+    idempotency_token?: string;
+    job_definition_id?: string;
+    parameters?: { [key: string]: any };
+    tags?: string[];
+    name?: string;
+    email_notifications?: IEmailNotifications;
+    timeout_seconds?: number;
+    max_retries?: number;
+    min_retry_interval_millis?: number;
+    retry_on_timeout?: boolean;
+    start_time?: number;
+    output_filename_template?: string;
+    output_formats?: string[];
+  }
+
+  export type Status =
+    | 'IN_PROGRESS'
+    | 'COMPLETED'
+    | 'FAILED'
+    | 'STOPPING'
+    | 'STOPPED';
+
+  export interface IDescribeJob extends ICreateJob {
+    job_id: string;
+    output_uri: string;
+    url: string;
+    status: Status;
+    status_message: string;
+    start_time?: number;
+    end_time?: number;
+  }
+
+  export interface ICreateJobResponse {
+    job_id: string;
+  }
+
+  export enum SortDirection {
+    ASC = 'asc',
+    DESC = 'desc'
+  }
+
+  export interface ISortField {
+    name: string;
+    direction: SortDirection;
+  }
+
+  export interface IListJobsQuery {
+    status?: Status;
+    job_definition_id?: string;
+    name?: string;
+    start_time?: number;
+    sort_by?: ISortField[];
+    max_items?: number;
+    next_token?: string;
+  }
+
+  export interface IListJobsResponse {
+    jobs: IDescribeJob[];
+    next_token?: string;
+  }
+
+  export interface IRuntimeEnvironment {
+    name: string;
+    label: string;
+    description: string;
+    file_extensions: string[];
+    output_formats: IOutputFormat[];
+    metadata: { [key: string]: any };
+  }
+
+  export interface IOutputFormat {
+    name: string;
+    label: string;
+  }
+}

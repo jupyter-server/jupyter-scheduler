@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { JupyterFrontEnd } from "@jupyterlab/application";
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { Signal } from '@lumino/signaling';
 
@@ -9,7 +9,12 @@ import { CreateJobFormState } from '../create-job-form';
 
 import { JobRow } from './job-row';
 import { INotebookJobsWithToken } from '../model';
-import { Button, caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
+import {
+  Button,
+  caretDownIcon,
+  caretUpIcon,
+  LabIcon
+} from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
 const ListItemClass = 'jp-notebook-job-list-item';
@@ -17,26 +22,30 @@ const ListItemClass = 'jp-notebook-job-list-item';
 export const JobListPageSize = 25;
 
 interface LoadJobsProps {
-  showHeaders?: boolean
-  startToken?: string
-  app: JupyterFrontEnd
-  createJobFormSignal: Signal<any, CreateJobFormState>
+  showHeaders?: boolean;
+  startToken?: string;
+  app: JupyterFrontEnd;
+  createJobFormSignal: Signal<any, CreateJobFormState>;
   // Function that results in the create job form being made visible.
-  showCreateJob: () => void
+  showCreateJob: () => void;
   // Function that retrieves some jobs
-  getJobs: (query: Scheduler.IListJobsQuery) => Promise<INotebookJobsWithToken | undefined>
+  getJobs: (
+    query: Scheduler.IListJobsQuery
+  ) => Promise<INotebookJobsWithToken | undefined>;
 }
 
 // Used for table cells including headers
 const jobTraitClass = 'jp-notebook-job-list-trait';
 
 type GridColumn = {
-  sortField: string | null,
-  name: string,
+  sortField: string | null;
+  name: string;
 };
 
 export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
-  const [notebookJobs, setNotebookJobs] = useState<INotebookJobsWithToken | undefined>(undefined);
+  const [notebookJobs, setNotebookJobs] = useState<
+    INotebookJobsWithToken | undefined
+  >(undefined);
   const [jobsQuery, setJobsQuery] = useState<Scheduler.IListJobsQuery>({});
 
   const fetchInitialRows = () => {
@@ -65,12 +74,18 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
     });
   };
 
-  const reloadButton = <Button onClick={() => fetchInitialRows()}>Reload</Button>;
+  const reloadButton = (
+    <Button onClick={() => fetchInitialRows()}>Reload</Button>
+  );
 
   const trans = useTranslator('jupyterlab');
 
   if (notebookJobs === undefined) {
-    return <p><em>{trans.__('Loading …')}</em></p>;
+    return (
+      <p>
+        <em>{trans.__('Loading …')}</em>
+      </p>
+    );
   }
 
   if (!notebookJobs?.jobs.length) {
@@ -78,8 +93,10 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
       <>
         {reloadButton}
         <p className={'jp-notebook-job-list-empty'}>
-          {trans.__('There are no scheduled jobs. '
-            + 'Right-click on a file in the file browser to run or schedule a notebook.')}
+          {trans.__(
+            'There are no scheduled jobs. ' +
+              'Right-click on a file in the file browser to run or schedule a notebook.'
+          )}
         </p>
       </>
     );
@@ -89,27 +106,27 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
   const columns: GridColumn[] = [
     {
       sortField: 'name',
-      name: trans.__('Job name'),
+      name: trans.__('Job name')
     },
     {
       sortField: 'input_uri',
-      name: trans.__('Input file'),
+      name: trans.__('Input file')
     },
     {
       sortField: null, // Output prefix is not visible in UI
-      name: trans.__('Output files'),
+      name: trans.__('Output files')
     },
     {
       sortField: 'start_time',
-      name: trans.__('Start time'),
+      name: trans.__('Start time')
     },
     {
       sortField: 'status', // This will sort on the server status, not localized
-      name: trans.__('Status'),
+      name: trans.__('Status')
     },
     {
       sortField: null, // Non sortable
-      name: trans.__('Actions'),
+      name: trans.__('Actions')
     }
   ];
 
@@ -117,14 +134,16 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
     <>
       {reloadButton}
       <div className={`${ListItemClass} jp-notebook-job-list-header`}>
-        {columns.map((column, idx) =>
+        {columns.map((column, idx) => (
           <NotebookJobsColumnHeader
             key={idx}
             gridColumn={column}
             jobsQuery={jobsQuery}
-            setJobsQuery={setJobsQuery} />)}
+            setJobsQuery={setJobsQuery}
+          />
+        ))}
       </div>
-      {notebookJobs.jobs.map((job) =>
+      {notebookJobs.jobs.map(job => (
         <JobRow
           key={job.job_id}
           job={job}
@@ -132,12 +151,18 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
           rowClass={ListItemClass}
           cellClass={jobTraitClass}
           app={props.app}
-          showCreateJob={props.showCreateJob} />
+          showCreateJob={props.showCreateJob}
+        />
+      ))}
+      {notebookJobs.next_token && (
+        <Button
+          onClick={(e: React.MouseEvent<HTMLElement>) =>
+            fetchMoreRows(notebookJobs.next_token!)
+          }
+        >
+          {trans.__('Show more')}
+        </Button>
       )}
-      {notebookJobs.next_token &&
-        <Button onClick={(e: React.MouseEvent<HTMLElement>) => fetchMoreRows(notebookJobs.next_token!)}
-        >{trans.__('Show more')}</Button>
-      }
     </>
   );
 }
@@ -148,16 +173,27 @@ interface NotebookJobsColumnHeaderProps {
   setJobsQuery: React.Dispatch<React.SetStateAction<Scheduler.IListJobsQuery>>;
 }
 
-const sortAscendingIcon = <LabIcon.resolveReact icon={caretUpIcon} tag="span" />;
-const sortDescendingIcon = <LabIcon.resolveReact icon={caretDownIcon} tag="span" />;
+const sortAscendingIcon = (
+  <LabIcon.resolveReact icon={caretUpIcon} tag="span" />
+);
+const sortDescendingIcon = (
+  <LabIcon.resolveReact icon={caretDownIcon} tag="span" />
+);
 
-function NotebookJobsColumnHeader(props: NotebookJobsColumnHeaderProps): JSX.Element {
+function NotebookJobsColumnHeader(
+  props: NotebookJobsColumnHeaderProps
+): JSX.Element {
   const sort = props.jobsQuery.sort_by;
   const defaultSort = sort?.[0];
 
-  const headerIsDefaultSort = defaultSort && defaultSort.name === props.gridColumn.sortField;
-  const isSortedAscending = headerIsDefaultSort && defaultSort!.direction === Scheduler.SortDirection.ASC;
-  const isSortedDescending = headerIsDefaultSort && defaultSort!.direction === Scheduler.SortDirection.DESC;
+  const headerIsDefaultSort =
+    defaultSort && defaultSort.name === props.gridColumn.sortField;
+  const isSortedAscending =
+    headerIsDefaultSort &&
+    defaultSort!.direction === Scheduler.SortDirection.ASC;
+  const isSortedDescending =
+    headerIsDefaultSort &&
+    defaultSort!.direction === Scheduler.SortDirection.DESC;
 
   const sortByThisColumn = () => {
     // If this field is not sortable, do nothing.
@@ -167,30 +203,39 @@ function NotebookJobsColumnHeader(props: NotebookJobsColumnHeaderProps): JSX.Ele
 
     // Change the sort of this column.
     // If not sorted at all or if sorted descending, sort ascending. If sorted ascending, sort descending.
-    let newSortDirection = isSortedAscending ? Scheduler.SortDirection.DESC : Scheduler.SortDirection.ASC;
+    let newSortDirection = isSortedAscending
+      ? Scheduler.SortDirection.DESC
+      : Scheduler.SortDirection.ASC;
 
     // Set the new sort direction.
     const newSort: Scheduler.ISortField = {
       name: props.gridColumn.sortField,
       direction: newSortDirection
-    }
+    };
 
     // If this field is already present in the sort list, remove it.
     const oldSortList = sort || [];
-    const newSortList = [newSort, ...(oldSortList.filter(item => item.name !== props.gridColumn.sortField))];
+    const newSortList = [
+      newSort,
+      ...oldSortList.filter(item => item.name !== props.gridColumn.sortField)
+    ];
 
     // Sub the new sort list in to the query.
     props.setJobsQuery({ ...props.jobsQuery, sort_by: newSortList });
   };
 
-  return <div className={jobTraitClass} onClick={sortByThisColumn}>
-    {props.gridColumn.name}
-    {isSortedAscending && sortAscendingIcon}
-    {isSortedDescending && sortDescendingIcon}
-  </div>;
+  return (
+    <div className={jobTraitClass} onClick={sortByThisColumn}>
+      {props.gridColumn.name}
+      {isSortedAscending && sortAscendingIcon}
+      {isSortedDescending && sortDescendingIcon}
+    </div>
+  );
 }
 
-function getJobs(jobQuery: Scheduler.IListJobsQuery): Promise<INotebookJobsWithToken | undefined> {
+function getJobs(
+  jobQuery: Scheduler.IListJobsQuery
+): Promise<INotebookJobsWithToken | undefined> {
   const api = new SchedulerService({});
 
   // Impose max_items if not otherwise specified.
@@ -201,27 +246,32 @@ function getJobs(jobQuery: Scheduler.IListJobsQuery): Promise<INotebookJobsWithT
   return api.getJobs(jobQuery);
 }
 
-export function NotebookJobsList(props: NotebookJobsList.IOptions): JSX.Element {
+export function NotebookJobsList(
+  props: NotebookJobsList.IOptions
+): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const header = <h1>{trans.__('Notebook Job Runs')}</h1>;
 
   // Retrieve the initial jobs list
-  return <div className={'jp-notebook-job-list'}>
-    {header}
-    <NotebookJobsListBody
-      showHeaders={true}
-      createJobFormSignal={props.createJobFormSignal}
-      app={props.app}
-      showCreateJob={props.showCreateJob}
-      getJobs={getJobs} />
-  </div>;
+  return (
+    <div className={'jp-notebook-job-list'}>
+      {header}
+      <NotebookJobsListBody
+        showHeaders={true}
+        createJobFormSignal={props.createJobFormSignal}
+        app={props.app}
+        showCreateJob={props.showCreateJob}
+        getJobs={getJobs}
+      />
+    </div>
+  );
 }
 
 export namespace NotebookJobsList {
-  export interface IOptions{
-    app: JupyterFrontEnd
-    createJobFormSignal: Signal<any, CreateJobFormState>
+  export interface IOptions {
+    app: JupyterFrontEnd;
+    createJobFormSignal: Signal<any, CreateJobFormState>;
     // Function that results in the create-job form being made visible.
-    showCreateJob: () => void
+    showCreateJob: () => void;
   }
 }

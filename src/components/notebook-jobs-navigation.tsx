@@ -6,9 +6,9 @@ import { NotebookJobsNavigationTabList } from './notebook-jobs-navigation-tab-li
 import { JobsPanelView } from '../notebook-jobs-panel';
 
 export function NotebookJobsNavigation(props: {
-  currentView: JobsPanelView,
-  toggleSignal: Signal<any, CreateJobFormState>,
-  toggleFunction: () => void,
+  currentView: JobsPanelView;
+  toggleSignal: Signal<any, CreateJobFormState>;
+  toggleFunction: () => void;
 }) {
   const views: JobsPanelView[] = ['JobsList', 'CreateJobForm'];
 
@@ -19,7 +19,7 @@ export function NotebookJobsNavigation(props: {
         jobName: '',
         outputPath: '',
         environment: '',
-        parameters: undefined,
+        parameters: undefined
       };
 
       props.toggleSignal.emit(initialState);
@@ -32,6 +32,7 @@ export function NotebookJobsNavigation(props: {
     <NotebookJobsNavigationTabList
       onTabClick={setView}
       views={views}
-      currentView={props.currentView} />
-  )
-};
+      currentView={props.currentView}
+    />
+  );
+}

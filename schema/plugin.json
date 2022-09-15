@@ -1,21 +1,21 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
-    "title": "Notebook Scheduling",
-    "description": "JupyterLab notebook scheduling settings.",
-    "jupyter.lab.menus": {
-      "context": [
-        {
-          "command": "scheduling:schedule-notebook",
-          "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
-          "rank": 3.8
-        },
-        {
-          "command": "scheduling:run-notebook",
-          "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
-          "rank": 3.9
-        }
-      ]
-    },
-    "additionalProperties": false,
-    "type": "object"
-  }
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Notebook Scheduling",
+  "description": "JupyterLab notebook scheduling settings.",
+  "jupyter.lab.menus": {
+    "context": [
+      {
+        "command": "scheduling:schedule-notebook",
+        "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
+        "rank": 3.8
+      },
+      {
+        "command": "scheduling:run-notebook",
+        "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
+        "rank": 3.9
+      }
+    ]
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from 'react';
 
-import { Scheduler } from "../handler";
+import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 
 export type EnvironmentPickerProps = {
@@ -12,16 +12,17 @@ export type EnvironmentPickerProps = {
 };
 
 export function EnvironmentPicker(props: EnvironmentPickerProps) {
-  const [environmentList, setEnvironmentList] = useState([] as Scheduler.IRuntimeEnvironment[]);
+  const [environmentList, setEnvironmentList] = useState(
+    [] as Scheduler.IRuntimeEnvironment[]
+  );
   const trans = useTranslator('jupyterlab');
 
   React.useEffect(() => {
-    props.environmentsPromise
-      .then(envList => setEnvironmentList(envList));
+    props.environmentsPromise.then(envList => setEnvironmentList(envList));
   }, []);
 
   if (environmentList.length === 0) {
-    return (<em>{trans.__('Loading …')}</em>);
+    return <em>{trans.__('Loading …')}</em>;
   }
 
   return (
@@ -29,8 +30,13 @@ export function EnvironmentPicker(props: EnvironmentPickerProps) {
       name={props.name}
       id={props.id}
       onChange={props.onChange}
-      value={props.initialValue}>
-      <option value='' title={trans.__('No environment selected')} disabled></option>
+      value={props.initialValue}
+    >
+      <option
+        value=""
+        title={trans.__('No environment selected')}
+        disabled
+      ></option>
       {environmentList.map((env, idx) => (
         <option value={env.label} title={env.description} key={idx}>
           {env.name}

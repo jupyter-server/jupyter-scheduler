@@ -24,19 +24,19 @@ jobs:
       run: |
         set -eux
         jlpm
-        jlpm run lint:check
 
     - name: Test the extension
       run: |
         set -eux
         jlpm run test
+        python -m pip install .[test]
+        pytest -vv -r ap --cov jupyter_scheduler
 
     - name: Build the extension
       run: |
         set -eux
-        python -m pip install .[test]
+        python -m pip install .
 
-        pytest -vv -r ap --cov jupyter_scheduler
         jupyter server extension list
         jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
 

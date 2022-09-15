@@ -7,5 +7,5 @@ import { expect, test } from '@jupyterlab/galata';
 test.use({ autoGoto: false });
 
 test('should emit an activation console message', async ({ page }) => {
- // TODO: Add real tests
+  // TODO: Add real tests
 });

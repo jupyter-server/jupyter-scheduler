@@ -14,16 +14,20 @@ export type OutputFormatPickerProps = {
   value: OutputFormatOption[];
 };
 
-export function outputFormatsForEnvironment(environment: string): OutputFormatOption[] | null {
+export function outputFormatsForEnvironment(
+  environment: string
+): OutputFormatOption[] | null {
   // Retrieve the environment data from session storage.
   const environmentsData = sessionStorage.getItem('environments');
   if (environmentsData === null) {
     return null;
   }
 
-  const environments = JSON.parse(environmentsData) as Array<Scheduler.IRuntimeEnvironment>;
+  const environments = JSON.parse(
+    environmentsData
+  ) as Array<Scheduler.IRuntimeEnvironment>;
   const environmentObj = environments.find(env => env.name === environment);
-  if (!environmentObj || !(environmentObj['output_formats'])) {
+  if (!environmentObj || !environmentObj['output_formats']) {
     return null;
   }
 
@@ -31,7 +35,10 @@ export function outputFormatsForEnvironment(environment: string): OutputFormatOp
 }
 
 export function OutputFormatPicker(props: OutputFormatPickerProps) {
-  const outputFormats = useMemo(() => outputFormatsForEnvironment(props.environment), [props.environment]);
+  const outputFormats = useMemo(
+    () => outputFormatsForEnvironment(props.environment),
+    [props.environment]
+  );
   if (outputFormats === null) {
     return null;
   }
