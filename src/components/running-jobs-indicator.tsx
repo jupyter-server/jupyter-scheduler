@@ -22,7 +22,7 @@ export type RunningJobsIndicatorComponentProps = {
 
 export function RunningJobsIndicatorComponent(
   props: RunningJobsIndicatorComponentProps
-) {
+): JSX.Element | null {
   const runningJobs = props.runningJobs;
 
   // Don't display a status bar indicator if there are no running jobs (0 or undefined).
@@ -63,7 +63,9 @@ export type RunningJobsIndicatorProps = {
   model: NotebookJobsListingModel;
 };
 
-export function RunningJobsIndicator(props: RunningJobsIndicatorProps) {
+export function RunningJobsIndicator(
+  props: RunningJobsIndicatorProps
+): JSX.Element {
   return (
     <UseSignal signal={props.model.inProgressJobCountChanged}>
       {(_, newCount) => (

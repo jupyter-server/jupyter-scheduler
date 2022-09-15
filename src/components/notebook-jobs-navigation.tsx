@@ -9,7 +9,7 @@ export function NotebookJobsNavigation(props: {
   currentView: JobsPanelView;
   toggleSignal: Signal<any, CreateJobFormState>;
   toggleFunction: () => void;
-}) {
+}): JSX.Element {
   const views: JobsPanelView[] = ['JobsList', 'CreateJobForm'];
 
   const setView = (event: React.MouseEvent, view: JobsPanelView): void => {
