@@ -1,7 +1,10 @@
 import React, { ChangeEvent } from 'react';
 import { JobParameter } from '../create-job-form';
 
-import { OutputFormatOption, OutputFormatPicker } from '../components/output-format-picker';
+import {
+  OutputFormatOption,
+  OutputFormatPicker
+} from '../components/output-format-picker';
 import { EnvironmentPicker } from './environment-picker';
 import { ParametersPicker } from './parameters-picker';
 
@@ -43,71 +46,85 @@ export interface CreateJobFormInputsProps {
 }
 
 export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
+  return (
+    <>
+      {props.fields.map((field, idx) => {
+        // Handle environment selector
+        let formInputElement: JSX.Element | null = null;
+        const formInputId = `${props.formPrefix}${field.inputName}`;
 
-  return <>
-    {props.fields.map((field, idx) => {
-      // Handle environment selector
-      let formInputElement: JSX.Element | null = null;
-      const formInputId = `${props.formPrefix}${field.inputName}`;
+        switch (field.inputType) {
+          // Environment picker
+          case 'environment':
+            const envField = field as CreateJobFormEnvironmentField;
+            formInputElement = (
+              <EnvironmentPicker
+                name={field.inputName}
+                id={formInputId}
+                onChange={field.onChange}
+                environmentsPromise={envField.environmentsPromise()}
+                initialValue={field.value}
+              />
+            );
+            break;
+          case 'outputFormats':
+            const ofField = field as CreateJobFormOutputFormatsField;
 
-      switch (field.inputType) {
-        // Environment picker
-        case 'environment':
-          const envField = field as CreateJobFormEnvironmentField;
-          formInputElement = <EnvironmentPicker
-            name={field.inputName}
-            id={formInputId}
-            onChange={field.onChange}
-            environmentsPromise={envField.environmentsPromise()}
-            initialValue={field.value} />;
-          break;
-        case 'outputFormats':
-          const ofField = field as CreateJobFormOutputFormatsField;
+            // If no environment is selected, do not display output formats.
+            if (ofField.environment === '') {
+              return null;
+            }
 
-          // If no environment is selected, do not display output formats.
-          if (ofField.environment === '') {
-            return null;
-          }
+            formInputElement = (
+              <OutputFormatPicker
+                name={field.inputName}
+                id={formInputId}
+                onChange={field.onChange}
+                environment={ofField.environment}
+                value={ofField.value}
+              />
+            );
+            break;
+          case 'parameters':
+            const pField = field as CreateJobFormParametersField;
 
-          formInputElement = <OutputFormatPicker
-            name={field.inputName}
-            id={formInputId}
-            onChange={field.onChange}
-            environment={ofField.environment}
-            value={ofField.value}
-          />;
-          break;
-        case 'parameters':
-          const pField = field as CreateJobFormParametersField;
+            formInputElement = (
+              <ParametersPicker
+                name={field.inputName}
+                id={formInputId}
+                value={pField.value}
+                onChange={field.onChange}
+                addParameter={pField.addParameter}
+                removeParameter={pField.removeParameter}
+                formPrefix={props.formPrefix}
+              />
+            );
+            break;
+          default: // text field
+            formInputElement = (
+              <input
+                type="text"
+                className={props.formInput}
+                name={field.inputName}
+                id={formInputId}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            );
+        }
 
-          formInputElement = <ParametersPicker
-            name={field.inputName}
-            id={formInputId}
-            value={pField.value}
-            onChange={field.onChange}
-            addParameter={pField.addParameter}
-            removeParameter={pField.removeParameter}
-            formPrefix={props.formPrefix}
-          />;
-          break;
-      default: // text field
-          formInputElement = <input
-            type='text'
-            className={props.formInput}
-            name={field.inputName}
-            id={formInputId}
-            value={field.value}
-            onChange={field.onChange} />;
-      }
-
-      return <div className={props.formRow} key={idx}>
-        <label
-          className={props.formLabel}
-          htmlFor={`${props.formPrefix}${field.inputName}`}>{field.label}</label>
-        <div className={props.formInput}>
-          {formInputElement}
-        </div>
-      </div>;
-    })}
-  </>;
+        return (
+          <div className={props.formRow} key={idx}>
+            <label
+              className={props.formLabel}
+              htmlFor={`${props.formPrefix}${field.inputName}`}
+            >
+              {field.label}
+            </label>
+            <div className={props.formInput}>{formInputElement}</div>
+          </div>
+        );
+      })}
+    </>
+  );
 }

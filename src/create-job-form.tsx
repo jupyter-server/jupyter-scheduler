@@ -8,7 +8,10 @@ import {
   CreateJobFormParametersField
 } from './components/create-job-form-inputs';
 
-import { OutputFormatOption, outputFormatsForEnvironment } from './components/output-format-picker';
+import {
+  OutputFormatOption,
+  outputFormatsForEnvironment
+} from './components/output-format-picker';
 
 import { Scheduler, SchedulerService } from './handler';
 import { useTranslator } from './hooks';
@@ -116,7 +119,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
     const api = new SchedulerService({});
 
     // Serialize parameters as an object.
-    let jobOptions: Scheduler.ICreateJob = {
+    const jobOptions: Scheduler.ICreateJob = {
       name: state.jobName,
       input_uri: state.inputFile,
       output_prefix: state.outputPath,
@@ -124,15 +127,20 @@ export function CreateJobForm(props: CreateJobFormProps) {
     };
 
     if (state.parameters !== undefined) {
-      let jobParameters: { [key: string]: any } = {};
+      const jobParameters: { [key: string]: any } = {};
 
       state.parameters.forEach(param => {
         const { name, value } = param;
         if (jobParameters.hasOwnProperty(name)) {
-          console.error('Parameter ' + name + ' already set to ' + jobParameters[name] +
-            ' and is about to be set again to ' + value);
-        }
-        else {
+          console.error(
+            'Parameter ' +
+              name +
+              ' already set to ' +
+              jobParameters[name] +
+              ' and is about to be set again to ' +
+              value
+          );
+        } else {
           jobParameters[name] = value;
         }
       });
@@ -187,21 +195,21 @@ export function CreateJobForm(props: CreateJobFormProps) {
       inputName: 'jobName',
       inputType: 'text',
       value: state.jobName,
-      onChange: handleInputChange,
+      onChange: handleInputChange
     },
     {
       label: trans.__('Input file'),
       inputName: 'inputFile',
       inputType: 'text',
       value: state.inputFile,
-      onChange: handleInputChange,
+      onChange: handleInputChange
     },
     {
       label: trans.__('Output prefix'),
       inputName: 'outputPath',
       inputType: 'text',
       value: state.outputPath,
-      onChange: handleInputChange,
+      onChange: handleInputChange
     },
     {
       label: trans.__('Environment'),
@@ -209,7 +217,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       inputType: 'environment',
       value: state.environment,
       environmentsPromise: environmentsPromise,
-      onChange: handleInputChange,
+      onChange: handleInputChange
     } as CreateJobFormEnvironmentField,
     {
       label: trans.__('Output formats'),
@@ -217,7 +225,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       inputType: 'outputFormats',
       value: state.outputFormats || [],
       environment: state.environment,
-      onChange: handleOutputFormatsChange,
+      onChange: handleOutputFormatsChange
     } as CreateJobFormOutputFormatsField,
     {
       label: trans.__('Parameters'),
@@ -226,8 +234,8 @@ export function CreateJobForm(props: CreateJobFormProps) {
       value: state.parameters || [],
       onChange: handleInputChange,
       addParameter: addParameter,
-      removeParameter: removeParameter,
-    } as CreateJobFormParametersField,
+      removeParameter: removeParameter
+    } as CreateJobFormParametersField
   ];
 
   return (

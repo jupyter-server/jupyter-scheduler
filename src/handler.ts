@@ -222,7 +222,7 @@ export namespace Scheduler {
     name?: string;
   }
 
-  export interface IUpdateJobDefinition extends IBaseJobDefinition {}
+  export type IUpdateJobDefinition = IBaseJobDefinition;
 
   export interface IDescribeJobDefinition extends IBaseJobDefinition {
     job_definition_id: string;

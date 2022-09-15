@@ -203,7 +203,7 @@ function NotebookJobsColumnHeader(
 
     // Change the sort of this column.
     // If not sorted at all or if sorted descending, sort ascending. If sorted ascending, sort descending.
-    let newSortDirection = isSortedAscending
+    const newSortDirection = isSortedAscending
       ? Scheduler.SortDirection.DESC
       : Scheduler.SortDirection.ASC;
 

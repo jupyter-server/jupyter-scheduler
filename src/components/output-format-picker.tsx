@@ -44,19 +44,21 @@ export function OutputFormatPicker(props: OutputFormatPickerProps) {
   }
 
   return (
-    <ul className='jp-notebook-job-output-formats-options'>
-    {outputFormats.map((of, idx) =>
-      <li key={idx}>
-        <label>
-          <input
-            type='checkbox'
-            id={`${props.id}-${of.name}`}
-            value={of.name}
-            onChange={props.onChange}
-            checked={props.value.some(sof => of.name === sof.name)}
-          /> {of.label}
-        </label>
-      </li>
-    )}
-  </ul>);
+    <ul className="jp-notebook-job-output-formats-options">
+      {outputFormats.map((of, idx) => (
+        <li key={idx}>
+          <label>
+            <input
+              type="checkbox"
+              id={`${props.id}-${of.name}`}
+              value={of.name}
+              onChange={props.onChange}
+              checked={props.value.some(sof => of.name === sof.name)}
+            />{' '}
+            {of.label}
+          </label>
+        </li>
+      ))}
+    </ul>
+  );
 }

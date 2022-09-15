@@ -77,7 +77,7 @@ function RefillButton(props: {
     : undefined;
 
   const clickHandler = (): void => {
-    let initialState: CreateJobFormState = {
+    const initialState: CreateJobFormState = {
       inputFile: props.job.input_uri,
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,

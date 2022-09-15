@@ -14,7 +14,7 @@ export function NotebookJobsNavigation(props: {
 
   const setView = (event: React.MouseEvent, view: JobsPanelView): void => {
     if (view === 'JobsList') {
-      let initialState: CreateJobFormState = {
+      const initialState: CreateJobFormState = {
         inputFile: '',
         jobName: '',
         outputPath: '',
