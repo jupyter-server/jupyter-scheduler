@@ -1,7 +1,12 @@
-import { ToolbarButtonComponent } from '@jupyterlab/apputils';
-import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
+import { Button } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { CreateJobFormInputs } from './components/create-job-form-inputs';
+import {
+  CreateJobFormEnvironmentField,
+  CreateJobFormField,
+  CreateJobFormInputs,
+  CreateJobFormOutputFormatsField,
+  CreateJobFormParametersField
+} from './components/create-job-form-inputs';
 
 import { OutputFormatOption, outputFormatsForEnvironment } from './components/output-format-picker';
 
@@ -176,39 +181,53 @@ export function CreateJobForm(props: CreateJobFormProps) {
   const formLabel = `${formPrefix}label`;
   const formInput = `${formPrefix}input`;
 
-  const formFields = [
+  const formFields: CreateJobFormField[] = [
     {
       label: trans.__('Job name'),
       inputName: 'jobName',
+      inputType: 'text',
       value: state.jobName,
       onChange: handleInputChange,
     },
     {
       label: trans.__('Input file'),
       inputName: 'inputFile',
+      inputType: 'text',
       value: state.inputFile,
       onChange: handleInputChange,
     },
     {
       label: trans.__('Output prefix'),
       inputName: 'outputPath',
+      inputType: 'text',
       value: state.outputPath,
       onChange: handleInputChange,
     },
     {
       label: trans.__('Environment'),
       inputName: 'environment',
+      inputType: 'environment',
       value: state.environment,
       environmentsPromise: environmentsPromise,
       onChange: handleInputChange,
-    },
+    } as CreateJobFormEnvironmentField,
     {
       label: trans.__('Output formats'),
       inputName: 'outputFormat',
+      inputType: 'outputFormats',
       value: state.outputFormats || [],
       environment: state.environment,
       onChange: handleOutputFormatsChange,
-    }
+    } as CreateJobFormOutputFormatsField,
+    {
+      label: trans.__('Parameters'),
+      inputName: 'parameters',
+      inputType: 'parameters',
+      value: state.parameters || [],
+      onChange: handleInputChange,
+      addParameter: addParameter,
+      removeParameter: removeParameter,
+    } as CreateJobFormParametersField,
   ];
 
   return (
@@ -221,51 +240,6 @@ export function CreateJobForm(props: CreateJobFormProps) {
           formInput={formInput}
           fields={formFields}
         />
-        <div className={formRow}>
-          <label className={formLabel}>{trans.__('Parameters')}</label>
-          <div className={formInput}>
-            {state.parameters &&
-              state.parameters.map((param, idx) => (
-                <div key={idx} className={`${formPrefix}parameter-row`}>
-                  <input
-                    name={`parameter-${idx}-name`}
-                    size={15}
-                    value={param.name}
-                    type="text"
-                    placeholder={trans.__('Name')}
-                    onChange={handleInputChange}
-                  />
-                  <input
-                    name={`parameter-${idx}-value`}
-                    size={15}
-                    value={param.value}
-                    type="text"
-                    placeholder={trans.__('Value')}
-                    onChange={handleInputChange}
-                  />
-                  <ToolbarButtonComponent
-                    className={`${formPrefix}inline-button`}
-                    icon={closeIcon}
-                    onClick={() => {
-                      removeParameter(idx);
-                      return false;
-                    }}
-                    tooltip={trans.__('Delete this parameter')}
-                  />
-                </div>
-              ))}
-            <Button
-              minimal={true}
-              onClick={(e: React.MouseEvent) => {
-                addParameter();
-                return false;
-              }}
-              title={trans.__('Add new parameter')}
-            >
-              <LabIcon.resolveReact icon={addIcon} tag="span" />
-            </Button>
-          </div>
-        </div>
         <div className={formRow}>
           <div className={formLabel}>&nbsp;</div>
           <div className={`${formInput} ${formPrefix}submit-container`}>
