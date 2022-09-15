@@ -74,7 +74,7 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
       return <div className={props.formRow} key={idx}>
         <label
           className={props.formLabel}
-          htmlFor={`${props.formPrefix}${field.inputName}`}>{field.label}*</label>
+          htmlFor={`${props.formPrefix}${field.inputName}`}>{field.label}</label>
         <div className={props.formInput}>
           {formInputElement}
         </div>

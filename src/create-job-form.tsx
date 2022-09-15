@@ -199,7 +199,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       label: trans.__('Environment'),
       inputName: 'environment',
       value: state.environment,
-      environmentsPromise: environmentsPromise(),
+      environmentsPromise: environmentsPromise,
       onChange: handleInputChange,
     },
   ];
