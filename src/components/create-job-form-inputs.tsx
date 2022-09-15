@@ -45,11 +45,6 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
 
   return <>
     {props.fields.map((field, idx) => {
-      // Start by only handling text fields
-      if (typeof field.value !== 'string') {
-        return;
-      }
-
       // Handle environment selector
       let formInputElement: JSX.Element | null = null;
       const formInputId = `${props.formPrefix}${field.inputName}`;
@@ -67,6 +62,12 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
       // Output formats picker
       else if (field.hasOwnProperty('environment')) {
         const ofField = field as CreateJobFormOutputFormatsField;
+
+        // If no environment is selected, do not display output formats.
+        if (ofField.environment === '') {
+          return null;
+        }
+
         formInputElement = <OutputFormatPicker
           name={field.inputName}
           id={formInputId}
