@@ -3,7 +3,7 @@ import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { CreateJobFormInputs } from './components/create-job-form-inputs';
 
-import { OutputFormatOption, OutputFormatPicker, outputFormatsForEnvironment } from './components/output-format-picker';
+import { OutputFormatOption, outputFormatsForEnvironment } from './components/output-format-picker';
 
 import { Scheduler, SchedulerService } from "./handler";
 import { useTranslator } from './hooks';
@@ -170,7 +170,6 @@ export function CreateJobForm(props: CreateJobFormProps) {
     });
   };
 
-  const outputFormatInputName = 'outputFormat';
   const formPrefix = 'jp-create-job-';
   const formRow = `${formPrefix}row`;
   const formLabel = `${formPrefix}label`;
@@ -202,6 +201,13 @@ export function CreateJobForm(props: CreateJobFormProps) {
       environmentsPromise: environmentsPromise,
       onChange: handleInputChange,
     },
+    {
+      label: trans.__('Output formats'),
+      inputName: 'outputFormat',
+      value: state.outputFormats || [],
+      environment: state.environment,
+      onChange: handleOutputFormatsChange,
+    }
   ];
 
   return (
@@ -213,17 +219,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
           formPrefix={formPrefix}
           formInput={formInput}
           fields={formFields}
-        />
-        <OutputFormatPicker
-          name={outputFormatInputName}
-          id={`${formPrefix}${outputFormatInputName}`}
-          onChange={handleOutputFormatsChange}      
-          environment={state.environment}
-          value={state.outputFormats || []}
-          rowClassName={formRow}
-          labelClassName={formLabel}
-          inputClassName={formInput}
-          />
+        />    
         <div className={formRow}>
           <label className={formLabel}>{trans.__('Parameters')}</label>
           <div className={formInput}>

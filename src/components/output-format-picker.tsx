@@ -12,10 +12,6 @@ export type OutputFormatPickerProps = {
   environment: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: OutputFormatOption[];
-  // CSS classes for output elements
-  rowClassName: string;
-  labelClassName: string;
-  inputClassName: string;
 };
 
 export function outputFormatsForEnvironment(environment: string): OutputFormatOption[] | null {
@@ -41,24 +37,19 @@ export function OutputFormatPicker(props: OutputFormatPickerProps) {
   }
 
   return (
-    <div className={props.rowClassName}>
-      <label className={props.labelClassName}>Output formats</label>
-      <div className={props.inputClassName}>
-        <ul className='jp-notebook-job-output-formats-options'>
-        {outputFormats.map((of, idx) =>
-          <li key={idx}>
-            <label>
-              <input
-                type='checkbox'
-                id={`${props.id}-${of.name}`}
-                value={of.name}
-                onChange={props.onChange}
-                checked={props.value.some(sof => of.name === sof.name)}
-              /> {of.label}
-            </label>
-          </li>
-        )}
-      </ul>
-    </div>
-  </div>);
+    <ul className='jp-notebook-job-output-formats-options'>
+    {outputFormats.map((of, idx) =>
+      <li key={idx}>
+        <label>
+          <input
+            type='checkbox'
+            id={`${props.id}-${of.name}`}
+            value={of.name}
+            onChange={props.onChange}
+            checked={props.value.some(sof => of.name === sof.name)}
+          /> {of.label}
+        </label>
+      </li>
+    )}
+  </ul>);
 }

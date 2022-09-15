@@ -3,13 +3,14 @@ import { JobParameter } from '../create-job-form';
 
 // import { useTranslator } from '../hooks';
 
-import { OutputFormatOption } from '../components/output-format-picker';
+import { OutputFormatOption, OutputFormatPicker } from '../components/output-format-picker';
 import { EnvironmentPicker } from './environment-picker';
 
 export interface CreateJobFormField {
   label: string;
   inputName: string;
-  onChange: (event: ChangeEvent<Element>) => void;
+  // Could be an Element, HTMLInputElement, or HTMLSelectElement
+  onChange: (event: ChangeEvent<any>) => void;
   value: any;
 }
 
@@ -52,6 +53,8 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
       // Handle environment selector
       let formInputElement: JSX.Element | null = null;
       const formInputId = `${props.formPrefix}${field.inputName}`;
+
+      // Environment picker
       if (field.hasOwnProperty('environmentsPromise')) {
         const envField = field as CreateJobFormEnvironmentField;
         formInputElement = <EnvironmentPicker
@@ -60,6 +63,17 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
           onChange={field.onChange}
           environmentsPromise={envField.environmentsPromise()}
           initialValue={field.value} />;  
+      }
+      // Output formats picker
+      else if (field.hasOwnProperty('environment')) {
+        const ofField = field as CreateJobFormOutputFormatsField;
+        formInputElement = <OutputFormatPicker
+          name={field.inputName}
+          id={formInputId}
+          onChange={field.onChange}      
+          environment={ofField.environment}
+          value={ofField.value}
+        />;
       }
       else {
         formInputElement = <input
