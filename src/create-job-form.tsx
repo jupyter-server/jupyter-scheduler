@@ -9,7 +9,7 @@ import {
 } from './components/create-job-form-inputs';
 
 import {
-  OutputFormatOption,
+  IOutputFormatOption,
   outputFormatsForEnvironment
 } from './components/output-format-picker';
 
@@ -36,10 +36,10 @@ export type CreateJobFormState = {
   outputPath: string;
   environment: string;
   parameters?: JobParameter[];
-  outputFormats?: OutputFormatOption[];
+  outputFormats?: IOutputFormatOption[];
 };
 
-export function CreateJobForm(props: CreateJobFormProps) {
+export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   const [state, setState] = useState<CreateJobFormState>({
@@ -94,7 +94,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       ? state.outputFormats.some(of => of.name === formatName)
       : false;
 
-    const oldOutputFormats: OutputFormatOption[] = state.outputFormats || [];
+    const oldOutputFormats: IOutputFormatOption[] = state.outputFormats || [];
 
     // Go from unchecked to checked
     if (isChecked && !wasChecked) {

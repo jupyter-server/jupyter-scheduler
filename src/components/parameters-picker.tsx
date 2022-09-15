@@ -16,7 +16,7 @@ export type ParametersPickerProps = {
   formPrefix: string;
 };
 
-export function ParametersPicker(props: ParametersPickerProps) {
+export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   return (

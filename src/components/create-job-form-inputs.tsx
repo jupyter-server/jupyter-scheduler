@@ -2,7 +2,7 @@ import React, { ChangeEvent } from 'react';
 import { JobParameter } from '../create-job-form';
 
 import {
-  OutputFormatOption,
+  IOutputFormatOption,
   OutputFormatPicker
 } from '../components/output-format-picker';
 import { EnvironmentPicker } from './environment-picker';
@@ -28,7 +28,7 @@ export interface ICreateJobFormEnvironmentField extends ICreateJobFormField {
 
 export interface ICreateJobFormOutputFormatsField extends ICreateJobFormField {
   environment: string;
-  value: OutputFormatOption[];
+  value: IOutputFormatOption[];
 }
 
 export interface ICreateJobFormParametersField extends ICreateJobFormField {
@@ -45,7 +45,9 @@ export interface ICreateJobFormInputsProps {
   fields: ICreateJobFormField[];
 }
 
-export function CreateJobFormInputs(props: ICreateJobFormInputsProps) {
+export function CreateJobFormInputs(
+  props: ICreateJobFormInputsProps
+): JSX.Element {
   return (
     <>
       {props.fields.map((field, idx) => {
