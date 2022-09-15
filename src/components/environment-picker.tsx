@@ -11,7 +11,7 @@ export type EnvironmentPickerProps = {
   initialValue: string;
 };
 
-export function EnvironmentPicker(props: EnvironmentPickerProps) {
+export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
   const [environmentList, setEnvironmentList] = useState(
     [] as Scheduler.IRuntimeEnvironment[]
   );

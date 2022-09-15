@@ -21,7 +21,7 @@ const ListItemClass = 'jp-notebook-job-list-item';
 
 export const JobListPageSize = 25;
 
-interface LoadJobsProps {
+interface ILoadJobsProps {
   showHeaders?: boolean;
   startToken?: string;
   app: JupyterFrontEnd;
@@ -42,7 +42,7 @@ type GridColumn = {
   name: string;
 };
 
-export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
+export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
   const [notebookJobs, setNotebookJobs] = useState<
     INotebookJobsWithToken | undefined
   >(undefined);
@@ -59,7 +59,12 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
   // After setJobsQuery is called, force a reload.
   useEffect(() => fetchInitialRows(), [jobsQuery]);
 
-  const fetchMoreRows = async (next_token: string) => {
+  const fetchMoreRows = async (next_token: string | undefined) => {
+    // Do nothing if the next token is undefined (shouldn't happen, but required for type safety)
+    if (next_token === undefined) {
+      return;
+    }
+
     // Apply the custom token to the existing query parameters
     const newNotebookJobs = await props.getJobs({ ...jobsQuery, next_token });
 
@@ -154,10 +159,10 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
           showCreateJob={props.showCreateJob}
         />
       ))}
-      {notebookJobs.next_token && (
+      {notebookJobs.next_token !== undefined && (
         <Button
           onClick={(e: React.MouseEvent<HTMLElement>) =>
-            fetchMoreRows(notebookJobs.next_token!)
+            fetchMoreRows(notebookJobs.next_token)
           }
         >
           {trans.__('Show more')}
@@ -167,7 +172,7 @@ export function NotebookJobsListBody(props: LoadJobsProps): JSX.Element {
   );
 }
 
-interface NotebookJobsColumnHeaderProps {
+interface INotebookJobsColumnHeaderProps {
   gridColumn: GridColumn;
   jobsQuery: Scheduler.IListJobsQuery;
   setJobsQuery: React.Dispatch<React.SetStateAction<Scheduler.IListJobsQuery>>;
@@ -181,7 +186,7 @@ const sortDescendingIcon = (
 );
 
 function NotebookJobsColumnHeader(
-  props: NotebookJobsColumnHeaderProps
+  props: INotebookJobsColumnHeaderProps
 ): JSX.Element {
   const sort = props.jobsQuery.sort_by;
   const defaultSort = sort?.[0];
@@ -190,10 +195,12 @@ function NotebookJobsColumnHeader(
     defaultSort && defaultSort.name === props.gridColumn.sortField;
   const isSortedAscending =
     headerIsDefaultSort &&
-    defaultSort!.direction === Scheduler.SortDirection.ASC;
+    defaultSort &&
+    defaultSort.direction === Scheduler.SortDirection.ASC;
   const isSortedDescending =
     headerIsDefaultSort &&
-    defaultSort!.direction === Scheduler.SortDirection.DESC;
+    defaultSort &&
+    defaultSort.direction === Scheduler.SortDirection.DESC;
 
   const sortByThisColumn = () => {
     // If this field is not sortable, do nothing.
@@ -203,7 +210,7 @@ function NotebookJobsColumnHeader(
 
     // Change the sort of this column.
     // If not sorted at all or if sorted descending, sort ascending. If sorted ascending, sort descending.
-    let newSortDirection = isSortedAscending
+    const newSortDirection = isSortedAscending
       ? Scheduler.SortDirection.DESC
       : Scheduler.SortDirection.ASC;
 
@@ -239,7 +246,7 @@ function getJobs(
   const api = new SchedulerService({});
 
   // Impose max_items if not otherwise specified.
-  if (!jobQuery.hasOwnProperty('max_items')) {
+  if (jobQuery['max_items'] === undefined) {
     jobQuery.max_items = JobListPageSize;
   }
 

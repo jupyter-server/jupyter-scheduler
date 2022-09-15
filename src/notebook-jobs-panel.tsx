@@ -6,7 +6,11 @@ import { Signal } from '@lumino/signaling';
 import { ITranslator } from '@jupyterlab/translation';
 
 import TranslatorContext from './context';
-import { CreateJobForm, CreateJobFormState } from './create-job-form';
+import {
+  BlankCreateJobFormState,
+  CreateJobForm,
+  CreateJobFormState
+} from './create-job-form';
 import { INotebookJobsListingModel } from './model';
 
 import { NotebookJobsList } from './components/notebook-jobs-list';
@@ -46,7 +50,7 @@ export class NotebookJobsPanel extends ReactWidget {
     return this._signal;
   }
 
-  toggleView() {
+  toggleView(): void {
     this.view = this._view === 'JobsList' ? 'CreateJobForm' : 'JobsList';
   }
 
@@ -65,7 +69,7 @@ export class NotebookJobsPanel extends ReactWidget {
           <UseSignal signal={this._signal}>
             {(_, newState) => (
               <CreateJobForm
-                initialState={newState!}
+                initialState={newState ?? BlankCreateJobFormState}
                 cancelClick={() => this.toggleView()}
                 postCreateJob={() => this.toggleView()}
               />

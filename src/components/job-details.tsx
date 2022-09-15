@@ -19,7 +19,7 @@ function JobParameters(props: {
     return null;
   }
   const trans = useTranslator('jupyterlab');
-  const params = props.job.parameters!;
+  const params = props.job.parameters;
 
   return (
     <div className={rowClass}>
@@ -54,7 +54,7 @@ function OutputFormats(props: {
   }
 
   const trans = useTranslator('jupyterlab');
-  const outputFormats = props.job.output_formats!;
+  const outputFormats = props.job.output_formats;
 
   return (
     <div className={rowClass}>
@@ -64,7 +64,7 @@ function OutputFormats(props: {
   );
 }
 
-export function JobDetails(props: JobDetailsProps) {
+export function JobDetails(props: JobDetailsProps): JSX.Element | null {
   if (props.job === null) {
     return null;
   }

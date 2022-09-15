@@ -108,7 +108,7 @@ async function activatePlugin(
   const { tracker } = browserFactory;
   const api = new SchedulerService({});
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel>;
-  let widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
+  const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
   });
   restorer.restore(widgetTracker, {
@@ -236,7 +236,7 @@ async function activatePlugin(
   console.log('JupyterLab extension jupyterlab-scheduler is activated!');
 }
 
-let _signal: Signal<NotebookJobsPluginType, CreateJobFormState> = new Signal<
+const _signal: Signal<NotebookJobsPluginType, CreateJobFormState> = new Signal<
   NotebookJobsPluginType,
   CreateJobFormState
 >(plugin);

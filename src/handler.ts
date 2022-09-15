@@ -57,19 +57,26 @@ export class SchedulerService {
         Object.keys(jobQuery)
           .map(prop => {
             if (prop === 'sort_by') {
-              if (jobQuery[prop] === undefined) {
+              const sortList: Scheduler.ISortField[] | undefined =
+                jobQuery.sort_by;
+              if (sortList === undefined) {
                 return null;
               }
+
               // Serialize sort_by as a series of parameters in the firm dir(name)
               // where 'dir' is the direction and 'name' the sort field
-              return jobQuery[prop]!.map(
-                sort =>
-                  `sort_by=${encodeURIComponent(
-                    sort.direction
-                  )}(${encodeURIComponent(sort.name)})`
-              ).join('&');
+              return sortList
+                .map(
+                  sort =>
+                    `sort_by=${encodeURIComponent(
+                      sort.direction
+                    )}(${encodeURIComponent(sort.name)})`
+                )
+                .join('&');
             }
-            //@ts-ignore
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const value = jobQuery[prop];
             return `${encodeURIComponent(prop)}=${encodeURIComponent(value)}`;
           })
@@ -149,7 +156,7 @@ export class SchedulerService {
     return data as Scheduler.IRuntimeEnvironment[];
   }
 
-  async deleteJob(job_id: string) {
+  async deleteJob(job_id: string): Promise<void> {
     try {
       await requestAPI(this.serverSettings, `jobs/${job_id}`, {
         method: 'DELETE'
@@ -222,7 +229,7 @@ export namespace Scheduler {
     name?: string;
   }
 
-  export interface IUpdateJobDefinition extends IBaseJobDefinition {}
+  export type IUpdateJobDefinition = IBaseJobDefinition;
 
   export interface IDescribeJobDefinition extends IBaseJobDefinition {
     job_definition_id: string;
