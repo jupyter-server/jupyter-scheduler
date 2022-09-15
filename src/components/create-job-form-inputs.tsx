@@ -8,7 +8,7 @@ import {
 import { EnvironmentPicker } from './environment-picker';
 import { ParametersPicker } from './parameters-picker';
 
-export interface CreateJobFormField {
+export interface ICreateJobFormField {
   label: string;
   inputName: string;
   inputType: 'text' | 'environment' | 'outputFormats' | 'parameters';
@@ -17,35 +17,35 @@ export interface CreateJobFormField {
   value: any;
 }
 
-export interface CreateJobFormTextField extends CreateJobFormField {
+export interface ICreateJobFormTextField extends ICreateJobFormField {
   value: string;
 }
 
-export interface CreateJobFormEnvironmentField extends CreateJobFormField {
+export interface ICreateJobFormEnvironmentField extends ICreateJobFormField {
   environmentsPromise: () => Promise<any>;
   value: string;
 }
 
-export interface CreateJobFormOutputFormatsField extends CreateJobFormField {
+export interface ICreateJobFormOutputFormatsField extends ICreateJobFormField {
   environment: string;
   value: OutputFormatOption[];
 }
 
-export interface CreateJobFormParametersField extends CreateJobFormField {
+export interface ICreateJobFormParametersField extends ICreateJobFormField {
   value: JobParameter[];
   addParameter: () => void;
   removeParameter: (idx: number) => void;
 }
 
-export interface CreateJobFormInputsProps {
+export interface ICreateJobFormInputsProps {
   formRow: string;
   formLabel: string;
   formPrefix: string;
   formInput: string;
-  fields: CreateJobFormField[];
+  fields: ICreateJobFormField[];
 }
 
-export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
+export function CreateJobFormInputs(props: ICreateJobFormInputsProps) {
   return (
     <>
       {props.fields.map((field, idx) => {
@@ -56,7 +56,7 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
         switch (field.inputType) {
           // Environment picker
           case 'environment':
-            const envField = field as CreateJobFormEnvironmentField;
+            const envField = field as ICreateJobFormEnvironmentField;
             formInputElement = (
               <EnvironmentPicker
                 name={field.inputName}
@@ -68,7 +68,7 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
             );
             break;
           case 'outputFormats':
-            const ofField = field as CreateJobFormOutputFormatsField;
+            const ofField = field as ICreateJobFormOutputFormatsField;
 
             // If no environment is selected, do not display output formats.
             if (ofField.environment === '') {
@@ -86,7 +86,7 @@ export function CreateJobFormInputs(props: CreateJobFormInputsProps) {
             );
             break;
           case 'parameters':
-            const pField = field as CreateJobFormParametersField;
+            const pField = field as ICreateJobFormParametersField;
 
             formInputElement = (
               <ParametersPicker

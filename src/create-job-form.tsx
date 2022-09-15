@@ -1,11 +1,11 @@
 import { Button } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import {
-  CreateJobFormEnvironmentField,
-  CreateJobFormField,
+  ICreateJobFormEnvironmentField,
+  ICreateJobFormField,
   CreateJobFormInputs,
-  CreateJobFormOutputFormatsField,
-  CreateJobFormParametersField
+  ICreateJobFormOutputFormatsField,
+  ICreateJobFormParametersField
 } from './components/create-job-form-inputs';
 
 import {
@@ -189,7 +189,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
   const formLabel = `${formPrefix}label`;
   const formInput = `${formPrefix}input`;
 
-  const formFields: CreateJobFormField[] = [
+  const formFields: ICreateJobFormField[] = [
     {
       label: trans.__('Job name'),
       inputName: 'jobName',
@@ -218,7 +218,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       value: state.environment,
       environmentsPromise: environmentsPromise,
       onChange: handleInputChange
-    } as CreateJobFormEnvironmentField,
+    } as ICreateJobFormEnvironmentField,
     {
       label: trans.__('Output formats'),
       inputName: 'outputFormat',
@@ -226,7 +226,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       value: state.outputFormats || [],
       environment: state.environment,
       onChange: handleOutputFormatsChange
-    } as CreateJobFormOutputFormatsField,
+    } as ICreateJobFormOutputFormatsField,
     {
       label: trans.__('Parameters'),
       inputName: 'parameters',
@@ -235,7 +235,7 @@ export function CreateJobForm(props: CreateJobFormProps) {
       onChange: handleInputChange,
       addParameter: addParameter,
       removeParameter: removeParameter
-    } as CreateJobFormParametersField
+    } as ICreateJobFormParametersField
   ];
 
   return (
