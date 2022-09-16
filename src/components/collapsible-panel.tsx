@@ -25,9 +25,9 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
         <ToolbarButtonComponent
           className="jp-collapsible-panel-icon-toolbar-button"
           icon={expanded ? caretDownIcon : caretRightIcon}
-          onClick={onControlClick}
+          onClick={handleChange}
         />
-        <span className="jp-collapsible-panel-title" onClick={onControlClick}>
+        <span className="jp-collapsible-panel-title" onClick={handleChange}>
           {props.title}
         </span>
       </div>
