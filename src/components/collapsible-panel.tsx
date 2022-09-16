@@ -11,7 +11,7 @@ export interface ICollapsiblePanelProps {
 export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
   const [expanded, setExpanded] = useState(props.expanded ?? false);
 
-  const onControlClick = () => {
+  const handleChange = () => {
     setExpanded(!expanded);
   };
 
