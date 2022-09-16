@@ -1,4 +1,3 @@
-import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import React, { useState } from 'react';
 import { caretDownIcon, caretRightIcon } from '@jupyterlab/ui-components';
 
@@ -22,11 +21,7 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
           'jp-collapsible-panel-summary' + (expanded ? ' expanded' : '')
         }
       >
-        <ToolbarButtonComponent
-          className="jp-collapsible-panel-icon-toolbar-button"
-          icon={expanded ? caretDownIcon : caretRightIcon}
-          onClick={handleChange}
-        />
+        {expanded ? caretDownIcon.react : caretRightIcon.react}
         <span className="jp-collapsible-panel-title" onClick={handleChange}>
           {props.title}
         </span>
