@@ -259,6 +259,11 @@ ul.jp-notebook-job-output-formats-options {
   font-weight: bold;
 }
 
+.jp-collapsible-panel-content {
+  display: none;
+}
+
 .jp-collapsible-panel-content.expanded {
   padding-block-start: 0.5rem;
+  display: block;
 }
