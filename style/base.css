@@ -249,7 +249,7 @@ ul.jp-notebook-job-output-formats-options {
 
 .jp-collapsible-panel-icon-toolbar-button {
   cursor: default;
-  font-weight: bold;
+  font-weight: var(--jp-content-heading-font-weight);
   background-color: unset !important;
   color: unset !important;
 }
