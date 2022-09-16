@@ -5,11 +5,11 @@ import { caretDownIcon, caretRightIcon } from '@jupyterlab/ui-components';
 export interface ICollapsiblePanelProps {
   title: JSX.Element | string;
   content: JSX.Element | string;
-  expandedByDefault?: boolean;
+  expanded?: boolean;
 }
 
 export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
-  const [expanded, setExpanded] = useState(props.expandedByDefault ?? false);
+  const [expanded, setExpanded] = useState(props.expanded ?? false);
 
   const onControlClick = () => {
     setExpanded(!expanded);
