@@ -251,6 +251,7 @@ ul.jp-notebook-job-output-formats-options {
   font-weight: var(--jp-content-heading-font-weight);
   display: flex;
   align-items: center;
+  padding-inline: 0.35rem;
 }
 
 .jp-collapsible-panel-title {
