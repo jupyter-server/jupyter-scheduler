@@ -247,11 +247,10 @@ ul.jp-notebook-job-output-formats-options {
   align-items: center;
 }
 
-.jp-collapsible-panel-icon-toolbar-button {
-  cursor: default;
+.jp-collapsible-panel-button {
   font-weight: var(--jp-content-heading-font-weight);
-  background-color: unset !important;
-  color: unset !important;
+  display: flex;
+  align-items: center;
 }
 
 .jp-collapsible-panel-title {
