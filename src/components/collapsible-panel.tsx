@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { caretDownIcon, caretRightIcon } from '@jupyterlab/ui-components';
 
 export interface ICollapsiblePanelProps {
-  expandedByDefault?: boolean;
   title: JSX.Element | string;
   content: JSX.Element | string;
+  expandedByDefault?: boolean;
 }
 
 export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
