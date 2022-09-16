@@ -37,7 +37,7 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
           'jp-collapsible-panel-content' + (expanded ? ' expanded' : '')
         }
       >
-        {expanded && <div>{props.content}</div>}
+        {props.content}
       </div>
     </div>
   );
