@@ -14,7 +14,6 @@ import {
 import { INotebookJobsListingModel } from './model';
 
 import { NotebookJobsList } from './components/notebook-jobs-list';
-import { NotebookJobsNavigation } from './components/notebook-jobs-navigation';
 
 export type JobsPanelView = 'CreateJobForm' | 'JobsList';
 
@@ -57,11 +56,6 @@ export class NotebookJobsPanel extends ReactWidget {
   render(): JSX.Element {
     return (
       <TranslatorContext.Provider value={this._translator}>
-        <NotebookJobsNavigation
-          currentView={this._view}
-          toggleSignal={this._signal}
-          toggleFunction={() => this.toggleView()}
-        />
         <div
           id="jp-create-job-form-container"
           style={{ display: this._view === 'CreateJobForm' ? 'block' : 'none' }}
