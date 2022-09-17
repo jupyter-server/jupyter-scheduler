@@ -256,7 +256,7 @@ ul.jp-notebook-job-output-formats-options {
 
 .jp-collapsible-panel-title {
   font-size: var(--jp-ui-font-size2);
-  font-weight: bold;
+  font-weight: var(--jp-content-heading-font-weight);
 }
 
 .jp-collapsible-panel-content {
