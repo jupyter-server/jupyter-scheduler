@@ -99,8 +99,8 @@ export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
         {reloadButton}
         <p className={'jp-notebook-job-list-empty'}>
           {trans.__(
-            'There are no scheduled jobs. ' +
-              'Right-click on a file in the file browser to run or schedule a notebook.'
+            'There are no notebook jobs. ' +
+              'Right-click on a file in the file browser to run or schedule a notebook as a job.'
           )}
         </p>
       </>
