@@ -167,7 +167,7 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.showNotebookJobs, {
     execute: async () => showJobsPane('JobsList'),
-    label: trans.__('Show Notebook Jobs'),
+    label: trans.__('Notebook Jobs'),
     icon: eventNoteIcon
   });
 
