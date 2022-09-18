@@ -9,17 +9,14 @@ import { CreateJobFormState } from '../create-job-form';
 
 import { JobRow } from './job-row';
 import { INotebookJobsWithToken } from '../model';
-import {
-  Button,
-  caretDownIcon,
-  caretUpIcon,
-  LabIcon
-} from '@jupyterlab/ui-components';
+import { caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
 import { Box } from './box';
 import { Stack } from './stack';
 import { Heading } from './heading';
+import { Button } from './button';
+import { Cluster } from './cluster';
 
 const ListItemClass = 'jp-notebook-job-list-item';
 
@@ -84,7 +81,11 @@ export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
   };
 
   const reloadButton = (
-    <Button onClick={() => fetchInitialRows()}>Reload</Button>
+    <Cluster justifyContent="flex-end">
+      <Button color="secondary" onClick={() => fetchInitialRows()}>
+        Reload
+      </Button>
+    </Cluster>
   );
 
   const trans = useTranslator('jupyterlab');
