@@ -7,6 +7,7 @@ import {
 } from '../components/output-format-picker';
 import { EnvironmentPicker } from './environment-picker';
 import { ParametersPicker } from './parameters-picker';
+import { Cluster } from './cluster';
 
 export interface ICreateJobFormField {
   label: string;
@@ -121,15 +122,17 @@ export function CreateJobFormInputs(
         }
 
         return (
-          <div className={props.formRow} key={idx}>
+          // <div className={props.formRow} key={idx}>
+          <Cluster gap={2}>
             <label
               className={props.formLabel}
               htmlFor={`${props.formPrefix}${field.inputName}`}
             >
-              {field.label}
+              {field.label}:
             </label>
-            <div className={props.formInput}>{formInputElement}</div>
-          </div>
+            {formInputElement}
+          </Cluster>
+          // </div>
         );
       })}
     </>

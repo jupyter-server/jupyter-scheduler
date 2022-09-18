@@ -166,14 +166,14 @@ async function activatePlugin(
   };
 
   commands.addCommand(CommandIDs.showNotebookJobs, {
-    execute: async () => showJobsPane('JobsList'),
+    execute: async () => showJobsPane('ListJobs'),
     label: trans.__('Notebook Jobs'),
     icon: eventNoteIcon
   });
 
   commands.addCommand(CommandIDs.runNotebook, {
     execute: async () => {
-      await showJobsPane('CreateJobForm');
+      await showJobsPane('CreateJob');
 
       const widget = tracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
@@ -211,7 +211,7 @@ async function activatePlugin(
     align: 'middle',
     item: ReactWidget.create(
       <RunningJobsIndicator
-        onClick={async () => showJobsPane('JobsList')}
+        onClick={async () => showJobsPane('ListJobs')}
         model={model}
       />
     )
