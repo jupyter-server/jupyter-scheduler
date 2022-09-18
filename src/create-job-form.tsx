@@ -1,4 +1,3 @@
-import { Button } from '@jupyterlab/ui-components';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import {
   ICreateJobFormEnvironmentField,
@@ -19,6 +18,7 @@ import { Box } from './components/box';
 import { Stack } from './components/stack';
 import { Heading } from './components/heading';
 import { Cluster } from './components/cluster';
+import { Button } from './components/button';
 
 export type CreateJobFormProps = {
   initialState: CreateJobFormState;
@@ -259,16 +259,11 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
             fields={formFields}
           />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button
-              type="button"
-              className="jp-Dialog-button jp-mod-styled"
-              onClick={props.cancelClick}
-            >
+            <Button color="secondary" onClick={props.cancelClick}>
               {trans.__('Cancel')}
             </Button>
             <Button
-              type="submit"
-              className="jp-Dialog-button jp-mod-accept jp-mod-styled"
+              color="primary"
               onClick={(e: React.MouseEvent) => {
                 submitCreateJobRequest(e);
                 return false;
