@@ -10,6 +10,7 @@
 @import './stack.css';
 @import './heading.css';
 @import './cluster.css';
+@import './button.css';
 
 .jp-notebook-jobs-panel {
   background: var(--jp-layout-color1);
