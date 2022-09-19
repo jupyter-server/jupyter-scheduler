@@ -23,15 +23,9 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
         onClick={handleChange}
       >
         {expanded ? (
-          <caretDownIcon.react
-            className="jp-collapsible-panel-button"
-            tag="span"
-          />
+          <caretDownIcon.react tag="span" />
         ) : (
-          <caretRightIcon.react
-            className="jp-collapsible-panel-button"
-            tag="span"
-          />
+          <caretRightIcon.react tag="span" />
         )}
         {props.title}
       </div>

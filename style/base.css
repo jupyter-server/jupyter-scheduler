@@ -249,7 +249,7 @@ ul.jp-notebook-job-output-formats-options {
   align-items: center;
 }
 
-.jp-collapsible-panel-button {
+.jp-collapsible-panel-header span {
   padding-inline: 0.35rem;
   display: flex;
   align-items: center;
