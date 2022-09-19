@@ -123,11 +123,11 @@ ul.jp-notebook-job-output-formats-options {
 }
 
 .jp-create-job-label {
-  flex: 0 0 20ch;
+  flex: 0 0 18ch;
 }
 
 .jp-create-job-input {
-  flex: 0 1 40ch;
+  flex: 0 1 36ch;
 }
 
 .jp-create-job-parameter-row {
