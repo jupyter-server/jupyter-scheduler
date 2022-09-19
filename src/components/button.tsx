@@ -9,7 +9,7 @@ export interface IButtonProps {
 }
 
 export function Button(props: IButtonProps): JSX.Element {
-  const cls = `jp-job-Button color-${props.color || 'secondary'}`;
+  const cls = `jp-jobs-Button color-${props.color || 'secondary'}`;
   return (
     <button className={cls} onClick={props.onClick}>
       {props.children}

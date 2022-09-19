@@ -29,9 +29,9 @@ export interface IClusterProps {
 }
 
 export function Cluster(props: IClusterProps): JSX.Element {
-  let cls = 'jp-Cluster';
-  cls += ` jp-Cluster-justify-content-${props.justifyContent || 'flex-start'}`;
-  cls += ` jp-Cluster-align-items-${props.alignItems || 'center'}`;
-  cls += ` jp-Cluster-gap-${props.gap || 1}`;
+  let cls = 'jp-jobs-Cluster';
+  cls += ` justify-content-${props.justifyContent || 'flex-start'}`;
+  cls += ` align-items-${props.alignItems || 'center'}`;
+  cls += ` gap-${props.gap || 1}`;
   return <div className={cls}>{props.children}</div>;
 }

@@ -9,7 +9,7 @@ export interface IStackProps {
 
 export function Stack(props: IStackProps): JSX.Element {
   return (
-    <div className={`jp-Stack jp-Stack-size-${props.size || 1}`}>
+    <div className={`jp-jobs-Stack size-${props.size || 1}`}>
       {props.children}
     </div>
   );

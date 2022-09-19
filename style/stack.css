@@ -1,34 +1,34 @@
-.jp-Stack {
+.jp-jobs-Stack {
   display: flex;
   box-sizing: border-box;
   flex-direction: column;
   justify-content: flex-start;
 }
 
-.jp-Stack > * {
+.jp-jobs-Stack > * {
   margin-block: 0;
 }
 
-.jp-Stack.jp-Stack-size-0 > * + * {
+.jp-jobs-Stack.size-0 > * + * {
   margin-block-start: var(--jp-size-0, '4px');
 }
 
-.jp-Stack.jp-Stack-size-1 > * + * {
+.jp-jobs-Stack.size-1 > * + * {
   margin-block-start: var(--jp-size-1, '4px');
 }
 
-.jp-Stack.jp-Stack-size-2 > * + * {
+.jp-jobs-Stack.size-2 > * + * {
   margin-block-start: var(--jp-size-2, '4px');
 }
 
-.jp-Stack.jp-Stack-size-3 > * + * {
+.jp-jobs-Stack.size-3 > * + * {
   margin-block-start: var(--jp-size-3, '4px');
 }
 
-.jp-Stack.jp-Stack-size-4 > * + * {
+.jp-jobs-Stack.size-4 > * + * {
   margin-block-start: var(--jp-size-4, '4px');
 }
 
-.jp-Stack.jp-Stack-size-5 > * + * {
+.jp-jobs-Stack.size-5 > * + * {
   margin-block-start: var(--jp-size-5, '4px');
 }

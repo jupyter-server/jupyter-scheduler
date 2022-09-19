@@ -9,6 +9,6 @@ export interface IBoxProps {
 
 export function Box(props: IBoxProps): JSX.Element {
   return (
-    <div className={`jp-Box jp-Box-size-${props.size}`}>{props.children}</div>
+    <div className={`jp-jobs-Box size-${props.size}`}>{props.children}</div>
   );
 }
