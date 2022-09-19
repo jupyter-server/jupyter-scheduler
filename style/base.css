@@ -242,28 +242,24 @@ ul.jp-notebook-job-output-formats-options {
 }
 
 .jp-collapsible-panel-header {
+  font-weight: var(--jp-content-heading-font-weight);
+  font-size: var(--jp-ui-font-size2);
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
 .jp-collapsible-panel-button {
-  font-weight: var(--jp-content-heading-font-weight);
+  padding-inline: 0.35rem;
   display: flex;
   align-items: center;
-  padding-inline: 0.35rem;
 }
 
-.jp-collapsible-panel-title {
-  font-size: var(--jp-ui-font-size2);
-  font-weight: var(--jp-content-heading-font-weight);
-}
-
-.jp-collapsible-panel-content {
+.jp-collapsible-panel-body {
   display: none;
 }
 
-.jp-collapsible-panel-content.expanded {
+.jp-collapsible-panel-body.expanded {
   padding-block-start: 0.5rem;
   display: block;
 }
