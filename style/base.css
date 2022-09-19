@@ -246,7 +246,6 @@ ul.jp-notebook-job-output-formats-options {
 }
 
 .jp-collapsible-panel-header div {
-  padding-inline: 0.35rem;
   display: flex;
   align-items: center;
 }
