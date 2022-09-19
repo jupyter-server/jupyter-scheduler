@@ -10,17 +10,13 @@ export interface ICollapsiblePanelProps {
 export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
   const [expanded, setExpanded] = useState(props.expanded ?? false);
 
-  const handleChange = () => {
-    setExpanded(!expanded);
-  };
-
   return (
     <div className={'jp-collapsible-panel' + (expanded ? ' expanded' : '')}>
       <h2
         className={
           'jp-collapsible-panel-header' + (expanded ? ' expanded' : '')
         }
-        onClick={handleChange}
+        onClick={_ => setExpanded(!expanded)}
       >
         {expanded ? <caretDownIcon.react /> : <caretRightIcon.react />}
         {props.title}
