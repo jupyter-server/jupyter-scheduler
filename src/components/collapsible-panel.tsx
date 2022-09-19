@@ -11,10 +11,10 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
   const [expanded, setExpanded] = useState(props.expanded ?? false);
 
   return (
-    <div className={'jp-collapsible-panel' + (expanded ? ' expanded' : '')}>
+    <div className={'jp-jobs-CollapsiblePanel'}>
       <h2
         className={
-          'jp-collapsible-panel-header' + (expanded ? ' expanded' : '')
+          'jp-jobs-CollapsiblePanel-header' + (expanded ? ' expanded' : '')
         }
         onClick={_ => setExpanded(!expanded)}
       >
@@ -22,7 +22,9 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
         {props.title}
       </h2>
       <div
-        className={'jp-collapsible-panel-body' + (expanded ? ' expanded' : '')}
+        className={
+          'jp-jobs-CollapsiblePanel-body' + (expanded ? ' expanded' : '')
+        }
       >
         {props.content}
       </div>

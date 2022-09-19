@@ -233,11 +233,11 @@ ul.jp-notebook-job-output-formats-options {
 }
 
 
-.jp-collapsible-panel {
+.jp-jobs-CollapsiblePanel {
   inline-size: 100%;
 }
 
-.jp-collapsible-panel-header {
+.jp-jobs-CollapsiblePanel-header {
   font-weight: var(--jp-content-heading-font-weight);
   font-size: var(--jp-ui-font-size2);
   display: flex;
@@ -245,15 +245,15 @@ ul.jp-notebook-job-output-formats-options {
   align-items: center;
 }
 
-.jp-collapsible-panel-header div {
+.jp-jobs-CollapsiblePanel-header div {
   display: flex;
   align-items: center;
 }
 
-.jp-collapsible-panel-body {
+.jp-jobs-CollapsiblePanel-body {
   display: none;
 }
 
-.jp-collapsible-panel-body.expanded {
+.jp-jobs-CollapsiblePanel-body.expanded {
   display: block;
 }
