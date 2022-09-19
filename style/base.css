@@ -4,6 +4,8 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
+@import './collapsible-panel.css';
+
 .jp-notebook-jobs-panel {
   background: var(--jp-layout-color1);
   color: var(--jp-ui-font-color1);
@@ -230,30 +232,4 @@ ul.jp-notebook-job-output-formats-options {
 
 .jp-notebook-job-navigation-tab.active {
   border-block-end: 2px solid var(--jp-brand-color1);
-}
-
-
-.jp-jobs-CollapsiblePanel {
-  inline-size: 100%;
-}
-
-.jp-jobs-CollapsiblePanel-header {
-  font-weight: var(--jp-content-heading-font-weight);
-  font-size: var(--jp-ui-font-size2);
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.jp-jobs-CollapsiblePanel-header div {
-  display: flex;
-  align-items: center;
-}
-
-.jp-jobs-CollapsiblePanel-body {
-  display: none;
-}
-
-.jp-jobs-CollapsiblePanel-body.expanded {
-  display: block;
 }
