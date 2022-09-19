@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { caretDownIcon, caretRightIcon } from '@jupyterlab/ui-components';
 
 export interface ICollapsiblePanelProps {
   title: string;
   content: JSX.Element | string;
   expanded?: boolean;
+  children?: ReactNode;
 }
 
 export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
@@ -16,7 +17,10 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
         className={
           'jp-jobs-CollapsiblePanel-header' + (expanded ? ' expanded' : '')
         }
-        onClick={_ => setExpanded(!expanded)}
+        onClick={_ => {
+          setExpanded(!expanded);
+          console.log(props.children);
+        }}
       >
         {expanded ? <caretDownIcon.react /> : <caretRightIcon.react />}
         {props.title}
