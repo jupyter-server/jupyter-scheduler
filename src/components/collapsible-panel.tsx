@@ -18,7 +18,7 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
     <div className={'jp-collapsible-panel' + (expanded ? ' expanded' : '')}>
       <div
         className={
-          'jp-collapsible-panel-summary' + (expanded ? ' expanded' : '')
+          'jp-collapsible-panel-header' + (expanded ? ' expanded' : '')
         }
       >
         <div onClick={handleChange} className="jp-collapsible-panel-button">

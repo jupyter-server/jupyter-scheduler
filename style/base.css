@@ -241,7 +241,7 @@ ul.jp-notebook-job-output-formats-options {
   margin-block-end: 0.5rem;
 }
 
-.jp-collapsible-panel-summary {
+.jp-collapsible-panel-header {
   display: flex;
   justify-content: flex-start;
   align-items: center;
