@@ -16,19 +16,15 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
 
   return (
     <div className={'jp-collapsible-panel' + (expanded ? ' expanded' : '')}>
-      <div
+      <h2
         className={
           'jp-collapsible-panel-header' + (expanded ? ' expanded' : '')
         }
         onClick={handleChange}
       >
-        {expanded ? (
-          <caretDownIcon.react tag="span" />
-        ) : (
-          <caretRightIcon.react tag="span" />
-        )}
+        {expanded ? <caretDownIcon.react /> : <caretRightIcon.react />}
         {props.title}
-      </div>
+      </h2>
       <div
         className={'jp-collapsible-panel-body' + (expanded ? ' expanded' : '')}
       >

@@ -237,10 +237,6 @@ ul.jp-notebook-job-output-formats-options {
   inline-size: 100%;
 }
 
-.jp-collapsible-panel.expanded {
-  margin-block-end: 0.5rem;
-}
-
 .jp-collapsible-panel-header {
   font-weight: var(--jp-content-heading-font-weight);
   font-size: var(--jp-ui-font-size2);
@@ -249,7 +245,7 @@ ul.jp-notebook-job-output-formats-options {
   align-items: center;
 }
 
-.jp-collapsible-panel-header span {
+.jp-collapsible-panel-header div {
   padding-inline: 0.35rem;
   display: flex;
   align-items: center;
@@ -260,6 +256,5 @@ ul.jp-notebook-job-output-formats-options {
 }
 
 .jp-collapsible-panel-body.expanded {
-  padding-block-start: 0.5rem;
   display: block;
 }
