@@ -1,4 +1,4 @@
-.jp-Box {
+.jp-jobs-Box {
   display: block;
   padding: var(--size, '4px');
   border: none;
@@ -6,26 +6,26 @@
   box-sizing: border-box;
 }
 
-.jp-Box.jp-Box-size-0 {
+.jp-jobs-Box.size-0 {
   padding: var(--jp-size-0, '4px');
 }
 
-.jp-Box.jp-Box-size-1 {
+.jp-jobs-Box.size-1 {
   padding: var(--jp-size-1, '4px');
 }
 
-.jp-Box.jp-Box-size-2 {
+.jp-jobs-Box.size-2 {
   padding: var(--jp-size-2, '4px');
 }
 
-.jp-Box.jp-Box-size-3 {
+.jp-jobs-Box.size-3 {
   padding: var(--jp-size-3, '4px');
 }
 
-.jp-Box.jp-Box-size-4 {
+.jp-jobs-Box.size-4 {
   padding: var(--jp-size-4, '4px');
 }
 
-.jp-Box.jp-Box-size-5 {
+.jp-jobs-Box.size-5 {
   padding: var(--jp-size-5, '4px');
 }
