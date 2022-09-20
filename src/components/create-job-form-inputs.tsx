@@ -123,16 +123,17 @@ export function CreateJobFormInputs(
 
         return (
           // <div className={props.formRow} key={idx}>
-          <Cluster gap={2}>
-            <label
-              className={props.formLabel}
-              htmlFor={`${props.formPrefix}${field.inputName}`}
-            >
-              {field.label}:
-            </label>
-            {formInputElement}
-          </Cluster>
-          // </div>
+          <div style={{ display: 'none' }}>
+            <Cluster gap={2}>
+              <label
+                className={props.formLabel}
+                htmlFor={`${props.formPrefix}${field.inputName}`}
+              >
+                {field.label}:
+              </label>
+              {formInputElement}
+            </Cluster>
+          </div>
         );
       })}
     </>

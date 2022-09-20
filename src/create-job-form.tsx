@@ -21,6 +21,9 @@ import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
 
 export type CreateJobFormProps = {
   initialState: CreateJobFormState;
@@ -260,6 +263,26 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
             formInput={formInput}
             fields={formFields}
           />
+          <TextField
+            label="Job name"
+            size="small"
+            variant="outlined"
+            sx={{ width: '50%' }}
+          />
+          <TextField
+            label="Input file"
+            size="small"
+            variant="outlined"
+            sx={{ width: '50%' }}
+          />
+          <TextField
+            label="Output path"
+            size="small"
+            variant="outlined"
+            sx={{ width: '50%' }}
+          />
+          <FormControlLabel control={<Checkbox size="small" />} label="HTML" />
+          <FormControlLabel control={<Checkbox size="small" />} label="PDF" />
           <Cluster gap={3} justifyContent="flex-end">
             <Button
               variant="contained"
@@ -281,7 +304,6 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
           </Cluster>
         </Stack>
       </form>
-      <TextField id="outlined-basic" size="small" label="Outlined" variant="outlined" />
     </Box>
   );
 }
