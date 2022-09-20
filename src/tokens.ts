@@ -7,7 +7,7 @@ namespace SchedulerExtension {
   }
 
   export type ICustomEnvironment = React.FC<ICustomEnvironmentProps>;
-  
+
   export const ICustomEnvironment = new Token<ICustomEnvironment>(
     'scheduler-extension-custom-environment:ICustomEnvironment'
   );
