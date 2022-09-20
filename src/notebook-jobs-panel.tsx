@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { ThemeProvider } from '@mui/material/styles';
+
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
 import { Signal } from '@lumino/signaling';
@@ -14,6 +16,7 @@ import {
 import { INotebookJobsListingModel } from './model';
 
 import { NotebookJobsList } from './components/notebook-jobs-list';
+import { getJupyterLabTheme } from './theme-provider';
 
 export type JobsPanelView = 'CreateJob' | 'ListJobs';
 
@@ -59,26 +62,28 @@ export class NotebookJobsPanel extends ReactWidget {
 
   render(): JSX.Element {
     return (
-      <TranslatorContext.Provider value={this._translator}>
-        {this.view === 'CreateJob' && (
-          <UseSignal signal={this._signal}>
-            {(_, newState) => (
-              <CreateJobForm
-                initialState={newState ?? BlankCreateJobFormState}
-                cancelClick={() => this.changeView('ListJobs')}
-                postCreateJob={() => this.changeView('ListJobs')}
-              />
-            )}
-          </UseSignal>
-        )}
-        {this.view === 'ListJobs' && (
-          <NotebookJobsList
-            app={this._app}
-            createJobFormSignal={this._signal}
-            showCreateJob={() => this.changeView('CreateJob')}
-          />
-        )}
-      </TranslatorContext.Provider>
+      <ThemeProvider theme={getJupyterLabTheme()}>
+        <TranslatorContext.Provider value={this._translator}>
+          {this.view === 'CreateJob' && (
+            <UseSignal signal={this._signal}>
+              {(_, newState) => (
+                <CreateJobForm
+                  initialState={newState ?? BlankCreateJobFormState}
+                  cancelClick={() => this.changeView('ListJobs')}
+                  postCreateJob={() => this.changeView('ListJobs')}
+                />
+              )}
+            </UseSignal>
+          )}
+          {this.view === 'ListJobs' && (
+            <NotebookJobsList
+              app={this._app}
+              createJobFormSignal={this._signal}
+              showCreateJob={() => this.changeView('CreateJob')}
+            />
+          )}
+        </TranslatorContext.Provider>
+      </ThemeProvider>
     );
   }
 }
