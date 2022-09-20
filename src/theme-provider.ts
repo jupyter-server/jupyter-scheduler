@@ -26,6 +26,11 @@ export function getJupyterLabTheme(): Theme {
       button: {
         textTransform: 'capitalize'
       }
+    },
+    typography: {
+      button: {
+        textTransform: 'capitalize'
+      }
     }
   });
 }
