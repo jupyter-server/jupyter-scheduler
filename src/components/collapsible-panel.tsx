@@ -9,7 +9,6 @@ export interface ICollapsiblePanelProps {
 
 export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
   const [expanded, setExpanded] = useState(props.expanded ?? false);
-  const children = React.Children.toArray(props.children);
 
   return (
     <div className={'jp-jobs-CollapsiblePanel'}>
@@ -30,7 +29,7 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
           'jp-jobs-CollapsiblePanel-body' + (expanded ? ' expanded' : '')
         }
       >
-        {children}
+        {props.children}
       </div>
     </div>
   );
