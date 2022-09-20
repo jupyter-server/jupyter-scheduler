@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useTranslator } from '../hooks';
-import { JobsView } from '../notebook-jobs-panel';
+import { JobsView } from '../model';
 
 import {
   NotebookJobsNavigationTab,
@@ -17,7 +17,8 @@ export function NotebookJobsNavigationTabList(props: {
 
   const viewToTitle: { [key in JobsView]: string } = {
     ListJobs: trans.__('Jobs List'),
-    CreateJob: trans.__('Create Job')
+    CreateJob: trans.__('Create Job'),
+    JobDetail: trans.__('Job Details')
   };
 
   return (

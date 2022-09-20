@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { JobsView } from '../notebook-jobs-panel';
+import { JobsView } from '../model';
 
 export type tabClickProps = (
   event: React.MouseEvent<HTMLElement, MouseEvent>,

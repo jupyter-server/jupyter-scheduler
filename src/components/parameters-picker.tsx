@@ -2,13 +2,13 @@ import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 import React, { ChangeEvent } from 'react';
 
-import { JobParameter } from '../mainviews/create-job';
+import { IJobParameter } from '../model';
 import { useTranslator } from '../hooks';
 
 export type ParametersPickerProps = {
   name: string;
   id: string;
-  value: JobParameter[];
+  value: IJobParameter[];
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   addParameter: () => void;
   removeParameter: (idx: number) => void;

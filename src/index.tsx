@@ -19,7 +19,7 @@ import { Poll } from '@lumino/polling';
 import { RunningJobsIndicator } from './components/running-jobs-indicator';
 
 import { SchedulerService } from './handler';
-import { JobsView, ICreateJobModel } from './model';
+import { JobsView, ICreateJobModel, NotebookJobsListingModel } from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import {
   calendarAddOnIcon,
@@ -46,8 +46,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
   autoStart: true,
   activate: activatePlugin
 };
-
-type NotebookJobsPluginType = typeof plugin;
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {
@@ -79,6 +77,20 @@ function getSelectedFileName(widget: FileBrowser | null): string | null {
   return selectedItem.name;
 }
 
+let scheduledJobsListingModel: NotebookJobsListingModel | null = null;
+
+async function getNotebookJobsListingModel(): Promise<NotebookJobsListingModel> {
+  if (scheduledJobsListingModel) {
+    return scheduledJobsListingModel;
+  }
+
+  const api = new SchedulerService({});
+
+  const jobsResponse = await api.getJobs({});
+  scheduledJobsListingModel = new NotebookJobsListingModel(jobsResponse.jobs);
+  return scheduledJobsListingModel;
+}
+
 async function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
@@ -87,6 +99,11 @@ async function activatePlugin(
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
+  // first, validate presence of dependencies
+  if (!statusBar) {
+    return;
+  }
+
   const { commands } = app;
   const trans = translator.load('jupyterlab');
   const { tracker } = browserFactory;
@@ -110,14 +127,14 @@ async function activatePlugin(
   jobsPanel.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   const model = jobsPanel.model;
 
-  // commands.addCommand(CommandIDs.deleteJob, {
-  //   execute: async args => {
-  //     const id = args['id'] as string;
-  //     await api.deleteJob(id);
-  //   },
-  //   // TODO: Use args to name command dynamically
-  //   label: trans.__('Delete Job')
-  // });
+  commands.addCommand(CommandIDs.deleteJob, {
+    execute: async args => {
+      const id = args['id'] as string;
+      await api.deleteJob(id);
+    },
+    // TODO: Use args to name command dynamically
+    label: trans.__('Delete Job')
+  });
 
   const showJobsPane = async (view: JobsView) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
@@ -152,51 +169,47 @@ async function activatePlugin(
     icon: eventNoteIcon
   });
 
-  // commands.addCommand(CommandIDs.runNotebook, {
-  //   execute: async () => {
-  //     await showJobsPane('CreateJob');
+  commands.addCommand(CommandIDs.runNotebook, {
+    execute: async () => {
+      await showJobsPane('CreateJob');
 
-  //     const widget = tracker.currentWidget;
-  //     const filePath = getSelectedFilePath(widget) ?? '';
-  //     const fileName = getSelectedFileName(widget) ?? '';
+      const widget = tracker.currentWidget;
+      const filePath = getSelectedFilePath(widget) ?? '';
+      const fileName = getSelectedFileName(widget) ?? '';
 
-  //     // Update the job form inside the notebook jobs widget
-  //     const newState: ICreateJobModel = {
-  //       inputFile: filePath,
-  //       jobName: fileName,
-  //       outputPath: '',
-  //       environment: ''
-  //     };
+      // Update the job form inside the notebook jobs widget
+      const newModel: ICreateJobModel = {
+        inputFile: filePath,
+        jobName: fileName,
+        outputPath: '',
+        environment: ''
+      };
 
-  //     _signal.emit(newState);
-  //   },
-  //   label: trans.__('Create Notebook Job'),
-  //   icon: calendarAddOnIcon
-  // });
+      model.createJobModel = newModel;
+    },
+    label: trans.__('Create Notebook Job'),
+    icon: calendarAddOnIcon
+  });
 
-  // commands.addCommand(CommandIDs.stopJob, {
-  //   execute: async args => {
-  //     const id = args['id'] as string;
-  //     await api.setJobStatus(id, 'STOPPED');
-  //   },
-  //   // TODO: Use args to name command dynamically
-  //   label: trans.__('Stop Job')
-  // });
+  commands.addCommand(CommandIDs.stopJob, {
+    execute: async args => {
+      const id = args['id'] as string;
+      await api.setJobStatus(id, 'STOPPED');
+    },
+    // TODO: Use args to name command dynamically
+    label: trans.__('Stop Job')
+  });
 
-  if (!statusBar) {
-    // Automatically disable if statusbar missing
-    return;
-  }
-
-  // statusBar.registerStatusItem('jupyterlab-scheduler:status', {
-  //   align: 'middle',
-  //   item: ReactWidget.create(
-  //     <RunningJobsIndicator
-  //       onClick={async () => showJobsPane('ListJobs')}
-  //       model={model}
-  //     />
-  //   )
-  // });
+  const scheduledJobsListingModel = await getNotebookJobsListingModel();
+  statusBar.registerStatusItem('jupyterlab-scheduler:status', {
+    align: 'middle',
+    item: ReactWidget.create(
+      <RunningJobsIndicator
+        onClick={async () => showJobsPane('ListJobs')}
+        model={scheduledJobsListingModel}
+      />
+    )
+  });
 
   const statusPoll = new Poll({
     factory: async () => {

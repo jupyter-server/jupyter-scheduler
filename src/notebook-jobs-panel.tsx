@@ -14,7 +14,6 @@ import { JobsModel } from './model';
 import { NotebookJobsList } from './mainviews/list-jobs';
 import { JobDetail } from './mainviews/job-detail';
 
-
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
   readonly _description?: string;
@@ -32,6 +31,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._translator = options.translator;
   }
 
+  toggleView(): void {
+    if (
+      this.model.jobsView !== 'CreateJob' &&
+      this.model.jobsView !== 'ListJobs'
+    ) {
+      return;
+    }
+
+    this.model.jobsView =
+      this.model.jobsView === 'ListJobs' ? 'CreateJob' : 'ListJobs';
+  }
+
   render(): JSX.Element {
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
@@ -40,7 +51,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             <CreateJob
               model={this.model.createJobModel}
               modelChanged={newModel => (this.model.createJobModel = newModel)}
-              setView={view => (this.model.jobsView = view)}
+              toggleView={this.toggleView.bind(this)}
             />
           )}
           {this.model.jobsView === 'ListJobs' && (
@@ -48,7 +59,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               app={this._app}
               model={this.model.listJobsModel}
               modelChanged={newModel => (this.model.listJobsModel = newModel)}
-              setView={view => (this.model.jobsView = view)}
+              showCreateJob={() => (this.model.jobsView = 'CreateJob')}
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
