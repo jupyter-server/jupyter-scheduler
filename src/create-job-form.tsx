@@ -14,11 +14,13 @@ import {
 
 import { Scheduler, SchedulerService } from './handler';
 import { useTranslator } from './hooks';
-import { Box } from './components/box';
-import { Stack } from './components/stack';
 import { Heading } from './components/heading';
 import { Cluster } from './components/cluster';
-import { Button } from './components/button';
+
+import Button from '@mui/material/Button';
+import Box from '@mui/system/Box';
+import Stack from '@mui/system/Stack';
+import TextField from '@mui/material/TextField';
 
 export type CreateJobFormProps = {
   initialState: CreateJobFormState;
@@ -247,9 +249,9 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
   ];
 
   return (
-    <Box size={4}>
+    <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
-        <Stack size={4}>
+        <Stack spacing={4}>
           <Heading level={1}>Create Job</Heading>
           <CreateJobFormInputs
             formRow={formRow}
@@ -259,11 +261,16 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
             fields={formFields}
           />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button color="secondary" onClick={props.cancelClick}>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={props.cancelClick}
+            >
               {trans.__('Cancel')}
             </Button>
             <Button
-              color="primary"
+              variant="contained"
+              size="small"
               onClick={(e: React.MouseEvent) => {
                 submitCreateJobRequest(e);
                 return false;
@@ -274,6 +281,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
           </Cluster>
         </Stack>
       </form>
+      <TextField id="outlined-basic" size="small" label="Outlined" variant="outlined" />
     </Box>
   );
 }

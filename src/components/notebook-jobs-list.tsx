@@ -12,11 +12,12 @@ import { INotebookJobsWithToken } from '../model';
 import { caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
-import { Box } from './box';
-import { Stack } from './stack';
 import { Heading } from './heading';
-import { Button } from './button';
 import { Cluster } from './cluster';
+
+import Button from '@mui/material/Button';
+import Box from '@mui/system/Box';
+import Stack from '@mui/system/Stack';
 
 const ListItemClass = 'jp-notebook-job-list-item';
 
@@ -82,7 +83,11 @@ export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
 
   const reloadButton = (
     <Cluster justifyContent="flex-end">
-      <Button color="secondary" onClick={() => fetchInitialRows()}>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={() => fetchInitialRows()}
+      >
         Reload
       </Button>
     </Cluster>
@@ -265,8 +270,8 @@ export function NotebookJobsList(
 
   // Retrieve the initial jobs list
   return (
-    <Box size={4}>
-      <Stack size={3}>
+    <Box sx={{ p: 4 }}>
+      <Stack spacing={3}>
         <Heading level={1}>{trans.__('Notebook Jobs')}</Heading>
         <NotebookJobsListBody
           showHeaders={true}
