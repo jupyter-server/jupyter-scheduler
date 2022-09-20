@@ -28,6 +28,8 @@ import {
   calendarMonthIcon,
   eventNoteIcon
 } from './components/icons';
+import SchedulerExtension from './tokens';
+import CustomEnvironment from './custom-environment';
 
 namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -41,15 +43,30 @@ export const NotebookJobsPanelId = 'notebook-jobs-panel';
 /**
  * Initialization data for the jupyterlab-scheduler extension.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
+const schedulerPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-scheduler:plugin',
-  requires: [IFileBrowserFactory, ITranslator, ILayoutRestorer],
+  requires: [
+    IFileBrowserFactory,
+    ITranslator,
+    ILayoutRestorer,
+    SchedulerExtension.ICustomEnvironment
+  ],
   optional: [IStatusBar, ILauncher],
   autoStart: true,
   activate: activatePlugin
 };
 
-type NotebookJobsPluginType = typeof plugin;
+type NotebookJobsPluginType = typeof schedulerPlugin;
+
+// Disable this plugin and replace with custom plugin to change the custom environment UI
+const customEnvironment: JupyterFrontEndPlugin<SchedulerExtension.ICustomEnvironment> = {
+  id: 'jupyterlab-scheduler-custom-environment:plugin',
+  autoStart: true,
+  provides: SchedulerExtension.ICustomEnvironment,
+  activate: (app: JupyterFrontEnd) => {
+    return CustomEnvironment;
+  }
+}
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {
@@ -100,6 +117,7 @@ async function activatePlugin(
   browserFactory: IFileBrowserFactory,
   translator: ITranslator,
   restorer: ILayoutRestorer,
+  customEnvironment: SchedulerExtension.ICustomEnvironment,
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
@@ -122,7 +140,8 @@ async function activatePlugin(
     app,
     model,
     updateCreateJobFormSignal: _signal,
-    translator
+    translator,
+    customEnvironment
   });
   jobsPanel.title.icon = calendarMonthIcon;
   jobsPanel.title.caption = trans.__('Notebook Jobs');
@@ -239,6 +258,8 @@ async function activatePlugin(
 const _signal: Signal<NotebookJobsPluginType, CreateJobFormState> = new Signal<
   NotebookJobsPluginType,
   CreateJobFormState
->(plugin);
+>(schedulerPlugin);
 
-export default plugin;
+const plugins: JupyterFrontEndPlugin<any>[] = [schedulerPlugin, customEnvironment];
+
+export default plugins;

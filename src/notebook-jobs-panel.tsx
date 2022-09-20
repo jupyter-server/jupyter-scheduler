@@ -15,6 +15,7 @@ import { INotebookJobsListingModel } from './model';
 
 import { NotebookJobsList } from './components/notebook-jobs-list';
 import { NotebookJobsNavigation } from './components/notebook-jobs-navigation';
+import SchedulerExtension from './tokens';
 
 export type JobsPanelView = 'CreateJobForm' | 'JobsList';
 
@@ -25,6 +26,7 @@ export class NotebookJobsPanel extends ReactWidget {
   readonly _model: INotebookJobsListingModel;
   readonly _signal: Signal<any, CreateJobFormState>;
   readonly _translator: ITranslator;
+  readonly _customEnvironment: React.ElementType;
   private _view: JobsPanelView;
 
   constructor(options: NotebookJobsPanel.IOptions) {
@@ -38,6 +40,7 @@ export class NotebookJobsPanel extends ReactWidget {
     this._model = options.model;
     this._signal = options.updateCreateJobFormSignal;
     this._translator = options.translator;
+    this._customEnvironment = options.customEnvironment;
     this._view = options.initialView || 'CreateJobForm';
   }
 
@@ -72,6 +75,7 @@ export class NotebookJobsPanel extends ReactWidget {
                 initialState={newState ?? BlankCreateJobFormState}
                 cancelClick={() => this.toggleView()}
                 postCreateJob={() => this.toggleView()}
+                customEnvironment={this._customEnvironment}
               />
             )}
           </UseSignal>
@@ -100,5 +104,6 @@ namespace NotebookJobsPanel {
     updateCreateJobFormSignal: Signal<any, CreateJobFormState>;
     translator: ITranslator;
     initialView?: JobsPanelView;
+    customEnvironment: SchedulerExtension.ICustomEnvironment;
   }
 }

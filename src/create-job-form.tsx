@@ -21,6 +21,8 @@ export type CreateJobFormProps = {
   cancelClick: () => void;
   // Function to run after a create job request completes successfully
   postCreateJob: () => void;
+  // Extension point: optional additional component
+  customEnvironment?: React.ElementType;
 };
 
 export type JobParameter = {
@@ -252,6 +254,9 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
           formInput={formInput}
           fields={formFields}
         />
+        {props.customEnvironment &&
+          <props.customEnvironment state={state} setState={setState} />
+        }
         <div className={formRow}>
           <div className={formLabel}>&nbsp;</div>
           <div className={`${formInput} ${formPrefix}submit-container`}>
