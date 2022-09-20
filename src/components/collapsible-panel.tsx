@@ -16,10 +16,7 @@ export function CollapsiblePanel(props: ICollapsiblePanelProps): JSX.Element {
         className={
           'jp-jobs-CollapsiblePanel-header' + (expanded ? ' expanded' : '')
         }
-        onClick={_ => {
-          setExpanded(!expanded);
-          console.log(props.children);
-        }}
+        onClick={_ => setExpanded(!expanded)}
       >
         {expanded ? <caretDownIcon.react /> : <caretRightIcon.react />}
         {props.title}
