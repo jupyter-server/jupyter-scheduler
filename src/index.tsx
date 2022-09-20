@@ -77,20 +77,6 @@ function getSelectedFileName(widget: FileBrowser | null): string | null {
   return selectedItem.name;
 }
 
-let scheduledJobsListingModel: NotebookJobsListingModel | null = null;
-
-async function getNotebookJobsListingModel(): Promise<NotebookJobsListingModel> {
-  if (scheduledJobsListingModel) {
-    return scheduledJobsListingModel;
-  }
-
-  const api = new SchedulerService({});
-
-  const jobsResponse = await api.getJobs({});
-  scheduledJobsListingModel = new NotebookJobsListingModel(jobsResponse.jobs);
-  return scheduledJobsListingModel;
-}
-
 async function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
@@ -161,9 +147,9 @@ async function activatePlugin(
     icon: eventNoteIcon
   });
 
-  commands.addCommand(CommandIDs.runNotebook, {
-    execute: async () => {
-      await showJobsPane('CreateJob');
+  // commands.addCommand(CommandIDs.runNotebook, {
+  //   execute: async () => {
+  //     await showJobsPane('CreateJob');
 
       const model = jobsPanel?.model;
       if (!model) {
@@ -188,14 +174,14 @@ async function activatePlugin(
     icon: calendarAddOnIcon
   });
 
-  commands.addCommand(CommandIDs.stopJob, {
-    execute: async args => {
-      const id = args['id'] as string;
-      await api.setJobStatus(id, 'STOPPED');
-    },
-    // TODO: Use args to name command dynamically
-    label: trans.__('Stop Job')
-  });
+  // commands.addCommand(CommandIDs.stopJob, {
+  //   execute: async args => {
+  //     const id = args['id'] as string;
+  //     await api.setJobStatus(id, 'STOPPED');
+  //   },
+  //   // TODO: Use args to name command dynamically
+  //   label: trans.__('Stop Job')
+  // });
 
   // validate presence of status bar
   if (!statusBar) {
