@@ -268,7 +268,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           </Cluster>
         </Stack>
       </form>
-      <TextField id="outlined-basic" size="small" label="Outlined" variant="outlined" />
     </Box>
   );
 }
