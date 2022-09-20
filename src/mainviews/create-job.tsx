@@ -1,21 +1,19 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent } from 'react';
 import {
-  ICreateJobFormEnvironmentField,
-  ICreateJobFormField,
-  CreateJobFormInputs,
-  ICreateJobFormOutputFormatsField,
-  ICreateJobFormParametersField
-} from './components/create-job-form-inputs';
+  ICreateJobEnvironmentField,
+  ICreateJobField,
+  CreateJobInputs,
+  ICreateJobOutputFormatsField,
+  ICreateJobParametersField
+} from '../components/create-job-form-inputs';
 
-import {
-  IOutputFormatOption,
-  outputFormatsForEnvironment
-} from './components/output-format-picker';
+import { outputFormatsForEnvironment } from '../components/output-format-picker';
 
-import { Scheduler, SchedulerService } from './handler';
-import { useTranslator } from './hooks';
-import { Heading } from './components/heading';
-import { Cluster } from './components/cluster';
+import { Scheduler, SchedulerService } from '../handler';
+import { useTranslator } from '../hooks';
+import { Heading } from '../components/heading';
+import { Cluster } from '../components/cluster';
+import { ICreateJobModel, JobsView } from '../models';
 
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
@@ -24,51 +22,14 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+export interface ICreateJobProps {
+  model: ICreateJobModel;
+  modelChanged: (model: ICreateJobModel) => void;
+  setView: (view: JobsView) => void;
+}
 
-export type CreateJobFormProps = {
-  initialState: CreateJobFormState;
-  cancelClick: () => void;
-  // Function to run after a create job request completes successfully
-  postCreateJob: () => void;
-};
-
-export type JobParameter = {
-  name: string;
-  value: string;
-};
-
-// This type is based on ICreateJobInputModel, but parameters is ordered
-// for use in the form's display.
-export type CreateJobFormState = {
-  jobName: string;
-  inputFile: string;
-  outputPath: string;
-  environment: string;
-  parameters?: JobParameter[];
-  outputFormats?: IOutputFormatOption[];
-};
-
-export const BlankCreateJobFormState: CreateJobFormState = {
-  jobName: '',
-  inputFile: '',
-  outputPath: '',
-  environment: '',
-  parameters: [],
-  outputFormats: []
-};
-
-export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
+export function CreateJob(props: ICreateJobProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-
-  const [state, setState] = useState<CreateJobFormState>(
-    BlankCreateJobFormState
-  );
-
-  useEffect(() => {
-    if (props.initialState) {
-      setState(prevState => ({ ...props.initialState }));
-    }
-  }, [props.initialState]);
 
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
@@ -78,19 +39,19 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
     if (parameterNameMatch !== null) {
       const idx = parseInt(parameterNameMatch[1]);
       // Update the parameters
-      const newParams = state.parameters || [];
+      const newParams = props.model.parameters || [];
       newParams[idx].name = target.value;
-      setState({ ...state, parameters: newParams });
+      props.modelChanged({ ...props.model, parameters: newParams });
     } else if (parameterValueMatch !== null) {
       const idx = parseInt(parameterValueMatch[1]);
       // Update the parameters
-      const newParams = state.parameters || [];
+      const newParams = props.model.parameters || [];
       newParams[idx].value = target.value;
-      setState(prevState => ({ ...prevState, parameters: newParams }));
+      props.modelChanged({ ...props.model, parameters: newParams });
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
-      setState(prevState => ({ ...prevState, [name]: value }));
+      // setState(prevState => ({ ...prevState, [name]: value }));
     }
   };
 
@@ -107,7 +68,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
       ? state.outputFormats.some(of => of.name === formatName)
       : false;
 
-    const oldOutputFormats: IOutputFormatOption[] = state.outputFormats || [];
+    const oldOutputFormats: IOutputFormat[] = state.outputFormats || [];
 
     // Go from unchecked to checked
     if (isChecked && !wasChecked) {
@@ -202,7 +163,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
   const formLabel = `${formPrefix}label`;
   const formInput = `${formPrefix}input`;
 
-  const formFields: ICreateJobFormField[] = [
+  const formFields: ICreateJobField[] = [
     {
       label: trans.__('Job name'),
       inputName: 'jobName',
@@ -231,7 +192,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
       value: state.environment,
       environmentsPromise: environmentsPromise,
       onChange: handleInputChange
-    } as ICreateJobFormEnvironmentField,
+    } as ICreateJobEnvironmentField,
     {
       label: trans.__('Output formats'),
       inputName: 'outputFormat',
@@ -239,7 +200,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
       value: state.outputFormats || [],
       environment: state.environment,
       onChange: handleOutputFormatsChange
-    } as ICreateJobFormOutputFormatsField,
+    } as ICreateJobOutputFormatsField,
     {
       label: trans.__('Parameters'),
       inputName: 'parameters',
@@ -248,7 +209,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
       onChange: handleInputChange,
       addParameter: addParameter,
       removeParameter: removeParameter
-    } as ICreateJobFormParametersField
+    } as ICreateJobParametersField
   ];
 
   return (
@@ -256,7 +217,7 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
         <Stack spacing={4}>
           <Heading level={1}>Create Job</Heading>
-          <CreateJobFormInputs
+          <CreateJobInputs
             formRow={formRow}
             formLabel={formLabel}
             formPrefix={formPrefix}

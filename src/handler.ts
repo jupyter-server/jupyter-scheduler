@@ -93,7 +93,7 @@ export class SchedulerService {
     return data as Scheduler.IListJobsResponse;
   }
 
-  async getJobsCount(status?: string): Promise<number> {
+  async getjobCount(status?: string): Promise<number> {
     let data: { count: number } = { count: 0 }; // Fail safe
     let query = '';
     if (status) {

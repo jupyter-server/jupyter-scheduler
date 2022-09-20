@@ -1,15 +1,15 @@
 import React, { ChangeEvent } from 'react';
-import { JobParameter } from '../create-job-form';
+import { JobParameter } from '../mainviews/create-job';
 
 import {
-  IOutputFormatOption,
+  IOutputFormat,
   OutputFormatPicker
 } from '../components/output-format-picker';
 import { EnvironmentPicker } from './environment-picker';
 import { ParametersPicker } from './parameters-picker';
 import { Cluster } from './cluster';
 
-export interface ICreateJobFormField {
+export interface ICreateJobField {
   label: string;
   inputName: string;
   inputType: 'text' | 'environment' | 'outputFormats' | 'parameters';
@@ -18,36 +18,36 @@ export interface ICreateJobFormField {
   value: any;
 }
 
-export interface ICreateJobFormTextField extends ICreateJobFormField {
+export interface ICreateJobTextField extends ICreateJobField {
   value: string;
 }
 
-export interface ICreateJobFormEnvironmentField extends ICreateJobFormField {
+export interface ICreateJobEnvironmentField extends ICreateJobField {
   environmentsPromise: () => Promise<any>;
   value: string;
 }
 
-export interface ICreateJobFormOutputFormatsField extends ICreateJobFormField {
+export interface ICreateJobOutputFormatsField extends ICreateJobField {
   environment: string;
-  value: IOutputFormatOption[];
+  value: IOutputFormat[];
 }
 
-export interface ICreateJobFormParametersField extends ICreateJobFormField {
+export interface ICreateJobParametersField extends ICreateJobField {
   value: JobParameter[];
   addParameter: () => void;
   removeParameter: (idx: number) => void;
 }
 
-export interface ICreateJobFormInputsProps {
+export interface ICreateJobInputsProps {
   formRow: string;
   formLabel: string;
   formPrefix: string;
   formInput: string;
-  fields: ICreateJobFormField[];
+  fields: ICreateJobField[];
 }
 
-export function CreateJobFormInputs(
-  props: ICreateJobFormInputsProps
+export function CreateJobInputs(
+  props: ICreateJobInputsProps
 ): JSX.Element {
   return (
     <>
@@ -65,7 +65,7 @@ export function CreateJobFormInputs(
                 id={formInputId}
                 onChange={field.onChange}
                 environmentsPromise={(
-                  field as ICreateJobFormEnvironmentField
+                  field as ICreateJobEnvironmentField
                 ).environmentsPromise()}
                 initialValue={field.value}
               />
@@ -74,7 +74,7 @@ export function CreateJobFormInputs(
           case 'outputFormats':
             // If no environment is selected, do not display output formats.
             if (
-              (field as ICreateJobFormOutputFormatsField).environment === ''
+              (field as ICreateJobOutputFormatsField).environment === ''
             ) {
               return null;
             }
@@ -85,9 +85,9 @@ export function CreateJobFormInputs(
                 id={formInputId}
                 onChange={field.onChange}
                 environment={
-                  (field as ICreateJobFormOutputFormatsField).environment
+                  (field as ICreateJobOutputFormatsField).environment
                 }
-                value={(field as ICreateJobFormOutputFormatsField).value}
+                value={(field as ICreateJobOutputFormatsField).value}
               />
             );
             break;
@@ -96,13 +96,13 @@ export function CreateJobFormInputs(
               <ParametersPicker
                 name={field.inputName}
                 id={formInputId}
-                value={(field as ICreateJobFormParametersField).value}
+                value={(field as ICreateJobParametersField).value}
                 onChange={field.onChange}
                 addParameter={
-                  (field as ICreateJobFormParametersField).addParameter
+                  (field as ICreateJobParametersField).addParameter
                 }
                 removeParameter={
-                  (field as ICreateJobFormParametersField).removeParameter
+                  (field as ICreateJobParametersField).removeParameter
                 }
                 formPrefix={props.formPrefix}
               />

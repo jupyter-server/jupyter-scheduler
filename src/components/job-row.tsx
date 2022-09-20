@@ -9,7 +9,7 @@ import { Signal } from '@lumino/signaling';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
-import { JobParameter, CreateJobFormState } from '../create-job-form';
+import { JobParameter, ICreateJobModel } from '../mainviews/create-job';
 
 import { replayIcon } from './icons';
 import { JobDetails } from './job-details';
@@ -61,7 +61,7 @@ function DeleteButton(props: {
 
 function RefillButton(props: {
   job: Scheduler.IDescribeJob;
-  signal: Signal<any, CreateJobFormState>;
+  signal: Signal<any, ICreateJobModel>;
   showCreateJob: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
@@ -84,7 +84,7 @@ function RefillButton(props: {
       : undefined;
 
   const clickHandler = (): void => {
-    const initialState: CreateJobFormState = {
+    const initialState: ICreateJobModel = {
       inputFile: props.job.input_uri,
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,
@@ -164,7 +164,7 @@ function OutputFiles(props: {
 
 export type JobRowProps = {
   job: Scheduler.IDescribeJob;
-  createJobFormSignal: Signal<any, CreateJobFormState>;
+  CreateJobSignal: Signal<any, ICreateJobModel>;
   rowClass: string;
   cellClass: string;
   app: JupyterFrontEnd;
@@ -276,7 +276,7 @@ export function JobRow(props: JobRowProps): JSX.Element {
           />
           <RefillButton
             job={job}
-            signal={props.createJobFormSignal}
+            signal={props.CreateJobSignal}
             showCreateJob={props.showCreateJob}
           />
         </div>

@@ -1,22 +1,18 @@
 import React, { ChangeEvent, useMemo } from 'react';
 import { Scheduler } from '../handler';
-
-export interface IOutputFormatOption {
-  readonly name: string;
-  readonly label: string;
-}
+import { IOutputFormat } from '../models';
 
 export type OutputFormatPickerProps = {
   name: string;
   id: string;
   environment: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  value: IOutputFormatOption[];
+  value: IOutputFormat[];
 };
 
 export function outputFormatsForEnvironment(
   environment: string
-): IOutputFormatOption[] | null {
+): IOutputFormat[] | null {
   // Retrieve the environment data from session storage.
   const environmentsData = sessionStorage.getItem('environments');
   if (environmentsData === null) {
@@ -31,7 +27,7 @@ export function outputFormatsForEnvironment(
     return null;
   }
 
-  return environmentObj['output_formats'] as IOutputFormatOption[];
+  return environmentObj['output_formats'] as IOutputFormat[];
 }
 
 export function OutputFormatPicker(
