@@ -1,0 +1,24 @@
+.jp-jobs-CollapsiblePanel {
+  inline-size: 100%;
+}
+
+.jp-jobs-CollapsiblePanel-header {
+  font-weight: var(--jp-content-heading-font-weight);
+  font-size: var(--jp-ui-font-size2);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.jp-jobs-CollapsiblePanel-header div {
+  display: flex;
+  align-items: center;
+}
+
+.jp-jobs-CollapsiblePanel-body {
+  display: none;
+}
+
+.jp-jobs-CollapsiblePanel-body.expanded {
+  display: block;
+}

@@ -4,6 +4,8 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
+@import './collapsible-panel.css';
+
 .jp-notebook-jobs-panel {
   background: var(--jp-layout-color1);
   color: var(--jp-ui-font-color1);
