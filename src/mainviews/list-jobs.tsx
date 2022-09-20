@@ -5,15 +5,14 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Signal } from '@lumino/signaling';
 
 import { useTranslator } from '../hooks';
-import { CreateJobFormState } from '../create-job-form';
 
-import { JobRow } from './job-row';
-import { INotebookJobsWithToken } from '../model';
+import { JobRow } from '../components/job-row';
+import { INotebookJobsWithToken, IJobDetailModel, JobsView } from '../model';
 import { caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
-import { Heading } from './heading';
-import { Cluster } from './cluster';
+import { Heading } from '../components/heading';
+import { Cluster } from '../components/cluster';
 
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
@@ -27,7 +26,7 @@ interface ILoadJobsProps {
   showHeaders?: boolean;
   startToken?: string;
   app: JupyterFrontEnd;
-  createJobFormSignal: Signal<any, CreateJobFormState>;
+  CreateJobSignal: Signal<any, ICreateJobModel>;
   // Function that results in the create job form being made visible.
   showCreateJob: () => void;
   // Function that retrieves some jobs
@@ -162,7 +161,7 @@ export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
         <JobRow
           key={job.job_id}
           job={job}
-          createJobFormSignal={props.createJobFormSignal}
+          CreateJobSignal={props.CreateJobSignal}
           rowClass={ListItemClass}
           cellClass={jobTraitClass}
           app={props.app}
@@ -263,9 +262,15 @@ function getJobs(
   return api.getJobs(jobQuery);
 }
 
-export function NotebookJobsList(
-  props: NotebookJobsList.IOptions
-): JSX.Element {
+
+export interface IListJobsProps {
+  app: JupyterFrontEnd;
+  model: IJobDetailModel;
+  modelChanged: (model: IJobDetailModel) => void;
+  setView: (view: JobsView) => void;
+}
+
+export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   // Retrieve the initial jobs list
@@ -275,7 +280,7 @@ export function NotebookJobsList(
         <Heading level={1}>{trans.__('Notebook Jobs')}</Heading>
         <NotebookJobsListBody
           showHeaders={true}
-          createJobFormSignal={props.createJobFormSignal}
+          CreateJobSignal={props.CreateJobSignal}
           app={props.app}
           showCreateJob={props.showCreateJob}
           getJobs={getJobs}
@@ -283,13 +288,4 @@ export function NotebookJobsList(
       </Stack>
     </Box>
   );
-}
-
-export namespace NotebookJobsList {
-  export interface IOptions {
-    app: JupyterFrontEnd;
-    createJobFormSignal: Signal<any, CreateJobFormState>;
-    // Function that results in the create-job form being made visible.
-    showCreateJob: () => void;
-  }
 }
