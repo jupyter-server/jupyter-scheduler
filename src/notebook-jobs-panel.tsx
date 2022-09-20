@@ -50,6 +50,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       this.model.jobsView === 'ListJobs' ? 'CreateJob' : 'ListJobs';
   }
 
+  toggleView(): void {
+    if (
+      this.model.jobsView !== 'CreateJob' &&
+      this.model.jobsView !== 'ListJobs'
+    ) {
+      return;
+    }
+
+    this.model.jobsView =
+      this.model.jobsView === 'ListJobs' ? 'CreateJob' : 'ListJobs';
+  }
+
   render(): JSX.Element {
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
