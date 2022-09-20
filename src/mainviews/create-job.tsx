@@ -28,6 +28,8 @@ export interface ICreateJobProps {
   model: ICreateJobModel;
   modelChanged: (model: ICreateJobModel) => void;
   toggleView: () => unknown;
+  // Extension point: optional additional component
+  customEnvironment?: React.ElementType;
 }
 
 export function CreateJob(props: ICreateJobProps): JSX.Element {
@@ -234,6 +236,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             removeParameter={removeParameter}
             formPrefix={formPrefix}
           />
+          {props.customEnvironment &&
+            <props.customEnvironment
+              model={props.model}
+              modelChanged={props.modelChanged} />
+          }
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
