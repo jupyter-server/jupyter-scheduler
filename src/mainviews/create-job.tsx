@@ -167,13 +167,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   [
     {
-      label: trans.__('Input file'),
-      inputName: 'inputFile',
-      inputType: 'text',
-      value: props.model.inputFile,
-      onChange: handleInputChange
-    },
-    {
       label: trans.__('Output prefix'),
       inputName: 'outputPath',
       inputType: 'text',
@@ -213,7 +206,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         <Stack spacing={4}>
           <Heading level={1}>Create Job</Heading>
           <TextField
-            label="Job name"
+            label={trans.__('Job name')}
             size="small"
             variant="outlined"
             onChange={handleInputChange}
@@ -223,15 +216,23 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             sx={{ width: '50%' }}
           />
           <TextField
-            label="Input file"
+            label={trans.__('Input file')}
             size="small"
             variant="outlined"
+            onChange={handleInputChange}
+            value={props.model.inputFile}
+            id={`${formPrefix}inputFile`}
+            name='inputFile'
             sx={{ width: '50%' }}
           />
           <TextField
-            label="Output path"
+            label={trans.__('Output path')}
             size="small"
             variant="outlined"
+            onChange={handleInputChange}
+            value={props.model.outputPath}
+            id={`${formPrefix}outputPath`}
+            name='outputPath'
             sx={{ width: '50%' }}
           />
           <FormControlLabel control={<Checkbox size="small" />} label="HTML" />
