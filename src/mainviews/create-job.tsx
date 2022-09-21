@@ -1,8 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import {
   ICreateJobEnvironmentField,
-  ICreateJobField,
-  CreateJobInputs,
   ICreateJobOutputFormatsField,
   ICreateJobParametersField
 } from '../components/create-job-form-inputs';
@@ -166,18 +164,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const formPrefix = 'jp-create-job-';
-  const formRow = `${formPrefix}row`;
-  const formLabel = `${formPrefix}label`;
-  const formInput = `${formPrefix}input`;
 
-  const formFields: ICreateJobField[] = [
-    {
-      label: trans.__('Job name'),
-      inputName: 'jobName',
-      inputType: 'text',
-      value: props.model.jobName,
-      onChange: handleInputChange
-    },
+  [
     {
       label: trans.__('Input file'),
       inputName: 'inputFile',
@@ -224,17 +212,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
         <Stack spacing={4}>
           <Heading level={1}>Create Job</Heading>
-          <CreateJobInputs
-            formRow={formRow}
-            formLabel={formLabel}
-            formPrefix={formPrefix}
-            formInput={formInput}
-            fields={formFields}
-          />
           <TextField
             label="Job name"
             size="small"
             variant="outlined"
+            onChange={handleInputChange}
+            value={props.model.jobName}
+            id={`${formPrefix}jobName`}
+            name='jobName'
             sx={{ width: '50%' }}
           />
           <TextField
