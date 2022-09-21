@@ -99,16 +99,10 @@ async function activatePlugin(
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
-  // first, validate presence of dependencies
-  if (!statusBar) {
-    return;
-  }
-
   const { commands } = app;
   const trans = translator.load('jupyterlab');
   const { tracker } = browserFactory;
   const api = new SchedulerService({});
-  let mainAreaWidget: MainAreaWidget<NotebookJobsPanel>;
   const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
   });
@@ -116,16 +110,6 @@ async function activatePlugin(
     command: CommandIDs.showNotebookJobs,
     name: () => 'jupyterlab-scheduler'
   });
-
-  const jobsPanel = new NotebookJobsPanel({
-    app,
-    translator
-  });
-  jobsPanel.title.icon = calendarMonthIcon;
-  jobsPanel.title.caption = trans.__('Notebook Jobs');
-  jobsPanel.node.setAttribute('role', 'region');
-  jobsPanel.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
-  const model = jobsPanel.model;
 
   commands.addCommand(CommandIDs.deleteJob, {
     execute: async args => {
@@ -136,9 +120,17 @@ async function activatePlugin(
     label: trans.__('Delete Job')
   });
 
+  let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
+  let jobsPanel: NotebookJobsPanel | undefined;
+
   const showJobsPane = async (view: JobsView) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
-      // Create a new widget
+      // Create new jobs panel widget
+      jobsPanel = new NotebookJobsPanel({
+        app,
+        translator
+      });
+      // Create new main area widget
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
         content: jobsPanel
       });
@@ -173,6 +165,11 @@ async function activatePlugin(
     execute: async () => {
       await showJobsPane('CreateJob');
 
+      const model = jobsPanel?.model;
+      if (!model) {
+        return;
+      }
+
       const widget = tracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
       const fileName = getSelectedFileName(widget) ?? '';
@@ -200,6 +197,11 @@ async function activatePlugin(
     label: trans.__('Stop Job')
   });
 
+  // validate presence of status bar
+  if (!statusBar) {
+    return;
+  }
+
   const scheduledJobsListingModel = await getNotebookJobsListingModel();
   statusBar.registerStatusItem('jupyterlab-scheduler:status', {
     align: 'middle',
@@ -213,6 +215,11 @@ async function activatePlugin(
 
   const statusPoll = new Poll({
     factory: async () => {
+      const model = jobsPanel?.model;
+      if (!model) {
+        return;
+      }
+
       const jobCount = await api.getjobCount('IN_PROGRESS');
       model.jobCount = jobCount;
     },
@@ -226,8 +233,6 @@ async function activatePlugin(
       command: CommandIDs.showNotebookJobs
     });
   }
-
-  console.log('JupyterLab extension jupyterlab-scheduler is activated!');
 }
 
 export default plugin;
