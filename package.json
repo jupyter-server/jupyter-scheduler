@@ -78,7 +78,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
-    "@jupyterlab/builder": "^4.0.0-alpha.11",
+    "@jupyterlab/builder": "^3.4.7",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/jest": "^26.0.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
