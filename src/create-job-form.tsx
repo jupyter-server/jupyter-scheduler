@@ -15,6 +15,10 @@ import {
 
 import { Scheduler, SchedulerService } from './handler';
 import { useTranslator } from './hooks';
+import { Box } from './components/box';
+import { Stack } from './components/stack';
+import { Heading } from './components/heading';
+import { Cluster } from './components/cluster';
 
 export type CreateJobFormProps = {
   initialState: CreateJobFormState;
@@ -243,18 +247,18 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
   ];
 
   return (
-    <div className={`${formPrefix}form-container`}>
+    <Box size={4}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
-        <CreateJobFormInputs
-          formRow={formRow}
-          formLabel={formLabel}
-          formPrefix={formPrefix}
-          formInput={formInput}
-          fields={formFields}
-        />
-        <div className={formRow}>
-          <div className={formLabel}>&nbsp;</div>
-          <div className={`${formInput} ${formPrefix}submit-container`}>
+        <Stack size={4}>
+          <Heading level={1}>Create Job</Heading>
+          <CreateJobFormInputs
+            formRow={formRow}
+            formLabel={formLabel}
+            formPrefix={formPrefix}
+            formInput={formInput}
+            fields={formFields}
+          />
+          <Cluster gap={3} justifyContent="flex-end">
             <Button
               type="button"
               className="jp-Dialog-button jp-mod-styled"
@@ -272,9 +276,9 @@ export function CreateJobForm(props: CreateJobFormProps): JSX.Element {
             >
               {trans.__('Run Job')}
             </Button>
-          </div>
-        </div>
+          </Cluster>
+        </Stack>
       </form>
-    </div>
+    </Box>
   );
 }

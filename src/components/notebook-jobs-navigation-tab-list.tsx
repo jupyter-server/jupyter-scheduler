@@ -16,8 +16,8 @@ export function NotebookJobsNavigationTabList(props: {
   const trans = useTranslator('jupyterlab');
 
   const viewToTitle: { [key in JobsPanelView]: string } = {
-    JobsList: trans.__('Jobs List'),
-    CreateJobForm: trans.__('Create Job')
+    ListJobs: trans.__('Jobs List'),
+    CreateJob: trans.__('Create Job')
   };
 
   return (

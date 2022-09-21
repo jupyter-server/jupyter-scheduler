@@ -15,7 +15,7 @@ import { INotebookJobsListingModel } from './model';
 
 import { NotebookJobsList } from './components/notebook-jobs-list';
 
-export type JobsPanelView = 'CreateJobForm' | 'JobsList';
+export type JobsPanelView = 'CreateJob' | 'ListJobs';
 
 export class NotebookJobsPanel extends ReactWidget {
   readonly _title?: string;
@@ -37,7 +37,11 @@ export class NotebookJobsPanel extends ReactWidget {
     this._model = options.model;
     this._signal = options.updateCreateJobFormSignal;
     this._translator = options.translator;
-    this._view = options.initialView || 'CreateJobForm';
+    this._view = options.initialView || 'CreateJob';
+  }
+
+  get view(): JobsPanelView {
+    return this._view;
   }
 
   set view(value: JobsPanelView) {
@@ -49,37 +53,31 @@ export class NotebookJobsPanel extends ReactWidget {
     return this._signal;
   }
 
-  toggleView(): void {
-    this.view = this._view === 'JobsList' ? 'CreateJobForm' : 'JobsList';
+  changeView(view: JobsPanelView): void {
+    this.view = view;
   }
 
   render(): JSX.Element {
     return (
       <TranslatorContext.Provider value={this._translator}>
-        <div
-          id="jp-create-job-form-container"
-          style={{ display: this._view === 'CreateJobForm' ? 'block' : 'none' }}
-        >
+        {this.view === 'CreateJob' && (
           <UseSignal signal={this._signal}>
             {(_, newState) => (
               <CreateJobForm
                 initialState={newState ?? BlankCreateJobFormState}
-                cancelClick={() => this.toggleView()}
-                postCreateJob={() => this.toggleView()}
+                cancelClick={() => this.changeView('ListJobs')}
+                postCreateJob={() => this.changeView('ListJobs')}
               />
             )}
           </UseSignal>
-        </div>
-        <div
-          className="jp-notebook-jobs-list-container"
-          style={{ display: this._view === 'JobsList' ? 'block' : 'none' }}
-        >
+        )}
+        {this.view === 'ListJobs' && (
           <NotebookJobsList
             app={this._app}
             createJobFormSignal={this._signal}
-            showCreateJob={() => this.toggleView()}
+            showCreateJob={() => this.changeView('CreateJob')}
           />
-        </div>
+        )}
       </TranslatorContext.Provider>
     );
   }

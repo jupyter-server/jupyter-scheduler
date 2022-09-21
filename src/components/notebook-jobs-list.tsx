@@ -17,6 +17,10 @@ import {
 } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
+import { Box } from './box';
+import { Stack } from './stack';
+import { Heading } from './heading';
+
 const ListItemClass = 'jp-notebook-job-list-item';
 
 export const JobListPageSize = 25;
@@ -257,20 +261,21 @@ export function NotebookJobsList(
   props: NotebookJobsList.IOptions
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
-  const header = <h1>{trans.__('Notebook Job Runs')}</h1>;
 
   // Retrieve the initial jobs list
   return (
-    <div className={'jp-notebook-job-list'}>
-      {header}
-      <NotebookJobsListBody
-        showHeaders={true}
-        createJobFormSignal={props.createJobFormSignal}
-        app={props.app}
-        showCreateJob={props.showCreateJob}
-        getJobs={getJobs}
-      />
-    </div>
+    <Box size={4}>
+      <Stack size={3}>
+        <Heading level={1}>{trans.__('Notebook Jobs')}</Heading>
+        <NotebookJobsListBody
+          showHeaders={true}
+          createJobFormSignal={props.createJobFormSignal}
+          app={props.app}
+          showCreateJob={props.showCreateJob}
+          getJobs={getJobs}
+        />
+      </Stack>
+    </Box>
   );
 }
 

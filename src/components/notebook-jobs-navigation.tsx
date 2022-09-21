@@ -10,10 +10,10 @@ export function NotebookJobsNavigation(props: {
   toggleSignal: Signal<any, CreateJobFormState>;
   toggleFunction: () => void;
 }): JSX.Element {
-  const views: JobsPanelView[] = ['JobsList', 'CreateJobForm'];
+  const views: JobsPanelView[] = ['ListJobs', 'CreateJob'];
 
   const setView = (event: React.MouseEvent, view: JobsPanelView): void => {
-    if (view === 'JobsList') {
+    if (view === 'ListJobs') {
       const initialState: CreateJobFormState = {
         inputFile: '',
         jobName: '',
