@@ -1,10 +1,7 @@
 import React, { ChangeEvent } from 'react';
-import {
-  ICreateJobOutputFormatsField,
-  ICreateJobParametersField
-} from '../components/create-job-form-inputs';
+import { ICreateJobParametersField } from '../components/create-job-form-inputs';
 
-import { outputFormatsForEnvironment } from '../components/output-format-picker';
+import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
 
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
@@ -16,8 +13,6 @@ import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { EnvironmentPicker } from '../components/environment-picker';
 import { SelectChangeEvent } from '@mui/material';
 
@@ -176,14 +171,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   [
     {
-      label: trans.__('Output formats'),
-      inputName: 'outputFormat',
-      inputType: 'outputFormats',
-      value: props.model.outputFormats || [],
-      environment: props.model.environment,
-      onChange: handleOutputFormatsChange
-    } as ICreateJobOutputFormatsField,
-    {
       label: trans.__('Parameters'),
       inputName: 'parameters',
       inputType: 'parameters',
@@ -237,8 +224,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             environmentsPromise={environmentsPromise()}
             initialValue={props.model.environment}
           />
-          <FormControlLabel control={<Checkbox size="small" />} label="HTML" />
-          <FormControlLabel control={<Checkbox size="small" />} label="PDF" />
+          <OutputFormatPicker
+            name='outputFormat'
+            id={`${formPrefix}outputFormat`}
+            onChange={handleOutputFormatsChange}
+            environment={props.model.environment}
+            value={props.model.outputFormats || []}
+          />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="contained" size="small" onClick={props.toggleView}>
               {trans.__('Cancel')}
