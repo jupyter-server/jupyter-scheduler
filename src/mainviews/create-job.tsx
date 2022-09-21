@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
 import {
-  ICreateJobEnvironmentField,
   ICreateJobOutputFormatsField,
   ICreateJobParametersField
 } from '../components/create-job-form-inputs';
@@ -19,6 +18,7 @@ import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { EnvironmentPicker } from '../components/environment-picker';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -151,7 +151,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const api = new SchedulerService({});
-  const environmentsPromise = async () => {
+  const environmentsPromise: () => Promise<Scheduler.IRuntimeEnvironment[]> = async () => {
     const environmentsCache = sessionStorage.getItem('environments');
     if (environmentsCache !== null) {
       return JSON.parse(environmentsCache);
@@ -166,21 +166,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const formPrefix = 'jp-create-job-';
 
   [
-    {
-      label: trans.__('Output prefix'),
-      inputName: 'outputPath',
-      inputType: 'text',
-      value: props.model.outputPath,
-      onChange: handleInputChange
-    },
-    {
-      label: trans.__('Environment'),
-      inputName: 'environment',
-      inputType: 'environment',
-      value: props.model.environment,
-      environmentsPromise: environmentsPromise,
-      onChange: handleInputChange
-    } as ICreateJobEnvironmentField,
     {
       label: trans.__('Output formats'),
       inputName: 'outputFormat',
@@ -234,6 +219,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}outputPath`}
             name='outputPath'
             sx={{ width: '50%' }}
+          />
+          <EnvironmentPicker
+            // TODO: Add label
+            name={'environment'}
+            id={`${formPrefix}environment`}
+            onChange={handleInputChange}
+            environmentsPromise={environmentsPromise()}
+            initialValue={props.model.environment}
           />
           <FormControlLabel control={<Checkbox size="small" />} label="HTML" />
           <FormControlLabel control={<Checkbox size="small" />} label="PDF" />
