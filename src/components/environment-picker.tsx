@@ -1,4 +1,5 @@
-import React, { ChangeEvent, useState } from 'react';
+import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import React, { useState } from 'react';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
@@ -6,7 +7,7 @@ import { useTranslator } from '../hooks';
 export type EnvironmentPickerProps = {
   name: string;
   id: string;
-  onChange: (event: ChangeEvent) => void;
+  onChange: (event: SelectChangeEvent<string>) => void;
   environmentsPromise: Promise<Scheduler.IRuntimeEnvironment[]>;
   initialValue: string;
 };
@@ -26,22 +27,20 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
   }
 
   return (
-    <select
+    <Select
       name={props.name}
       id={props.id}
       onChange={props.onChange}
       value={props.initialValue}
     >
-      <option
-        value=""
-        title={trans.__('No environment selected')}
-        disabled
-      ></option>
+      <MenuItem disabled value="">
+        <em>{trans.__('No environment selected')}</em>
+      </MenuItem>
       {environmentList.map((env, idx) => (
-        <option value={env.label} title={env.description} key={idx}>
+        <MenuItem value={env.label} title={env.description} key={idx}>
           {env.name}
-        </option>
+        </MenuItem>
       ))}
-    </select>
+    </Select>
   );
 }

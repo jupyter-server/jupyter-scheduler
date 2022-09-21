@@ -19,6 +19,7 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { EnvironmentPicker } from '../components/environment-picker';
+import { SelectChangeEvent } from '@mui/material';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -51,6 +52,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const name = target.name;
       props.modelChanged({ ...props.model, [name]: value });
     }
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const target = event.target as HTMLInputElement;
+
+    console.log(`${target.name} is set to ${target.value}`);
+
+    props.modelChanged({ ...props.model, [target.name]: target.value });
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -224,7 +233,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             // TODO: Add label
             name={'environment'}
             id={`${formPrefix}environment`}
-            onChange={handleInputChange}
+            onChange={handleSelectChange}
             environmentsPromise={environmentsPromise()}
             initialValue={props.model.environment}
           />

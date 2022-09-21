@@ -2,7 +2,6 @@ import React, { ChangeEvent } from 'react';
 import { IJobParameter, IOutputFormat } from '../model';
 
 import { OutputFormatPicker } from '../components/output-format-picker';
-import { EnvironmentPicker } from './environment-picker';
 import { ParametersPicker } from './parameters-picker';
 import { Cluster } from './cluster';
 
@@ -54,17 +53,7 @@ export function CreateJobInputs(props: ICreateJobInputsProps): JSX.Element {
         switch (field.inputType) {
           // Environment picker
           case 'environment':
-            formInputElement = (
-              <EnvironmentPicker
-                name={field.inputName}
-                id={formInputId}
-                onChange={field.onChange}
-                environmentsPromise={(
-                  field as ICreateJobEnvironmentField
-                ).environmentsPromise()}
-                initialValue={field.value}
-              />
-            );
+            
             break;
           case 'outputFormats':
             // If no environment is selected, do not display output formats.
