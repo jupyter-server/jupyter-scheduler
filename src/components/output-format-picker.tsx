@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useMemo } from 'react';
 import { Scheduler } from '../handler';
-import { IOutputFormat } from '../models';
+import { IOutputFormat } from '../model';
 
 export type OutputFormatPickerProps = {
   name: string;

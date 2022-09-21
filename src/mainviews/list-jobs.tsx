@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
-import { Signal } from '@lumino/signaling';
-
 import { useTranslator } from '../hooks';
 
 import { JobRow } from '../components/job-row';
-import { INotebookJobsWithToken, IJobDetailModel, JobsView } from '../model';
+import { INotebookJobsWithToken, IListJobsModel } from '../model';
 import { caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
@@ -22,11 +20,10 @@ const ListItemClass = 'jp-notebook-job-list-item';
 
 export const JobListPageSize = 25;
 
-interface ILoadJobsProps {
+interface INotebookJobsListBodyProps {
   showHeaders?: boolean;
   startToken?: string;
   app: JupyterFrontEnd;
-  CreateJobSignal: Signal<any, ICreateJobModel>;
   // Function that results in the create job form being made visible.
   showCreateJob: () => void;
   // Function that retrieves some jobs
@@ -43,7 +40,9 @@ type GridColumn = {
   name: string;
 };
 
-export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
+export function NotebookJobsListBody(
+  props: INotebookJobsListBodyProps
+): JSX.Element {
   const [notebookJobs, setNotebookJobs] = useState<
     INotebookJobsWithToken | undefined
   >(undefined);
@@ -161,7 +160,6 @@ export function NotebookJobsListBody(props: ILoadJobsProps): JSX.Element {
         <JobRow
           key={job.job_id}
           job={job}
-          CreateJobSignal={props.CreateJobSignal}
           rowClass={ListItemClass}
           cellClass={jobTraitClass}
           app={props.app}
@@ -262,12 +260,11 @@ function getJobs(
   return api.getJobs(jobQuery);
 }
 
-
 export interface IListJobsProps {
   app: JupyterFrontEnd;
-  model: IJobDetailModel;
-  modelChanged: (model: IJobDetailModel) => void;
-  setView: (view: JobsView) => void;
+  model: IListJobsModel;
+  modelChanged: (model: IListJobsModel) => void;
+  showCreateJob: () => void;
 }
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
@@ -280,7 +277,6 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
         <Heading level={1}>{trans.__('Notebook Jobs')}</Heading>
         <NotebookJobsListBody
           showHeaders={true}
-          CreateJobSignal={props.CreateJobSignal}
           app={props.app}
           showCreateJob={props.showCreateJob}
           getJobs={getJobs}

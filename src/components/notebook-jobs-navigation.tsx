@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { ICreateJobModel } from '../mainviews/create-job';
 import { Signal } from '@lumino/signaling';
 import { NotebookJobsNavigationTabList } from './notebook-jobs-navigation-tab-list';
-import { JobsView } from '../notebook-jobs-panel';
+import { ICreateJobModel, JobsView } from '../model';
 
 export function NotebookJobsNavigation(props: {
   currentView: JobsView;

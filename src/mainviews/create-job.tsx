@@ -13,7 +13,7 @@ import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
-import { ICreateJobModel, JobsView } from '../models';
+import { ICreateJobModel, IOutputFormat } from '../model';
 
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
@@ -25,7 +25,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 export interface ICreateJobProps {
   model: ICreateJobModel;
   modelChanged: (model: ICreateJobModel) => void;
-  setView: (view: JobsView) => void;
+  toggleView: () => unknown;
 }
 
 export function CreateJob(props: ICreateJobProps): JSX.Element {
@@ -51,12 +51,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
-      // setState(prevState => ({ ...prevState, [name]: value }));
+      props.modelChanged({ ...props.model, [name]: value });
     }
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const outputFormatsList = outputFormatsForEnvironment(state.environment);
+    const outputFormatsList = outputFormatsForEnvironment(
+      props.model.environment
+    );
     if (outputFormatsList === null) {
       return; // No data about output formats; give up
     }
@@ -64,24 +66,27 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const formatName = event.target.value;
     const isChecked = event.target.checked;
 
-    const wasChecked: boolean = state.outputFormats
-      ? state.outputFormats.some(of => of.name === formatName)
+    const wasChecked: boolean = props.model.outputFormats
+      ? props.model.outputFormats.some(of => of.name === formatName)
       : false;
 
-    const oldOutputFormats: IOutputFormat[] = state.outputFormats || [];
+    const oldOutputFormats: IOutputFormat[] = props.model.outputFormats || [];
 
     // Go from unchecked to checked
     if (isChecked && !wasChecked) {
       // Get the output format matching the given name
       const newFormat = outputFormatsList.find(of => of.name === formatName);
       if (newFormat) {
-        setState({ ...state, outputFormats: [...oldOutputFormats, newFormat] });
+        props.modelChanged({
+          ...props.model,
+          outputFormats: [...oldOutputFormats, newFormat]
+        });
       }
     }
     // Go from checked to unchecked
     else if (!isChecked && wasChecked) {
-      setState({
-        ...state,
+      props.modelChanged({
+        ...props.model,
         outputFormats: oldOutputFormats.filter(of => of.name !== formatName)
       });
     }
@@ -94,16 +99,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     // Serialize parameters as an object.
     const jobOptions: Scheduler.ICreateJob = {
-      name: state.jobName,
-      input_uri: state.inputFile,
-      output_prefix: state.outputPath,
-      runtime_environment_name: state.environment
+      name: props.model.jobName,
+      input_uri: props.model.inputFile,
+      output_prefix: props.model.outputPath,
+      runtime_environment_name: props.model.environment
     };
 
-    if (state.parameters !== undefined) {
+    if (props.model.parameters !== undefined) {
       const jobParameters: { [key: string]: any } = {};
 
-      state.parameters.forEach(param => {
+      props.model.parameters.forEach(param => {
         const { name, value } = param;
         if (jobParameters[name] !== undefined) {
           console.error(
@@ -122,27 +127,29 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = jobParameters;
     }
 
-    if (state.outputFormats !== undefined) {
-      jobOptions.output_formats = state.outputFormats.map(entry => entry.name);
+    if (props.model.outputFormats !== undefined) {
+      jobOptions.output_formats = props.model.outputFormats.map(
+        entry => entry.name
+      );
     }
 
     api.createJob(jobOptions).then(response => {
-      props.postCreateJob();
+      props.toggleView();
     });
   };
 
   const removeParameter = (idx: number) => {
-    const newParams = state.parameters || [];
+    const newParams = props.model.parameters || [];
     newParams.splice(idx, 1);
 
-    setState({ ...state, parameters: newParams });
+    props.modelChanged({ ...props.model, parameters: newParams });
   };
 
   const addParameter = () => {
-    const newParams = state.parameters || [];
+    const newParams = props.model.parameters || [];
     newParams.push({ name: '', value: '' });
 
-    setState({ ...state, parameters: newParams });
+    props.modelChanged({ ...props.model, parameters: newParams });
   };
 
   const api = new SchedulerService({});
@@ -168,28 +175,28 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       label: trans.__('Job name'),
       inputName: 'jobName',
       inputType: 'text',
-      value: state.jobName,
+      value: props.model.jobName,
       onChange: handleInputChange
     },
     {
       label: trans.__('Input file'),
       inputName: 'inputFile',
       inputType: 'text',
-      value: state.inputFile,
+      value: props.model.inputFile,
       onChange: handleInputChange
     },
     {
       label: trans.__('Output prefix'),
       inputName: 'outputPath',
       inputType: 'text',
-      value: state.outputPath,
+      value: props.model.outputPath,
       onChange: handleInputChange
     },
     {
       label: trans.__('Environment'),
       inputName: 'environment',
       inputType: 'environment',
-      value: state.environment,
+      value: props.model.environment,
       environmentsPromise: environmentsPromise,
       onChange: handleInputChange
     } as ICreateJobEnvironmentField,
@@ -197,15 +204,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       label: trans.__('Output formats'),
       inputName: 'outputFormat',
       inputType: 'outputFormats',
-      value: state.outputFormats || [],
-      environment: state.environment,
+      value: props.model.outputFormats || [],
+      environment: props.model.environment,
       onChange: handleOutputFormatsChange
     } as ICreateJobOutputFormatsField,
     {
       label: trans.__('Parameters'),
       inputName: 'parameters',
       inputType: 'parameters',
-      value: state.parameters || [],
+      value: props.model.parameters || [],
       onChange: handleInputChange,
       addParameter: addParameter,
       removeParameter: removeParameter
@@ -245,11 +252,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <FormControlLabel control={<Checkbox size="small" />} label="HTML" />
           <FormControlLabel control={<Checkbox size="small" />} label="PDF" />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button
-              variant="contained"
-              size="small"
-              onClick={props.cancelClick}
-            >
+            <Button variant="contained" size="small" onClick={props.toggleView}>
               {trans.__('Cancel')}
             </Button>
             <Button

@@ -1,7 +1,7 @@
 import { Theme, createTheme } from '@mui/material/styles';
 
 function getCSSVariable(name: string): string {
-  return getComputedStyle(document.body).getPropertyValue(name);
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
 export function getJupyterLabTheme(): Theme {

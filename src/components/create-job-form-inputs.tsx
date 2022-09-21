@@ -1,10 +1,7 @@
 import React, { ChangeEvent } from 'react';
-import { JobParameter } from '../mainviews/create-job';
+import { IJobParameter, IOutputFormat } from '../model';
 
-import {
-  IOutputFormat,
-  OutputFormatPicker
-} from '../components/output-format-picker';
+import { OutputFormatPicker } from '../components/output-format-picker';
 import { EnvironmentPicker } from './environment-picker';
 import { ParametersPicker } from './parameters-picker';
 import { Cluster } from './cluster';
@@ -33,7 +30,7 @@ export interface ICreateJobOutputFormatsField extends ICreateJobField {
 }
 
 export interface ICreateJobParametersField extends ICreateJobField {
-  value: JobParameter[];
+  value: IJobParameter[];
   addParameter: () => void;
   removeParameter: (idx: number) => void;
 }
@@ -46,9 +43,7 @@ export interface ICreateJobInputsProps {
   fields: ICreateJobField[];
 }
 
-export function CreateJobInputs(
-  props: ICreateJobInputsProps
-): JSX.Element {
+export function CreateJobInputs(props: ICreateJobInputsProps): JSX.Element {
   return (
     <>
       {props.fields.map((field, idx) => {
@@ -73,9 +68,7 @@ export function CreateJobInputs(
             break;
           case 'outputFormats':
             // If no environment is selected, do not display output formats.
-            if (
-              (field as ICreateJobOutputFormatsField).environment === ''
-            ) {
+            if ((field as ICreateJobOutputFormatsField).environment === '') {
               return null;
             }
 
@@ -98,9 +91,7 @@ export function CreateJobInputs(
                 id={formInputId}
                 value={(field as ICreateJobParametersField).value}
                 onChange={field.onChange}
-                addParameter={
-                  (field as ICreateJobParametersField).addParameter
-                }
+                addParameter={(field as ICreateJobParametersField).addParameter}
                 removeParameter={
                   (field as ICreateJobParametersField).removeParameter
                 }
