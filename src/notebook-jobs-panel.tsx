@@ -14,6 +14,9 @@ import { JobsModel } from './model';
 import { NotebookJobsList } from './mainviews/list-jobs';
 import { JobDetail } from './mainviews/job-detail';
 
+import { calendarMonthIcon } from './components/icons';
+import { LabIcon } from '@jupyterlab/ui-components';
+
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
   readonly _description?: string;
@@ -25,10 +28,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.addClass('jp-notebook-jobs-panel');
     const trans = options.translator.load('jupyterlab');
 
-    this._title = options.title ?? trans.__('Notebook Jobs');
+    this.title.icon = options.titleIcon ?? calendarMonthIcon;
+    this.title.caption = options.title ?? trans.__('Notebook Jobs');
     this._description = options.description ?? trans.__('Job Runs');
     this._app = options.app;
     this._translator = options.translator;
+
+    this.node.setAttribute('role', 'region');
+    this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
   toggleView(): void {
@@ -78,6 +85,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
 namespace NotebookJobsPanel {
   export interface IOptions {
     title?: string;
+    titleIcon?: LabIcon;
     description?: string;
     app: JupyterFrontEnd;
     translator: ITranslator;
