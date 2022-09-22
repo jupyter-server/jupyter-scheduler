@@ -59,7 +59,7 @@ function DeleteButton(props: {
 
 function RefillButton(props: {
   job: Scheduler.IDescribeJob;
-  showCreateJob: () => void;
+  showCreateJob: (newModel: ICreateJobModel) => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const buttonTitle = props.job.name
@@ -81,7 +81,7 @@ function RefillButton(props: {
       : undefined;
 
   const clickHandler = (): void => {
-    const initialState: ICreateJobModel = {
+    const newModel: ICreateJobModel = {
       inputFile: props.job.input_uri,
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,
@@ -95,13 +95,13 @@ function RefillButton(props: {
       props.job.runtime_environment_name
     );
     if (jobOutputFormats && outputFormats) {
-      initialState.outputFormats = outputFormats.filter(of =>
+      newModel.outputFormats = outputFormats.filter(of =>
         jobOutputFormats.some(jof => of.name === jof)
       );
     }
 
     // Switch the view to the form.
-    props.showCreateJob();
+    props.showCreateJob(newModel);
   };
 
   return (
@@ -163,7 +163,7 @@ export type JobRowProps = {
   rowClass: string;
   cellClass: string;
   app: JupyterFrontEnd;
-  showCreateJob: () => void;
+  showCreateJob: (newModel: ICreateJobModel) => void;
 };
 
 // Add a row for a job, with columns for each of its traits and a details view below.

@@ -5,7 +5,11 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { useTranslator } from '../hooks';
 
 import { JobRow } from '../components/job-row';
-import { INotebookJobsWithToken, IListJobsModel } from '../model';
+import {
+  ICreateJobModel,
+  IListJobsModel,
+  INotebookJobsWithToken
+} from '../model';
 import { caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
 
@@ -24,8 +28,9 @@ interface INotebookJobsListBodyProps {
   showHeaders?: boolean;
   startToken?: string;
   app: JupyterFrontEnd;
-  // Function that results in the create job form being made visible.
-  showCreateJob: () => void;
+  // Function that results in the create job form being made visible
+  // with job details prepopulated.
+  showCreateJob: (state: ICreateJobModel) => void;
   // Function that retrieves some jobs
   getJobs: (
     query: Scheduler.IListJobsQuery
@@ -79,6 +84,8 @@ export function NotebookJobsListBody(
     });
   };
 
+  const trans = useTranslator('jupyterlab');
+
   const reloadButton = (
     <Cluster justifyContent="flex-end">
       <Button
@@ -86,12 +93,10 @@ export function NotebookJobsListBody(
         size="small"
         onClick={() => fetchInitialRows()}
       >
-        Reload
+        {trans.__('Reload')}
       </Button>
     </Cluster>
   );
-
-  const trans = useTranslator('jupyterlab');
 
   if (notebookJobs === undefined) {
     return (
@@ -264,7 +269,7 @@ export interface IListJobsProps {
   app: JupyterFrontEnd;
   model: IListJobsModel;
   modelChanged: (model: IListJobsModel) => void;
-  showCreateJob: () => void;
+  showCreateJob: (newModel: ICreateJobModel) => void;
 }
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
