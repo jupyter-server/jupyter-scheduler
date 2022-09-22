@@ -217,7 +217,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             sx={{ width: '50%' }}
           />
           <EnvironmentPicker
-            // TODO: Add label
+            label={trans.__('Environment')}
             name={'environment'}
             id={`${formPrefix}environment`}
             onChange={handleSelectChange}
