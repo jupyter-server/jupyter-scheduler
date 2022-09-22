@@ -32,6 +32,7 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
       id={props.id}
       onChange={props.onChange}
       value={props.initialValue}
+      sx={{ width: '50%' }}
     >
       <MenuItem disabled value="">
         <em>{trans.__('No environment selected')}</em>
