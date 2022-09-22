@@ -135,10 +135,6 @@ ul.jp-notebook-job-output-formats-options {
   flex: 0 1 36ch;
 }
 
-.jp-create-job-parameter-row {
-  display: flex;
-}
-
 /* Job details widget */
 
 .jp-notebook-job-details {
