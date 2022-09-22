@@ -24,6 +24,11 @@ export interface ICreateJobProps {
 export function CreateJob(props: ICreateJobProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
+  // Cache text inputs so that React can update their state immediately, preventing
+  // a situation where the cursor jumps to the end of the text box after the user
+  // enters a character mid-input.
+  const [textInputs, setTextInputs] = React.useState<Record<string, string>>({});
+
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
 
@@ -44,6 +49,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
+      if (typeof value === 'string') {
+        setTextInputs({ ...textInputs, [name]: value });
+      }
       props.modelChanged({ ...props.model, [name]: value });
     }
   };
@@ -173,28 +181,25 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <Heading level={1}>Create Job</Heading>
           <TextField
             label={trans.__('Job name')}
-            size="small"
             variant="outlined"
             onChange={handleInputChange}
-            value={props.model.jobName}
+            value={textInputs['jobName'] ?? props.model.jobName}
             id={`${formPrefix}jobName`}
             name='jobName'
           />
           <TextField
             label={trans.__('Input file')}
-            size="small"
             variant="outlined"
             onChange={handleInputChange}
-            value={props.model.inputFile}
+            value={textInputs['inputFile'] ?? props.model.inputFile}
             id={`${formPrefix}inputFile`}
             name='inputFile'
           />
           <TextField
             label={trans.__('Output path')}
-            size="small"
             variant="outlined"
             onChange={handleInputChange}
-            value={props.model.outputPath}
+            value={textInputs['outputPath'] ?? props.model.outputPath}
             id={`${formPrefix}outputPath`}
             name='outputPath'
           />
