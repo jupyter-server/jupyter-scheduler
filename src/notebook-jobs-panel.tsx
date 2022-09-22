@@ -1,21 +1,19 @@
 import React from 'react';
 
 import { ThemeProvider } from '@mui/material/styles';
-import { getJupyterLabTheme } from './theme-provider';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { VDomRenderer } from '@jupyterlab/apputils';
 import { ITranslator } from '@jupyterlab/translation';
-
-import TranslatorContext from './context';
-import { CreateJob } from './mainviews/create-job';
-import { JobsModel } from './model';
-
-import { NotebookJobsList } from './mainviews/list-jobs';
-import { JobDetail } from './mainviews/job-detail';
+import { LabIcon } from '@jupyterlab/ui-components';
 
 import { calendarMonthIcon } from './components/icons';
-import { LabIcon } from '@jupyterlab/ui-components';
+import TranslatorContext from './context';
+import { CreateJob } from './mainviews/create-job';
+import { NotebookJobsList } from './mainviews/list-jobs';
+import { JobDetail } from './mainviews/job-detail';
+import { ICreateJobModel, JobsModel } from './model';
+import { getJupyterLabTheme } from './theme-provider';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -50,6 +48,12 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   }
 
   render(): JSX.Element {
+    const showCreateJob = (newModel: ICreateJobModel) => {
+      this.model.createJobModel = newModel;
+
+      this.model.jobsView = 'CreateJob';
+    };
+
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
@@ -65,7 +69,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               app={this._app}
               model={this.model.listJobsModel}
               modelChanged={newModel => (this.model.listJobsModel = newModel)}
-              showCreateJob={() => (this.model.jobsView = 'CreateJob')}
+              showCreateJob={showCreateJob}
             />
           )}
           {this.model.jobsView === 'JobDetail' && (

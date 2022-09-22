@@ -1,12 +1,14 @@
-import React, { ChangeEvent, useState } from 'react';
+import { InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import React, { useState } from 'react';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 
 export type EnvironmentPickerProps = {
+  label: string;
   name: string;
   id: string;
-  onChange: (event: ChangeEvent) => void;
+  onChange: (event: SelectChangeEvent<string>) => void;
   environmentsPromise: Promise<Scheduler.IRuntimeEnvironment[]>;
   initialValue: string;
 };
@@ -25,23 +27,24 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
     return <em>{trans.__('Loading …')}</em>;
   }
 
+  const labelId = `${props.id}-label`;
+
   return (
-    <select
-      name={props.name}
-      id={props.id}
-      onChange={props.onChange}
-      value={props.initialValue}
-    >
-      <option
-        value=""
-        title={trans.__('No environment selected')}
-        disabled
-      ></option>
-      {environmentList.map((env, idx) => (
-        <option value={env.label} title={env.description} key={idx}>
-          {env.name}
-        </option>
-      ))}
-    </select>
+    <>
+      <InputLabel id={labelId}>{props.label}</InputLabel>
+      <Select
+        labelId={labelId}
+        name={props.name}
+        id={props.id}
+        onChange={props.onChange}
+        value={props.initialValue}
+      >
+        {environmentList.map((env, idx) => (
+          <MenuItem value={env.label} title={env.description} key={idx}>
+            {env.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </>
   );
 }
