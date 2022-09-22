@@ -3,7 +3,7 @@ import React, { ChangeEvent } from 'react';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
-import { ParametersPicker } from '../components/parameters-picker';
+import { parameterNameMatch, ParametersPicker, parameterValueMatch } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
@@ -32,19 +32,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
 
-    const parameterNameMatch = target.name.match(/^parameter-(\d+)-name$/);
-    const parameterValueMatch = target.name.match(/^parameter-(\d+)-value$/);
-    if (parameterNameMatch !== null) {
-      const idx = parseInt(parameterNameMatch[1]);
-      // Update the parameters
-      const newParams = props.model.parameters || [];
-      newParams[idx].name = target.value;
+    const parameterNameIdx = parameterNameMatch(target.name);
+    const parameterValueIdx = parameterValueMatch(target.name);
+    const newParams = props.model.parameters || [];
+
+    if (parameterNameIdx !== null) {
+      newParams[parameterNameIdx].name = target.value;
       props.modelChanged({ ...props.model, parameters: newParams });
-    } else if (parameterValueMatch !== null) {
-      const idx = parseInt(parameterValueMatch[1]);
-      // Update the parameters
-      const newParams = props.model.parameters || [];
-      newParams[idx].value = target.value;
+    } else if (parameterValueIdx !== null) {
+      newParams[parameterValueIdx].value = target.value;
       props.modelChanged({ ...props.model, parameters: newParams });
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
