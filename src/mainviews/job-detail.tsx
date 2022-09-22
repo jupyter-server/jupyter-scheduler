@@ -16,10 +16,12 @@ import {
   AccordionSummary,
   CircularProgress,
   OutlinedInputProps,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
+import { Heading } from '../components/heading';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
@@ -89,8 +91,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return (
         <>
           <Stack direction="row" spacing={1} justifyContent="flex-end">
-            {running && <Button> Stop Job </Button>}
-            <Button> Rerun Job </Button>
+            {running && (
+              <Button onClick={_ => setRunning(!running)}> Stop Job </Button>
+            )}
+            <Button onClick={_ => setRunning(!running)}> Rerun Job </Button>
             <Button> Delete Job </Button>
           </Stack>
           <Stack spacing={4}>
@@ -174,24 +178,25 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   return (
     <>
       <Button onClick={_ => setLoading(!loading)}> Toggle loading </Button>
-      <Button onClick={_ => setRunning(!running)}> Toggle running </Button>
-      <Box sx={{ maxWidth: '500px' }}>
+      <Box sx={{ maxWidth: '500px', p: 4 }}>
         <Stack spacing={4}>
-          <h2>Job Detail</h2>
-          <div role="presentation" onClick={_ => alert('breadcrumb click!')}>
+          <div role="presentation">
             <Breadcrumbs aria-label="breadcrumb">
-              <Link underline="hover" color="inherit" href="/">
-                Jobs
-              </Link>
               <Link
                 underline="hover"
                 color="inherit"
-                href="/material-ui/getting-started/installation/"
+                onClick={(
+                  _:
+                    | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                ): void => props.setView('ListJobs')}
               >
-                {prop.jobId}
+                Jobs
               </Link>
+              <Typography color="text.primary">{prop.jobId}</Typography>
             </Breadcrumbs>
           </div>
+          <Heading level={1}>{trans.__('Job Detail')}</Heading>
           <MainArea />
         </Stack>
       </Box>
