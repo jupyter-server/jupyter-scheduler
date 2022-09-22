@@ -1,20 +1,19 @@
 import React from 'react';
 
-import { CreateJobFormState } from '../create-job-form';
 import { Signal } from '@lumino/signaling';
 import { NotebookJobsNavigationTabList } from './notebook-jobs-navigation-tab-list';
-import { JobsPanelView } from '../notebook-jobs-panel';
+import { ICreateJobModel, JobsView } from '../model';
 
 export function NotebookJobsNavigation(props: {
-  currentView: JobsPanelView;
-  toggleSignal: Signal<any, CreateJobFormState>;
+  currentView: JobsView;
+  toggleSignal: Signal<any, ICreateJobModel>;
   toggleFunction: () => void;
 }): JSX.Element {
-  const views: JobsPanelView[] = ['JobsList', 'CreateJobForm'];
+  const views: JobsView[] = ['ListJobs', 'CreateJob'];
 
-  const setView = (event: React.MouseEvent, view: JobsPanelView): void => {
-    if (view === 'JobsList') {
-      const initialState: CreateJobFormState = {
+  const setView = (event: React.MouseEvent, view: JobsView): void => {
+    if (view === 'ListJobs') {
+      const initialState: ICreateJobModel = {
         inputFile: '',
         jobName: '',
         outputPath: '',

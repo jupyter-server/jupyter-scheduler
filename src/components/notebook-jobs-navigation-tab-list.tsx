@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useTranslator } from '../hooks';
-import { JobsPanelView } from '../notebook-jobs-panel';
+import { JobsView } from '../model';
 
 import {
   NotebookJobsNavigationTab,
@@ -10,14 +10,15 @@ import {
 
 export function NotebookJobsNavigationTabList(props: {
   onTabClick: tabClickProps;
-  views: JobsPanelView[];
-  currentView: JobsPanelView;
+  views: JobsView[];
+  currentView: JobsView;
 }): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  const viewToTitle: { [key in JobsPanelView]: string } = {
-    JobsList: trans.__('Jobs List'),
-    CreateJobForm: trans.__('Create Job')
+  const viewToTitle: { [key in JobsView]: string } = {
+    ListJobs: trans.__('Jobs List'),
+    CreateJob: trans.__('Create Job'),
+    JobDetail: trans.__('Job Details')
   };
 
   return (

@@ -1,0 +1,105 @@
+.jp-jobs-Cluster {
+  display: flex;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.jp-jobs-Cluster.justify-content-flex-start {
+  justify-content: flex-start;
+}
+
+.jp-jobs-Cluster.justify-content-flex-end {
+  justify-content: flex-end;
+}
+
+.jp-jobs-Cluster.justify-content-start {
+  justify-content: start;
+}
+
+.jp-jobs-Cluster.justify-content-end {
+  justify-content: end;
+}
+
+.jp-jobs-Cluster.justify-content-left {
+  justify-content: left;
+}
+
+.jp-jobs-Cluster.justify-content-right {
+  justify-content: right;
+}
+
+.jp-jobs-Cluster.justify-content-center {
+  justify-content: center;
+}
+
+.jp-jobs-Cluster.justify-content-space-between {
+  justify-content: space-between;
+}
+
+.jp-jobs-Cluster.justify-content-space-around {
+  justify-content: space-around;
+}
+
+.jp-jobs-Cluster.justify-content-space-evenly {
+  justify-content: space-evenly;
+}
+
+.jp-jobs-Cluster.align-items-stretch {
+  align-items: stretch;
+}
+
+.jp-jobs-Cluster.align-items-flex-start {
+  align-items: flex-start;
+}
+
+.jp-jobs-Cluster.align-items-start {
+  align-items: start;
+}
+
+.jp-jobs-Cluster.align-items-self-start {
+  align-items: self-start;
+}
+
+.jp-jobs-Cluster.align-items-flex-end {
+  align-items: flex-end;
+}
+
+.jp-jobs-Cluster.align-items-end {
+  align-items: end;
+}
+
+.jp-jobs-Cluster.align-items-self-end {
+  align-items: self-end;
+}
+
+.jp-jobs-Cluster.align-items-center {
+  align-items: center;
+}
+
+.jp-jobs-Cluster.align-items-baseline {
+  align-items: baseline;
+}
+
+.jp-jobs-Cluster.gap-0 {
+  gap: var(--jp-size-0, '4px');
+}
+
+.jp-jobs-Cluster.gap-1 {
+  gap: var(--jp-size-1, '4px');
+}
+
+.jp-jobs-Cluster.gap-2 {
+  gap: var(--jp-size-2, '4px');
+}
+
+.jp-jobs-Cluster.gap-3 {
+  gap: var(--jp-size-3, '4px');
+}
+
+.jp-jobs-Cluster.gap-4 {
+  gap: var(--jp-size-4, '4px');
+}
+
+.jp-jobs-Cluster.gap-5 {
+  gap: var(--jp-size-5, '4px');
+}

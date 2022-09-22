@@ -1,5 +1,6 @@
 import { Signal } from '@lumino/signaling';
 import { Scheduler } from './handler';
+import { VDomModel } from '@jupyterlab/apputils';
 
 export class NotebookJobsListingModel implements INotebookJobsListingModel {
   private _scheduled_jobs: Scheduler.IDescribeJob[];
@@ -40,7 +41,7 @@ export class NotebookJobsListingModel implements INotebookJobsListingModel {
     }
   }
 
-  updateJobsCount(jobCount: number): void {
+  updatejobCount(jobCount: number): void {
     if (jobCount !== this.inProgressJobCount) {
       this.inProgressJobCount = jobCount;
       this.inProgressJobCountChanged.emit(jobCount);
@@ -59,15 +60,114 @@ export interface INotebookJobsListingModel {
   scheduledJobsChanged: Signal<any, INotebookJobsWithToken>;
 }
 
-export interface ICreateJobInputModel {
+// Revised models
+
+// TODO: make these values enums
+export type JobsView = 'CreateJob' | 'ListJobs' | 'JobDetail';
+export type ListJobsView = 'Job' | 'JobDefinition';
+
+export type IJobParameter = {
+  name: string;
+  value: string;
+};
+
+export interface IOutputFormat {
+  readonly name: string;
+  readonly label: string;
+}
+
+export interface ICreateJobModel {
   jobName: string;
   inputFile: string;
   outputPath: string;
   environment: string;
-  parameters?: { [key: string]: any };
+  parameters?: IJobParameter[];
+  outputFormats?: IOutputFormat[];
 }
 
-export interface ICreateJobInput {
-  changed: Signal<ICreateJobInputModel, string>;
-  model: ICreateJobInputModel;
+export interface IListJobsModel {
+  listJobsView: ListJobsView;
+}
+
+export interface IJobDetailModel {
+  jobId: string;
+}
+
+export class JobsModel extends VDomModel {
+  private _jobsView: JobsView = 'ListJobs';
+  private _createJobModel: ICreateJobModel;
+  private _listJobsModel: IListJobsModel;
+  private _jobDetailModel: IJobDetailModel;
+  private _jobCount: number;
+
+  constructor(options: IJobsModelOptions) {
+    super();
+    this._jobsView = options.jobsView || 'ListJobs';
+    this._createJobModel = options.createJobModel || Private.emptyCreateModel();
+    this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
+    this._jobDetailModel = options.jobDetailModel || { jobId: '' };
+    this._jobCount = 0;
+  }
+
+  get jobsView(): JobsView {
+    return this._jobsView;
+  }
+
+  set jobsView(view: JobsView) {
+    this._jobsView = view;
+    this.stateChanged.emit(void 0);
+  }
+
+  get createJobModel(): ICreateJobModel {
+    return this._createJobModel;
+  }
+
+  set createJobModel(model: ICreateJobModel) {
+    this._createJobModel = model;
+    this.stateChanged.emit(void 0);
+  }
+
+  get listJobsModel(): IListJobsModel {
+    return this._listJobsModel;
+  }
+
+  set listJobsModel(model: IListJobsModel) {
+    this._listJobsModel = model;
+    this.stateChanged.emit(void 0);
+  }
+
+  get jobDetailModel(): IJobDetailModel {
+    return this._jobDetailModel;
+  }
+
+  set jobDetailModel(model: IJobDetailModel) {
+    this._jobDetailModel = model;
+    this.stateChanged.emit(void 0);
+  }
+
+  get jobCount(): number {
+    return this._jobCount;
+  }
+
+  set jobCount(count: number) {
+    this._jobCount = count;
+  }
+}
+
+export interface IJobsModelOptions {
+  jobsView?: JobsView;
+  createJobModel?: ICreateJobModel;
+  listJobsModel?: IListJobsModel;
+  jobDetailModel?: IJobDetailModel;
+}
+
+namespace Private {
+  export function emptyCreateModel(): ICreateJobModel {
+    return {
+      jobName: '',
+      inputFile: '',
+      outputPath: '',
+      environment: ''
+    };
+  }
 }

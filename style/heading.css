@@ -1,0 +1,18 @@
+.jp-jobs-Heading {
+  line-height: 2;
+  color: var(--jp-ui-font-color1);
+  font-weight: normal;
+}
+
+h1.jp-jobs-Heading {
+  font-size: var(--jp-ui-font-size3);
+}
+
+h2.jp-jobs-Heading {
+  font-size: var(--jp-ui-font-size2);
+}
+
+h3.jp-jobs-Heading {
+  font-size: var(--jp-ui-font-size1);
+  font-style: italic;
+}

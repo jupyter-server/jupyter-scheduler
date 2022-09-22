@@ -1,0 +1,34 @@
+.jp-jobs-Stack {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.jp-jobs-Stack > * {
+  margin-block: 0;
+}
+
+.jp-jobs-Stack.size-0 > * + * {
+  margin-block-start: var(--jp-size-0, '4px');
+}
+
+.jp-jobs-Stack.size-1 > * + * {
+  margin-block-start: var(--jp-size-1, '4px');
+}
+
+.jp-jobs-Stack.size-2 > * + * {
+  margin-block-start: var(--jp-size-2, '4px');
+}
+
+.jp-jobs-Stack.size-3 > * + * {
+  margin-block-start: var(--jp-size-3, '4px');
+}
+
+.jp-jobs-Stack.size-4 > * + * {
+  margin-block-start: var(--jp-size-4, '4px');
+}
+
+.jp-jobs-Stack.size-5 > * + * {
+  margin-block-start: var(--jp-size-5, '4px');
+}

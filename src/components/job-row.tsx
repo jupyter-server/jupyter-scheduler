@@ -5,11 +5,9 @@ import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { closeIcon, stopIcon } from '@jupyterlab/ui-components';
 
-import { Signal } from '@lumino/signaling';
-
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
-import { JobParameter, CreateJobFormState } from '../create-job-form';
+import { IJobParameter, ICreateJobModel } from '../model';
 
 import { replayIcon } from './icons';
 import { JobDetails } from './job-details';
@@ -61,7 +59,6 @@ function DeleteButton(props: {
 
 function RefillButton(props: {
   job: Scheduler.IDescribeJob;
-  signal: Signal<any, CreateJobFormState>;
   showCreateJob: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
@@ -78,13 +75,13 @@ function RefillButton(props: {
   }
 
   // Convert the hash of parameters to an array.
-  const jobParameters: JobParameter[] | undefined =
+  const jobParameters: IJobParameter[] | undefined =
     props.job.parameters !== undefined
       ? Object.keys(props.job.parameters).map(key => getParam(key))
       : undefined;
 
   const clickHandler = (): void => {
-    const initialState: CreateJobFormState = {
+    const initialState: ICreateJobModel = {
       inputFile: props.job.input_uri,
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,
@@ -105,7 +102,6 @@ function RefillButton(props: {
 
     // Switch the view to the form.
     props.showCreateJob();
-    props.signal.emit(initialState);
   };
 
   return (
@@ -164,7 +160,6 @@ function OutputFiles(props: {
 
 export type JobRowProps = {
   job: Scheduler.IDescribeJob;
-  createJobFormSignal: Signal<any, CreateJobFormState>;
   rowClass: string;
   cellClass: string;
   app: JupyterFrontEnd;
@@ -274,11 +269,7 @@ export function JobRow(props: JobRowProps): JSX.Element {
               jobContainer?.classList.add(`${rowClass}-deleted`);
             }}
           />
-          <RefillButton
-            job={job}
-            signal={props.createJobFormSignal}
-            showCreateJob={props.showCreateJob}
-          />
+          <RefillButton job={job} showCreateJob={props.showCreateJob} />
         </div>
       </div>
       <JobDetails job={job} isVisible={detailsVisible} />
