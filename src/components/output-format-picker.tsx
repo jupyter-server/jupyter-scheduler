@@ -46,7 +46,7 @@ export function OutputFormatPicker(
   }
 
   return (
-    <Cluster gap={3} justifyContent="flex-end">
+    <Cluster gap={3} justifyContent="flex-start">
       {outputFormats.map((of, idx) => (
         <FormControlLabel
           key={idx}
