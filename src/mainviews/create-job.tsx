@@ -1,11 +1,11 @@
 import React, { ChangeEvent } from 'react';
 
-import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
-
-import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
+import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
+import { ParametersPicker } from '../components/parameters-picker';
+import { Scheduler, SchedulerService } from '../handler';
+import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
 
 import Button from '@mui/material/Button';
@@ -14,7 +14,6 @@ import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
 import { EnvironmentPicker } from '../components/environment-picker';
 import { SelectChangeEvent } from '@mui/material';
-import { ParametersPicker } from '../components/parameters-picker';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
