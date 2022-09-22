@@ -38,7 +38,6 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
         id={props.id}
         onChange={props.onChange}
         value={props.initialValue}
-        sx={{ width: '50%' }}
       >
         {environmentList.map((env, idx) => (
           <MenuItem value={env.label} title={env.description} key={idx}>

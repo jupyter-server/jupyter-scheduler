@@ -123,6 +123,10 @@ ul.jp-notebook-job-output-formats-options {
   margin: 0 0 0 -40px;
 }
 
+.jp-create-job-form {
+  max-width: 500px;
+}
+
 .jp-create-job-label {
   flex: 0 0 18ch;
 }

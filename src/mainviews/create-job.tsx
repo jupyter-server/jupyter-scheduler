@@ -179,7 +179,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.jobName}
             id={`${formPrefix}jobName`}
             name='jobName'
-            sx={{ width: '50%' }}
           />
           <TextField
             label={trans.__('Input file')}
@@ -189,7 +188,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.inputFile}
             id={`${formPrefix}inputFile`}
             name='inputFile'
-            sx={{ width: '50%' }}
           />
           <TextField
             label={trans.__('Output path')}
@@ -199,7 +197,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.outputPath}
             id={`${formPrefix}outputPath`}
             name='outputPath'
-            sx={{ width: '50%' }}
           />
           <EnvironmentPicker
             label={trans.__('Environment')}
