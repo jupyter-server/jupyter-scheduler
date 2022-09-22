@@ -1,9 +1,13 @@
-import { ToolbarButtonComponent } from '@jupyterlab/apputils';
-import { addIcon, Button, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 import React, { ChangeEvent } from 'react';
 
+import { addIcon, closeIcon, LabIcon } from '@jupyterlab/ui-components';
+
+import Stack from '@mui/system/Stack';
+
+import { Cluster } from '../components/cluster';
 import { IJobParameter } from '../model';
 import { useTranslator } from '../hooks';
+import { IconButton, TextField } from '@mui/material';
 
 export type ParametersPickerProps = {
   name: string;
@@ -20,47 +24,48 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   return (
-    <>
+    <Stack spacing={2}>
       {props.value &&
         props.value.map((param, paramIdx) => (
-          <div key={paramIdx} className={`${props.formPrefix}parameter-row`}>
-            <input
+          <Cluster key={paramIdx} justifyContent="flex-start">
+            <TextField
               name={`parameter-${paramIdx}-name`}
-              size={15}
               value={param.name}
               type="text"
               placeholder={trans.__('Name')}
               onChange={props.onChange}
             />
-            <input
+            <TextField
               name={`parameter-${paramIdx}-value`}
-              size={15}
               value={param.value}
               type="text"
               placeholder={trans.__('Value')}
               onChange={props.onChange}
             />
-            <ToolbarButtonComponent
-              className={`${props.formPrefix}inline-button`}
-              icon={closeIcon}
+            <IconButton
+              aria-label="delete"
               onClick={() => {
                 props.removeParameter(paramIdx);
                 return false;
               }}
-              tooltip={trans.__('Delete this parameter')}
-            />
-          </div>
+              title={trans.__('Delete this parameter')}
+            >
+              <LabIcon.resolveReact icon={closeIcon} tag="span" />
+            </IconButton>
+          </Cluster>
         ))}
-      <Button
-        minimal={true}
-        onClick={(e: React.MouseEvent) => {
-          props.addParameter();
-          return false;
-        }}
-        title={trans.__('Add new parameter')}
-      >
-        <LabIcon.resolveReact icon={addIcon} tag="span" />
-      </Button>
-    </>
+      {/* A one-item cluster to prevent the add-param button from being as wide as the widget */}
+      <Cluster justifyContent="flex-start">
+        <IconButton
+          onClick={(e: React.MouseEvent) => {
+            props.addParameter();
+            return false;
+          }}
+          title={trans.__('Add new parameter')}
+        >
+          <LabIcon.resolveReact icon={addIcon} tag="span" />
+        </IconButton>
+      </Cluster>
+    </Stack>
   );
 }
