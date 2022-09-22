@@ -2,14 +2,15 @@ import React, { ChangeEvent } from 'react';
 
 import { addIcon, closeIcon, LabIcon } from '@jupyterlab/ui-components';
 
+import { IconButton, InputLabel, TextField } from '@mui/material';
 import Stack from '@mui/system/Stack';
 
 import { Cluster } from '../components/cluster';
 import { IJobParameter } from '../model';
 import { useTranslator } from '../hooks';
-import { IconButton, TextField } from '@mui/material';
 
 export type ParametersPickerProps = {
+  label: string;
   name: string;
   id: string;
   value: IJobParameter[];
@@ -25,6 +26,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
 
   return (
     <Stack spacing={2}>
+      <InputLabel>{props.label}</InputLabel>
       {props.value &&
         props.value.map((param, paramIdx) => (
           <Cluster key={paramIdx} justifyContent="flex-start">

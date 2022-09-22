@@ -218,6 +218,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.outputFormats || []}
           />
           <ParametersPicker
+            label={trans.__('Parameters')}
             name={'parameters'}
             id={`${formPrefix}parameters`}
             value={props.model.parameters || []}
