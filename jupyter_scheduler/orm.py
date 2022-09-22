@@ -120,7 +120,7 @@ def create_tables(db_url, drop_tables=False):
 
 
 def create_session(db_url):
-    engine = create_engine(db_url, echo=True)
+    engine = create_engine(db_url, echo=False)
     Session = sessionmaker(bind=engine)
 
     return Session
