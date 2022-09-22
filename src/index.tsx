@@ -99,6 +99,11 @@ async function activatePlugin(
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
+  // first, validate presence of dependencies
+  if (!statusBar) {
+    return;
+  }
+
   const { commands } = app;
   const trans = translator.load('jupyterlab');
   const { tracker } = browserFactory;
