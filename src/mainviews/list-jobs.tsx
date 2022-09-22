@@ -6,7 +6,7 @@ import { useTranslator } from '../hooks';
 
 import { JobRow } from '../components/job-row';
 import {
-  ICreateJobModel, 
+  ICreateJobModel,
   IListJobsModel,
   INotebookJobsWithToken
 } from '../model';
