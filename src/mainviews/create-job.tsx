@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from 'react';
-import { ICreateJobParametersField } from '../components/create-job-form-inputs';
 
 import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
 
@@ -169,18 +168,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const formPrefix = 'jp-create-job-';
-
-  [
-    {
-      label: trans.__('Parameters'),
-      inputName: 'parameters',
-      inputType: 'parameters',
-      value: props.model.parameters || [],
-      onChange: handleInputChange,
-      addParameter: addParameter,
-      removeParameter: removeParameter
-    } as ICreateJobParametersField
-  ];
 
   return (
     <Box sx={{ p: 4 }}>
