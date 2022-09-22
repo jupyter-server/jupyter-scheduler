@@ -15,6 +15,7 @@ import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
 import { EnvironmentPicker } from '../components/environment-picker';
 import { SelectChangeEvent } from '@mui/material';
+import { ParametersPicker } from '../components/parameters-picker';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -230,6 +231,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleOutputFormatsChange}
             environment={props.model.environment}
             value={props.model.outputFormats || []}
+          />
+          <ParametersPicker
+            name={'parameters'}
+            id={`${formPrefix}parameters`}
+            value={props.model.parameters || []}
+            onChange={handleInputChange}
+            addParameter={addParameter}
+            removeParameter={removeParameter}
+            formPrefix={formPrefix}
           />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="contained" size="small" onClick={props.toggleView}>
