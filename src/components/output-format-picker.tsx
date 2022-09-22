@@ -2,6 +2,7 @@ import React, { ChangeEvent, useMemo } from 'react';
 
 import { Checkbox, FormControlLabel } from '@mui/material';
 
+import { Cluster } from './cluster';
 import { Scheduler } from '../handler';
 import { IOutputFormat } from '../model';
 
@@ -45,18 +46,19 @@ export function OutputFormatPicker(
   }
 
   return (
-    <ul className="jp-notebook-job-output-formats-options">
+    <Cluster gap={3} justifyContent="flex-end">
       {outputFormats.map((of, idx) => (
-        <li key={idx}>
-          <FormControlLabel control={
+        <FormControlLabel 
+          key={idx}
+          control={
             <Checkbox
               defaultChecked={props.value.some(sof => of.name === sof.name)} 
               id={`${props.id}-${of.name}`}
               value={of.name}
               onChange={props.onChange}
-            />} label={of.label} />
-        </li>
-      ))}
-    </ul>
+            />}
+          label={of.label} />
+        ))}
+    </Cluster>
   );
 }
