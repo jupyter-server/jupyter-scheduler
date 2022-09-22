@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -31,6 +31,7 @@ class RuntimeEnvironment(BaseModel):
     file_extensions: List[str]  # Supported input file types
     output_formats: List[OutputFormat]  # Supported output formats
     metadata: Optional[Dict[str, str]]  # Optional metadata
+    compute_types: Optional[List[str]]
 
     def __str__(self):
         return self.json()

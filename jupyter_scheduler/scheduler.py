@@ -135,17 +135,27 @@ class Scheduler(BaseScheduler):
 
     def create_job(self, model: CreateJob) -> DescribeJob:
         with self.db_session() as session:
-            job = Job(**model.dict(exclude_none=True))
-            session.add(job)
-            session.commit()
+            job = None
+            if model.idempotency_token:
+                job = (
+                    session.query(Job)
+                    .filter(Job.idempotency_token == model.idempotency_token)
+                    .one()
+                )
+            if job:
+                job_id = job.job_id
+            else:
+                job = Job(**model.dict(exclude_none=True))
+                session.add(job)
+                session.commit()
 
-            p = Process(target=self.execution_manager_class(job.job_id, self.config).process)
-            p.start()
+                p = Process(target=self.execution_manager_class(job.job_id, self.config).process)
+                p.start()
 
-            job.pid = p.pid
-            session.commit()
+                job.pid = p.pid
+                session.commit()
 
-            job_id = job.job_id
+                job_id = job.job_id
 
         return job_id
 
