@@ -19,11 +19,12 @@ import {
   TextField
 } from '@mui/material';
 import { caretDownIcon } from '@jupyterlab/ui-components';
+import { useTranslator } from '../hooks';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
   modelChanged: (model: IJobDetailModel) => void;
-  //remove optional below in setCreateModel?
+  //remove optional below in setCreateModel
   setCreateModel?: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
 }
@@ -37,6 +38,8 @@ interface ITextFieldStyledProps {
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(true);
+
+  const trans = useTranslator('jupyterlab');
 
   //const ss = new SchedulerService({});
   //const job = ss.getJobDefinitions(props.model.jobId):
@@ -92,35 +95,35 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           </Stack>
           <Stack spacing={4}>
             <TextFieldStyled
-              label="Job name"
+              label={trans.__('Job name')}
               defaultValue={basicOptions.jobName}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
-              label="Input file"
+              label={trans.__('Input file')}
               defaultValue={basicOptions.inputFile}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
-              label="Output path"
+              label={trans.__('Output path')}
               defaultValue={basicOptions.outputPath}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
-              label="Environment"
+              label={trans.__('Environment')}
               defaultValue={basicOptions.environment}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
-              label="Job name"
+              label={trans.__('Job name')}
               defaultValue={basicOptions.jobName}
               InputProps={{
                 readOnly: true
@@ -145,14 +148,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   advancedOptions.map((option, idx) => (
                     <Stack key={idx} direction="row" spacing={1}>
                       <TextFieldStyled
-                        label={'Name'}
+                        label={trans.__('Name')}
                         defaultValue={option.name}
                         InputProps={{
                           readOnly: true
                         }}
                       />
                       <TextFieldStyled
-                        label={'Value'}
+                        label={trans.__('Value')}
                         defaultValue={option.value}
                         InputProps={{
                           readOnly: true
