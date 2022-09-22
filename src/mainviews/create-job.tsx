@@ -51,8 +51,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
-    console.log(`${target.name} is set to ${target.value}`);
-
     props.modelChanged({ ...props.model, [target.name]: target.value });
   };
 
