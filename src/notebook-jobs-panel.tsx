@@ -14,6 +14,7 @@ import { NotebookJobsList } from './mainviews/list-jobs';
 import { JobDetail } from './mainviews/job-detail';
 import { ICreateJobModel, JobsModel } from './model';
 import { getJupyterLabTheme } from './theme-provider';
+import SchedulerExtension from './tokens';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -62,6 +63,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               model={this.model.createJobModel}
               modelChanged={newModel => (this.model.createJobModel = newModel)}
               toggleView={this.toggleView.bind(this)}
+              customEnvironment={this._customEnvironment}
             />
           )}
           {this.model.jobsView === 'ListJobs' && (

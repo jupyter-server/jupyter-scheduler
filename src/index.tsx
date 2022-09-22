@@ -151,7 +151,8 @@ async function activatePlugin(
       // Create new jobs panel widget
       jobsPanel = new NotebookJobsPanel({
         app,
-        translator
+        translator,
+        customEnvironment
       });
       // Create new main area widget
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
