@@ -210,6 +210,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             initialValue={props.model.environment}
           />
           <OutputFormatPicker
+            label={trans.__('Output formats')}
             name='outputFormat'
             id={`${formPrefix}outputFormat`}
             onChange={handleOutputFormatsChange}

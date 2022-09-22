@@ -1,12 +1,15 @@
 import React, { ChangeEvent, useMemo } from 'react';
 
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { Checkbox, FormControlLabel, InputLabel } from '@mui/material';
+
+import { Stack } from './stack';
 
 import { Cluster } from './cluster';
 import { Scheduler } from '../handler';
 import { IOutputFormat } from '../model';
 
 export type OutputFormatPickerProps = {
+  label: string;
   name: string;
   id: string;
   environment: string;
@@ -46,19 +49,22 @@ export function OutputFormatPicker(
   }
 
   return (
-    <Cluster gap={3} justifyContent="flex-start">
-      {outputFormats.map((of, idx) => (
-        <FormControlLabel
-          key={idx}
-          control={
-            <Checkbox
-              defaultChecked={props.value.some(sof => of.name === sof.name)}
-              id={`${props.id}-${of.name}`}
-              value={of.name}
-              onChange={props.onChange}
-            />}
-          label={of.label} />
-        ))}
-    </Cluster>
+    <Stack size={2}>
+      <InputLabel>{props.label}</InputLabel>
+      <Cluster gap={3} justifyContent="flex-start">
+        {outputFormats.map((of, idx) => (
+          <FormControlLabel
+            key={idx}
+            control={
+              <Checkbox
+                defaultChecked={props.value.some(sof => of.name === sof.name)}
+                id={`${props.id}-${of.name}`}
+                value={of.name}
+                onChange={props.onChange}
+              />}
+            label={of.label} />
+          ))}
+      </Cluster>
+    </Stack>
   );
 }
