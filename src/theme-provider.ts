@@ -26,14 +26,6 @@ export function getJupyterLabTheme(): Theme {
       button: {
         textTransform: 'capitalize'
       }
-    },
-    typography: {
-      fontFamily: getCSSVariable('--jp-ui-font-family'),
-      fontSize: 12,
-      htmlFontSize: 16,
-      button: {
-        textTransform: 'capitalize'
-      }
     }
   });
 }
