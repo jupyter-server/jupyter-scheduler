@@ -48,11 +48,11 @@ export function OutputFormatPicker(
   return (
     <Cluster gap={3} justifyContent="flex-end">
       {outputFormats.map((of, idx) => (
-        <FormControlLabel 
+        <FormControlLabel
           key={idx}
           control={
             <Checkbox
-              defaultChecked={props.value.some(sof => of.name === sof.name)} 
+              defaultChecked={props.value.some(sof => of.name === sof.name)}
               id={`${props.id}-${of.name}`}
               value={of.name}
               onChange={props.onChange}
