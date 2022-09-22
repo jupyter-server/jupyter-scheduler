@@ -1,0 +1,44 @@
+.jp-jobs-Button {
+  font-size: var(--jp-ui-font-size1);
+  color: white;
+  background-color: var(--md-grey-600);
+  padding: 0 var(--jp-size-3);
+  margin: 0;
+  box-sizing: border-box;
+  height: var(--jp-size-8);
+  line-height: var(--jp-size-8);
+  border: 0;
+  max-width: fit-content;
+  min-width: var(--jp-size-8);
+  appearance: none;
+  outline: none;
+  border-radius: var(--jp-border-radius);
+}
+
+.jp-jobs-Button:focus {
+  outline-offset: 2px;
+}
+
+.jp-jobs-Button.color-primary {
+  background-color: var(--md-blue-700);
+}
+
+.jp-jobs-Button.color-primary:hover {
+  background-color: var(--md-blue-800);
+}
+
+.jp-jobs-Button.color-primary:focus {
+  outline: 1px solid var(--md-blue-700);
+}
+
+.jp-jobs-Button.color-secondary {
+  background-color: var(--md-grey-600);
+}
+
+.jp-jobs-Button.color-secondary:hover {
+  background-color: var(--md-grey-700);
+}
+
+.jp-jobs-Button.color-secondary:focus {
+  outline: 1px solid var(--md-grey-600);
+}

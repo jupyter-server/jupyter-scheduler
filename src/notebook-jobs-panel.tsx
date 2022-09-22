@@ -1,92 +1,83 @@
 import React from 'react';
 
+import { ThemeProvider } from '@mui/material/styles';
+import { getJupyterLabTheme } from './theme-provider';
+
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ReactWidget, UseSignal } from '@jupyterlab/apputils';
-import { Signal } from '@lumino/signaling';
+import { VDomRenderer } from '@jupyterlab/apputils';
 import { ITranslator } from '@jupyterlab/translation';
 
 import TranslatorContext from './context';
-import {
-  BlankCreateJobFormState,
-  CreateJobForm,
-  CreateJobFormState
-} from './create-job-form';
-import { INotebookJobsListingModel } from './model';
+import { CreateJob } from './mainviews/create-job';
+import { JobsModel } from './model';
 
-import { NotebookJobsList } from './components/notebook-jobs-list';
-import { NotebookJobsNavigation } from './components/notebook-jobs-navigation';
+import { NotebookJobsList } from './mainviews/list-jobs';
+import { JobDetail } from './mainviews/job-detail';
 
-export type JobsPanelView = 'CreateJobForm' | 'JobsList';
+import { calendarMonthIcon } from './components/icons';
+import { LabIcon } from '@jupyterlab/ui-components';
 
-export class NotebookJobsPanel extends ReactWidget {
+export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
   readonly _description?: string;
   readonly _app: JupyterFrontEnd;
-  readonly _model: INotebookJobsListingModel;
-  readonly _signal: Signal<any, CreateJobFormState>;
   readonly _translator: ITranslator;
-  private _view: JobsPanelView;
 
   constructor(options: NotebookJobsPanel.IOptions) {
-    super();
+    super(options.model || new JobsModel({}));
     this.addClass('jp-notebook-jobs-panel');
     const trans = options.translator.load('jupyterlab');
 
-    this._title = options.title ?? trans.__('Notebook Jobs');
+    this.title.icon = options.titleIcon ?? calendarMonthIcon;
+    this.title.caption = options.title ?? trans.__('Notebook Jobs');
     this._description = options.description ?? trans.__('Job Runs');
     this._app = options.app;
-    this._model = options.model;
-    this._signal = options.updateCreateJobFormSignal;
     this._translator = options.translator;
-    this._view = options.initialView || 'CreateJobForm';
-  }
 
-  set view(value: JobsPanelView) {
-    this._view = value;
-    this.update();
-  }
-
-  get createJobFormSignal(): Signal<any, CreateJobFormState> {
-    return this._signal;
+    this.node.setAttribute('role', 'region');
+    this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
   toggleView(): void {
-    this.view = this._view === 'JobsList' ? 'CreateJobForm' : 'JobsList';
+    if (
+      this.model.jobsView !== 'CreateJob' &&
+      this.model.jobsView !== 'ListJobs'
+    ) {
+      return;
+    }
+
+    this.model.jobsView =
+      this.model.jobsView === 'ListJobs' ? 'CreateJob' : 'ListJobs';
   }
 
   render(): JSX.Element {
     return (
-      <TranslatorContext.Provider value={this._translator}>
-        <NotebookJobsNavigation
-          currentView={this._view}
-          toggleSignal={this._signal}
-          toggleFunction={() => this.toggleView()}
-        />
-        <div
-          id="jp-create-job-form-container"
-          style={{ display: this._view === 'CreateJobForm' ? 'block' : 'none' }}
-        >
-          <UseSignal signal={this._signal}>
-            {(_, newState) => (
-              <CreateJobForm
-                initialState={newState ?? BlankCreateJobFormState}
-                cancelClick={() => this.toggleView()}
-                postCreateJob={() => this.toggleView()}
-              />
-            )}
-          </UseSignal>
-        </div>
-        <div
-          className="jp-notebook-jobs-list-container"
-          style={{ display: this._view === 'JobsList' ? 'block' : 'none' }}
-        >
-          <NotebookJobsList
-            app={this._app}
-            createJobFormSignal={this._signal}
-            showCreateJob={() => this.toggleView()}
-          />
-        </div>
-      </TranslatorContext.Provider>
+      <ThemeProvider theme={getJupyterLabTheme()}>
+        <TranslatorContext.Provider value={this._translator}>
+          {this.model.jobsView === 'CreateJob' && (
+            <CreateJob
+              model={this.model.createJobModel}
+              modelChanged={newModel => (this.model.createJobModel = newModel)}
+              toggleView={this.toggleView.bind(this)}
+            />
+          )}
+          {this.model.jobsView === 'ListJobs' && (
+            <NotebookJobsList
+              app={this._app}
+              model={this.model.listJobsModel}
+              modelChanged={newModel => (this.model.listJobsModel = newModel)}
+              showCreateJob={() => (this.model.jobsView = 'CreateJob')}
+            />
+          )}
+          {this.model.jobsView === 'JobDetail' && (
+            <JobDetail
+              model={this.model.jobDetailModel}
+              modelChanged={newModel => (this.model.jobDetailModel = newModel)}
+              setView={view => (this.model.jobsView = view)}
+            />
+          )}
+        </TranslatorContext.Provider>
+      </ThemeProvider>
     );
   }
 }
@@ -94,11 +85,10 @@ export class NotebookJobsPanel extends ReactWidget {
 namespace NotebookJobsPanel {
   export interface IOptions {
     title?: string;
+    titleIcon?: LabIcon;
     description?: string;
-    model: INotebookJobsListingModel;
     app: JupyterFrontEnd;
-    updateCreateJobFormSignal: Signal<any, CreateJobFormState>;
     translator: ITranslator;
-    initialView?: JobsPanelView;
+    model?: JobsModel;
   }
 }

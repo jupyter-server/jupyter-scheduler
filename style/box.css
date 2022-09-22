@@ -1,0 +1,31 @@
+.jp-jobs-Box {
+  display: block;
+  padding: var(--size, '4px');
+  border: none;
+  background-color: inherit;
+  box-sizing: border-box;
+}
+
+.jp-jobs-Box.size-0 {
+  padding: var(--jp-size-0, '4px');
+}
+
+.jp-jobs-Box.size-1 {
+  padding: var(--jp-size-1, '4px');
+}
+
+.jp-jobs-Box.size-2 {
+  padding: var(--jp-size-2, '4px');
+}
+
+.jp-jobs-Box.size-3 {
+  padding: var(--jp-size-3, '4px');
+}
+
+.jp-jobs-Box.size-4 {
+  padding: var(--jp-size-4, '4px');
+}
+
+.jp-jobs-Box.size-5 {
+  padding: var(--jp-size-5, '4px');
+}

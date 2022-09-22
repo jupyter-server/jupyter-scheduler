@@ -5,12 +5,18 @@
 */
 
 @import './collapsible-panel.css';
+@import './variables.css';
+@import './box.css';
+@import './stack.css';
+@import './heading.css';
+@import './cluster.css';
+@import './button.css';
 
 .jp-notebook-jobs-panel {
   background: var(--jp-layout-color1);
   color: var(--jp-ui-font-color1);
   font-size: var(--jp-ui-font-size1);
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .jp-notebook-jobs-header {
@@ -117,51 +123,16 @@ ul.jp-notebook-job-output-formats-options {
   margin: 0 0 0 -40px;
 }
 
-.jp-create-job-form-container {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 600px;
-  min-width: 400px;
-  border: var(--jp-border-width) solid var(--jp-border-color1);
-  padding: 12px;
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
-
-.jp-create-job-form {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 10px;
-}
-
-.jp-create-job-row {
-  flex: 1 1 auto;
-  width: 100%;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: row;
-}
-
-.jp-create-job-row:last-child {
-  margin-bottom: 0;
-}
-
 .jp-create-job-label {
-  flex: 0 0 25%;
+  flex: 0 0 18ch;
 }
 
 .jp-create-job-input {
-  flex: 0 0 75%;
+  flex: 0 1 36ch;
 }
 
 .jp-create-job-parameter-row {
   display: flex;
-}
-
-.jp-create-job-submit-container {
-  text-align: right;
 }
 
 /* Job details widget */

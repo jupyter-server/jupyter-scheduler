@@ -1,15 +1,15 @@
 import React from 'react';
 
-import { JobsPanelView } from '../notebook-jobs-panel';
+import { JobsView } from '../model';
 
 export type tabClickProps = (
   event: React.MouseEvent<HTMLElement, MouseEvent>,
-  view: JobsPanelView
+  view: JobsView
 ) => void;
 
 export function NotebookJobsNavigationTab(props: {
   onClick: tabClickProps;
-  id: JobsPanelView;
+  id: JobsView;
   title: string;
   active: boolean;
 }): JSX.Element {

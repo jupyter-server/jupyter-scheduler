@@ -16,13 +16,11 @@ import { IStatusBar } from '@jupyterlab/statusbar';
 import { ITranslator } from '@jupyterlab/translation';
 
 import { Poll } from '@lumino/polling';
-import { Signal } from '@lumino/signaling';
 import { RunningJobsIndicator } from './components/running-jobs-indicator';
 
 import { SchedulerService } from './handler';
-import { NotebookJobsListingModel } from './model';
-import { CreateJobFormState } from './create-job-form';
-import { JobsPanelView, NotebookJobsPanel } from './notebook-jobs-panel';
+import { JobsView, ICreateJobModel, NotebookJobsListingModel } from './model';
+import { NotebookJobsPanel } from './notebook-jobs-panel';
 import {
   calendarAddOnIcon,
   calendarMonthIcon,
@@ -48,8 +46,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
   autoStart: true,
   activate: activatePlugin
 };
-
-type NotebookJobsPluginType = typeof plugin;
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {
@@ -107,7 +103,6 @@ async function activatePlugin(
   const trans = translator.load('jupyterlab');
   const { tracker } = browserFactory;
   const api = new SchedulerService({});
-  let mainAreaWidget: MainAreaWidget<NotebookJobsPanel>;
   const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
   });
@@ -115,19 +110,6 @@ async function activatePlugin(
     command: CommandIDs.showNotebookJobs,
     name: () => 'jupyterlab-scheduler'
   });
-
-  const model = await getNotebookJobsListingModel();
-
-  const jobsPanel = new NotebookJobsPanel({
-    app,
-    model,
-    updateCreateJobFormSignal: _signal,
-    translator
-  });
-  jobsPanel.title.icon = calendarMonthIcon;
-  jobsPanel.title.caption = trans.__('Notebook Jobs');
-  jobsPanel.node.setAttribute('role', 'region');
-  jobsPanel.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
 
   commands.addCommand(CommandIDs.deleteJob, {
     execute: async args => {
@@ -138,13 +120,21 @@ async function activatePlugin(
     label: trans.__('Delete Job')
   });
 
-  const showJobsPane = async (view: JobsPanelView) => {
+  let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
+  let jobsPanel: NotebookJobsPanel | undefined;
+
+  const showJobsPane = async (view: JobsView) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
-      // Create a new widget
+      // Create new jobs panel widget
+      jobsPanel = new NotebookJobsPanel({
+        app,
+        translator
+      });
+      // Create new main area widget
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
         content: jobsPanel
       });
-      mainAreaWidget.content.view = view;
+      mainAreaWidget.content.model.jobsView = view;
       mainAreaWidget.id = NotebookJobsPanelId;
       mainAreaWidget.title.icon = calendarMonthIcon;
       mainAreaWidget.title.label = trans.__('Notebook Jobs');
@@ -160,34 +150,39 @@ async function activatePlugin(
       app.shell.add(mainAreaWidget, 'main');
     }
 
-    mainAreaWidget.content.view = view;
+    mainAreaWidget.content.model.jobsView = view;
     mainAreaWidget.content.update();
     app.shell.activateById(mainAreaWidget.id);
   };
 
   commands.addCommand(CommandIDs.showNotebookJobs, {
-    execute: async () => showJobsPane('JobsList'),
-    label: trans.__('Show Notebook Jobs'),
+    execute: async () => showJobsPane('ListJobs'),
+    label: trans.__('Notebook Jobs'),
     icon: eventNoteIcon
   });
 
   commands.addCommand(CommandIDs.runNotebook, {
     execute: async () => {
-      await showJobsPane('CreateJobForm');
+      await showJobsPane('CreateJob');
+
+      const model = jobsPanel?.model;
+      if (!model) {
+        return;
+      }
 
       const widget = tracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
       const fileName = getSelectedFileName(widget) ?? '';
 
       // Update the job form inside the notebook jobs widget
-      const newState: CreateJobFormState = {
+      const newModel: ICreateJobModel = {
         inputFile: filePath,
         jobName: fileName,
         outputPath: '',
         environment: ''
       };
 
-      _signal.emit(newState);
+      model.createJobModel = newModel;
     },
     label: trans.__('Create Notebook Job'),
     icon: calendarAddOnIcon
@@ -202,25 +197,31 @@ async function activatePlugin(
     label: trans.__('Stop Job')
   });
 
+  // validate presence of status bar
   if (!statusBar) {
-    // Automatically disable if statusbar missing
     return;
   }
 
+  const scheduledJobsListingModel = await getNotebookJobsListingModel();
   statusBar.registerStatusItem('jupyterlab-scheduler:status', {
     align: 'middle',
     item: ReactWidget.create(
       <RunningJobsIndicator
-        onClick={async () => showJobsPane('JobsList')}
-        model={model}
+        onClick={async () => showJobsPane('ListJobs')}
+        model={scheduledJobsListingModel}
       />
     )
   });
 
   const statusPoll = new Poll({
     factory: async () => {
-      const jobCount = await api.getJobsCount('IN_PROGRESS');
-      model.updateJobsCount(jobCount);
+      const model = jobsPanel?.model;
+      if (!model) {
+        return;
+      }
+
+      const jobCount = await api.getjobCount('IN_PROGRESS');
+      model.jobCount = jobCount;
     },
     frequency: { interval: 1000, backoff: false }
   });
@@ -232,13 +233,6 @@ async function activatePlugin(
       command: CommandIDs.showNotebookJobs
     });
   }
-
-  console.log('JupyterLab extension jupyterlab-scheduler is activated!');
 }
-
-const _signal: Signal<NotebookJobsPluginType, CreateJobFormState> = new Signal<
-  NotebookJobsPluginType,
-  CreateJobFormState
->(plugin);
 
 export default plugin;
