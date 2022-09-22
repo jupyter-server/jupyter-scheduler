@@ -225,12 +225,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             formPrefix={formPrefix}
           />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button variant="contained" size="small" onClick={props.toggleView}>
+            <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
             </Button>
             <Button
               variant="contained"
-              size="small"
               onClick={(e: React.MouseEvent) => {
                 submitCreateJobRequest(e);
                 return false;
