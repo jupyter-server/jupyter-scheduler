@@ -15,15 +15,6 @@ import TextField from '@mui/material/TextField';
 import { EnvironmentPicker } from '../components/environment-picker';
 import { SelectChangeEvent } from '@mui/material';
 
-export type CreateJobFormProps = {
-  initialState: CreateJobFormState;
-  cancelClick: () => void;
-  // Function to run after a create job request completes successfully
-  postCreateJob: () => void;
-  // Extension point: optional additional component
-  customEnvironment?: React.ElementType;
-};
-
 export interface ICreateJobProps {
   model: ICreateJobModel;
   modelChanged: (model: ICreateJobModel) => void;
