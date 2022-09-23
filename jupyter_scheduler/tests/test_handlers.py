@@ -91,7 +91,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
                         "output_uri": "output_a/input_a_12345",
                         "url": "url_a",
                     }
-                ]
+                ],
+                "total_count": 1,
             },
         ),
         (
@@ -125,7 +126,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
                         "output_uri": "output_a/input_a_12345",
                         "url": "url_a",
                     }
-                ]
+                ],
+                "total_count": 1,
             },
         ),
     ],

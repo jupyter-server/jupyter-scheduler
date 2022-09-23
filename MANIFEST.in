@@ -20,6 +20,9 @@ prune **/node_modules
 prune lib
 prune binder
 
+# dev scripts
+prune dev
+
 # Patterns to exclude from any directory
 global-exclude *~
 global-exclude *.pyc

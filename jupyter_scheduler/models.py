@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
@@ -31,6 +30,7 @@ class RuntimeEnvironment(BaseModel):
     file_extensions: List[str]  # Supported input file types
     output_formats: List[OutputFormat]  # Supported output formats
     metadata: Optional[Dict[str, str]]  # Optional metadata
+    compute_types: Optional[List[str]]
 
     def __str__(self):
         return self.json()
@@ -138,6 +138,7 @@ class ListJobsQuery(BaseModel):
 
 class ListJobsResponse(BaseModel):
     jobs: List[DescribeJob] = []
+    total_count: int = 0
     next_token: Optional[str] = None
 
 

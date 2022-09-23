@@ -135,6 +135,16 @@ class Scheduler(BaseScheduler):
 
     def create_job(self, model: CreateJob) -> DescribeJob:
         with self.db_session() as session:
+            job = None
+            if model.idempotency_token:
+                job = (
+                    session.query(Job)
+                    .filter(Job.idempotency_token == model.idempotency_token)
+                    .one()
+                )
+            if job:
+                return job.job_id
+
             job = Job(**model.dict(exclude_none=True))
             session.add(job)
             session.commit()
@@ -187,7 +197,9 @@ class Scheduler(BaseScheduler):
             next_token = None
 
         list_jobs_response = ListJobsResponse(
-            jobs=[DescribeJob.from_orm(job) for job in jobs or []], next_token=next_token
+            jobs=[DescribeJob.from_orm(job) for job in jobs or []],
+            next_token=next_token,
+            total_count=total,
         )
 
         return list_jobs_response

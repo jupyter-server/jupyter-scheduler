@@ -3,7 +3,7 @@ import React, { ChangeEvent } from 'react';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
-import { parameterNameMatch, ParametersPicker, parameterValueMatch } from '../components/parameters-picker';
+import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
@@ -19,6 +19,28 @@ export interface ICreateJobProps {
   model: ICreateJobModel;
   modelChanged: (model: ICreateJobModel) => void;
   toggleView: () => unknown;
+  // Extension point: optional additional component
+  advancedOptions: React.ElementType;
+}
+
+function parameterNameMatch(elementName: string): number | null {
+  const parameterNameMatch = elementName.match(/^parameter-(\d+)-name$/);
+
+  if (parameterNameMatch === null) {
+    return null;
+  }
+
+  return parseInt(parameterNameMatch[1]);
+}
+
+function parameterValueMatch(elementName: string): number | null {
+  const parameterValueMatch = elementName.match(/^parameter-(\d+)-value$/);
+
+  if (parameterValueMatch === null) {
+    return null;
+  }
+
+  return parseInt(parameterValueMatch[1]);
 }
 
 export function CreateJob(props: ICreateJobProps): JSX.Element {
@@ -225,6 +247,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             removeParameter={removeParameter}
             formPrefix={formPrefix}
           />
+          <props.advancedOptions
+            model={props.model}
+            modelChanged={props.modelChanged} />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
