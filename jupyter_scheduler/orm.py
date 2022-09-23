@@ -6,10 +6,14 @@ from uuid import uuid4
 
 import sqlalchemy.types as types
 from sqlalchemy import Boolean, Column, Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, registry, sessionmaker
+from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 
 from jupyter_scheduler.models import EmailNotifications, Status
-from jupyter_scheduler.utils import create_output_filename, get_utc_timestamp
+from jupyter_scheduler.utils import (
+    compute_next_run_time,
+    create_output_filename,
+    get_utc_timestamp,
+)
 
 Base = declarative_base()
 
@@ -18,9 +22,14 @@ def generate_uuid():
     return str(uuid4())
 
 
-def generate_url(context) -> str:
+def generate_jobs_url(context) -> str:
     job_id = context.get_current_parameters()["job_id"]
     return f"/jobs/{job_id}"
+
+
+def generate_job_definitions_url(context) -> str:
+    job_definition_id = context.get_current_parameters()["job_definition_id"]
+    return f"/job_definitions/{job_definition_id}"
 
 
 def output_uri(context) -> str:
@@ -36,6 +45,12 @@ def output_uri(context) -> str:
         )
 
     return os.path.join(output_prefix, output_filename)
+
+
+def next_run_time(context) -> int:
+    compute_next_run_time(
+        context.get_current_parameters()["schedule"], context.get_current_parameters()["timezone"]
+    )
 
 
 class JsonType(types.TypeDecorator):
@@ -78,35 +93,49 @@ class EmailNotificationType(types.TypeDecorator):
 mapper_registry = registry()
 
 
-class Job(Base):
-    __tablename__ = "jobs"
-    job_id = Column(String(36), primary_key=True, default=generate_uuid)
+@declarative_mixin
+class CommonColumns:
     runtime_environment_name = Column(String(256), nullable=False)
     runtime_environment_parameters = Column(JsonType(1024))
     compute_type = Column(String(256), nullable=True)
     input_uri = Column(String(256), nullable=False)
     output_prefix = Column(String(256))
     output_formats = Column(JsonType(512))
-    output_uri = Column(String(256), default=output_uri)
     name = Column(String(256))
-    job_definition_id = Column(String(36))
     idempotency_token = Column(String(256))
-    status = Column(String(64), default=Status.STOPPED)
     tags = Column(JsonType(1024))
-    status_message = Column(String(1024))
-    start_time = Column(Integer)
-    end_time = Column(Integer)
     parameters = Column(JsonType(1024))
-    url = Column(String(256), default=generate_url)
     email_notifications = Column(EmailNotificationType(1024))
     timeout_seconds = Column(Integer, default=600)
     retry_on_timeout = Column(Boolean, default=False)
     max_retries = Column(Integer, default=0)
     min_retry_interval_millis = Column(Integer, default=0)
     output_filename_template = Column(String(256))
-    pid = Column(Integer)
     update_time = Column(Integer, default=get_utc_timestamp, onupdate=get_utc_timestamp)
     create_time = Column(Integer, default=get_utc_timestamp)
+
+
+class Job(CommonColumns, Base):
+    __tablename__ = "jobs"
+    job_id = Column(String(36), primary_key=True, default=generate_uuid)
+    job_definition_id = Column(String(36))
+    output_uri = Column(String(256), default=output_uri)
+    status = Column(String(64), default=Status.STOPPED)
+    status_message = Column(String(1024))
+    start_time = Column(Integer)
+    end_time = Column(Integer)
+    url = Column(String(256), default=generate_jobs_url)
+    pid = Column(Integer)
+
+
+class JobDefinition(CommonColumns, Base):
+    __tablename__ = "job_definitions"
+    job_definition_id = Column(String(36), primary_key=True, default=generate_uuid)
+    schedule = Column(String(256))
+    timezone = Column(String(36))
+    url = Column(String(256), default=generate_job_definitions_url)
+    create_time = Column(Integer, default=get_utc_timestamp)
+    next_run_time = Column(Integer, default=next_run_time)
 
 
 def create_tables(db_url, drop_tables=False):

@@ -14,11 +14,13 @@ from jupyter_scheduler.models import (
     DescribeJob,
     DescribeJobDefinition,
     ListJobDefinitionsQuery,
+    ListJobDefinitionsResponse,
     ListJobsQuery,
     ListJobsResponse,
     SortDirection,
     Status,
     UpdateJob,
+    UpdateJobDefinition,
 )
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.utils import create_output_filename, timestamp_to_int
@@ -91,7 +93,7 @@ class BaseScheduler(ABC):
         pass
 
     @abstractmethod
-    def update_job_definition(self, model: UpdateJob):
+    def update_job_definition(self, model: UpdateJobDefinition):
         """Updates job definition metadata in the persistence store,
         should only impact all future jobs.
         """
@@ -105,7 +107,7 @@ class BaseScheduler(ABC):
         pass
 
     @abstractmethod
-    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> List[DescribeJobDefinition]:
+    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         """Returns list of all job definitions filtered by query"""
         pass
 
@@ -252,13 +254,13 @@ class Scheduler(BaseScheduler):
     def create_job_definition(self, model: CreateJobDefinition) -> str:
         pass
 
-    def update_job_definition(self, model: UpdateJob):
+    def update_job_definition(self, model: UpdateJobDefinition):
         pass
 
     def delete_job_definition(self, job_definition_id: str):
         pass
 
-    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> List[DescribeJobDefinition]:
+    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         pass
 
     def pause_jobs(self, job_definition_id: str):
