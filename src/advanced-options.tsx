@@ -1,9 +1,9 @@
 import React from 'react'
 import Scheduler from './tokens'
 
-const CustomEnvironment = (props: Scheduler.ICustomEnvironmentProps) => {
+const AdvancedOptions = (props: Scheduler.IAdvancedOptionsProps) => {
   // This is a placeholder function that an alternative extension may override.
   return <></>;
 };
 
-export default CustomEnvironment;
+export default AdvancedOptions;

@@ -27,7 +27,7 @@ import {
   eventNoteIcon
 } from './components/icons';
 import Scheduler from './tokens';
-import CustomEnvironment from './custom-environment';
+import AdvancedOptions from './advanced-options';
 
 namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -47,20 +47,20 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     IFileBrowserFactory,
     ITranslator,
     ILayoutRestorer,
-    Scheduler.ICustomEnvironment
+    Scheduler.IAdvancedOptions
   ],
   optional: [IStatusBar, ILauncher],
   autoStart: true,
   activate: activatePlugin
 };
 
-// Disable this plugin and replace with custom plugin to change the custom environment UI
-const customEnvironment: JupyterFrontEndPlugin<Scheduler.ICustomEnvironment> = {
-  id: '@jupyterlab/scheduler:ICustomEnvironment',
+// Disable this plugin and replace with custom plugin to change the advanced options UI
+const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
+  id: '@jupyterlab/scheduler:IAdvancedOptions',
   autoStart: true,
-  provides: Scheduler.ICustomEnvironment,
+  provides: Scheduler.IAdvancedOptions,
   activate: (app: JupyterFrontEnd) => {
-    return CustomEnvironment;
+    return AdvancedOptions;
   }
 }
 
@@ -113,7 +113,7 @@ async function activatePlugin(
   browserFactory: IFileBrowserFactory,
   translator: ITranslator,
   restorer: ILayoutRestorer,
-  customEnvironment: Scheduler.ICustomEnvironment,
+  advancedOptions: Scheduler.IAdvancedOptions,
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
@@ -152,7 +152,7 @@ async function activatePlugin(
       jobsPanel = new NotebookJobsPanel({
         app,
         translator,
-        customEnvironment
+        advancedOptions: advancedOptions
       });
       // Create new main area widget
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
@@ -259,6 +259,6 @@ async function activatePlugin(
   }
 }
 
-const plugins: JupyterFrontEndPlugin<any>[] = [schedulerPlugin, customEnvironment];
+const plugins: JupyterFrontEndPlugin<any>[] = [schedulerPlugin, advancedOptions];
 
 export default plugins;
