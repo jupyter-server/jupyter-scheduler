@@ -197,7 +197,9 @@ class Scheduler(BaseScheduler):
             next_token = None
 
         list_jobs_response = ListJobsResponse(
-            jobs=[DescribeJob.from_orm(job) for job in jobs or []], next_token=next_token
+            jobs=[DescribeJob.from_orm(job) for job in jobs or []],
+            next_token=next_token,
+            total_count=total,
         )
 
         return list_jobs_response
