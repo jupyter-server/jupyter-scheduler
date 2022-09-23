@@ -143,19 +143,19 @@ class Scheduler(BaseScheduler):
                     .one()
                 )
             if job:
-                job_id = job.job_id
-            else:
-                job = Job(**model.dict(exclude_none=True))
-                session.add(job)
-                session.commit()
+                return job.job_id
 
-                p = Process(target=self.execution_manager_class(job.job_id, self.config).process)
-                p.start()
+            job = Job(**model.dict(exclude_none=True))
+            session.add(job)
+            session.commit()
 
-                job.pid = p.pid
-                session.commit()
+            p = Process(target=self.execution_manager_class(job.job_id, self.config).process)
+            p.start()
 
-                job_id = job.job_id
+            job.pid = p.pid
+            session.commit()
+
+            job_id = job.job_id
 
         return job_id
 
