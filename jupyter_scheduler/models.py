@@ -138,6 +138,7 @@ class ListJobsQuery(BaseModel):
 
 class ListJobsResponse(BaseModel):
     jobs: List[DescribeJob] = []
+    total_count: int = 0
     next_token: Optional[str] = None
 
 
