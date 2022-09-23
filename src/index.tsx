@@ -56,7 +56,7 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
 
 // Disable this plugin and replace with custom plugin to change the custom environment UI
 const customEnvironment: JupyterFrontEndPlugin<Scheduler.ICustomEnvironment> = {
-  id: 'jupyterlab-scheduler-custom-environment:plugin',
+  id: '@jupyterlab/scheduler:ICustomEnvironment',
   autoStart: true,
   provides: Scheduler.ICustomEnvironment,
   activate: (app: JupyterFrontEnd) => {

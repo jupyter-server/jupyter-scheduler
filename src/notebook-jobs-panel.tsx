@@ -34,6 +34,9 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._app = options.app;
     this._translator = options.translator;
     this._customEnvironment = options.customEnvironment;
+
+    this.node.setAttribute('role', 'region');
+    this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
   toggleView(): void {
