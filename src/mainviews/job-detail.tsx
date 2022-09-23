@@ -44,7 +44,7 @@ interface ITextFieldStyledProps {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(false);
-  const [running, setRunning] = useState(true);
+  const [running, setRunning] = useState(false);
 
   const trans = useTranslator('jupyterlab');
 
