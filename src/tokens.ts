@@ -7,7 +7,7 @@ namespace Scheduler {
   }
 
   export type ICustomEnvironment = React.FC<ICustomEnvironmentProps>;
-  
+
   export const ICustomEnvironment = new Token<ICustomEnvironment>(
     '@jupyterlab/scheduler:ICustomEnvironment'
   );
