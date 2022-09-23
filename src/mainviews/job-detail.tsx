@@ -14,7 +14,12 @@ import Accordion from '@mui/material/Accordion';
 import {
   AccordionDetails,
   AccordionSummary,
+  Checkbox,
   CircularProgress,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
   OutlinedInputProps,
   TextField,
   Typography
@@ -65,7 +70,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     outputPath: 'foobar.jptr',
     environment: 'conda3',
     parameters: advancedOptions,
-    outputFormats: [{ name: 'hello', label: 'label' }]
+    outputFormats: [
+      { name: 'hello', label: 'label' },
+      { name: 'hello 2', label: 'label 2' }
+    ]
   };
 
   function TextFieldStyled(props: ITextFieldStyledProps) {
@@ -140,13 +148,23 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 readOnly: true
               }}
             />
-            <TextFieldStyled
-              label={trans.__('Job name')}
-              defaultValue={basicOptions.jobName}
-              InputProps={{
-                readOnly: true
-              }}
-            />
+
+            {basicOptions.outputFormats && (
+              <FormControl component="fieldset">
+                <FormLabel component="legend">
+                  {trans.__('Output format')}
+                </FormLabel>
+                <FormGroup>
+                  {basicOptions.outputFormats.map((option, idx) => (
+                    <FormControlLabel
+                      key={idx}
+                      control={<Checkbox checked={true} defaultChecked />}
+                      label={option.label}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
+            )}
           </Stack>
 
           <Accordion
@@ -162,25 +180,24 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             </AccordionSummary>
             <AccordionDetails id="panel-content">
               <Stack component="form" spacing={4}>
-                {advancedOptions.length > 0 &&
-                  advancedOptions.map((option, idx) => (
-                    <Stack key={idx} direction="row" spacing={1}>
-                      <TextFieldStyled
-                        label={trans.__('Name')}
-                        defaultValue={option.name}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                      />
-                      <TextFieldStyled
-                        label={trans.__('Value')}
-                        defaultValue={option.value}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                      />
-                    </Stack>
-                  ))}
+                {advancedOptions.map((option, idx) => (
+                  <Stack key={idx} direction="row" spacing={1}>
+                    <TextFieldStyled
+                      label={trans.__('Name')}
+                      defaultValue={option.name}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                    />
+                    <TextFieldStyled
+                      label={trans.__('Value')}
+                      defaultValue={option.value}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                    />
+                  </Stack>
+                ))}
               </Stack>
             </AccordionDetails>
           </Accordion>
