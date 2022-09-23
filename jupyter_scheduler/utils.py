@@ -2,6 +2,7 @@ import json
 import os
 import pathlib
 from datetime import datetime, timezone
+from typing import Optional
 from uuid import UUID
 
 from nbformat import NotebookNode
@@ -58,3 +59,8 @@ def resolve_path(path, root_dir=None) -> str:
 
 def get_utc_timestamp() -> int:
     return int(datetime.now(timezone.utc).timestamp() * 1000)
+
+
+def compute_next_run_time(schedule: str, timezone: Optional[str] = None) -> int:
+    # TODO: Compute this based on schedule and timezone
+    get_utc_timestamp()

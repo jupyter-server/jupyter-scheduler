@@ -167,17 +167,19 @@ class CreateJobDefinition(CreateJob):
 
 class DescribeJobDefinition(CreateJobDefinition):
     job_definition_id: str
-    last_modified_time: int
-    job_ids: List[str]
+    create_time: int
+    update_time: int
+    next_run_time: int
+    job_ids: Optional[List[str]] = []
 
 
 class UpdateJobDefinition(BaseModel):
     job_definition_id: str
-    last_modified_time: Optional[int] = None
-    schedule: Optional[str] = None
-    input_uri: Optional[str] = None
-    output_prefix: Optional[str] = None
-    runtime_environment_name: Optional[str] = None
+    input_uri: Optional[str]
+    output_prefix: Optional[str]
+    runtime_environment_name: Optional[str]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     parameters: Optional[Dict[str, ParameterValues]] = None
     tags: Optional[Tags] = None
