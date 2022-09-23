@@ -14,12 +14,14 @@ import { NotebookJobsList } from './mainviews/list-jobs';
 import { JobDetail } from './mainviews/job-detail';
 import { ICreateJobModel, JobsModel } from './model';
 import { getJupyterLabTheme } from './theme-provider';
+import Scheduler from './tokens';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
   readonly _description?: string;
   readonly _app: JupyterFrontEnd;
   readonly _translator: ITranslator;
+  readonly _advancedOptions: React.ElementType;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(options.model || new JobsModel({}));
@@ -31,6 +33,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._description = options.description ?? trans.__('Job Runs');
     this._app = options.app;
     this._translator = options.translator;
+    this._advancedOptions = options.advancedOptions;
 
     this.node.setAttribute('role', 'region');
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
@@ -63,6 +66,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               model={this.model.createJobModel}
               modelChanged={newModel => (this.model.createJobModel = newModel)}
               toggleView={this.toggleView.bind(this)}
+              advancedOptions={this._advancedOptions}
             />
           )}
           {this.model.jobsView === 'ListJobs' && (
@@ -93,6 +97,7 @@ namespace NotebookJobsPanel {
     description?: string;
     app: JupyterFrontEnd;
     translator: ITranslator;
+    advancedOptions: Scheduler.IAdvancedOptions;
     model?: JobsModel;
   }
 }

@@ -26,6 +26,8 @@ import {
   calendarMonthIcon,
   eventNoteIcon
 } from './components/icons';
+import Scheduler from './tokens';
+import AdvancedOptions from './advanced-options';
 
 namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -39,13 +41,28 @@ export const NotebookJobsPanelId = 'notebook-jobs-panel';
 /**
  * Initialization data for the jupyterlab-scheduler extension.
  */
-const plugin: JupyterFrontEndPlugin<void> = {
+const schedulerPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab-scheduler:plugin',
-  requires: [IFileBrowserFactory, ITranslator, ILayoutRestorer],
+  requires: [
+    IFileBrowserFactory,
+    ITranslator,
+    ILayoutRestorer,
+    Scheduler.IAdvancedOptions
+  ],
   optional: [IStatusBar, ILauncher],
   autoStart: true,
   activate: activatePlugin
 };
+
+// Disable this plugin and replace with custom plugin to change the advanced options UI
+const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
+  id: '@jupyterlab/scheduler:IAdvancedOptions',
+  autoStart: true,
+  provides: Scheduler.IAdvancedOptions,
+  activate: (app: JupyterFrontEnd) => {
+    return AdvancedOptions;
+  }
+}
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {
@@ -96,6 +113,7 @@ async function activatePlugin(
   browserFactory: IFileBrowserFactory,
   translator: ITranslator,
   restorer: ILayoutRestorer,
+  advancedOptions: Scheduler.IAdvancedOptions,
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
@@ -133,7 +151,8 @@ async function activatePlugin(
       // Create new jobs panel widget
       jobsPanel = new NotebookJobsPanel({
         app,
-        translator
+        translator,
+        advancedOptions: advancedOptions
       });
       // Create new main area widget
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
@@ -240,4 +259,6 @@ async function activatePlugin(
   }
 }
 
-export default plugin;
+const plugins: JupyterFrontEndPlugin<any>[] = [schedulerPlugin, advancedOptions];
+
+export default plugins;
