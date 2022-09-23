@@ -27,12 +27,12 @@ import {
 import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
+import { SchedulerService } from '../handler';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
   modelChanged: (model: IJobDetailModel) => void;
-  //remove optional below in setCreateModel
-  setCreateModel?: (createModel: ICreateJobModel) => void;
+  setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
 }
 
@@ -48,7 +48,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const trans = useTranslator('jupyterlab');
 
-  //const ss = new SchedulerService({});
+  const ss = new SchedulerService({});
   //const job = ss.getJobDefinitions(props.model.jobId):
   // Take props.jobId, make REST API request to get IJobDetailsModel with all of the job information
   // To rerun job:
