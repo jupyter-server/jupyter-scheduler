@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ICreateJobModel,
   IJobDetailModel,
@@ -27,7 +27,7 @@ import {
 import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { SchedulerService } from '../handler';
+import { SchedulerService, Scheduler } from '../handler';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
@@ -45,19 +45,34 @@ interface ITextFieldStyledProps {
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
+  const [jobDefinition, setJobDefinition] = useState<
+    Scheduler.IDescribeJobDefinition[] | undefined
+  >(undefined);
+
+  //TO DELETE
+  const prop = { model: { jobId: 'ee90bfac-a3e2-4ec5-ab0a-f897165c8c94' } };
 
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
-  const job = ss.getJobDefinitions(props.model.jobId);
+  useEffect(() => {
+    const fetchJobDefinition = async () => {
+      const job = await ss.getJobDefinitions(prop.model.jobId);
+      setJobDefinition(job);
+      console.log(`jobDefinition in the useEffect: ${jobDefinition}`);
+      //setLoading(false);
+    };
+    fetchJobDefinition();
+  }, []);
+
+  //const job = ss.getJobDefinitions(props.model.jobId);
+
   console.log(`jobId: ${props.model.jobId}`);
-  console.log(`job: ${job}`);
+  console.log(`jobDefinition in the body: ${jobDefinition}`);
   // Take props.jobId, make REST API request to get IJobDetailsModel with all of the job information
   // To rerun job:
   // 1) Call props.setCreateModel(<current model for this job>)
   // 2) Call props.setView('CreateJob')
-
-  const prop = { jobId: 'ee90bfac-a3e2-4ec5-ab0a-f897165c8c94' };
 
   const advancedOptions: IJobParameter[] = [
     { name: 'option 1', value: 'hello' },
@@ -224,7 +239,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               >
                 {trans.__('Notebook Jobs')}
               </Link>
-              <Typography color="text.primary">{prop.jobId}</Typography>
+              <Typography color="text.primary">{prop.model.jobId}</Typography>
             </Breadcrumbs>
           </div>
           <Heading level={1}>{trans.__('Job Detail')}</Heading>
