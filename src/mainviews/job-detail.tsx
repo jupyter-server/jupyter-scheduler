@@ -49,15 +49,15 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
-  //const job = ss.getJobDefinitions(props.model.jobId):
+  const job = ss.getJobDefinitions(props.model.jobId);
+  console.log(`jobId: ${props.model.jobId}`);
+  console.log(`job: ${job}`);
   // Take props.jobId, make REST API request to get IJobDetailsModel with all of the job information
   // To rerun job:
   // 1) Call props.setCreateModel(<current model for this job>)
   // 2) Call props.setView('CreateJob')
 
-  const prop = {
-    jobId: 'job-12'
-  };
+  const prop = { jobId: 'ee90bfac-a3e2-4ec5-ab0a-f897165c8c94' };
 
   const advancedOptions: IJobParameter[] = [
     { name: 'option 1', value: 'hello' },
