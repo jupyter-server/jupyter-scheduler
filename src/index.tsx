@@ -26,7 +26,7 @@ import {
   calendarMonthIcon,
   eventNoteIcon
 } from './components/icons';
-import SchedulerExtension from './tokens';
+import Scheduler from './tokens';
 import CustomEnvironment from './custom-environment';
 
 namespace CommandIDs {
@@ -47,7 +47,7 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     IFileBrowserFactory,
     ITranslator,
     ILayoutRestorer,
-    SchedulerExtension.ICustomEnvironment
+    Scheduler.ICustomEnvironment
   ],
   optional: [IStatusBar, ILauncher],
   autoStart: true,
@@ -55,10 +55,10 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
 };
 
 // Disable this plugin and replace with custom plugin to change the custom environment UI
-const customEnvironment: JupyterFrontEndPlugin<SchedulerExtension.ICustomEnvironment> = {
+const customEnvironment: JupyterFrontEndPlugin<Scheduler.ICustomEnvironment> = {
   id: 'jupyterlab-scheduler-custom-environment:plugin',
   autoStart: true,
-  provides: SchedulerExtension.ICustomEnvironment,
+  provides: Scheduler.ICustomEnvironment,
   activate: (app: JupyterFrontEnd) => {
     return CustomEnvironment;
   }
@@ -113,7 +113,7 @@ async function activatePlugin(
   browserFactory: IFileBrowserFactory,
   translator: ITranslator,
   restorer: ILayoutRestorer,
-  customEnvironment: SchedulerExtension.ICustomEnvironment,
+  customEnvironment: Scheduler.ICustomEnvironment,
   statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
