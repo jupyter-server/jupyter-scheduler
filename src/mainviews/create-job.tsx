@@ -55,7 +55,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // A mapping from input names to error messages.
   // If an error message is "truthy" (i.e., not null or ''), we should display the
   // input in an error state and block form submission.
-  const [errors, setErrors] = React.useState({});
+  const [errors, setErrors] = React.useState<SchedulerTokens.ErrorsType>({});
+
+  // If any error message is "truthy" (not null or empty), the form should not be submitted.
+  const anyErrors = Object.keys(errors).some(key => !!errors[key]);
 
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
@@ -126,6 +129,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
+    if (anyErrors) {
+      console.error('User attempted to submit a createJob request; button should have been disabled');
+      return;
+    }
+
     const api = new SchedulerService({});
 
     // Serialize parameters as an object.
@@ -183,6 +191,19 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     props.modelChanged({ ...props.model, parameters: newParams });
   };
 
+  // If the text field is blank, record an error.
+  const validateNonBlank = (e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)) => {
+    const inputName = e.name;
+    const inputValue = e.value;
+
+    if (inputValue === '') { // blank
+      setErrors({ ...errors, [inputName]: trans.__('You must provide a value.') })
+    }
+    else {
+      setErrors({ ...errors, [inputName]: '' });
+    }
+  };
+
   const api = new SchedulerService({});
   const environmentsPromise: () => Promise<Scheduler.IRuntimeEnvironment[]> = async () => {
     const environmentsCache = sessionStorage.getItem('environments');
@@ -197,6 +218,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const formPrefix = 'jp-create-job-';
+
+  const cantSubmit = trans.__('One or more of the fields has an error.');
 
   return (
     <Box sx={{ p: 4 }}>
@@ -217,6 +240,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={textInputs['inputFile'] ?? props.model.inputFile}
             id={`${formPrefix}inputFile`}
+            onBlur={(e) => validateNonBlank(e.target)}
             name='inputFile'
           />
           <TextField
@@ -269,6 +293,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 submitCreateJobRequest(e);
                 return false;
               }}
+              disabled={anyErrors}
+              title={anyErrors ? cantSubmit : trans.__('Run this job now')}
             >
               {trans.__('Run Job')}
             </Button>

@@ -5,7 +5,7 @@ namespace Scheduler {
 
   export type EnvironmentParameterValue = string | number | boolean
 
-  type ErrorsType = { [key: string]: string; };
+  export type ErrorsType = { [key: string]: string; };
 
   export interface IAdvancedOptionsProps {
     mode: JobsView;
