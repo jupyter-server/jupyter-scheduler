@@ -204,6 +204,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
+  // Is there a truthy (non-empty) error for this field?
+  const hasError = (inputName: string) => {
+    return !!errors[inputName];
+  };
+
   const api = new SchedulerService({});
   const environmentsPromise: () => Promise<Scheduler.IRuntimeEnvironment[]> = async () => {
     const environmentsCache = sessionStorage.getItem('environments');
@@ -241,6 +246,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={textInputs['inputFile'] ?? props.model.inputFile}
             id={`${formPrefix}inputFile`}
             onBlur={(e) => validateNonBlank(e.target)}
+            error={hasError('inputFile')}
             name='inputFile'
           />
           <TextField
