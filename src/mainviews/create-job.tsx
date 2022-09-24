@@ -247,6 +247,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}inputFile`}
             onBlur={(e) => validateNonBlank(e.target)}
             error={hasError('inputFile')}
+            helperText={errors['inputFile'] ?? ''}
             name='inputFile'
           />
           <TextField
