@@ -42,6 +42,22 @@ export class SchedulerService {
     return data as Scheduler.IDescribeJobDefinition;
   }
 
+  async getJob(job_id: string): Promise<Scheduler.IDescribeJob> {
+    let data;
+    let query = '';
+
+    query = `/${job_id}`;
+
+    try {
+      data = await requestAPI(this.serverSettings, `jobs${query}`, {
+        method: 'GET'
+      });
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJob;
+  }
+
   async getJobs(
     jobQuery: Scheduler.IListJobsQuery,
     job_id?: string
