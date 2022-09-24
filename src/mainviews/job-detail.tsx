@@ -27,7 +27,7 @@ import {
 import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { SchedulerService, Scheduler } from '../handler';
+import { SchedulerService } from '../handler';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
@@ -45,30 +45,29 @@ interface ITextFieldStyledProps {
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
-  const [jobDefinition, setJobDefinition] = useState<
-    Scheduler.IDescribeJobDefinition[] | undefined
-  >(undefined);
 
   //TO DELETE
-  const prop = { model: { jobId: 'ee90bfac-a3e2-4ec5-ab0a-f897165c8c94' } };
+  const prop = { model: { jobId: '235877a5-3172-4e48-8832-ce880ffcfdd8' } };
 
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
+
+  const fetchJobDefinition = async () => {
+    const job = ss.getJob(prop.model.jobId);
+    job.then(job => {
+      console.log(job);
+    });
+  };
+
   useEffect(() => {
-    const fetchJobDefinition = async () => {
-      const job = await ss.getJobDefinitions(prop.model.jobId);
-      setJobDefinition(job);
-      console.log(`jobDefinition in the useEffect: ${jobDefinition}`);
-      //setLoading(false);
-    };
-    fetchJobDefinition();
+    console.log('element loaded');
   }, []);
 
   //const job = ss.getJobDefinitions(props.model.jobId);
 
   console.log(`jobId: ${props.model.jobId}`);
-  console.log(`jobDefinition in the body: ${jobDefinition}`);
+  //console.log(`jobDefinition in the body: ${jobDefinition}`);
   // Take props.jobId, make REST API request to get IJobDetailsModel with all of the job information
   // To rerun job:
   // 1) Call props.setCreateModel(<current model for this job>)
@@ -97,7 +96,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         {...props}
         label={props.label}
         defaultValue={props.defaultValue}
-        size="small"
         variant="outlined"
       />
     );
@@ -115,22 +113,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         <>
           <Stack direction="row" spacing={1} justifyContent="flex-end">
             {running && (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={_ => setRunning(!running)}
-              >
+              <Button variant="outlined" onClick={_ => setRunning(!running)}>
                 {trans.__('Stop Job')}
               </Button>
             )}
-            <Button
-              variant="contained"
-              size="small"
-              onClick={_ => setRunning(!running)}
-            >
+            <Button variant="outlined" onClick={_ => setRunning(!running)}>
               {trans.__('Rerun Job')}
             </Button>
-            <Button variant="contained" size="small">
+            <Button variant="contained" color="error">
               {trans.__('Delete Job')}
             </Button>
           </Stack>
@@ -224,6 +214,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   return (
     <>
       <Button onClick={_ => setLoading(!loading)}> Toggle loading </Button>
+      <Button onClick={_ => fetchJobDefinition()}>Fetch job definition</Button>
       <Box sx={{ maxWidth: '500px', p: 4 }}>
         <Stack spacing={4}>
           <div role="presentation">
