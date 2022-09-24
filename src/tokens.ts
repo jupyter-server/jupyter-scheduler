@@ -5,12 +5,14 @@ namespace Scheduler {
 
   export type EnvironmentParameterValue = string | number | boolean
 
+  type ErrorsType = { [key: string]: string; };
+  
   export interface IAdvancedOptionsProps {
-    mode: JobsView
-    model: ICreateJobModel
+    mode: JobsView;
+    model: ICreateJobModel;
     modelChanged: (model: ICreateJobModel) => void;
-    errors: { [key: string]: string; }
-    errorsChanged: React.Dispatch<React.SetStateAction<{}>>
+    errors: ErrorsType;
+    errorsChanged: (errors: ErrorsType) => void;
   }
 
   export type IAdvancedOptions =
