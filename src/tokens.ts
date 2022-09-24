@@ -9,6 +9,8 @@ namespace Scheduler {
     mode: JobsView
     model: ICreateJobModel
     modelChanged: (model: ICreateJobModel) => void;
+    errors: { [key: string]: string; }
+    errorsChanged: React.Dispatch<React.SetStateAction<{}>>
   }
 
   export type IAdvancedOptions =

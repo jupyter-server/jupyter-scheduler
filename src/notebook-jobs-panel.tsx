@@ -21,7 +21,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _description?: string;
   readonly _app: JupyterFrontEnd;
   readonly _translator: ITranslator;
-  readonly _advancedOptions: React.ElementType;
+  readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(options.model || new JobsModel({}));

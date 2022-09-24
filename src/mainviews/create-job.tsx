@@ -5,6 +5,7 @@ import { Cluster } from '../components/cluster';
 import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
+import SchedulerTokens from '../tokens';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
 
@@ -20,7 +21,7 @@ export interface ICreateJobProps {
   modelChanged: (model: ICreateJobModel) => void;
   toggleView: () => unknown;
   // Extension point: optional additional component
-  advancedOptions: React.ElementType;
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
 
 function parameterNameMatch(elementName: string): number | null {
@@ -50,6 +51,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // a situation where the cursor jumps to the end of the text box after the user
   // enters a character mid-input.
   const [textInputs, setTextInputs] = React.useState<Record<string, string>>({});
+
+  // A mapping from input names to error messages.
+  // If an error message is "truthy" (i.e., not null or ''), we should display the
+  // input in an error state and block form submission.
+  const [errors, setErrors] = React.useState({});
 
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
@@ -248,8 +254,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             formPrefix={formPrefix}
           />
           <props.advancedOptions
+            mode={'CreateJob'}
             model={props.model}
-            modelChanged={props.modelChanged} />
+            modelChanged={props.modelChanged}
+            errors={errors}
+            errorsChanged={setErrors} />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
