@@ -18,7 +18,7 @@ import { SelectChangeEvent } from '@mui/material';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
-  modelChanged: (model: ICreateJobModel) => void;
+  handleModelChanged: (model: ICreateJobModel) => void;
   toggleView: () => unknown;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
@@ -69,24 +69,24 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     if (parameterNameIdx !== null) {
       newParams[parameterNameIdx].name = target.value;
-      props.modelChanged({ ...props.model, parameters: newParams });
+      props.handleModelChanged({ ...props.model, parameters: newParams });
     } else if (parameterValueIdx !== null) {
       newParams[parameterValueIdx].value = target.value;
-      props.modelChanged({ ...props.model, parameters: newParams });
+      props.handleModelChanged({ ...props.model, parameters: newParams });
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
       if (typeof value === 'string') {
         setTextInputs({ ...textInputs, [name]: value });
       }
-      props.modelChanged({ ...props.model, [name]: value });
+      props.handleModelChanged({ ...props.model, [name]: value });
     }
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
-    props.modelChanged({ ...props.model, [target.name]: target.value });
+    props.handleModelChanged({ ...props.model, [target.name]: target.value });
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +111,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       // Get the output format matching the given name
       const newFormat = outputFormatsList.find(of => of.name === formatName);
       if (newFormat) {
-        props.modelChanged({
+        props.handleModelChanged({
           ...props.model,
           outputFormats: [...oldOutputFormats, newFormat]
         });
@@ -119,7 +119,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
     // Go from checked to unchecked
     else if (!isChecked && wasChecked) {
-      props.modelChanged({
+      props.handleModelChanged({
         ...props.model,
         outputFormats: oldOutputFormats.filter(of => of.name !== formatName)
       });
@@ -181,14 +181,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const newParams = props.model.parameters || [];
     newParams.splice(idx, 1);
 
-    props.modelChanged({ ...props.model, parameters: newParams });
+    props.handleModelChanged({ ...props.model, parameters: newParams });
   };
 
   const addParameter = () => {
     const newParams = props.model.parameters || [];
     newParams.push({ name: '', value: '' });
 
-    props.modelChanged({ ...props.model, parameters: newParams });
+    props.handleModelChanged({ ...props.model, parameters: newParams });
   };
 
   // If the text field is blank, record an error.
@@ -285,11 +285,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             formPrefix={formPrefix}
           />
           <props.advancedOptions
-            mode={'CreateJob'}
+            jobsView={'CreateJob'}
             model={props.model}
-            modelChanged={props.modelChanged}
+            handleModelChanged={props.handleModelChanged}
             errors={errors}
-            errorsChanged={setErrors} />
+            handleErrorsChanged={setErrors} />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}

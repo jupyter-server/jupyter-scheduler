@@ -268,7 +268,7 @@ function getJobs(
 export interface IListJobsProps {
   app: JupyterFrontEnd;
   model: IListJobsModel;
-  modelChanged: (model: IListJobsModel) => void;
+  handleModelChanged: (model: IListJobsModel) => void;
   showCreateJob: (newModel: ICreateJobModel) => void;
 }
 
