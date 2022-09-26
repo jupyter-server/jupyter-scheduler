@@ -5,9 +5,14 @@ import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
 import { closeIcon, stopIcon } from '@jupyterlab/ui-components';
 
+import Stack from '@mui/material/Stack';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel } from '../model';
+import { CommandIDs } from '..';
 
 import { replayIcon } from './icons';
 import { JobDetails } from './job-details';
@@ -127,7 +132,6 @@ function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
 function OutputFiles(props: {
   job: Scheduler.IDescribeJob;
   openOnClick: (e: any, output_uri: string) => void;
-  outputUri: string;
 }): JSX.Element | null {
   if (props.job.status !== 'COMPLETED') {
     return null;
@@ -166,6 +170,58 @@ export type JobRowProps = {
   showCreateJob: (newModel: ICreateJobModel) => void;
 };
 
+export function buildTableRow(
+  job: Scheduler.IDescribeJob,
+  app: JupyterFrontEnd,
+  showCreateJob: (newModel: ICreateJobModel) => void,
+  deleteRow: (id: Scheduler.IDescribeJob['job_id']) => void,
+  translateStatus: (status: Scheduler.Status) => string
+): JSX.Element {
+  const cellContents: React.ReactNode[] = [
+    job.name,
+    job.input_uri,
+    <OutputFiles
+      job={job}
+      openOnClick={(e: Event, output_uri: string) => {
+        e.preventDefault();
+        app.commands.execute('docmanager:open', { path: output_uri });
+      }}
+    />,
+    job.start_time,
+    translateStatus(job.status),
+    <Stack spacing={1} direction="row">
+      <StopButton
+        job={job}
+        clickHandler={() =>
+          app.commands.execute(CommandIDs.stopJob, {
+            id: job.job_id
+          })
+        }
+      />
+      <DeleteButton
+        job={job}
+        clickHandler={() => {
+          // optimistic delete for now, no verification on whether the delete
+          // succeeded
+          app.commands.execute(CommandIDs.deleteJob, {
+            id: job.job_id
+          });
+          deleteRow(job.job_id);
+        }}
+      />
+      <RefillButton job={job} showCreateJob={showCreateJob} />
+    </Stack>
+  ];
+
+  return (
+    <TableRow>
+      {cellContents.map((cellContent, idx) => (
+        <TableCell key={idx}>{cellContent}</TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
 // Add a row for a job, with columns for each of its traits and a details view below.
 export function JobRow(props: JobRowProps): JSX.Element {
   const [detailsVisible, setDetailsVisible] = useState(false);
@@ -177,7 +233,6 @@ export function JobRow(props: JobRowProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   const input_relative_uri = job.input_uri;
-  const output_relative_uri = job.output_uri;
   // Truncate the path to its filename.
   const input_file = get_file_from_path(job.input_uri);
 
@@ -238,11 +293,7 @@ export function JobRow(props: JobRowProps): JSX.Element {
           </a>
         </div>
         <div className={cellClass}>
-          <OutputFiles
-            job={job}
-            openOnClick={openFileClickHandler}
-            outputUri={output_relative_uri}
-          />
+          <OutputFiles job={job} openOnClick={openFileClickHandler} />
         </div>
         <div className={cellClass}>
           <Timestamp job={job} />

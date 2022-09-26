@@ -309,6 +309,7 @@ export namespace Scheduler {
   export interface IListJobsResponse {
     jobs: IDescribeJob[];
     next_token?: string;
+    total_count: number;
   }
 
   export interface IRuntimeEnvironment {

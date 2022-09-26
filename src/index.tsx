@@ -29,7 +29,7 @@ import {
 import Scheduler from './tokens';
 import AdvancedOptions from './advanced-options';
 
-namespace CommandIDs {
+export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
   export const runNotebook = 'scheduling:run-notebook';
   export const showNotebookJobs = 'scheduling:show-notebook-jobs';
@@ -62,7 +62,7 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
   activate: (app: JupyterFrontEnd) => {
     return AdvancedOptions;
   }
-}
+};
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {
@@ -259,6 +259,9 @@ async function activatePlugin(
   }
 }
 
-const plugins: JupyterFrontEndPlugin<any>[] = [schedulerPlugin, advancedOptions];
+const plugins: JupyterFrontEndPlugin<any>[] = [
+  schedulerPlugin,
+  advancedOptions
+];
 
 export default plugins;
