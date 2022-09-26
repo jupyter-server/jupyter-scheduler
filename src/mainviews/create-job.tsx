@@ -192,7 +192,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   // If the text field is blank, record an error.
-  const validateNonBlank = (e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)) => {
+  const validateEmpty = (e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)) => {
     const inputName = e.name;
     const inputValue = e.value;
 
