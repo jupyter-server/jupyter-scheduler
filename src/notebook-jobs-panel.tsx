@@ -64,7 +64,9 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
           {this.model.jobsView === 'CreateJob' && (
             <CreateJob
               model={this.model.createJobModel}
-              handleModelChange={newModel => (this.model.createJobModel = newModel)}
+              handleModelChange={newModel =>
+                (this.model.createJobModel = newModel)
+              }
               toggleView={this.toggleView.bind(this)}
               advancedOptions={this._advancedOptions}
             />
@@ -73,14 +75,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             <NotebookJobsList
               app={this._app}
               model={this.model.listJobsModel}
-              handleModelChange={newModel => (this.model.listJobsModel = newModel)}
+              handleModelChange={newModel =>
+                (this.model.listJobsModel = newModel)
+              }
               showCreateJob={showCreateJob}
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
             <JobDetail
               model={this.model.jobDetailModel}
-              handleModelChange={newModel => (this.model.jobDetailModel = newModel)}
+              handleModelChange={newModel =>
+                (this.model.jobDetailModel = newModel)
+              }
               setView={view => (this.model.jobsView = view)}
             />
           )}
