@@ -225,7 +225,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.idempotency_token ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('Job Definition Id')}
+                  label={trans.__('Job definition ID')}
                   defaultValue={job?.job_definition_id ?? ''}
                 />
                 <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
