@@ -270,7 +270,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 />
 
                 <TextFieldStyled
-                  label={trans.__('url')}
+                  label={trans.__('URL')}
                   defaultValue={job?.url ?? ''}
                 />
                 <TextFieldStyled
