@@ -217,7 +217,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <AccordionDetails id="panel-content">
               <Stack spacing={4}>
                 <TextFieldStyled
-                  label={trans.__('Output Prefix')}
+                  label={trans.__('Output prefix')}
                   defaultValue={job?.output_prefix ?? ''}
                 />
                 <TextFieldStyled
