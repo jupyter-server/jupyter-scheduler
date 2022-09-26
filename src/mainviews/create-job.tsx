@@ -69,7 +69,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     if (parameterNameIdx !== null) {
       newParams[parameterNameIdx].name = target.value;
-      props.handleModelChanged({ ...props.model, parameters: newParams });
+      props.handleModelChange({ ...props.model, parameters: newParams });
     } else if (parameterValueIdx !== null) {
       newParams[parameterValueIdx].value = target.value;
       props.handleModelChanged({ ...props.model, parameters: newParams });
