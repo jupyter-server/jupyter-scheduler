@@ -147,51 +147,46 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               }}
             />
 
-            {job?.output_formats && (
-              <FormControl component="fieldset">
-                <FormLabel component="legend">
-                  {trans.__('Output formats')}
-                </FormLabel>
-                <FormGroup style={{ display: 'flex', flexDirection: 'row' }}>
-                  {job?.output_formats.map(format => (
+            <FormControl component="fieldset">
+              <FormLabel component="legend">
+                {trans.__('Output formats')}
+              </FormLabel>
+              <FormGroup style={{ display: 'flex', flexDirection: 'row' }}>
+                {job?.output_formats &&
+                  job?.output_formats.map(format => (
                     <FormControlLabel
                       key={format}
                       control={<Checkbox checked={true} defaultChecked />}
                       label={format}
                     />
                   ))}
-                </FormGroup>
-              </FormControl>
-            )}
+              </FormGroup>
+            </FormControl>
 
-            {job?.parameters && (
-              <>
-                <FormLabel component="legend">
-                  {trans.__('Parameters')}
-                </FormLabel>
+            <>
+              <FormLabel component="legend">{trans.__('Parameters')}</FormLabel>
 
-                {Object.entries(job?.parameters ?? {}).map(
-                  ([parameter, value]) => (
-                    <Stack key={parameter} direction="row" spacing={1}>
-                      <TextFieldStyled
-                        label={trans.__('Parameter')}
-                        defaultValue={parameter}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                      />
-                      <TextFieldStyled
-                        label={trans.__('Value')}
-                        defaultValue={value}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                      />
-                    </Stack>
-                  )
-                )}
-              </>
-            )}
+              {Object.entries(job?.parameters ?? {}).map(
+                ([parameter, value]) => (
+                  <Stack key={parameter} direction="row" spacing={1}>
+                    <TextFieldStyled
+                      label={trans.__('Parameter')}
+                      defaultValue={parameter}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                    />
+                    <TextFieldStyled
+                      label={trans.__('Value')}
+                      defaultValue={value}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                    />
+                  </Stack>
+                )
+              )}
+            </>
           </Stack>
 
           <Accordion defaultExpanded={true}>
@@ -200,7 +195,44 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               aria-controls="panel-content"
               id="panel-header"
             >
-              Advanced options
+              {trans.__('Additional options')}
+            </AccordionSummary>
+            <AccordionDetails id="panel-content">
+              <Stack spacing={4}>
+                <TextFieldStyled
+                  label={trans.__('Output Prefix')}
+                  defaultValue={job?.output_prefix ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('Output Prefix')}
+                  defaultValue={job?.idempotency_token ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('Output Prefix')}
+                  defaultValue={job?.job_definition_id ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion defaultExpanded={true}>
+            <AccordionSummary
+              expandIcon={<caretDownIcon.react />}
+              aria-controls="panel-content"
+              id="panel-header"
+            >
+              <FormLabel component="legend">
+                {trans.__('Advanced options')}
+              </FormLabel>
             </AccordionSummary>
             <AccordionDetails id="panel-content">
               <Stack component="form" spacing={4}>
