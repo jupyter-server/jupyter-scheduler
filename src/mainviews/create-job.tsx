@@ -119,7 +119,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
     // Go from checked to unchecked
     else if (!isChecked && wasChecked) {
-      props.handleModelChanged({
+      props.handleModelChange({
         ...props.model,
         outputFormats: oldOutputFormats.filter(of => of.name !== formatName)
       });
