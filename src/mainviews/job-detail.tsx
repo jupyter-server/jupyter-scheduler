@@ -152,7 +152,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 <FormLabel component="legend">
                   {trans.__('Output formats')}
                 </FormLabel>
-                <FormGroup>
+                <FormGroup style={{ display: 'flex', flexDirection: 'row' }}>
                   {job?.output_formats.map((format, idx) => (
                     <FormControlLabel
                       key={idx}
