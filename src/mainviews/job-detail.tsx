@@ -146,6 +146,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 readOnly: true
               }}
             />
+            <TextFieldStyled
+              label={trans.__('status_message')}
+              defaultValue={job?.status_message ?? ''}
+              InputProps={{
+                readOnly: true
+              }}
+            />
 
             <FormControl component="fieldset">
               <FormLabel component="legend">
@@ -163,30 +170,39 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               </FormGroup>
             </FormControl>
 
-            <>
-              <FormLabel component="legend">{trans.__('Parameters')}</FormLabel>
-
-              {Object.entries(job?.parameters ?? {}).map(
-                ([parameter, value]) => (
-                  <Stack key={parameter} direction="row" spacing={1}>
-                    <TextFieldStyled
-                      label={trans.__('Parameter')}
-                      defaultValue={parameter}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                    />
-                    <TextFieldStyled
-                      label={trans.__('Value')}
-                      defaultValue={value}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                    />
-                  </Stack>
-                )
-              )}
-            </>
+            <Accordion defaultExpanded={true}>
+              <AccordionSummary
+                expandIcon={<caretDownIcon.react />}
+                aria-controls="panel-content"
+                id="panel-header"
+              >
+                <FormLabel component="legend">
+                  {trans.__('Parameters')}
+                </FormLabel>
+              </AccordionSummary>
+              <AccordionDetails id="panel-content">
+                {Object.entries(job?.parameters ?? {}).map(
+                  ([parameter, value]) => (
+                    <Stack key={parameter} direction="row" spacing={1}>
+                      <TextFieldStyled
+                        label={trans.__('Parameter')}
+                        defaultValue={parameter}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                      />
+                      <TextFieldStyled
+                        label={trans.__('Value')}
+                        defaultValue={value}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                      />
+                    </Stack>
+                  )
+                )}
+              </AccordionDetails>
+            </Accordion>
           </Stack>
 
           <Accordion defaultExpanded={true}>
@@ -195,7 +211,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               aria-controls="panel-content"
               id="panel-header"
             >
-              {trans.__('Additional options')}
+              <FormLabel component="legend">
+                {trans.__('Additional options')}
+              </FormLabel>
             </AccordionSummary>
             <AccordionDetails id="panel-content">
               <Stack spacing={4}>
@@ -216,6 +234,93 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 <TextFieldStyled
                   label={trans.__('Job Definition Id')}
                   defaultValue={job?.job_definition_id ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
+                {job?.tags &&
+                  job?.tags.map(tag => (
+                    <TextFieldStyled
+                      label={trans.__('Tag')}
+                      defaultValue={tag}
+                      InputProps={{
+                        readOnly: true
+                      }}
+                    />
+                  ))}
+                <FormLabel component="legend">
+                  {trans.__('Email Notifications')}
+                </FormLabel>
+                <TextFieldStyled
+                  label={trans.__('Job Definition Id')}
+                  defaultValue={job?.timeout_seconds?.toString() ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('max_retries')}
+                  defaultValue={job?.max_retries?.toString() ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('min_retry_interval_millis')}
+                  defaultValue={
+                    job?.min_retry_interval_millis?.toString() ?? ''
+                  }
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('retry_on_timeout')}
+                  defaultValue={job?.retry_on_timeout?.toString() ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('start_time')}
+                  defaultValue={job?.start_time?.toString() ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('output_filename_template')}
+                  defaultValue={job?.output_filename_template ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+
+                <TextFieldStyled
+                  label={trans.__('url')}
+                  defaultValue={job?.url ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('status')}
+                  defaultValue={job?.status ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('start_time')}
+                  defaultValue={job?.start_time?.toString() ?? ''}
+                  InputProps={{
+                    readOnly: true
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('end_time')}
+                  defaultValue={job?.end_time?.toString() ?? ''}
                   InputProps={{
                     readOnly: true
                   }}
