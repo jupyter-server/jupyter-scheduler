@@ -287,7 +287,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <props.advancedOptions
             jobsView={'CreateJob'}
             model={props.model}
-            handleModelChanged={props.handleModelChanged}
+            handleModelChange={props.handleModelChanged}
             errors={errors}
             handleErrorsChanged={setErrors} />
           <Cluster gap={3} justifyContent="flex-end">
