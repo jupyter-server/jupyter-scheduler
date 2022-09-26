@@ -282,7 +282,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.start_time?.toString() ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('end_time')}
+                  label={trans.__('End time')}
                   defaultValue={job?.end_time?.toString() ?? ''}
                 />
               </Stack>
