@@ -181,7 +181,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const newParams = props.model.parameters || [];
     newParams.splice(idx, 1);
 
-    props.handleModelChanged({ ...props.model, parameters: newParams });
+    props.handleModelChange({ ...props.model, parameters: newParams });
   };
 
   const addParameter = () => {
