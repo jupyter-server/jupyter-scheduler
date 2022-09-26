@@ -44,7 +44,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
 
   //TO DELETE
-  const prop = { model: { jobId: '0d2779ad-3163-44b7-bc5b-da87adbaf90a' } };
+  const prop = { model: { jobId: '3f062962-1e3e-442b-8454-e76af250da39' } };
 
   const trans = useTranslator('jupyterlab');
 
@@ -180,7 +180,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   job?.output_formats.map(format => (
                     <FormControlLabel
                       key={format}
-                      control={<Checkbox checked={true} defaultChecked />}
+                      control={<Checkbox checked={true} />}
                       label={format}
                     />
                   ))}
