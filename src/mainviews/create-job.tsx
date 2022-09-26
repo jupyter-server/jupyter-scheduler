@@ -289,7 +289,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             model={props.model}
             handleModelChange={props.handleModelChanged}
             errors={errors}
-            handleErrorsChanged={setErrors} />
+            handleErrorsChange={setErrors} />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
