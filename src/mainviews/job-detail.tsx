@@ -23,8 +23,10 @@ import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { Scheduler, SchedulerService } from '../handler';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 export interface IJobDetailProps {
+  app: JupyterFrontEnd;
   model: IJobDetailModel;
   modelChanged: (model: IJobDetailModel) => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
@@ -87,6 +89,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     props.setView('ListJobs');
   };
 
+  const handleStopJob = async () => {
+    props.app.commands.execute('scheduling:stop-job', {
+      id: job?.job_id
+    });
+    getJobDefinion();
+  };
+
   useEffect(() => {
     getJobDefinion();
   }, []);
@@ -115,6 +124,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return (
         <>
           <Stack direction="row" spacing={1} justifyContent="flex-end">
+            {job?.status === 'IN_PROGRESS' && (
+              <Button variant="outlined" onClick={handleStopJob}>
+                {trans.__('Stop Job')}
+              </Button>
+            )}
             <Button variant="outlined" onClick={rerunJob}>
               {trans.__('Rerun Job')}
             </Button>
@@ -152,8 +166,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               }}
             />
             <TextFieldStyled
-              label={trans.__('status_message')}
-              defaultValue={job?.status_message ?? ''}
+              label={trans.__('status')}
+              defaultValue={job?.status ?? ''}
               InputProps={{
                 readOnly: true
               }}
@@ -312,8 +326,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   }}
                 />
                 <TextFieldStyled
-                  label={trans.__('status')}
-                  defaultValue={job?.status ?? ''}
+                  label={trans.__('status_message')}
+                  defaultValue={job?.status_message ?? ''}
                   InputProps={{
                     readOnly: true
                   }}
