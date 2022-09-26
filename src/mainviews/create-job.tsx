@@ -301,9 +301,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 return false;
               }}
               disabled={anyErrors}
-              title={anyErrors ? cantSubmit : trans.__('Run this job now')}
+              title={anyErrors ? cantSubmit : ''}
             >
-              {trans.__('Run Job')}
+              {trans.__('Create')}
             </Button>
           </Cluster>
         </Stack>
