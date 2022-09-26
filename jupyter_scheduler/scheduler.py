@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from multiprocessing import Process
-from typing import List
 
 import psutil
 from jupyter_core.paths import jupyter_data_dir
@@ -22,8 +21,12 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, create_session
-from jupyter_scheduler.utils import create_output_filename, timestamp_to_int
+from jupyter_scheduler.orm import Job, JobDefinition, create_session
+from jupyter_scheduler.utils import (
+    compute_next_run_time,
+    create_output_filename,
+    timestamp_to_int,
+)
 
 
 class BaseScheduler(ABC):
@@ -116,6 +119,11 @@ class BaseScheduler(ABC):
         """Pauses all future jobs for a job definition"""
         pass
 
+    @abstractmethod
+    def resume_jobs(self, job_definition_id: str):
+        """Resumes future jobs for a job definition"""
+        pass
+
 
 class Scheduler(BaseScheduler):
 
@@ -135,7 +143,7 @@ class Scheduler(BaseScheduler):
     def execution_manager_class(self):
         return self.config.execution_manager_class
 
-    def create_job(self, model: CreateJob) -> DescribeJob:
+    def create_job(self, model: CreateJob) -> str:
         with self.db_session() as session:
             job = None
             if model.idempotency_token:
@@ -252,16 +260,84 @@ class Scheduler(BaseScheduler):
                         break
 
     def create_job_definition(self, model: CreateJobDefinition) -> str:
-        pass
+        with self.db_session() as session:
+            job_definition = JobDefinition(**model.dict(exclude_none=True))
+            session.add(job_definition)
+            session.commit()
+
+            job_definition_id = job_definition.job_definition_id
+
+        return job_definition_id
 
     def update_job_definition(self, model: UpdateJobDefinition):
-        pass
+        with self.db_session() as session:
+            session.query(JobDefinition).filter(
+                JobDefinition.job_definition_id == model.job_definition_id
+            ).update(model.dict(exclude_none=True))
+            session.commit()
 
     def delete_job_definition(self, job_definition_id: str):
-        pass
+        with self.db_session() as session:
+            jobs = session.query(Job).filter(Job.job_definition_id == job_definition_id)
+            for job in jobs:
+                self.delete_job(job.job_id)
+            session.query(JobDefinition).filter(
+                JobDefinition.job_definition_id == job_definition_id
+            ).delete()
+            session.commit()
 
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
-        pass
+        with self.db_session() as session:
+            definitions = session.query(JobDefinition)
+
+            if query.create_time:
+                definitions = definitions.filter(JobDefinition.create_time >= query.create_time)
+            if query.name:
+                definitions = definitions.filter(JobDefinition.name.like(f"{query.name}%"))
+            if query.tags:
+                definitions = definitions.filter(
+                    and_(JobDefinition.tags.contains(tag) for tag in query.tags)
+                )
+
+            total = definitions.count()
+
+            if query.sort_by:
+                for sort_field in query.sort_by:
+                    direction = desc if sort_field.direction == SortDirection.desc else asc
+                    definitions = definitions.order_by(
+                        direction(getattr(JobDefinition, sort_field.name))
+                    )
+            next_token = int(query.next_token) if query.next_token else 0
+            definitions = definitions.limit(query.max_items).offset(next_token)
+
+            definitions = definitions.all()
+
+        next_token = next_token + len(definitions)
+        if next_token >= total:
+            next_token = None
+
+        list_response = ListJobDefinitionsResponse(
+            job_definitions=[
+                DescribeJobDefinition.from_orm(definition) for definition in definitions or []
+            ],
+            next_token=next_token,
+            total_count=total,
+        )
+
+        return list_response
 
     def pause_jobs(self, job_definition_id: str):
-        pass
+        with self.db_session() as session:
+            session.query(JobDefinition).filter(
+                JobDefinition.job_definition_id == job_definition_id
+            ).update(active=False)
+            session.commit()
+
+    def resume_jobs(self, job_definition_id: str):
+        with self.db_session() as session:
+            job_definition = session.query(JobDefinition).filter(
+                JobDefinition.job_definition_id == job_definition_id
+            )
+            next_run_time = compute_next_run_time(job_definition.schedule, job_definition.timezone)
+            job_definition.update(active=True, next_run_time=next_run_time)
+            session.commit()

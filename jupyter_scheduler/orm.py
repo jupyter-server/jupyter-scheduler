@@ -48,7 +48,7 @@ def output_uri(context) -> str:
 
 
 def next_run_time(context) -> int:
-    compute_next_run_time(
+    return compute_next_run_time(
         context.get_current_parameters()["schedule"], context.get_current_parameters()["timezone"]
     )
 
@@ -136,6 +136,7 @@ class JobDefinition(CommonColumns, Base):
     url = Column(String(256), default=generate_job_definitions_url)
     create_time = Column(Integer, default=get_utc_timestamp)
     next_run_time = Column(Integer, default=next_run_time)
+    active = Column(Boolean, default=True)
 
 
 def create_tables(db_url, drop_tables=False):
