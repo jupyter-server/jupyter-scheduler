@@ -66,7 +66,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     const initialState: ICreateJobModel = {
       inputFile: job?.input_uri ?? '',
       jobName: job?.name ?? '',
-      outputPath: job?.output_uri ?? '',
+      outputPath: '.',
       environment: job?.runtime_environment_name ?? '',
       parameters:
         job?.parameters !== undefined
