@@ -44,7 +44,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
 
   //TO DELETE
-  const prop = { model: { jobId: '3f062962-1e3e-442b-8454-e76af250da39' } };
+  const prop = { model: { jobId: '0d2779ad-3163-44b7-bc5b-da87adbaf90a' } };
 
   const trans = useTranslator('jupyterlab');
 
@@ -99,8 +99,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   useEffect(() => {
     getJobDefinion();
   }, []);
-
-  console.log(`jobId from props: ${props.model.jobId}`);
 
   function TextFieldStyled(props: ITextFieldStyledProps) {
     return (
