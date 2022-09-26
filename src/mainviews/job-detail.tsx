@@ -274,7 +274,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.url ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('status_message')}
+                  label={trans.__('Status message')}
                   defaultValue={job?.status_message ?? ''}
                 />
                 <TextFieldStyled
