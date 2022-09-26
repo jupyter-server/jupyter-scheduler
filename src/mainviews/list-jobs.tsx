@@ -17,6 +17,7 @@ import { Scheduler, SchedulerService } from '../handler';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 
+import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
@@ -61,6 +62,7 @@ export function NotebookJobsListBody(
   const [page, setPage] = useState<number>(0);
   const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const theme = useTheme();
 
   const deleteRow = useCallback((id: Scheduler.IDescribeJob['job_id']) => {
     setDeletedRows(deletedRows => new Set([...deletedRows, id]));
@@ -248,8 +250,8 @@ export function NotebookJobsListBody(
             sx={{
               position: 'sticky',
               bottom: 0,
-              backgroundColor: 'white',
-              borderTop: '1px solid #e0e0e0'
+              backgroundColor: theme.palette.background.paper,
+              borderTop: `1px solid ${theme.palette.divider}`
             }}
             count={notebookJobs.total_count}
             page={page}
