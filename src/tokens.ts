@@ -9,7 +9,7 @@ namespace Scheduler {
 
   export interface IAdvancedOptionsProps {
     jobsView: JobsView;
-    model: ICreateJobModel;
+    model: ICreateJobModel | IJobDetailModel;
     handleModelChanged: (model: ICreateJobModel) => void;
     errors: ErrorsType;
     handleErrorsChanged: (errors: ErrorsType) => void;
