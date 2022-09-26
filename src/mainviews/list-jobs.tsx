@@ -67,7 +67,7 @@ export function NotebookJobsListBody(
   }, []);
 
   const fetchInitialRows = async () => {
-    // reset pagiantion state
+    // reset pagination state
     setPage(0);
     setMaxPage(0);
     // Get initial job list (next_token is undefined)
