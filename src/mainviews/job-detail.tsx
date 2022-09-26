@@ -27,7 +27,7 @@ import {
 import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { Scheduler, SchedulerService } from '../handler';
+import { Scheduler, SchedulerService } from '../handler'; 
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
@@ -109,7 +109,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     if (loading) {
       return (
         <Stack direction="row" justifyContent="center">
-          <CircularProgress />
+          <Stack alignItems="center">
+            <span>{trans.__('Loading')}...</span>
+            <CircularProgress />
+          </Stack>
         </Stack>
       );
     } else {
@@ -217,6 +220,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   return (
     <>
+      <Button onClick={_ => setLoading(!loading)}> Toggle loading </Button>
+      <Button onClick={_ => getJobDefinion()}>Fetch job definition</Button>
       <Box sx={{ maxWidth: '500px', p: 4 }}>
         <Stack spacing={4}>
           <div role="presentation">
