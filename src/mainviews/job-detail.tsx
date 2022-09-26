@@ -257,7 +257,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   }
                 />
                 <TextFieldStyled
-                  label={trans.__('retry_on_timeout')}
+                  label={trans.__('Retry on timeout')}
                   defaultValue={job?.retry_on_timeout?.toString() ?? ''}
                 />
                 <TextFieldStyled
