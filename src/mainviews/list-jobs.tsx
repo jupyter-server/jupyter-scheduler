@@ -194,6 +194,7 @@ export function NotebookJobsListBody(
   ];
 
   const rows: JSX.Element[] = notebookJobs.jobs
+    .slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
     .filter(job => !deletedRows.has(job.job_id))
     .map(job =>
       buildTableRow(
@@ -241,9 +242,7 @@ export function NotebookJobsListBody(
                 />
               ))}
             </TableHead>
-            <TableBody>
-              {rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)}
-            </TableBody>
+            <TableBody>{rows}</TableBody>
           </Table>
           <TablePagination
             component="div"
