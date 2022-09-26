@@ -79,7 +79,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       if (typeof value === 'string') {
         setTextInputs({ ...textInputs, [name]: value });
       }
-      props.handleModelChanged({ ...props.model, [name]: value });
+      props.handleModelChange({ ...props.model, [name]: value });
     }
   };
 
