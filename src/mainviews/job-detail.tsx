@@ -243,7 +243,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   {trans.__('Email notifications')}
                 </FormLabel>
                 <TextFieldStyled
-                  label={trans.__('Job Definition Id')}
+                  label={trans.__('Job definition ID')}
                   defaultValue={job?.timeout_seconds?.toString() ?? ''}
                 />
                 <TextFieldStyled
