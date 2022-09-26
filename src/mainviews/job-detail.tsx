@@ -27,7 +27,7 @@ import {
 import { caretDownIcon } from '@jupyterlab/ui-components';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { Scheduler, SchedulerService } from '../handler'; 
+import { Scheduler, SchedulerService } from '../handler';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
@@ -48,7 +48,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
 
   //TO DELETE
-  const prop = { model: { jobId: 'd5bb0c08-d000-4be8-ba0f-25623f9effbd' } };
+  const prop = { model: { jobId: '3f062962-1e3e-442b-8454-e76af250da39' } };
 
   const trans = useTranslator('jupyterlab');
 
@@ -82,18 +82,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     { name: 'option 2', value: 'value 2' }
   ];
 
-  const basicOptions: ICreateJobModel = {
-    jobName: 'my job',
-    inputFile: 'foobar',
-    outputPath: 'foobar.jptr',
-    environment: 'conda3',
-    parameters: advancedOptions,
-    outputFormats: [
-      { name: 'hello', label: 'label' },
-      { name: 'hello 2', label: 'label 2' }
-    ]
-  };
-
   function TextFieldStyled(props: ITextFieldStyledProps) {
     return (
       <TextField
@@ -109,10 +97,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     if (loading) {
       return (
         <Stack direction="row" justifyContent="center">
-          <Stack alignItems="center">
-            <span>{trans.__('Loading')}...</span>
-            <CircularProgress />
-          </Stack>
+          <CircularProgress title={trans.__('Loading')} />
         </Stack>
       );
     } else {
@@ -134,44 +119,44 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           <Stack spacing={4}>
             <TextFieldStyled
               label={trans.__('Job name')}
-              defaultValue={basicOptions.jobName}
+              defaultValue={job?.name ?? ''}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
               label={trans.__('Input file')}
-              defaultValue={basicOptions.inputFile}
+              defaultValue={job?.input_uri ?? ''}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
               label={trans.__('Output path')}
-              defaultValue={basicOptions.outputPath}
+              defaultValue={job?.output_uri ?? ''}
               InputProps={{
                 readOnly: true
               }}
             />
             <TextFieldStyled
               label={trans.__('Environment')}
-              defaultValue={basicOptions.environment}
+              defaultValue={job?.runtime_environment_name ?? ''}
               InputProps={{
                 readOnly: true
               }}
             />
 
-            {basicOptions.outputFormats && (
+            {job?.output_formats && (
               <FormControl component="fieldset">
                 <FormLabel component="legend">
-                  {trans.__('Output format')}
+                  {trans.__('Output formats')}
                 </FormLabel>
                 <FormGroup>
-                  {basicOptions.outputFormats.map((option, idx) => (
+                  {job?.output_formats.map((format, idx) => (
                     <FormControlLabel
                       key={idx}
                       control={<Checkbox checked={true} defaultChecked />}
-                      label={option.label}
+                      label={format}
                     />
                   ))}
                 </FormGroup>
@@ -220,8 +205,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   return (
     <>
-      <Button onClick={_ => setLoading(!loading)}> Toggle loading </Button>
-      <Button onClick={_ => getJobDefinion()}>Fetch job definition</Button>
       <Box sx={{ maxWidth: '500px', p: 4 }}>
         <Stack spacing={4}>
           <div role="presentation">
