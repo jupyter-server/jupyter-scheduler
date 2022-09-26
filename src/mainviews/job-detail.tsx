@@ -217,8 +217,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   return (
     <>
-      <Button onClick={_ => setLoading(!loading)}> Toggle loading </Button>
-      <Button onClick={_ => getJobDefinion()}>Fetch job definition</Button>
       <Box sx={{ maxWidth: '500px', p: 4 }}>
         <Stack spacing={4}>
           <div role="presentation">
