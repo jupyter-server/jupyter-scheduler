@@ -229,16 +229,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <AccordionDetails id="panel-content">
               <Stack spacing={4}>
                 <TextFieldStyled
-                  label={trans.__('Output prefix')}
-                  defaultValue={job?.output_prefix ?? ''}
-                />
-                <TextFieldStyled
                   label={trans.__('Idempotency token')}
                   defaultValue={job?.idempotency_token ?? ''}
-                />
-                <TextFieldStyled
-                  label={trans.__('Job definition ID')}
-                  defaultValue={job?.job_definition_id ?? ''}
                 />
                 <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
                 {job?.tags &&
@@ -251,40 +243,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                       }}
                     />
                   ))}
-                <FormLabel component="legend">
-                  {trans.__('Email notifications')}
-                </FormLabel>
-                <TextFieldStyled
-                  label={trans.__('Job definition ID')}
-                  defaultValue={job?.timeout_seconds?.toString() ?? ''}
-                />
-                <TextFieldStyled
-                  label={trans.__('Maximum retries')}
-                  defaultValue={job?.max_retries?.toString() ?? ''}
-                />
-                <TextFieldStyled
-                  label={trans.__('Minimum retry interval (millisecond)')}
-                  defaultValue={
-                    job?.min_retry_interval_millis?.toString() ?? ''
-                  }
-                />
-                <TextFieldStyled
-                  label={trans.__('Retry on timeout')}
-                  defaultValue={job?.retry_on_timeout?.toString() ?? ''}
-                />
-                <TextFieldStyled
-                  label={trans.__('Output filename template')}
-                  defaultValue={job?.output_filename_template ?? ''}
-                />
-
-                <TextFieldStyled
-                  label={trans.__('URL')}
-                  defaultValue={job?.url ?? ''}
-                />
-                <TextFieldStyled
-                  label={trans.__('Status message')}
-                  defaultValue={job?.status_message ?? ''}
-                />
                 <TextFieldStyled
                   label={trans.__('Start time')}
                   defaultValue={timestampLocalize(job?.start_time ?? '')}
