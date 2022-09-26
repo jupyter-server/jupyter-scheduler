@@ -245,7 +245,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={textInputs['inputFile'] ?? props.model.inputFile}
             id={`${formPrefix}inputFile`}
-            onBlur={(e) => validateNonBlank(e.target)}
+            onBlur={(e) => validateEmpty(e.target)}
             error={hasError('inputFile')}
             helperText={errors['inputFile'] ?? ''}
             name='inputFile'
@@ -287,7 +287,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <props.advancedOptions
             jobsView={'CreateJob'}
             model={props.model}
-            handleModelChange={props.handleModelChanged}
+            handleModelChange={props.handleModelChange}
             errors={errors}
             handleErrorsChange={setErrors} />
           <Cluster gap={3} justifyContent="flex-end">

@@ -1,5 +1,5 @@
 import { Token } from '@lumino/coreutils';
-import { ICreateJobModel, JobsView } from './model';
+import { ICreateJobModel, IJobDetailModel, JobsView } from './model';
 
 namespace Scheduler {
 
@@ -10,7 +10,7 @@ namespace Scheduler {
   export interface IAdvancedOptionsProps {
     jobsView: JobsView;
     model: ICreateJobModel | IJobDetailModel;
-    handleModelChanged: (model: ICreateJobModel) => void;
+    handleModelChange: (model: ICreateJobModel) => void;
     errors: ErrorsType;
     handleErrorsChange: (errors: ErrorsType) => void;
   }
