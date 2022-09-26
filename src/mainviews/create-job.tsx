@@ -188,7 +188,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const newParams = props.model.parameters || [];
     newParams.push({ name: '', value: '' });
 
-    props.handleModelChanged({ ...props.model, parameters: newParams });
+    props.handleModelChange({ ...props.model, parameters: newParams });
   };
 
   // If the text field is blank, record an error.
