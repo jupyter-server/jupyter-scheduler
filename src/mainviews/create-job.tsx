@@ -5,6 +5,7 @@ import { Cluster } from '../components/cluster';
 import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
+import SchedulerTokens from '../tokens';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
 
@@ -17,10 +18,10 @@ import { SelectChangeEvent } from '@mui/material';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
-  modelChanged: (model: ICreateJobModel) => void;
+  handleModelChange: (model: ICreateJobModel) => void;
   toggleView: () => unknown;
   // Extension point: optional additional component
-  advancedOptions: React.ElementType;
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
 
 function parameterNameMatch(elementName: string): number | null {
@@ -51,6 +52,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // enters a character mid-input.
   const [textInputs, setTextInputs] = React.useState<Record<string, string>>({});
 
+  // A mapping from input names to error messages.
+  // If an error message is "truthy" (i.e., not null or ''), we should display the
+  // input in an error state and block form submission.
+  const [errors, setErrors] = React.useState<SchedulerTokens.ErrorsType>({});
+
+  // If any error message is "truthy" (not null or empty), the form should not be submitted.
+  const anyErrors = Object.keys(errors).some(key => !!errors[key]);
+
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
 
@@ -60,24 +69,24 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     if (parameterNameIdx !== null) {
       newParams[parameterNameIdx].name = target.value;
-      props.modelChanged({ ...props.model, parameters: newParams });
+      props.handleModelChange({ ...props.model, parameters: newParams });
     } else if (parameterValueIdx !== null) {
       newParams[parameterValueIdx].value = target.value;
-      props.modelChanged({ ...props.model, parameters: newParams });
+      props.handleModelChange({ ...props.model, parameters: newParams });
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
       if (typeof value === 'string') {
         setTextInputs({ ...textInputs, [name]: value });
       }
-      props.modelChanged({ ...props.model, [name]: value });
+      props.handleModelChange({ ...props.model, [name]: value });
     }
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
-    props.modelChanged({ ...props.model, [target.name]: target.value });
+    props.handleModelChange({ ...props.model, [target.name]: target.value });
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +111,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       // Get the output format matching the given name
       const newFormat = outputFormatsList.find(of => of.name === formatName);
       if (newFormat) {
-        props.modelChanged({
+        props.handleModelChange({
           ...props.model,
           outputFormats: [...oldOutputFormats, newFormat]
         });
@@ -110,7 +119,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
     // Go from checked to unchecked
     else if (!isChecked && wasChecked) {
-      props.modelChanged({
+      props.handleModelChange({
         ...props.model,
         outputFormats: oldOutputFormats.filter(of => of.name !== formatName)
       });
@@ -120,6 +129,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
+    if (anyErrors) {
+      console.error('User attempted to submit a createJob request; button should have been disabled');
+      return;
+    }
+
     const api = new SchedulerService({});
 
     // Serialize parameters as an object.
@@ -167,14 +181,32 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const newParams = props.model.parameters || [];
     newParams.splice(idx, 1);
 
-    props.modelChanged({ ...props.model, parameters: newParams });
+    props.handleModelChange({ ...props.model, parameters: newParams });
   };
 
   const addParameter = () => {
     const newParams = props.model.parameters || [];
     newParams.push({ name: '', value: '' });
 
-    props.modelChanged({ ...props.model, parameters: newParams });
+    props.handleModelChange({ ...props.model, parameters: newParams });
+  };
+
+  // If the text field is blank, record an error.
+  const validateEmpty = (e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)) => {
+    const inputName = e.name;
+    const inputValue = e.value;
+
+    if (inputValue === '') { // blank
+      setErrors({ ...errors, [inputName]: trans.__('You must provide a value.') })
+    }
+    else {
+      setErrors({ ...errors, [inputName]: '' });
+    }
+  };
+
+  // Is there a truthy (non-empty) error for this field?
+  const hasError = (inputName: string) => {
+    return !!errors[inputName];
   };
 
   const api = new SchedulerService({});
@@ -191,6 +223,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const formPrefix = 'jp-create-job-';
+
+  const cantSubmit = trans.__('One or more of the fields has an error.');
 
   return (
     <Box sx={{ p: 4 }}>
@@ -211,6 +245,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={textInputs['inputFile'] ?? props.model.inputFile}
             id={`${formPrefix}inputFile`}
+            onBlur={(e) => validateEmpty(e.target)}
+            error={hasError('inputFile')}
+            helperText={errors['inputFile'] ?? ''}
             name='inputFile'
           />
           <TextField
@@ -248,8 +285,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             formPrefix={formPrefix}
           />
           <props.advancedOptions
+            jobsView={'CreateJob'}
             model={props.model}
-            modelChanged={props.modelChanged} />
+            handleModelChange={props.handleModelChange}
+            errors={errors}
+            handleErrorsChange={setErrors} />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
@@ -260,8 +300,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 submitCreateJobRequest(e);
                 return false;
               }}
+              disabled={anyErrors}
+              title={anyErrors ? cantSubmit : ''}
             >
-              {trans.__('Run Job')}
+              {trans.__('Create')}
             </Button>
           </Cluster>
         </Stack>

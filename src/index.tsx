@@ -42,7 +42,7 @@ export const NotebookJobsPanelId = 'notebook-jobs-panel';
  * Initialization data for the jupyterlab-scheduler extension.
  */
 const schedulerPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab-scheduler:plugin',
+  id: '@jupyterlab/scheduler:plugin',
   requires: [
     IFileBrowserFactory,
     ITranslator,

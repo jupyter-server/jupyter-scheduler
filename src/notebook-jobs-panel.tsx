@@ -21,7 +21,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _description?: string;
   readonly _app: JupyterFrontEnd;
   readonly _translator: ITranslator;
-  readonly _advancedOptions: React.ElementType;
+  readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(options.model || new JobsModel({}));
@@ -64,7 +64,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
           {this.model.jobsView === 'CreateJob' && (
             <CreateJob
               model={this.model.createJobModel}
-              modelChanged={newModel => (this.model.createJobModel = newModel)}
+              handleModelChange={newModel => (this.model.createJobModel = newModel)}
               toggleView={this.toggleView.bind(this)}
               advancedOptions={this._advancedOptions}
             />
@@ -73,14 +73,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             <NotebookJobsList
               app={this._app}
               model={this.model.listJobsModel}
-              modelChanged={newModel => (this.model.listJobsModel = newModel)}
+              handleModelChange={newModel => (this.model.listJobsModel = newModel)}
               showCreateJob={showCreateJob}
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
             <JobDetail
               model={this.model.jobDetailModel}
-              modelChanged={newModel => (this.model.jobDetailModel = newModel)}
+              handleModelChange={newModel => (this.model.jobDetailModel = newModel)}
               setView={view => (this.model.jobsView = view)}
             />
           )}

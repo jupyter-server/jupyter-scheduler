@@ -4,7 +4,7 @@ import { IJobDetailModel, JobsView } from '../model';
 
 export interface IJobDetailProps {
   model: IJobDetailModel;
-  modelChanged: (model: IJobDetailModel) => void;
+  handleModelChange: (model: IJobDetailModel) => void;
   setView: (view: JobsView) => void;
 }
 
