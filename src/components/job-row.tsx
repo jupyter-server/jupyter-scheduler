@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ToolbarButtonComponent } from '@jupyterlab/apputils';
@@ -15,7 +15,6 @@ import { IJobParameter, ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
 
 import { replayIcon } from './icons';
-import { JobDetails } from './job-details';
 import { outputFormatsForEnvironment } from './output-format-picker';
 
 function get_file_from_path(path: string): string {
@@ -162,14 +161,6 @@ function OutputFiles(props: {
   );
 }
 
-export type JobRowProps = {
-  job: Scheduler.IDescribeJob;
-  rowClass: string;
-  cellClass: string;
-  app: JupyterFrontEnd;
-  showCreateJob: (newModel: ICreateJobModel) => void;
-};
-
 export function buildTableRow(
   job: Scheduler.IDescribeJob,
   app: JupyterFrontEnd,
@@ -179,7 +170,7 @@ export function buildTableRow(
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
     job.name,
-    job.input_uri,
+    get_file_from_path(job.input_uri),
     <OutputFiles
       job={job}
       openOnClick={(e: Event, output_uri: string) => {
@@ -187,7 +178,7 @@ export function buildTableRow(
         app.commands.execute('docmanager:open', { path: output_uri });
       }}
     />,
-    job.start_time,
+    <Timestamp job={job} />,
     translateStatus(job.status),
     <Stack spacing={1} direction="row">
       <StopButton
@@ -219,111 +210,5 @@ export function buildTableRow(
         <TableCell key={idx}>{cellContent}</TableCell>
       ))}
     </TableRow>
-  );
-}
-
-// Add a row for a job, with columns for each of its traits and a details view below.
-export function JobRow(props: JobRowProps): JSX.Element {
-  const [detailsVisible, setDetailsVisible] = useState(false);
-
-  const job = props.job;
-  const rowClass = props.rowClass;
-  const cellClass = props.cellClass;
-  const detailsVisibleClass = 'details-visible';
-  const trans = useTranslator('jupyterlab');
-
-  const input_relative_uri = job.input_uri;
-  // Truncate the path to its filename.
-  const input_file = get_file_from_path(job.input_uri);
-
-  const openFileClickHandler = (e: any, output_uri: string) => {
-    e.preventDefault();
-    props.app.commands.execute('docmanager:open', { path: output_uri });
-  };
-
-  const openDetailsClickHandler = () => {
-    setDetailsVisible(!detailsVisible);
-  };
-
-  const translatedStatus = (status: Scheduler.Status) => {
-    // This may look inefficient, but it's intended to call the `trans` function
-    // with distinct, static values, so that code analyzers can pick up all the
-    // needed source strings.
-    switch (status) {
-      case 'COMPLETED':
-        return trans.__('Completed');
-      case 'FAILED':
-        return trans.__('Failed');
-      case 'IN_PROGRESS':
-        return trans.__('In progress');
-      case 'STOPPED':
-        return trans.__('Stopped');
-      case 'STOPPING':
-        return trans.__('Stopping');
-    }
-  };
-
-  const viewJobDetailsTitle = job.name
-    ? trans.__('View details for "%1"', job.name)
-    : trans.__('View job details');
-
-  return (
-    <>
-      <div
-        className={rowClass + (detailsVisible ? ' ' + detailsVisibleClass : '')}
-        id={`${rowClass}-${job.job_id}`}
-        data-job-id={job.job_id}
-      >
-        <div className={cellClass}>
-          <a
-            className="jp-notebook-job-name"
-            onClick={openDetailsClickHandler}
-            title={viewJobDetailsTitle}
-          >
-            {job.name || <em>{trans.__('unnamed')}</em>}
-          </a>
-        </div>
-        <div className={cellClass}>
-          <a
-            href={`/lab/tree/${input_relative_uri}`}
-            title={trans.__('Open "%1"', input_relative_uri)}
-            onClick={e => openFileClickHandler(e, input_relative_uri)}
-          >
-            {input_file}
-          </a>
-        </div>
-        <div className={cellClass}>
-          <OutputFiles job={job} openOnClick={openFileClickHandler} />
-        </div>
-        <div className={cellClass}>
-          <Timestamp job={job} />
-        </div>
-        <div className={cellClass}>{translatedStatus(job.status)}</div>
-        <div className={cellClass}>
-          <StopButton
-            job={job}
-            clickHandler={() =>
-              props.app.commands.execute('scheduling:stop-job', {
-                id: job.job_id
-              })
-            }
-          />
-          <DeleteButton
-            job={job}
-            clickHandler={() => {
-              props.app.commands.execute('scheduling:delete-job', {
-                id: job.job_id
-              });
-              const jobContainer = document.getElementById(
-                `${rowClass}-${job.job_id}`
-              );
-              jobContainer?.classList.add(`${rowClass}-deleted`);
-            }}
-          />
-          <RefillButton job={job} showCreateJob={props.showCreateJob} />
-        </div>
-      </div>
-      <JobDetails job={job} isVisible={detailsVisible} />
-    </>
   );
 }

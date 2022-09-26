@@ -19,92 +19,6 @@
   overflow-y: auto;
 }
 
-.jp-notebook-jobs-header {
-  padding: 0 12px;
-  margin-bottom: 15px;
-}
-
-.jp-notebook-jobs-header h2 {
-  margin-bottom: 5px;
-}
-
-.jp-notebook-jobs-search {
-  display: flex;
-  gap: 12px;
-  padding: 0 12px 15px;
-}
-
-.jp-notebook-jobs-search .jp-InputGroup {
-  width: 100%;
-}
-
-.jp-notebook-jobs-search button {
-  width: 120px;
-}
-
-.jp-notebook-job-list {
-  /* This is itself a flex container */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  padding: 10px;
-}
-
-a.jp-notebook-job-name {
-  text-decoration-line: underline;
-  text-decoration-style: dashed;
-}
-
-.jp-notebook-job-name-details-button {
-  display: inline-block;
-  height: 16px;
-  width: 16px;
-}
-
-.jp-notebook-job-list-item {
-  flex: 1 1 auto;
-  width: 100%;
-  padding: 6px;
-  border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
-  display: flex;
-  flex-direction: row;
-}
-
-.jp-notebook-job-list-item:hover {
-  background-color: var(--jp-layout-color2);
-}
-
-.jp-notebook-job-list-item:active {
-  background-color: var(--jp-layout-color3);
-}
-
-.jp-notebook-job-list-item.details-visible {
-  background-color: var(--jp-layout-color3);
-}
-
-.jp-notebook-job-list-trait {
-  flex: 0 0 calc(100% / 6);
-  display: flex; /* This cell can contain multiple elements */
-}
-
-.jp-notebook-job-list-header {
-  border-bottom: var(--jp-border-width) solid var(--jp-border-color1);
-}
-
-.jp-notebook-job-list-header .jp-notebook-job-list-trait {
-  font-weight: bold;
-}
-
-.jp-notebook-job-list-item-deleted {
-  background-color: var(--jp-layout-color3);
-  opacity: 0.3;
-}
-
-.jp-notebook-job-list-item strong {
-  font-weight: bold;
-}
-
 .jp-notebook-jobs-panel a {
   color: var(--jp-content-link-color);
 }
@@ -113,15 +27,7 @@ a.jp-notebook-job-name {
   margin-top: 12px;
 }
 
-.jp-notebook-jobs-list-container {
-  margin-left: 12px;
-  margin-right: 12px;
-}
-
-ul.jp-notebook-job-output-formats-options {
-  list-style: none;
-  margin: 0 0 0 -40px;
-}
+/* Create job form */
 
 .jp-create-job-form {
   max-width: 500px;
