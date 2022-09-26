@@ -86,7 +86,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
-    props.handleModelChanged({ ...props.model, [target.name]: target.value });
+    props.handleModelChange({ ...props.model, [target.name]: target.value });
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
