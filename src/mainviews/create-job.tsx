@@ -72,7 +72,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       props.handleModelChange({ ...props.model, parameters: newParams });
     } else if (parameterValueIdx !== null) {
       newParams[parameterValueIdx].value = target.value;
-      props.handleModelChanged({ ...props.model, parameters: newParams });
+      props.handleModelChange({ ...props.model, parameters: newParams });
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
