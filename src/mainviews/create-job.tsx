@@ -18,7 +18,7 @@ import { SelectChangeEvent } from '@mui/material';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
-  handleModelChanged: (model: ICreateJobModel) => void;
+  handleModelChange: (model: ICreateJobModel) => void;
   toggleView: () => unknown;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
