@@ -160,7 +160,23 @@ class DeleteJob(BaseModel):
     job_id: str
 
 
-class CreateJobDefinition(CreateJob):
+class CreateJobDefinition(BaseModel):
+    input_uri: str
+    output_prefix: str
+    runtime_environment_name: str
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
+    idempotency_token: Optional[str] = None
+    parameters: Optional[Dict[str, ParameterValues]] = None
+    tags: Optional[Tags] = None
+    name: Optional[str] = None
+    email_notifications: Optional[EmailNotifications] = None
+    timeout_seconds: Optional[int] = 600
+    retry_on_timeout: Optional[bool] = False
+    max_retries: Optional[int] = 0
+    min_retry_interval_millis: Optional[int] = 0
+    output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
+    compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
 
@@ -170,7 +186,11 @@ class DescribeJobDefinition(CreateJobDefinition):
     create_time: int
     update_time: int
     next_run_time: int
+    active: bool
     job_ids: Optional[List[str]] = []
+
+    class Config:
+        orm_mode = True
 
 
 class UpdateJobDefinition(BaseModel):
@@ -196,6 +216,28 @@ class UpdateJobDefinition(BaseModel):
 
 class ListJobDefinitionsQuery(BaseModel):
     job_definition_id: str
+    compute_type: Optional[str] = None
+    schedule: Optional[str] = None
+    timezone: Optional[str] = None
+    create_time: Optional[int]
+    update_time: Optional[int]
+    next_run_time: Optional[int]
+
+
+class ListJobDefinitionsQuery(BaseModel):
+    job_definition_id: Optional[str]
+    name: Optional[str] = None
+    create_time: Optional[int] = None
+    tags: Optional[Tags] = None
+    sort_by: List[SortField] = [DEFAULT_SORT]
+    max_items: Optional[int] = DEFAULT_MAX_ITEMS
+    next_token: Optional[str] = None
+
+
+class ListJobDefinitionsResponse(BaseModel):
+    job_definitions: List[DescribeJobDefinition] = []
+    total_count: int = 0
+    next_token: Optional[str] = None
 
 
 class JobFeature(str, Enum):

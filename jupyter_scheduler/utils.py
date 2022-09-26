@@ -63,4 +63,4 @@ def get_utc_timestamp() -> int:
 
 def compute_next_run_time(schedule: str, timezone: Optional[str] = None) -> int:
     # TODO: Compute this based on schedule and timezone
-    get_utc_timestamp()
+    return get_utc_timestamp()
