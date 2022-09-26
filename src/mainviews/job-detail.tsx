@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ICreateJobModel,
-  IJobDetailModel,
-  IJobParameter,
-  JobsView
-} from '../model';
+import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -43,8 +38,7 @@ interface ITextFieldStyledProps {
 }
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
-  const [loading, setLoading] = useState(false);
-  const [running, setRunning] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
 
   //TO DELETE
@@ -56,11 +50,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const getJobDefinion = async () => {
     const jobDefinition = await ss.getJob(prop.model.jobId);
-    console.log('fetched job');
-    console.log(jobDefinition);
     setJob(jobDefinition);
-    console.log('state job');
-    console.log(job);
     setLoading(false);
   };
 
@@ -68,19 +58,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     getJobDefinion();
   }, []);
 
-  //const job = ss.getJobDefinitions(props.model.jobId);
-
   console.log(`jobId from props: ${props.model.jobId}`);
   //console.log(`jobDefinition in the body: ${jobDefinition}`);
   // Take props.jobId, make REST API request to get IJobDetailsModel with all of the job information
   // To rerun job:
   // 1) Call props.setCreateModel(<current model for this job>)
   // 2) Call props.setView('CreateJob')
-
-  const advancedOptions: IJobParameter[] = [
-    { name: 'option 1', value: 'hello' },
-    { name: 'option 2', value: 'value 2' }
-  ];
 
   function TextFieldStyled(props: ITextFieldStyledProps) {
     return (
@@ -104,14 +87,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return (
         <>
           <Stack direction="row" spacing={1} justifyContent="flex-end">
-            {running && (
-              <Button variant="outlined" onClick={_ => setRunning(!running)}>
-                {trans.__('Stop Job')}
-              </Button>
-            )}
-            <Button variant="outlined" onClick={_ => setRunning(!running)}>
-              {trans.__('Rerun Job')}
-            </Button>
+            <Button variant="outlined">{trans.__('Rerun Job')}</Button>
             <Button variant="contained" color="error">
               {trans.__('Delete Job')}
             </Button>
@@ -193,10 +169,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             )}
           </Stack>
 
-          <Accordion
-            defaultExpanded={advancedOptions.length > 0}
-            disabled={advancedOptions.length === 0}
-          >
+          <Accordion defaultExpanded={true}>
             <AccordionSummary
               expandIcon={<caretDownIcon.react />}
               aria-controls="panel-content"
@@ -206,7 +179,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             </AccordionSummary>
             <AccordionDetails id="panel-content">
               <Stack component="form" spacing={4}>
-                "Placeholder"
+                Placeholder
               </Stack>
             </AccordionDetails>
           </Accordion>
