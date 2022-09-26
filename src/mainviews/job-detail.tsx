@@ -247,7 +247,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.timeout_seconds?.toString() ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('max_retries')}
+                  label={trans.__('Maximum retries')}
                   defaultValue={job?.max_retries?.toString() ?? ''}
                 />
                 <TextFieldStyled
