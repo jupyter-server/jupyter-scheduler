@@ -251,7 +251,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.max_retries?.toString() ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('min_retry_interval_millis')}
+                  label={trans.__('Minimum retry interval (millisecond)')}
                   defaultValue={
                     job?.min_retry_interval_millis?.toString() ?? ''
                   }
