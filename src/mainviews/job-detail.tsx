@@ -54,16 +54,39 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     setLoading(false);
   };
 
+  // Retrieve the key from the parameters list or return a parameter with a null value
+  const getParam = (key: string) => {
+    return {
+      name: key,
+      value: job?.parameters?.[key]
+    };
+  };
+
+  const rerunJob = () => {
+    const initialState: ICreateJobModel = {
+      inputFile: job?.input_uri ?? '',
+      jobName: job?.name ?? '',
+      outputPath: job?.output_uri ?? '',
+      environment: job?.runtime_environment_name ?? '',
+      parameters:
+        job?.parameters !== undefined
+          ? Object.keys(job.parameters).map(key => getParam(key))
+          : undefined,
+      outputFormats: job?.output_formats?.map(format => ({
+        name: format,
+        label: format
+      }))
+    };
+
+    props.setCreateJobModel(initialState);
+    props.setView('CreateJob');
+  };
+
   useEffect(() => {
     getJobDefinion();
   }, []);
 
   console.log(`jobId from props: ${props.model.jobId}`);
-  //console.log(`jobDefinition in the body: ${jobDefinition}`);
-  // Take props.jobId, make REST API request to get IJobDetailsModel with all of the job information
-  // To rerun job:
-  // 1) Call props.setCreateModel(<current model for this job>)
-  // 2) Call props.setView('CreateJob')
 
   function TextFieldStyled(props: ITextFieldStyledProps) {
     return (
@@ -87,7 +110,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return (
         <>
           <Stack direction="row" spacing={1} justifyContent="flex-end">
-            <Button variant="outlined">{trans.__('Rerun Job')}</Button>
+            <Button variant="outlined" onClick={rerunJob}>
+              {trans.__('Rerun Job')}
+            </Button>
             <Button variant="contained" color="error">
               {trans.__('Delete Job')}
             </Button>
