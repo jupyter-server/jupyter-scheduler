@@ -162,6 +162,35 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 </FormGroup>
               </FormControl>
             )}
+
+            {job?.parameters && (
+              <>
+                <FormLabel component="legend">
+                  {trans.__('Parameters')}
+                </FormLabel>
+
+                {Object.entries(job?.parameters ?? {}).map(
+                  ([parameter, value]) => (
+                    <Stack key={parameter} direction="row" spacing={1}>
+                      <TextFieldStyled
+                        label={trans.__('Parameter')}
+                        defaultValue={parameter}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                      />
+                      <TextFieldStyled
+                        label={trans.__('Value')}
+                        defaultValue={value}
+                        InputProps={{
+                          readOnly: true
+                        }}
+                      />
+                    </Stack>
+                  )
+                )}
+              </>
+            )}
           </Stack>
 
           <Accordion
@@ -177,24 +206,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             </AccordionSummary>
             <AccordionDetails id="panel-content">
               <Stack component="form" spacing={4}>
-                {advancedOptions.map((option, idx) => (
-                  <Stack key={idx} direction="row" spacing={1}>
-                    <TextFieldStyled
-                      label={trans.__('Name')}
-                      defaultValue={option.name}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                    />
-                    <TextFieldStyled
-                      label={trans.__('Value')}
-                      defaultValue={option.value}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                    />
-                  </Stack>
-                ))}
+                "Placeholder"
               </Stack>
             </AccordionDetails>
           </Accordion>
