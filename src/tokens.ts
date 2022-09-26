@@ -12,7 +12,7 @@ namespace Scheduler {
     model: ICreateJobModel | IJobDetailModel;
     handleModelChanged: (model: ICreateJobModel) => void;
     errors: ErrorsType;
-    handleErrorsChanged: (errors: ErrorsType) => void;
+    handleErrorsChange: (errors: ErrorsType) => void;
   }
 
   export type IAdvancedOptions =
