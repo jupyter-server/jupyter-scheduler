@@ -93,6 +93,18 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     getJobDefinion();
   };
 
+  const timestampLocalize = (time: number | '') => {
+    if (time === '') {
+      return '';
+    } else {
+      const display_date = new Date(time);
+      const local_display_date = display_date
+        ? display_date.toLocaleString()
+        : '';
+      return local_display_date;
+    }
+  };
+
   useEffect(() => {
     getJobDefinion();
   }, []);
@@ -275,11 +287,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 />
                 <TextFieldStyled
                   label={trans.__('Start time')}
-                  defaultValue={job?.start_time?.toString() ?? ''}
+                  defaultValue={timestampLocalize(job?.start_time ?? '')}
                 />
                 <TextFieldStyled
                   label={trans.__('End time')}
-                  defaultValue={job?.end_time?.toString() ?? ''}
+                  defaultValue={timestampLocalize(job?.end_time ?? '')}
                 />
               </Stack>
             </AccordionDetails>
