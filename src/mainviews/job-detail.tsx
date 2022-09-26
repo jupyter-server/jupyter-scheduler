@@ -175,7 +175,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   job?.output_formats.map(format => (
                     <FormControlLabel
                       key={format}
-                      control={<Checkbox checked={true} />}
+                      control={<Checkbox checked={true} disabled />}
                       label={format}
                     />
                   ))}
