@@ -181,26 +181,28 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 </FormLabel>
               </AccordionSummary>
               <AccordionDetails id="panel-content">
-                {Object.entries(job?.parameters ?? {}).map(
-                  ([parameter, value]) => (
-                    <Stack key={parameter} direction="row" spacing={1}>
-                      <TextFieldStyled
-                        label={trans.__('Parameter')}
-                        defaultValue={parameter}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                      />
-                      <TextFieldStyled
-                        label={trans.__('Value')}
-                        defaultValue={value}
-                        InputProps={{
-                          readOnly: true
-                        }}
-                      />
-                    </Stack>
-                  )
-                )}
+                <Stack spacing={4}>
+                  {Object.entries(job?.parameters ?? {}).map(
+                    ([parameter, value]) => (
+                      <Stack key={parameter} direction="row" spacing={1}>
+                        <TextFieldStyled
+                          label={trans.__('Parameter')}
+                          defaultValue={parameter}
+                          InputProps={{
+                            readOnly: true
+                          }}
+                        />
+                        <TextFieldStyled
+                          label={trans.__('Value')}
+                          defaultValue={value}
+                          InputProps={{
+                            readOnly: true
+                          }}
+                        />
+                      </Stack>
+                    )
+                  )}
+                </Stack>
               </AccordionDetails>
             </Accordion>
           </Stack>
