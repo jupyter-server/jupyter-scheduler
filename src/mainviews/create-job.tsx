@@ -111,7 +111,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       // Get the output format matching the given name
       const newFormat = outputFormatsList.find(of => of.name === formatName);
       if (newFormat) {
-        props.handleModelChanged({
+        props.handleModelChange({
           ...props.model,
           outputFormats: [...oldOutputFormats, newFormat]
         });
