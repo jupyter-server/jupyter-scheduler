@@ -153,9 +153,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   {trans.__('Output formats')}
                 </FormLabel>
                 <FormGroup style={{ display: 'flex', flexDirection: 'row' }}>
-                  {job?.output_formats.map((format, idx) => (
+                  {job?.output_formats.map(format => (
                     <FormControlLabel
-                      key={idx}
+                      key={format}
                       control={<Checkbox checked={true} defaultChecked />}
                       label={format}
                     />
