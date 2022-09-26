@@ -150,7 +150,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               defaultValue={job?.runtime_environment_name ?? ''}
             />
             <TextFieldStyled
-              label={trans.__('status')}
+              label={trans.__('Status')}
               defaultValue={job?.status ?? ''}
             />
 
