@@ -265,7 +265,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.start_time?.toString() ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('output_filename_template')}
+                  label={trans.__('Output filename template')}
                   defaultValue={job?.output_filename_template ?? ''}
                 />
 
