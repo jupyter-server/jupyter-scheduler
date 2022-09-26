@@ -82,6 +82,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     props.setView('CreateJob');
   };
 
+  const handleDeleteJob = async () => {
+    await ss.deleteJob(job?.job_id ?? '');
+    props.setView('ListJobs');
+  };
+
   useEffect(() => {
     getJobDefinion();
   }, []);
@@ -113,7 +118,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <Button variant="outlined" onClick={rerunJob}>
               {trans.__('Rerun Job')}
             </Button>
-            <Button variant="contained" color="error">
+            <Button variant="contained" color="error" onClick={handleDeleteJob}>
               {trans.__('Delete Job')}
             </Button>
           </Stack>
