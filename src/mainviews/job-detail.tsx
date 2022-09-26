@@ -43,15 +43,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
 
-  //TO DELETE
-  const prop = { model: { jobId: '3f062962-1e3e-442b-8454-e76af250da39' } };
-
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
 
   const getJobDefinion = async () => {
-    const jobDefinition = await ss.getJob(prop.model.jobId);
+    const jobDefinition = await ss.getJob(props.model.jobId);
     setJob(jobDefinition);
     setLoading(false);
   };
@@ -107,6 +104,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         label={props.label}
         defaultValue={props.defaultValue}
         variant="outlined"
+        disabled
       />
     );
   }
@@ -138,37 +136,22 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <TextFieldStyled
               label={trans.__('Job name')}
               defaultValue={job?.name ?? ''}
-              InputProps={{
-                readOnly: true
-              }}
             />
             <TextFieldStyled
               label={trans.__('Input file')}
               defaultValue={job?.input_uri ?? ''}
-              InputProps={{
-                readOnly: true
-              }}
             />
             <TextFieldStyled
               label={trans.__('Output path')}
               defaultValue={job?.output_uri ?? ''}
-              InputProps={{
-                readOnly: true
-              }}
             />
             <TextFieldStyled
               label={trans.__('Environment')}
               defaultValue={job?.runtime_environment_name ?? ''}
-              InputProps={{
-                readOnly: true
-              }}
             />
             <TextFieldStyled
               label={trans.__('status')}
               defaultValue={job?.status ?? ''}
-              InputProps={{
-                readOnly: true
-              }}
             />
 
             <FormControl component="fieldset">
@@ -212,9 +195,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                         <TextFieldStyled
                           label={trans.__('Value')}
                           defaultValue={value}
-                          InputProps={{
-                            readOnly: true
-                          }}
                         />
                       </Stack>
                     )
@@ -239,23 +219,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 <TextFieldStyled
                   label={trans.__('Output Prefix')}
                   defaultValue={job?.output_prefix ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('Idempotency Token')}
                   defaultValue={job?.idempotency_token ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('Job Definition Id')}
                   defaultValue={job?.job_definition_id ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
                 {job?.tags &&
@@ -274,75 +245,45 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 <TextFieldStyled
                   label={trans.__('Job Definition Id')}
                   defaultValue={job?.timeout_seconds?.toString() ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('max_retries')}
                   defaultValue={job?.max_retries?.toString() ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('min_retry_interval_millis')}
                   defaultValue={
                     job?.min_retry_interval_millis?.toString() ?? ''
                   }
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('retry_on_timeout')}
                   defaultValue={job?.retry_on_timeout?.toString() ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('start_time')}
                   defaultValue={job?.start_time?.toString() ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('output_filename_template')}
                   defaultValue={job?.output_filename_template ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
 
                 <TextFieldStyled
                   label={trans.__('url')}
                   defaultValue={job?.url ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('status_message')}
                   defaultValue={job?.status_message ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('start_time')}
                   defaultValue={job?.start_time?.toString() ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
                 <TextFieldStyled
                   label={trans.__('end_time')}
                   defaultValue={job?.end_time?.toString() ?? ''}
-                  InputProps={{
-                    readOnly: true
-                  }}
                 />
               </Stack>
             </AccordionDetails>
@@ -386,7 +327,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               >
                 {trans.__('Notebook Jobs')}
               </Link>
-              <Typography color="text.primary">{prop.model.jobId}</Typography>
+              <Typography color="text.primary">{props.model.jobId}</Typography>
             </Breadcrumbs>
           </div>
           <Heading level={1}>{trans.__('Job Detail')}</Heading>
