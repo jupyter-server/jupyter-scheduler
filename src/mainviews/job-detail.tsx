@@ -240,7 +240,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                     />
                   ))}
                 <FormLabel component="legend">
-                  {trans.__('Email Notifications')}
+                  {trans.__('Email notifications')}
                 </FormLabel>
                 <TextFieldStyled
                   label={trans.__('Job Definition Id')}
