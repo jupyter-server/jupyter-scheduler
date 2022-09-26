@@ -221,7 +221,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   defaultValue={job?.output_prefix ?? ''}
                 />
                 <TextFieldStyled
-                  label={trans.__('Idempotency Token')}
+                  label={trans.__('Idempotency token')}
                   defaultValue={job?.idempotency_token ?? ''}
                 />
                 <TextFieldStyled
