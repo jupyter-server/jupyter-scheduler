@@ -18,7 +18,7 @@ def get_db_path():
 
 
 def create_random_job(index: int):
-    status = random.choice(["CREATED", "COMPLETED", "FAILED", "IN_PROGRESS", "STOPPED"])
+    status = random.choice(["CREATED", "QUEUED", "COMPLETED", "FAILED", "IN_PROGRESS", "STOPPED"])
     name = random.choice(
         [
             "hello world",
@@ -36,7 +36,7 @@ def create_random_job(index: int):
     status_message = None
     end_time = None
 
-    if status != "CREATED":
+    if status not in ["CREATED", "QUEUED"]:
         start_time = get_utc_timestamp()
 
     if status == "FAILED":

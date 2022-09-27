@@ -276,7 +276,6 @@ export namespace Scheduler {
     max_retries?: number;
     min_retry_interval_millis?: number;
     retry_on_timeout?: boolean;
-    start_time?: number;
     output_filename_template?: string;
     output_formats?: string[];
   }
