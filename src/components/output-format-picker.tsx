@@ -61,9 +61,11 @@ export function OutputFormatPicker(
                 id={`${props.id}-${of.name}`}
                 value={of.name}
                 onChange={props.onChange}
-              />}
-            label={of.label} />
-          ))}
+              />
+            }
+            label={of.label}
+          />
+        ))}
       </Cluster>
     </Stack>
   );

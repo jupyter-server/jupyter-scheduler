@@ -52,6 +52,7 @@ export class NotebookJobsListingModel implements INotebookJobsListingModel {
 export interface INotebookJobsWithToken {
   jobs: Scheduler.IDescribeJob[];
   next_token?: string;
+  total_count: number;
 }
 
 export interface INotebookJobsListingModel {

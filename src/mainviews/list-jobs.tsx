@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useState, useCallback } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { useTranslator } from '../hooks';
 
-import { JobRow } from '../components/job-row';
+import { buildTableRow } from '../components/job-row';
 import {
+  INotebookJobsWithToken,
   ICreateJobModel,
-  IListJobsModel,
-  INotebookJobsWithToken
+  IListJobsModel
 } from '../model';
 import { caretDownIcon, caretUpIcon, LabIcon } from '@jupyterlab/ui-components';
 import { Scheduler, SchedulerService } from '../handler';
@@ -16,13 +17,19 @@ import { Scheduler, SchedulerService } from '../handler';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 
+import { useTheme } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
+import Table from '@mui/material/Table';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TablePagination from '@mui/material/TablePagination';
+import Paper from '@mui/material/Paper';
 
-const ListItemClass = 'jp-notebook-job-list-item';
-
-export const JobListPageSize = 25;
+export const PAGE_SIZE = 25;
 
 interface INotebookJobsListBodyProps {
   showHeaders?: boolean;
@@ -37,9 +44,6 @@ interface INotebookJobsListBodyProps {
   ) => Promise<INotebookJobsWithToken | undefined>;
 }
 
-// Used for table cells including headers
-const jobTraitClass = 'jp-notebook-job-list-trait';
-
 type GridColumn = {
   sortField: string | null;
   name: string;
@@ -52,17 +56,34 @@ export function NotebookJobsListBody(
     INotebookJobsWithToken | undefined
   >(undefined);
   const [jobsQuery, setJobsQuery] = useState<Scheduler.IListJobsQuery>({});
+  const [deletedRows, setDeletedRows] = useState<
+    Set<Scheduler.IDescribeJob['job_id']>
+  >(new Set());
+  const [page, setPage] = useState<number>(0);
+  const [maxPage, setMaxPage] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const theme = useTheme();
 
-  const fetchInitialRows = () => {
+  const deleteRow = useCallback((id: Scheduler.IDescribeJob['job_id']) => {
+    setDeletedRows(deletedRows => new Set([...deletedRows, id]));
+  }, []);
+
+  const fetchInitialRows = async () => {
+    // reset pagination state
+    setPage(0);
+    setMaxPage(0);
     // Get initial job list (next_token is undefined)
-    props.getJobs(jobsQuery).then(initialNotebookJobs => {
-      setNotebookJobs(initialNotebookJobs);
-    });
+    setLoading(true);
+    const initialNotebookJobs = await props.getJobs(jobsQuery);
+    setLoading(false);
+    setNotebookJobs(initialNotebookJobs);
   };
 
   // Fetch the initial rows asynchronously on component creation
   // After setJobsQuery is called, force a reload.
-  useEffect(() => fetchInitialRows(), [jobsQuery]);
+  useEffect(() => {
+    fetchInitialRows();
+  }, [jobsQuery]);
 
   const fetchMoreRows = async (next_token: string | undefined) => {
     // Do nothing if the next token is undefined (shouldn't happen, but required for type safety)
@@ -71,7 +92,9 @@ export function NotebookJobsListBody(
     }
 
     // Apply the custom token to the existing query parameters
+    setLoading(true);
     const newNotebookJobs = await props.getJobs({ ...jobsQuery, next_token });
+    setLoading(false);
 
     if (!newNotebookJobs) {
       return;
@@ -80,7 +103,8 @@ export function NotebookJobsListBody(
     // Merge the two lists of jobs and keep the next token from the new response.
     setNotebookJobs({
       jobs: [...(notebookJobs?.jobs || []), ...(newNotebookJobs?.jobs || [])],
-      next_token: newNotebookJobs.next_token
+      next_token: newNotebookJobs.next_token,
+      total_count: newNotebookJobs.total_count
     });
   };
 
@@ -96,6 +120,27 @@ export function NotebookJobsListBody(
         {trans.__('Reload')}
       </Button>
     </Cluster>
+  );
+
+  const translateStatus = useCallback(
+    (status: Scheduler.Status) => {
+      // This may look inefficient, but it's intended to call the `trans` function
+      // with distinct, static values, so that code analyzers can pick up all the
+      // needed source strings.
+      switch (status) {
+        case 'COMPLETED':
+          return trans.__('Completed');
+        case 'FAILED':
+          return trans.__('Failed');
+        case 'IN_PROGRESS':
+          return trans.__('In progress');
+        case 'STOPPED':
+          return trans.__('Stopped');
+        case 'STOPPING':
+          return trans.__('Stopping');
+      }
+    },
+    [trans]
   );
 
   if (notebookJobs === undefined) {
@@ -148,38 +193,76 @@ export function NotebookJobsListBody(
     }
   ];
 
+  const rows: JSX.Element[] = notebookJobs.jobs
+    .slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+    .filter(job => !deletedRows.has(job.job_id))
+    .map(job =>
+      buildTableRow(
+        job,
+        props.app,
+        props.showCreateJob,
+        deleteRow,
+        translateStatus
+      )
+    );
+
+  const handlePageChange = async (e: unknown, newPage: number) => {
+    // if newPage <= maxPage, no need to fetch more rows
+    if (newPage <= maxPage) {
+      setPage(newPage);
+      return;
+    }
+
+    await fetchMoreRows(notebookJobs.next_token);
+    setPage(newPage);
+    setMaxPage(newPage);
+  };
+
+  // note that the parent must be a JSX fragment for DataGrid to be sized properly
   return (
     <>
       {reloadButton}
-      <div className={`${ListItemClass} jp-notebook-job-list-header`}>
-        {columns.map((column, idx) => (
-          <NotebookJobsColumnHeader
-            key={idx}
-            gridColumn={column}
-            jobsQuery={jobsQuery}
-            setJobsQuery={setJobsQuery}
-          />
-        ))}
-      </div>
-      {notebookJobs.jobs.map(job => (
-        <JobRow
-          key={job.job_id}
-          job={job}
-          rowClass={ListItemClass}
-          cellClass={jobTraitClass}
-          app={props.app}
-          showCreateJob={props.showCreateJob}
-        />
-      ))}
-      {notebookJobs.next_token !== undefined && (
-        <Button
-          onClick={(e: React.MouseEvent<HTMLElement>) =>
-            fetchMoreRows(notebookJobs.next_token)
-          }
+      {/* outer div expands to fill rest of screen */}
+      <div style={{ flex: 1, height: 0 }}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            height: '100%',
+            ...(loading ? { pointerEvents: 'none', opacity: 0.5 } : {})
+          }}
         >
-          {trans.__('Show more')}
-        </Button>
-      )}
+          <Table stickyHeader>
+            <TableHead>
+              {columns.map((column, idx) => (
+                <NotebookJobsColumnHeader
+                  key={idx}
+                  gridColumn={column}
+                  jobsQuery={jobsQuery}
+                  setJobsQuery={setJobsQuery}
+                />
+              ))}
+            </TableHead>
+            <TableBody>{rows}</TableBody>
+          </Table>
+          <TablePagination
+            component="div"
+            sx={{
+              position: 'sticky',
+              bottom: 0,
+              backgroundColor: theme.palette.background.paper,
+              borderTop: `1px solid ${theme.palette.divider}`
+            }}
+            count={notebookJobs.total_count}
+            page={page}
+            onPageChange={handlePageChange}
+            nextIconButtonProps={{
+              disabled: page === maxPage && !notebookJobs.next_token
+            }}
+            rowsPerPage={PAGE_SIZE}
+            rowsPerPageOptions={[PAGE_SIZE]}
+          />
+        </TableContainer>
+      </div>
     </>
   );
 }
@@ -244,11 +327,14 @@ function NotebookJobsColumnHeader(
   };
 
   return (
-    <div className={jobTraitClass} onClick={sortByThisColumn}>
+    <TableCell
+      onClick={sortByThisColumn}
+      sx={props.gridColumn.sortField ? { cursor: 'pointer' } : {}}
+    >
       {props.gridColumn.name}
       {isSortedAscending && sortAscendingIcon}
       {isSortedDescending && sortDescendingIcon}
-    </div>
+    </TableCell>
   );
 }
 
@@ -259,7 +345,7 @@ function getJobs(
 
   // Impose max_items if not otherwise specified.
   if (jobQuery['max_items'] === undefined) {
-    jobQuery.max_items = JobListPageSize;
+    jobQuery.max_items = PAGE_SIZE;
   }
 
   return api.getJobs(jobQuery);
@@ -277,8 +363,8 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
 
   // Retrieve the initial jobs list
   return (
-    <Box sx={{ p: 4 }}>
-      <Stack spacing={3}>
+    <Box sx={{ p: 4 }} style={{ height: '100%', boxSizing: 'border-box' }}>
+      <Stack spacing={3} style={{ height: '100%' }}>
         <Heading level={1}>{trans.__('Notebook Jobs')}</Heading>
         <NotebookJobsListBody
           showHeaders={true}

@@ -2,7 +2,10 @@ import React, { ChangeEvent } from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
-import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
+import {
+  OutputFormatPicker,
+  outputFormatsForEnvironment
+} from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import SchedulerTokens from '../tokens';
@@ -50,7 +53,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // Cache text inputs so that React can update their state immediately, preventing
   // a situation where the cursor jumps to the end of the text box after the user
   // enters a character mid-input.
-  const [textInputs, setTextInputs] = React.useState<Record<string, string>>({});
+  const [textInputs, setTextInputs] = React.useState<Record<string, string>>(
+    {}
+  );
 
   // A mapping from input names to error messages.
   // If an error message is "truthy" (i.e., not null or ''), we should display the
@@ -130,7 +135,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
     if (anyErrors) {
-      console.error('User attempted to submit a createJob request; button should have been disabled');
+      console.error(
+        'User attempted to submit a createJob request; button should have been disabled'
+      );
       return;
     }
 
@@ -192,14 +199,19 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   // If the text field is blank, record an error.
-  const validateEmpty = (e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)) => {
+  const validateEmpty = (
+    e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)
+  ) => {
     const inputName = e.name;
     const inputValue = e.value;
 
-    if (inputValue === '') { // blank
-      setErrors({ ...errors, [inputName]: trans.__('You must provide a value.') })
-    }
-    else {
+    if (inputValue === '') {
+      // blank
+      setErrors({
+        ...errors,
+        [inputName]: trans.__('You must provide a value.')
+      });
+    } else {
       setErrors({ ...errors, [inputName]: '' });
     }
   };
@@ -210,7 +222,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const api = new SchedulerService({});
-  const environmentsPromise: () => Promise<Scheduler.IRuntimeEnvironment[]> = async () => {
+  const environmentsPromise: () => Promise<
+    Scheduler.IRuntimeEnvironment[]
+  > = async () => {
     const environmentsCache = sessionStorage.getItem('environments');
     if (environmentsCache !== null) {
       return JSON.parse(environmentsCache);
@@ -237,7 +251,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={textInputs['jobName'] ?? props.model.jobName}
             id={`${formPrefix}jobName`}
-            name='jobName'
+            name="jobName"
           />
           <TextField
             label={trans.__('Input file')}
@@ -245,10 +259,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={textInputs['inputFile'] ?? props.model.inputFile}
             id={`${formPrefix}inputFile`}
-            onBlur={(e) => validateEmpty(e.target)}
+            onBlur={e => validateEmpty(e.target)}
             error={hasError('inputFile')}
             helperText={errors['inputFile'] ?? ''}
-            name='inputFile'
+            name="inputFile"
           />
           <TextField
             label={trans.__('Output path')}
@@ -256,7 +270,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={textInputs['outputPath'] ?? props.model.outputPath}
             id={`${formPrefix}outputPath`}
-            name='outputPath'
+            name="outputPath"
           />
           <EnvironmentPicker
             label={trans.__('Environment')}
@@ -268,7 +282,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           />
           <OutputFormatPicker
             label={trans.__('Output formats')}
-            name='outputFormat'
+            name="outputFormat"
             id={`${formPrefix}outputFormat`}
             onChange={handleOutputFormatsChange}
             environment={props.model.environment}
@@ -289,7 +303,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             model={props.model}
             handleModelChange={props.handleModelChange}
             errors={errors}
-            handleErrorsChange={setErrors} />
+            handleErrorsChange={setErrors}
+          />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
