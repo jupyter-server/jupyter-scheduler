@@ -187,7 +187,7 @@ export function NotebookJobsListBody(
     },
     {
       sortField: 'create_time',
-      name: trans.__('Create time')
+      name: trans.__('Created at')
     },
     {
       sortField: 'status', // This will sort on the server status, not localized
