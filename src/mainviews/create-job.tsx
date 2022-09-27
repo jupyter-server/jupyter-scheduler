@@ -18,6 +18,7 @@ import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
 import { EnvironmentPicker } from '../components/environment-picker';
 import { SelectChangeEvent } from '@mui/material';
+import { ComputeTypePicker } from '../components/compute-type-picker';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -287,6 +288,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleOutputFormatsChange}
             environment={props.model.environment}
             value={props.model.outputFormats || []}
+          />
+          <ComputeTypePicker
+            label={trans.__('Compute type')}
+            name="computeType"
+            id={`${formPrefix}computeType`}
+            onChange={handleSelectChange}
+            environment={props.model.environment}
+            initialValue={props.model.computeType || ''}          
           />
           <ParametersPicker
             label={trans.__('Parameters')}
