@@ -296,7 +296,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}computeType`}
             onChange={handleSelectChange}
             environment={props.model.environment}
-            initialValue={props.model.computeType || ''}          
+            initialValue={props.model.computeType || ''}
           />
           <ParametersPicker
             label={trans.__('Parameters')}
