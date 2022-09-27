@@ -42,6 +42,8 @@ interface INotebookJobsListBodyProps {
   getJobs: (
     query: Scheduler.IListJobsQuery
   ) => Promise<INotebookJobsWithToken | undefined>;
+  // function that shows job detail view
+  showDetailView: (jobId: string) => void;
 }
 
 type GridColumn = {
@@ -202,7 +204,8 @@ export function NotebookJobsListBody(
         props.app,
         props.showCreateJob,
         deleteRow,
-        translateStatus
+        translateStatus,
+        props.showDetailView
       )
     );
 
@@ -356,6 +359,7 @@ export interface IListJobsProps {
   model: IListJobsModel;
   handleModelChange: (model: IListJobsModel) => void;
   showCreateJob: (newModel: ICreateJobModel) => void;
+  showDetailView: (jobId: string) => void;
 }
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
@@ -371,6 +375,7 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
           app={props.app}
           showCreateJob={props.showCreateJob}
           getJobs={getJobs}
+          showDetailView={props.showDetailView}
         />
       </Stack>
     </Box>

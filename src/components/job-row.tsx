@@ -166,10 +166,11 @@ export function buildTableRow(
   app: JupyterFrontEnd,
   showCreateJob: (newModel: ICreateJobModel) => void,
   deleteRow: (id: Scheduler.IDescribeJob['job_id']) => void,
-  translateStatus: (status: Scheduler.Status) => string
+  translateStatus: (status: Scheduler.Status) => string,
+  showDetailView: (jobId: string) => void
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
-    job.name,
+    <a onClick={() => showDetailView(job.job_id)}>{job.name}</a>,
     get_file_from_path(job.input_uri),
     <OutputFiles
       job={job}
