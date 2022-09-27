@@ -244,6 +244,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                     />
                   ))}
                 <TextFieldStyled
+                  label={trans.__('Create time')}
+                  defaultValue={timestampLocalize(job?.create_time ?? '')}
+                />
+                <TextFieldStyled
                   label={trans.__('Start time')}
                   defaultValue={timestampLocalize(job?.start_time ?? '')}
                 />

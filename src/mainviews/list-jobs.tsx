@@ -130,6 +130,10 @@ export function NotebookJobsListBody(
       // with distinct, static values, so that code analyzers can pick up all the
       // needed source strings.
       switch (status) {
+        case 'CREATED':
+          return trans.__('Created');
+        case 'QUEUED':
+          return trans.__('Queued');
         case 'COMPLETED':
           return trans.__('Completed');
         case 'FAILED':
@@ -182,8 +186,8 @@ export function NotebookJobsListBody(
       name: trans.__('Output files')
     },
     {
-      sortField: 'start_time',
-      name: trans.__('Start time')
+      sortField: 'create_time',
+      name: trans.__('Create time')
     },
     {
       sortField: 'status', // This will sort on the server status, not localized

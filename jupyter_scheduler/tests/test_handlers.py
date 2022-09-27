@@ -64,6 +64,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
             job_id=job_id,
             output_uri="output_a/input_a_12345",
             url="url_a",
+            create_time=1664305872620,
+            update_time=1664305872620,
         )
         response = await jp_fetch("scheduler", "jobs", job_id, method="GET")
 
@@ -90,6 +92,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
                         "output_uri": "output_a/input_a_12345",
                         "url": "url_a",
+                        "create_time": 1664305872620,
+                        "update_time": 1664305872620,
                     }
                 ],
                 "total_count": 1,
@@ -105,6 +109,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
                 "sort_by": "name",
                 "max_items": "10",
                 "next_token": "1",
+                "create_time": 1664305872620,
+                "update_time": 1664305872620,
             },
             {
                 "job_definition_id": "4c6cd4e0-49ce-4b58-843d-2fa02f7468b1",
@@ -115,6 +121,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
                 "sort_by": [{"name": "name", "direction": "asc"}],
                 "max_items": "10",
                 "next_token": "1",
+                "create_time": 1664305872620,
+                "update_time": 1664305872620,
             },
             {
                 "jobs": [
@@ -125,6 +133,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
                         "output_uri": "output_a/input_a_12345",
                         "url": "url_a",
+                        "create_time": 1664305872620,
+                        "update_time": 1664305872620,
                     }
                 ],
                 "total_count": 1,

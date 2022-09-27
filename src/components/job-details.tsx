@@ -71,11 +71,11 @@ export function JobDetails(props: JobDetailsProps): JSX.Element | null {
 
   const trans = useTranslator('jupyterlab');
 
-  const start_date: Date | null = props.job.start_time
-    ? new Date(props.job.start_time)
+  const create_date: Date | null = props.job.create_time
+    ? new Date(props.job.create_time)
     : null;
-  const start_display_date: string | null = start_date
-    ? start_date.toLocaleString()
+  const create_display_date: string | null = create_date
+    ? create_date.toLocaleString()
     : null;
   const end_date: Date | null = props.job.end_time
     ? new Date(props.job.end_time)
@@ -98,8 +98,8 @@ export function JobDetails(props: JobDetailsProps): JSX.Element | null {
       </div>
       <div className={'jp-notebook-job-details-grid'}>
         <div className={rowClass}>
-          <div className={keyClass}>{trans.__('Start date')}</div>
-          <div className={valueClass}>{start_display_date}</div>
+          <div className={keyClass}>{trans.__('Create date')}</div>
+          <div className={valueClass}>{create_display_date}</div>
         </div>
         <div className={rowClass}>
           <div className={keyClass}>{trans.__('End date')}</div>
