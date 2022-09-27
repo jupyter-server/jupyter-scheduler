@@ -278,6 +278,7 @@ export namespace Scheduler {
     retry_on_timeout?: boolean;
     output_filename_template?: string;
     output_formats?: string[];
+    compute_type?: string;
   }
 
   export type Status =

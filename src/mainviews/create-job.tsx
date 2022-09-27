@@ -180,6 +180,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
+    if (props.model.computeType !== undefined) {
+      jobOptions.compute_type = props.model.computeType;
+    }
+
     api.createJob(jobOptions).then(response => {
       props.toggleView();
     });
