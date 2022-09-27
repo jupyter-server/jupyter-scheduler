@@ -161,11 +161,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               label={trans.__('Environment')}
               defaultValue={job?.runtime_environment_name ?? ''}
             />
-            <TextFieldStyled
-              label={trans.__('Status')}
-              defaultValue={job?.status ?? ''}
-            />
-
             <FormControl component="fieldset">
               <FormLabel component="legend">
                 {trans.__('Output formats')}
@@ -181,7 +176,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   ))}
               </FormGroup>
             </FormControl>
-
+            <TextFieldStyled
+              label={trans.__('Compute type')}
+              defaultValue={job?.compute_type ?? ''}
+            />
+            <TextFieldStyled
+              label={trans.__('Status')}
+              defaultValue={job?.status ?? ''}
+            />
             <Accordion defaultExpanded={true}>
               <AccordionSummary
                 expandIcon={<caretDownIcon.react />}
