@@ -106,6 +106,7 @@ class Job(Base):
     output_filename_template = Column(String(256))
     pid = Column(Integer)
     update_time = Column(Integer, default=get_utc_timestamp, onupdate=get_utc_timestamp)
+    create_time = Column(Integer, default=get_utc_timestamp)
 
 
 def create_tables(db_url, drop_tables=False):

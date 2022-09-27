@@ -21,7 +21,7 @@ class OutputFormat(BaseModel):
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda
-    environment
+    environment.
     """
 
     name: str
@@ -47,6 +47,8 @@ class EmailNotifications(BaseModel):
 
 
 class Status(str, Enum):
+    CREATED = "CREATED"
+    QUEUED = "QUEUED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
@@ -76,19 +78,17 @@ OUTPUT_FILENAME_TEMPLATE = "{{filename}}-{{timestamp}}"
 class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
 
-    input_uri: str  # input file name or path
-    output_prefix: str  # folder or path where outputs should be stored
-    runtime_environment_name: str  # runtime environment name, see `RuntimeEnvironment`
-    runtime_environment_parameters: Optional[
-        Dict[str, EnvironmentParameterValues]
-    ]  # overrides to runtime environment attributes
-    output_formats: Optional[List[str]] = None  # output formats to be generated
-    idempotency_token: Optional[str] = None  # token to resolve redundant executions
-    job_definition_id: Optional[str] = None  # for jobs created with job definition
-    parameters: Optional[Dict[str, ParameterValues]] = None  # notebook parameters
-    tags: Optional[Tags] = None  # arbitrary tags useful for filtering
-    name: Optional[str] = None  # job name for display
-    email_notifications: Optional[EmailNotifications] = None  # email notifications
+    input_uri: str
+    output_prefix: str
+    runtime_environment_name: str
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
+    idempotency_token: Optional[str] = None
+    job_definition_id: Optional[str] = None
+    parameters: Optional[Dict[str, ParameterValues]] = None
+    tags: Optional[Tags] = None
+    name: Optional[str] = None
+    email_notifications: Optional[EmailNotifications] = None
     timeout_seconds: Optional[int] = 600
     retry_on_timeout: Optional[bool] = False
     max_retries: Optional[int] = 0
@@ -101,9 +101,11 @@ class DescribeJob(CreateJob):
     job_id: str
     output_uri: str
     url: str
+    create_time: int
+    update_time: int
     start_time: Optional[int] = None
     end_time: Optional[int] = None
-    status: Status = Status.STOPPED
+    status: Status = Status.CREATED
     status_message: Optional[str] = None
 
     class Config:
@@ -120,7 +122,7 @@ class SortField(BaseModel):
     direction: SortDirection
 
 
-DEFAULT_SORT = SortField(name="start_time", direction=SortDirection.desc)
+DEFAULT_SORT = SortField(name="create_time", direction=SortDirection.desc)
 
 DEFAULT_MAX_ITEMS = 1000
 

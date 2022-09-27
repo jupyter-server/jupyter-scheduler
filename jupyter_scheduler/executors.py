@@ -1,15 +1,14 @@
 import os
 import traceback
-from abc import ABC, abstractclassmethod, abstractmethod
-from datetime import datetime
-from typing import Dict, List
+from abc import ABC, abstractmethod
+from typing import Dict
 
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
 from jupyter_scheduler.config import ExecutionConfig
-from jupyter_scheduler.models import DescribeJob, JobFeature, OutputFormat, Status
+from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp, resolve_path

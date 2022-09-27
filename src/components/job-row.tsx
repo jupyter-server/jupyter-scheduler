@@ -118,14 +118,14 @@ function RefillButton(props: {
 }
 
 function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
-  const start_date: Date | null = props.job.start_time
-    ? new Date(props.job.start_time)
+  const create_date: Date | null = props.job.create_time
+    ? new Date(props.job.create_time)
     : null;
-  const start_display_date: string | null = start_date
-    ? start_date.toLocaleString()
+  const create_display_date: string | null = create_date
+    ? create_date.toLocaleString()
     : null;
 
-  return <>{start_display_date}</>;
+  return <>{create_display_date}</>;
 }
 
 function OutputFiles(props: {

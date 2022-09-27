@@ -282,6 +282,8 @@ export namespace Scheduler {
   }
 
   export type Status =
+    | 'CREATED'
+    | 'QUEUED'
     | 'IN_PROGRESS'
     | 'COMPLETED'
     | 'FAILED'
@@ -294,6 +296,8 @@ export namespace Scheduler {
     url: string;
     status: Status;
     status_message: string;
+    create_time: number;
+    update_time: number;
     start_time?: number;
     end_time?: number;
   }

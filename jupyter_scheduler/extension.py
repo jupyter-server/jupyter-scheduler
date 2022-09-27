@@ -13,8 +13,6 @@ from .executors import DefaultExecutionManager
 from .handlers import (
     BatchJobHandler,
     ConfigHandler,
-    CreateJobWithDefinitionHandler,
-    FeaturesHandler,
     JobDefinitionHandler,
     JobHandler,
     JobsCountHandler,
@@ -28,18 +26,14 @@ JOB_ID_REGEX = r"(?P<job_id>\w+-\w+-\w+-\w+-\w+)"
 class SchedulerApp(ExtensionApp):
     name = "jupyter_scheduler"
     handlers = [
-        (r"scheduler/job_definitions", JobDefinitionHandler),
-        (r"scheduler/job_definitions/%s" % JOB_DEFINITION_ID_REGEX, JobDefinitionHandler),
-        (
-            r"scheduler/job_definitions/%s/jobs" % JOB_DEFINITION_ID_REGEX,
-            CreateJobWithDefinitionHandler,
-        ),
         (r"scheduler/jobs", JobHandler),
         (r"scheduler/jobs/count", JobsCountHandler),
         (r"scheduler/jobs/%s" % JOB_ID_REGEX, JobHandler),
-        (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
-        (r"/scheduler/config", ConfigHandler),
         (r"scheduler/batch/jobs", BatchJobHandler),
+        (r"scheduler/job_definitions", JobDefinitionHandler),
+        (r"scheduler/job_definitions/%s" % JOB_DEFINITION_ID_REGEX, JobDefinitionHandler),
+        (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
+        (r"scheduler/config", ConfigHandler),
     ]
 
     drop_tables = Bool(False, config=True, help="Drop the database tables before starting.")
@@ -47,7 +41,7 @@ class SchedulerApp(ExtensionApp):
     db_url = Unicode(config=True, help="URI for the scheduler database")
 
     @default("db_url")
-    def get_demo_db_url_default(self):
+    def get_db_url_default(self):
         return f"sqlite:///{jupyter_data_dir()}/scheduler.sqlite"
 
     environment_manager_class = TypeFromClasses(

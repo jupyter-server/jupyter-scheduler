@@ -59,25 +59,6 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         raise tornado.web.HTTPError(500, f"Not implemented yet")
 
 
-class CreateJobWithDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
-    @tornado.web.authenticated
-    async def post(self, job_definition_id: str):
-        job_definition = self.scheduler.get_job_definition(job_definition_id)
-        if job_definition is None:
-            raise tornado.web.HTTPError(
-                404, f"Job definition with id: {job_definition_id} not found"
-            )
-
-        payload = self.get_json_body()
-        if inspect.isawaitable(self.scheduler.create_job):
-            job_id = await self.scheduler.create_job(
-                CreateJob(**job_definition.dict().merge(payload))
-            )
-        else:
-            job_id = self.scheduler.create_job(CreateJob(**job_definition.dict().merge(payload)))
-        self.finish(json.dumps(dict(job_id=job_id)))
-
-
 def compute_sort_model(query_argument):
     sort_by = []
     PATTERN = re.compile("^(asc|desc)?\\(?([^\\)]+)\\)?", re.IGNORECASE)
