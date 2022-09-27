@@ -149,7 +149,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       name: props.model.jobName,
       input_uri: props.model.inputFile,
       output_prefix: props.model.outputPath,
-      runtime_environment_name: props.model.environment
+      runtime_environment_name: props.model.environment,
+      compute_type: props.model.computeType
     };
 
     if (props.model.parameters !== undefined) {
@@ -178,10 +179,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.output_formats = props.model.outputFormats.map(
         entry => entry.name
       );
-    }
-
-    if (props.model.computeType !== undefined) {
-      jobOptions.compute_type = props.model.computeType;
     }
 
     api.createJob(jobOptions).then(response => {
