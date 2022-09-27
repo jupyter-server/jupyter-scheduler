@@ -83,9 +83,13 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
           )}
           {this.model.jobsView === 'JobDetail' && (
             <JobDetail
+              app={this._app}
               model={this.model.jobDetailModel}
               handleModelChange={newModel =>
                 (this.model.jobDetailModel = newModel)
+              }
+              setCreateJobModel={newModel =>
+                (this.model.createJobModel = newModel)
               }
               setView={view => (this.model.jobsView = view)}
             />
