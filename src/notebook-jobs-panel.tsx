@@ -51,10 +51,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       this.model.jobsView === 'ListJobs' ? 'CreateJob' : 'ListJobs';
   }
 
+  showDetailView(jobId: string): void {
+    this.model.jobsView = 'JobDetail';
+    this.model.jobDetailModel.jobId = jobId;
+  }
+
   render(): JSX.Element {
     const showCreateJob = (newModel: ICreateJobModel) => {
       this.model.createJobModel = newModel;
-
       this.model.jobsView = 'CreateJob';
     };
 
@@ -79,6 +83,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
                 (this.model.listJobsModel = newModel)
               }
               showCreateJob={showCreateJob}
+              showDetailView={this.showDetailView.bind(this)}
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
