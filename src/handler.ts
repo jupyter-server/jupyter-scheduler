@@ -338,7 +338,7 @@ export namespace Scheduler {
     description: string;
     file_extensions: string[];
     output_formats: IOutputFormat[];
-    metadata: { [key: string]: any };
+    metadata: { [key: string]: string };
     compute_types: string[] | null;
   }
 
