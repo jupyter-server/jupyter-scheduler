@@ -85,13 +85,14 @@ export interface ICreateJobModel {
   parameters?: IJobParameter[];
   outputFormats?: IOutputFormat[];
   computeType?: string;
+  idempotencyToken?: string;
 }
 
 export interface IListJobsModel {
   listJobsView: ListJobsView;
 }
 
-export interface IJobDetailModel {
+export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
 }
 
@@ -107,7 +108,10 @@ export class JobsModel extends VDomModel {
     this._jobsView = options.jobsView || 'ListJobs';
     this._createJobModel = options.createJobModel || Private.emptyCreateModel();
     this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
-    this._jobDetailModel = options.jobDetailModel || { jobId: '' };
+    this._jobDetailModel = options.jobDetailModel || {
+      ...Private.emptyCreateModel(),
+      jobId: ''
+    };
     this._jobCount = 0;
   }
 

@@ -2,23 +2,31 @@ import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
+import { ComputeTypePicker } from '../components/compute-type-picker';
+import { EnvironmentPicker } from '../components/environment-picker';
 import {
   OutputFormatPicker,
   outputFormatsForEnvironment
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import SchedulerTokens from '../tokens';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
+import SchedulerTokens from '../tokens';
 
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
 import TextField from '@mui/material/TextField';
-import { EnvironmentPicker } from '../components/environment-picker';
-import { SelectChangeEvent } from '@mui/material';
-import { ComputeTypePicker } from '../components/compute-type-picker';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  FormLabel,
+  SelectChangeEvent
+} from '@mui/material';
+
+import { caretDownIcon } from '@jupyterlab/ui-components';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -176,7 +184,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       input_uri: props.model.inputFile,
       output_prefix: props.model.outputPath,
       runtime_environment_name: props.model.environment,
-      compute_type: props.model.computeType
+      compute_type: props.model.computeType,
+      idempotency_token: props.model.idempotencyToken
     };
 
     if (props.model.parameters !== undefined) {
@@ -321,13 +330,26 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             removeParameter={removeParameter}
             formPrefix={formPrefix}
           />
-          <props.advancedOptions
-            jobsView={'CreateJob'}
-            model={props.model}
-            handleModelChange={props.handleModelChange}
-            errors={errors}
-            handleErrorsChange={setErrors}
-          />
+          <Accordion defaultExpanded={false}>
+            <AccordionSummary
+              expandIcon={<caretDownIcon.react />}
+              aria-controls="panel-content"
+              id="panel-header"
+            >
+              <FormLabel component="legend">
+                {trans.__('Additional options')}
+              </FormLabel>
+            </AccordionSummary>
+            <AccordionDetails id={`${formPrefix}create-panel-content`}>
+              <props.advancedOptions
+                jobsView={'CreateJob'}
+                model={props.model}
+                handleModelChange={props.handleModelChange}
+                errors={errors}
+                handleErrorsChange={setErrors}
+              />
+            </AccordionDetails>
+          </Accordion>
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
