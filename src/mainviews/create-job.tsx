@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
@@ -68,7 +68,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // input in an error state and block form submission.
   const [errors, setErrors] = useState<SchedulerTokens.ErrorsType>({});
 
-  const api = new SchedulerService({});
+  const api = useMemo(() => new SchedulerService({}), []);
 
   // Retrieve the environment list once.
   useEffect(() => {
@@ -108,7 +108,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
-    props.handleModelChange({ ...props.model, [target.name]: target.value });
+    // if setting the environment, default the compute type to its first value (if any are presnt)
+    if (target.name === 'environment') {
+      const envObj = environmentList.find(env => env.name === target.value);
+      props.handleModelChange({
+        ...props.model,
+        environment: target.value,
+        computeType: envObj?.compute_types?.[0]
+      });
+    } else {
+      // otherwise, just set the model
+      props.handleModelChange({ ...props.model, [target.name]: target.value });
+    }
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -158,8 +169,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
       return;
     }
-
-    const api = new SchedulerService({});
 
     // Serialize parameters as an object.
     const jobOptions: Scheduler.ICreateJob = {
@@ -300,7 +309,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleSelectChange}
             environmentList={environmentList}
             environment={props.model.environment}
-            initialValue={props.model.computeType || ''}
+            value={props.model.computeType}
           />
           <ParametersPicker
             label={trans.__('Parameters')}

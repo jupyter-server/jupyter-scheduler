@@ -11,7 +11,7 @@ export type ComputeTypePickerProps = {
   environment: string;
   environmentList: Scheduler.IRuntimeEnvironment[];
   onChange: (event: SelectChangeEvent<string>) => void;
-  initialValue: string;
+  value: string | undefined;
 };
 
 export function ComputeTypePicker(
@@ -20,16 +20,13 @@ export function ComputeTypePicker(
   const environmentObj = props.environmentList.find(
     env => env.name === props.environment
   );
-  if (!environmentObj || !environmentObj['compute_types']) {
+  if (!environmentObj || !environmentObj.compute_types) {
     return null;
   }
 
-  const computeTypes = environmentObj['compute_types'] as string[];
+  const computeTypes = environmentObj.compute_types;
 
   const labelId = `${props.id}-label`;
-
-  // If no initial value was provided, default to the first value being selected.
-  const initialValue = props.initialValue || computeTypes[0];
 
   return (
     <>
@@ -39,7 +36,7 @@ export function ComputeTypePicker(
         name={props.name}
         id={props.id}
         onChange={props.onChange}
-        value={initialValue}
+        value={props.value}
       >
         {computeTypes.map((ct, idx) => (
           <MenuItem value={ct} key={idx}>
