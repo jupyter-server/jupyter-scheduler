@@ -140,7 +140,7 @@ class Scheduler(BaseScheduler):
                 job = (
                     session.query(Job)
                     .filter(Job.idempotency_token == model.idempotency_token)
-                    .one()
+                    .first()
                 )
             if job:
                 return job.job_id
