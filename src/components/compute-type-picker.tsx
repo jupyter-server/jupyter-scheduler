@@ -25,7 +25,7 @@ export function ComputeTypePicker(
   }
 
   const computeTypes = environmentObj['compute_types'] as string[];
-  
+
   const labelId = `${props.id}-label`;
 
   return (
