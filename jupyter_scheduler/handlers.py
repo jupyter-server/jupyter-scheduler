@@ -6,6 +6,7 @@ from dataclasses import asdict
 import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
+from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.environments import EnvironmentRetrievalError
 from jupyter_scheduler.models import (
@@ -79,7 +80,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def get(self, job_id=None):
         if job_id:
-            job = self.scheduler.get_job(job_id)
+            job = await ensure_async(self.scheduler.get_job(job_id))
             self.finish(job.json())
         else:
             status = self.get_query_argument("status", None)
@@ -95,19 +96,14 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                 next_token=self.get_query_argument("next_token", None),
             )
-            if inspect.isawaitable(self.scheduler.list_jobs):
-                list_jobs_response = await self.scheduler.list_jobs(list_jobs_query)
-            else:
-                list_jobs_response = self.scheduler.list_jobs(list_jobs_query)
+            list_jobs_response = await ensure_async(self.scheduler.list_jobs(list_jobs_query))
+
             self.finish(list_jobs_response.json(exclude_none=True))
 
     @tornado.web.authenticated
     async def post(self):
         payload = self.get_json_body()
-        if inspect.isawaitable(self.scheduler.create_job):
-            job_id = await self.scheduler.create_job(CreateJob(**payload))
-        else:
-            job_id = self.scheduler.create_job(CreateJob(**payload))
+        job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload)))
 
         self.finish(json.dumps(dict(job_id=job_id)))
 
@@ -120,24 +116,19 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
         status = Status(payload.get("status"))
         if status == Status.STOPPED:
-            if inspect.isawaitable(self.scheduler.stop_job):
-                await self.scheduler.stop_job(job_id)
-            else:
-                self.scheduler.stop_job(job_id)
+            await ensure_async(self.scheduler.stop_job(job_id))
         else:
-            if inspect.isawaitable(self.scheduler.update_job):
-                await self.scheduler.update_job(UpdateJob(job_id=job_id, status=str(status)))
-            else:
+            await ensure_async(
                 self.scheduler.update_job(UpdateJob(job_id=job_id, status=str(status)))
+            )
+
         self.set_status(204)
         self.finish()
 
     @tornado.web.authenticated
     async def delete(self, job_id):
-        if inspect.isawaitable(self.scheduler.delete_job):
-            await self.scheduler.delete_job(job_id)
-        else:
-            self.scheduler.delete_job(job_id)
+        await ensure_async(self.scheduler.delete_job(job_id))
+
         self.set_status(204)
         self.finish()
 
@@ -146,12 +137,8 @@ class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def delete(self):
         job_ids = self.get_query_arguments("job_id")
-        if inspect.isawaitable(self.scheduler.delete_job):
-            for job_id in job_ids:
-                await self.scheduler.delete_job(job_id)
-        else:
-            for job_id in job_ids:
-                self.scheduler.delete_job(job_id)
+        for job_id in job_ids:
+            await ensure_async(self.scheduler.delete_job(job_id))
 
         self.set_status(204)
         self.finish()
@@ -164,10 +151,8 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         count_jobs_query = CountJobsQuery(
             status=Status(status.upper()) if status else Status.IN_PROGRESS
         )
-        if inspect.isawaitable(self.scheduler.count_jobs):
-            count = await self.scheduler.count_jobs(count_jobs_query)
-        else:
-            count = self.scheduler.count_jobs(count_jobs_query)
+        count = await ensure_async(self.scheduler.count_jobs(count_jobs_query))
+
         self.finish(json.dumps(dict(count=count)))
 
 
@@ -185,10 +170,7 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
         """Returns names of available runtime environments"""
 
         try:
-            if inspect.isawaitable(self.environment_manager.list_environments):
-                environments = await self.environment_manager.list_environments()
-            else:
-                environments = self.environment_manager.list_environments()
+            environments = await ensure_async(self.environment_manager.list_environments())
         except EnvironmentRetrievalError as e:
             raise tornado.web.HTTPError(500, str(e))
 
