@@ -1,5 +1,5 @@
 import { InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
@@ -9,21 +9,14 @@ export type EnvironmentPickerProps = {
   name: string;
   id: string;
   onChange: (event: SelectChangeEvent<string>) => void;
-  environmentsPromise: Promise<Scheduler.IRuntimeEnvironment[]>;
+  environmentList: Scheduler.IRuntimeEnvironment[];
   initialValue: string;
 };
 
 export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
-  const [environmentList, setEnvironmentList] = useState(
-    [] as Scheduler.IRuntimeEnvironment[]
-  );
   const trans = useTranslator('jupyterlab');
 
-  React.useEffect(() => {
-    props.environmentsPromise.then(envList => setEnvironmentList(envList));
-  }, []);
-
-  if (environmentList.length === 0) {
+  if (props.environmentList.length === 0) {
     return <em>{trans.__('Loading …')}</em>;
   }
 
@@ -39,7 +32,7 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
         onChange={props.onChange}
         value={props.initialValue}
       >
-        {environmentList.map((env, idx) => (
+        {props.environmentList.map((env, idx) => (
           <MenuItem value={env.label} title={env.description} key={idx}>
             {env.name}
           </MenuItem>

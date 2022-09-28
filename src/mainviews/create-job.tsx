@@ -1,11 +1,8 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
-import {
-  OutputFormatPicker,
-  outputFormatsForEnvironment
-} from '../components/output-format-picker';
+import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import SchedulerTokens from '../tokens';
@@ -58,10 +55,24 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     {}
   );
 
+  // Cache environment list.
+  const [environmentList, setEnvironmentList] = useState<Scheduler.IRuntimeEnvironment[]>([]);
+
   // A mapping from input names to error messages.
   // If an error message is "truthy" (i.e., not null or ''), we should display the
   // input in an error state and block form submission.
-  const [errors, setErrors] = React.useState<SchedulerTokens.ErrorsType>({});
+  const [errors, setErrors] = useState<SchedulerTokens.ErrorsType>({});
+
+  const api = new SchedulerService({});
+
+  // Retrieve the environment list once.
+  useEffect(() => {
+    const setList = async () => {
+      setEnvironmentList(await api.getRuntimeEnvironments());
+    };
+
+    setList();
+  }, []);
 
   // If any error message is "truthy" (not null or empty), the form should not be submitted.
   const anyErrors = Object.keys(errors).some(key => !!errors[key]);
@@ -97,6 +108,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const outputFormatsList = outputFormatsForEnvironment(
+      environmentList,
       props.model.environment
     );
     if (outputFormatsList === null) {
@@ -223,21 +235,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     return !!errors[inputName];
   };
 
-  const api = new SchedulerService({});
-  const environmentsPromise: () => Promise<
-    Scheduler.IRuntimeEnvironment[]
-  > = async () => {
-    const environmentsCache = sessionStorage.getItem('environments');
-    if (environmentsCache !== null) {
-      return JSON.parse(environmentsCache);
-    }
-
-    return api.getRuntimeEnvironments().then(envs => {
-      sessionStorage.setItem('environments', JSON.stringify(envs));
-      return envs;
-    });
-  };
-
   const formPrefix = 'jp-create-job-';
 
   const cantSubmit = trans.__('One or more of the fields has an error.');
@@ -279,7 +276,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             name={'environment'}
             id={`${formPrefix}environment`}
             onChange={handleSelectChange}
-            environmentsPromise={environmentsPromise()}
+            environmentList={environmentList}
             initialValue={props.model.environment}
           />
           <OutputFormatPicker
@@ -287,6 +284,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             name="outputFormat"
             id={`${formPrefix}outputFormat`}
             onChange={handleOutputFormatsChange}
+            environmentList={environmentList}
             environment={props.model.environment}
             value={props.model.outputFormats || []}
           />
@@ -295,6 +293,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             name="computeType"
             id={`${formPrefix}computeType`}
             onChange={handleSelectChange}
+            environmentList={environmentList}
             environment={props.model.environment}
             initialValue={props.model.computeType || ''}
           />

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
@@ -9,41 +9,23 @@ export type ComputeTypePickerProps = {
   name: string;
   id: string;
   environment: string;
+  environmentList: Scheduler.IRuntimeEnvironment[];
   onChange: (event: SelectChangeEvent<string>) => void;
   initialValue: string;
 };
 
-export function computeTypesForEnvironment(
-  environment: string
-): string[] | null {
-  // Retrieve the environment data from session storage.
-  const environmentsData = sessionStorage.getItem('environments');
-  if (environmentsData === null) {
-    return null;
-  }
-
-  const environments = JSON.parse(
-    environmentsData
-  ) as Array<Scheduler.IRuntimeEnvironment>;
-  const environmentObj = environments.find(env => env.name === environment);
+export function ComputeTypePicker(
+  props: ComputeTypePickerProps
+): JSX.Element | null {
+  const environmentObj = props.environmentList.find(
+    env => env.name === props.environment
+  );
   if (!environmentObj || !environmentObj['output_formats']) {
     return null;
   }
 
-  return environmentObj['compute_types'];
-}
-
-export function ComputeTypePicker(
-  props: ComputeTypePickerProps
-): JSX.Element | null {
-  const computeTypes = useMemo(
-    () => computeTypesForEnvironment(props.environment),
-    [props.environment]
-  );
-  if (computeTypes === null) {
-    return null;
-  }
-
+  const computeTypes = environmentObj['compute_types'] as string[];
+  
   const labelId = `${props.id}-label`;
 
   return (

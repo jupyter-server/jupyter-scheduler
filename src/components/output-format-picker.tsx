@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo } from 'react';
+import React, { ChangeEvent } from 'react';
 
 import { Checkbox, FormControlLabel, InputLabel } from '@mui/material';
 
@@ -13,23 +13,16 @@ export type OutputFormatPickerProps = {
   name: string;
   id: string;
   environment: string;
+  environmentList: Scheduler.IRuntimeEnvironment[];
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: IOutputFormat[];
 };
 
 export function outputFormatsForEnvironment(
+  environmentList: Scheduler.IRuntimeEnvironment[],
   environment: string
 ): IOutputFormat[] | null {
-  // Retrieve the environment data from session storage.
-  const environmentsData = sessionStorage.getItem('environments');
-  if (environmentsData === null) {
-    return null;
-  }
-
-  const environments = JSON.parse(
-    environmentsData
-  ) as Array<Scheduler.IRuntimeEnvironment>;
-  const environmentObj = environments.find(env => env.name === environment);
+  const environmentObj = environmentList.find(env => env.name === environment);
   if (!environmentObj || !environmentObj['output_formats']) {
     return null;
   }
@@ -40,10 +33,8 @@ export function outputFormatsForEnvironment(
 export function OutputFormatPicker(
   props: OutputFormatPickerProps
 ): JSX.Element | null {
-  const outputFormats = useMemo(
-    () => outputFormatsForEnvironment(props.environment),
-    [props.environment]
-  );
+  const outputFormats = outputFormatsForEnvironment(props.environmentList, props.environment);
+
   if (outputFormats === null) {
     return null;
   }
