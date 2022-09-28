@@ -278,6 +278,7 @@ export namespace Scheduler {
     retry_on_timeout?: boolean;
     output_filename_template?: string;
     output_formats?: string[];
+    compute_type?: string;
   }
 
   export type Status =
@@ -337,7 +338,8 @@ export namespace Scheduler {
     description: string;
     file_extensions: string[];
     output_formats: IOutputFormat[];
-    metadata: { [key: string]: any };
+    metadata: { [key: string]: string };
+    compute_types: string[] | null;
   }
 
   export interface IOutputFormat {

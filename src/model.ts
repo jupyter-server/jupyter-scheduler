@@ -84,6 +84,7 @@ export interface ICreateJobModel {
   environment: string;
   parameters?: IJobParameter[];
   outputFormats?: IOutputFormat[];
+  computeType?: string;
 }
 
 export interface IListJobsModel {

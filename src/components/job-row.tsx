@@ -63,6 +63,7 @@ function DeleteButton(props: {
 
 function RefillButton(props: {
   job: Scheduler.IDescribeJob;
+  environmentList: Scheduler.IRuntimeEnvironment[];
   showCreateJob: (newModel: ICreateJobModel) => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
@@ -96,6 +97,7 @@ function RefillButton(props: {
     // Convert the list of output formats, if any, into a list for the initial state
     const jobOutputFormats = props.job.output_formats;
     const outputFormats = outputFormatsForEnvironment(
+      props.environmentList,
       props.job.runtime_environment_name
     );
     if (jobOutputFormats && outputFormats) {
@@ -163,6 +165,7 @@ function OutputFiles(props: {
 
 export function buildTableRow(
   job: Scheduler.IDescribeJob,
+  environmentList: Scheduler.IRuntimeEnvironment[],
   app: JupyterFrontEnd,
   showCreateJob: (newModel: ICreateJobModel) => void,
   deleteRow: (id: Scheduler.IDescribeJob['job_id']) => void,
@@ -201,7 +204,11 @@ export function buildTableRow(
           deleteRow(job.job_id);
         }}
       />
-      <RefillButton job={job} showCreateJob={showCreateJob} />
+      <RefillButton
+        job={job}
+        environmentList={environmentList}
+        showCreateJob={showCreateJob}
+      />
     </Stack>
   ];
 

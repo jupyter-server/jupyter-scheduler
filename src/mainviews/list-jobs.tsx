@@ -66,6 +66,22 @@ export function NotebookJobsListBody(
   const [loading, setLoading] = useState<boolean>(false);
   const theme = useTheme();
 
+  // Cache environment list — we need this for the output formats.
+  const [environmentList, setEnvironmentList] = useState<
+    Scheduler.IRuntimeEnvironment[]
+  >([]);
+
+  const api = new SchedulerService({});
+
+  // Retrieve the environment list once.
+  useEffect(() => {
+    const setList = async () => {
+      setEnvironmentList(await api.getRuntimeEnvironments());
+    };
+
+    setList();
+  }, []);
+
   const deleteRow = useCallback((id: Scheduler.IDescribeJob['job_id']) => {
     setDeletedRows(deletedRows => new Set([...deletedRows, id]));
   }, []);
@@ -205,6 +221,7 @@ export function NotebookJobsListBody(
     .map(job =>
       buildTableRow(
         job,
+        environmentList,
         props.app,
         props.showCreateJob,
         deleteRow,
