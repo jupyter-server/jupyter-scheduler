@@ -28,6 +28,9 @@ export function ComputeTypePicker(
 
   const labelId = `${props.id}-label`;
 
+  // If no initial value was provided, default to the first value being selected.
+  const initialValue = props.initialValue || computeTypes[0];
+
   return (
     <>
       <InputLabel id={labelId}>{props.label}</InputLabel>
@@ -36,7 +39,7 @@ export function ComputeTypePicker(
         name={props.name}
         id={props.id}
         onChange={props.onChange}
-        value={props.initialValue}
+        value={initialValue}
       >
         {computeTypes.map((ct, idx) => (
           <MenuItem value={ct} key={idx}>
