@@ -67,7 +67,9 @@ export function NotebookJobsListBody(
   const theme = useTheme();
 
   // Cache environment list — we need this for the output formats.
-  const [environmentList, setEnvironmentList] = useState<Scheduler.IRuntimeEnvironment[]>([]);
+  const [environmentList, setEnvironmentList] = useState<
+    Scheduler.IRuntimeEnvironment[]
+  >([]);
 
   const api = new SchedulerService({});
 

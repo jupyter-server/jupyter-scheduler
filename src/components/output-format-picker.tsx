@@ -33,7 +33,10 @@ export function outputFormatsForEnvironment(
 export function OutputFormatPicker(
   props: OutputFormatPickerProps
 ): JSX.Element | null {
-  const outputFormats = outputFormatsForEnvironment(props.environmentList, props.environment);
+  const outputFormats = outputFormatsForEnvironment(
+    props.environmentList,
+    props.environment
+  );
 
   if (outputFormats === null) {
     return null;

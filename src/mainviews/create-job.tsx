@@ -2,7 +2,10 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
-import { OutputFormatPicker, outputFormatsForEnvironment } from '../components/output-format-picker';
+import {
+  OutputFormatPicker,
+  outputFormatsForEnvironment
+} from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import SchedulerTokens from '../tokens';
@@ -56,7 +59,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   );
 
   // Cache environment list.
-  const [environmentList, setEnvironmentList] = useState<Scheduler.IRuntimeEnvironment[]>([]);
+  const [environmentList, setEnvironmentList] = useState<
+    Scheduler.IRuntimeEnvironment[]
+  >([]);
 
   // A mapping from input names to error messages.
   // If an error message is "truthy" (i.e., not null or ''), we should display the
