@@ -20,7 +20,7 @@ export function ComputeTypePicker(
   const environmentObj = props.environmentList.find(
     env => env.name === props.environment
   );
-  if (!environmentObj || !environmentObj['output_formats']) {
+  if (!environmentObj || !environmentObj['compute_types']) {
     return null;
   }
 
