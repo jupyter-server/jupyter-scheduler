@@ -86,6 +86,7 @@ export interface ICreateJobModel {
   outputFormats?: IOutputFormat[];
   computeType?: string;
   idempotencyToken?: string;
+  tags?: string[];
 }
 
 export interface IListJobsModel {

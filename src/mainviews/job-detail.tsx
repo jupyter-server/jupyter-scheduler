@@ -235,17 +235,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             </AccordionSummary>
             <AccordionDetails id="panel-content">
               <Stack spacing={4}>
-                <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
-                {job?.tags &&
-                  job?.tags.map(tag => (
-                    <TextFieldStyled
-                      label={trans.__('Tag')}
-                      defaultValue={tag}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                    />
-                  ))}
                 <TextFieldStyled
                   label={trans.__('Create time')}
                   defaultValue={timestampLocalize(job?.create_time ?? '')}

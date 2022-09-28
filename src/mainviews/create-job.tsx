@@ -185,7 +185,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       output_prefix: props.model.outputPath,
       runtime_environment_name: props.model.environment,
       compute_type: props.model.computeType,
-      idempotency_token: props.model.idempotencyToken
+      idempotency_token: props.model.idempotencyToken,
+      tags: props.model.tags
     };
 
     if (props.model.parameters !== undefined) {

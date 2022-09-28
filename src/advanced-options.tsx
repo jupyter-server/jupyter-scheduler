@@ -1,9 +1,12 @@
 import React, { ChangeEvent } from 'react';
 
-import { Stack, TextField } from '@mui/material';
+import { addIcon, closeIcon } from '@jupyterlab/ui-components';
+
+import { FormLabel, IconButton, Stack, TextField } from '@mui/material';
 
 import { useTranslator } from './hooks';
 import Scheduler from './tokens';
+import { Cluster } from './components/cluster';
 
 const AdvancedOptions = (
   props: Scheduler.IAdvancedOptionsProps
@@ -15,9 +18,11 @@ const AdvancedOptions = (
   // Cache text inputs so that React can update their state immediately, preventing
   // a situation where the cursor jumps to the end of the text box after the user
   // enters a character mid-input.
-  const [textInputs, setTextInputs] = React.useState<Record<string, string>>(
-    {}
-  );
+  const [textInputs, setTextInputs] = React.useState<Record<string, string>>({
+    idempotencyToken: props.model.idempotencyToken ?? ''
+  });
+
+  const [tags, setTags] = React.useState<string[]>(props.model.tags ?? []);
 
   const handleInputChange = (event: ChangeEvent) => {
     const target = event.target as HTMLInputElement;
@@ -28,6 +33,43 @@ const AdvancedOptions = (
     setTextInputs({ ...textInputs, [name]: value });
     props.handleModelChange({ ...props.model, [name]: value });
   };
+
+  const handleTagChange = (event: ChangeEvent) => {
+    if (props.jobsView !== 'CreateJob') {
+      return; // Read-only mode
+    }
+
+    const target = event.target as HTMLInputElement;
+
+    const value = target.value;
+    const name = target.name;
+    const tagIdxMatch = name.match(/^tag-(\d+)$/);
+
+    if (tagIdxMatch === null) {
+      return null;
+    }
+
+    const newTags = props.model.tags ?? [];
+    newTags[parseInt(tagIdxMatch[1])] = value;
+
+    setTags(newTags);
+    props.handleModelChange({ ...props.model, tags: newTags });
+  };
+
+  const addTag = () => {
+    const newTags = [...(props.model.tags ?? []), ''];
+    setTags(newTags);
+    props.handleModelChange({ ...props.model, tags: newTags });
+  };
+
+  const deleteTag = (idx: number) => {
+    const newTags = props.model.tags ?? [];
+    newTags.splice(idx, 1);
+    setTags(newTags);
+    props.handleModelChange({ ...props.model, tags: newTags });
+  };
+
+  const noTags = <em>{trans.__('No tags')}</em>;
 
   return (
     <Stack spacing={4}>
@@ -40,6 +82,48 @@ const AdvancedOptions = (
         name="idempotencyToken"
         disabled={props.jobsView !== 'CreateJob'}
       />
+      <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
+      {props.jobsView === 'JobDetail' && !props.model.tags && noTags}
+      {tags.map((tag, idx) => (
+        <Cluster key={idx} justifyContent="flex-start">
+          <TextField
+            label={trans.__('Tag %1', idx + 1)}
+            id={`${formPrefix}tag-${idx}`}
+            name={`tag-${idx}`}
+            value={tag}
+            onChange={handleTagChange}
+            InputProps={{
+              readOnly: props.jobsView !== 'CreateJob'
+            }}
+          />
+          {props.jobsView === 'CreateJob' && (
+            <IconButton
+              aria-label="delete"
+              onClick={() => {
+                // Remove tag
+                deleteTag(idx);
+                return false;
+              }}
+              title={trans.__('Delete this tag')}
+            >
+              <closeIcon.react />
+            </IconButton>
+          )}
+        </Cluster>
+      ))}
+      {props.jobsView === 'CreateJob' && (
+        <Cluster justifyContent="flex-start">
+          <IconButton
+            onClick={(e: React.MouseEvent) => {
+              addTag();
+              return false;
+            }}
+            title={trans.__('Add new tag')}
+          >
+            <addIcon.react />
+          </IconButton>
+        </Cluster>
+      )}
     </Stack>
   );
 };
