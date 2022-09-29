@@ -215,8 +215,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           />
           <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
           {job?.tags &&
-            job?.tags.map(tag => (
-              <TextFieldStyled label={trans.__('Tag')} defaultValue={tag} />
+            job?.tags.map((tag, idx) => (
+              <TextFieldStyled
+                key={tag}
+                label={trans.__('Tag %1', idx + 1)}
+                defaultValue={tag}
+              />
             ))}
         </Stack>
       </CardContent>
