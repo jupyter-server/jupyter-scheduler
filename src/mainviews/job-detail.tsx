@@ -188,7 +188,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <React.Fragment key={parameter}>
               <Grid xs={12} md={6}>
                 <TextFieldStyled
-                  label={trans.__('Parameter')}
+                  label={trans.__('Parameter name')}
                   defaultValue={parameter}
                 />
               </Grid>
