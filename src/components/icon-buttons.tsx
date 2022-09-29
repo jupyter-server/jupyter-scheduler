@@ -8,8 +8,8 @@ export interface IDeleteButtonProps {
   title: string;
 }
 
-// Exaggerate horizontal padding to make the button circular, not oblate
-const extraHorizontalPadding = { px: '12.5px', py: '8px' };
+// Avoid extra vertical padding to force icon to be a square inside a circle
+const zeroLineHeight = { lineHeight: 0 };
 
 export function DeleteButton(props: IDeleteButtonProps): JSX.Element {
   return (
@@ -17,7 +17,7 @@ export function DeleteButton(props: IDeleteButtonProps): JSX.Element {
       aria-label="delete"
       onClick={props.onClick}
       title={props.title}
-      sx={extraHorizontalPadding}
+      sx={zeroLineHeight}
     >
       <closeIcon.react />
     </IconButton>
@@ -26,11 +26,7 @@ export function DeleteButton(props: IDeleteButtonProps): JSX.Element {
 
 export function AddButton(props: IDeleteButtonProps): JSX.Element {
   return (
-    <IconButton
-      onClick={props.onClick}
-      title={props.title}
-      sx={extraHorizontalPadding}
-    >
+    <IconButton onClick={props.onClick} title={props.title} sx={zeroLineHeight}>
       <addIcon.react />
     </IconButton>
   );
