@@ -8,6 +8,75 @@ export function getJupyterLabTheme(): Theme {
   const light = document.body.getAttribute('data-jp-theme-light');
   return createTheme({
     spacing: 4,
+    components: {
+      MuiButton: {
+        defaultProps: {
+          size: 'small'
+        }
+      },
+      MuiFilledInput: {
+        defaultProps: {
+          margin: 'dense'
+        }
+      },
+      MuiFormControl: {
+        defaultProps: {
+          margin: 'dense'
+        }
+      },
+      MuiFormHelperText: {
+        defaultProps: {
+          margin: 'dense'
+        }
+      },
+      MuiIconButton: {
+        defaultProps: {
+          size: 'small'
+        }
+      },
+      MuiInputBase: {
+        defaultProps: {
+          margin: 'dense',
+          size: 'small'
+        }
+      },
+      MuiInputLabel: {
+        defaultProps: {
+          margin: 'dense'
+        }
+      },
+      MuiListItem: {
+        defaultProps: {
+          dense: true
+        }
+      },
+      MuiOutlinedInput: {
+        defaultProps: {
+          margin: 'dense'
+        }
+      },
+      MuiFab: {
+        defaultProps: {
+          size: 'small'
+        }
+      },
+      MuiTable: {
+        defaultProps: {
+          size: 'small'
+        }
+      },
+      MuiTextField: {
+        defaultProps: {
+          margin: 'dense',
+          size: 'small'
+        }
+      },
+      MuiToolbar: {
+        defaultProps: {
+          variant: 'dense'
+        }
+      }
+    },
     palette: {
       mode: light === 'true' ? 'light' : 'dark',
       primary: {
@@ -18,6 +87,9 @@ export function getJupyterLabTheme(): Theme {
         secondary: getCSSVariable('--jp-ui-font-color2'),
         disabled: getCSSVariable('--jp-ui-font-color3')
       }
+    },
+    shape: {
+      borderRadius: 2
     },
     typography: {
       fontFamily: getCSSVariable('--jp-ui-font-family'),
