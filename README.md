@@ -4,11 +4,11 @@
 A JupyterLab extension for running notebook jobs
 
 This extension is composed of a Python package named `jupyter_scheduler`
-for the server extension and a NPM package named `jupyter-scheduler`
+for the server extension and a NPM package named `@jupyterlab/scheduler`
 for the frontend extension.
 
 ## Requirements
-
+- NodeJS >= 16
 - JupyterLab >= 3.0
 
 ## Install
@@ -55,13 +55,20 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the jupyter_scheduler directory
-# Install package in development mode
+git clone https://github.com/jupyter-server/jupyter-scheduler.git
+
+# Change dir to the cloned project
+cd jupyter-scheduler
+
+# Install the project in editable mode
 pip install -e .
+
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
+
 # Server extension must be manually installed in develop mode
 jupyter server extension enable jupyter_scheduler
+
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
