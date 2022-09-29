@@ -132,6 +132,12 @@ export class JobsModel extends VDomModel {
   private _createJobModel: ICreateJobModel;
   private _listJobsModel: IListJobsModel;
   private _jobDetailModel: IJobDetailModel;
+  /**
+   * Callback that gets invoked whenever a model is updated. This should be used
+   * to call `ReactWidget.renderDOM()` to synchronously update the VDOM rather
+   * than triggering an async VDOM update via Lumino. See #34.
+   */
+  private _onModelUpdate?: () => unknown;
   private _jobCount: number;
 
   constructor(options: IJobsModelOptions) {
@@ -143,6 +149,7 @@ export class JobsModel extends VDomModel {
       ...Private.emptyCreateModel(),
       jobId: ''
     };
+    this._onModelUpdate = options.onModelUpdate;
     this._jobCount = 0;
   }
 
@@ -161,6 +168,7 @@ export class JobsModel extends VDomModel {
 
   set createJobModel(model: ICreateJobModel) {
     this._createJobModel = model;
+    this._onModelUpdate?.();
     this.stateChanged.emit(void 0);
   }
 
@@ -170,6 +178,7 @@ export class JobsModel extends VDomModel {
 
   set listJobsModel(model: IListJobsModel) {
     this._listJobsModel = model;
+    this._onModelUpdate?.();
     this.stateChanged.emit(void 0);
   }
 
@@ -179,6 +188,7 @@ export class JobsModel extends VDomModel {
 
   set jobDetailModel(model: IJobDetailModel) {
     this._jobDetailModel = model;
+    this._onModelUpdate?.();
     this.stateChanged.emit(void 0);
   }
 
@@ -196,6 +206,7 @@ export interface IJobsModelOptions {
   createJobModel?: ICreateJobModel;
   listJobsModel?: IListJobsModel;
   jobDetailModel?: IJobDetailModel;
+  onModelUpdate?: () => unknown;
 }
 
 namespace Private {

@@ -24,7 +24,17 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 
   constructor(options: NotebookJobsPanel.IOptions) {
-    super(options.model || new JobsModel({}));
+    super(
+      options.model ||
+        new JobsModel({
+          onModelUpdate: () => {
+            // allow us to invoke private parent method
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            this.renderDOM();
+          }
+        })
+    );
     this.addClass('jp-notebook-jobs-panel');
     const trans = options.translator.load('jupyterlab');
 

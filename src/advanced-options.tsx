@@ -14,34 +14,18 @@ const AdvancedOptions = (
 
   const trans = useTranslator('jupyterlab');
 
-  // Cache text inputs so that React can update their state immediately, preventing
-  // a situation where the cursor jumps to the end of the text box after the user
-  // enters a character mid-input.
-  const [textInputs, setTextInputs] = React.useState<Record<string, string>>({
-    idempotencyToken: props.model.idempotencyToken ?? ''
-  });
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) =>
+    props.handleModelChange({
+      ...props.model,
+      [e.target.value]: e.target.name
+    });
 
-  const [tags, setTags] = React.useState<string[]>(props.model.tags ?? []);
-
-  const handleInputChange = (event: ChangeEvent) => {
-    const target = event.target as HTMLInputElement;
-
-    const value = target.value;
-    const name = target.name;
-
-    setTextInputs({ ...textInputs, [name]: value });
-    props.handleModelChange({ ...props.model, [name]: value });
-  };
-
-  const handleTagChange = (event: ChangeEvent) => {
+  const handleTagChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (props.jobsView !== 'CreateJob') {
       return; // Read-only mode
     }
 
-    const target = event.target as HTMLInputElement;
-
-    const value = target.value;
-    const name = target.name;
+    const { name, value } = event.target;
     const tagIdxMatch = name.match(/^tag-(\d+)$/);
 
     if (tagIdxMatch === null) {
@@ -51,22 +35,21 @@ const AdvancedOptions = (
     const newTags = props.model.tags ?? [];
     newTags[parseInt(tagIdxMatch[1])] = value;
 
-    setTags(newTags);
     props.handleModelChange({ ...props.model, tags: newTags });
   };
 
   const addTag = () => {
     const newTags = [...(props.model.tags ?? []), ''];
-    setTags(newTags);
     props.handleModelChange({ ...props.model, tags: newTags });
   };
 
   const deleteTag = (idx: number) => {
     const newTags = props.model.tags ?? [];
     newTags.splice(idx, 1);
-    setTags(newTags);
     props.handleModelChange({ ...props.model, tags: newTags });
   };
+
+  const tags = props.model.tags ?? [];
 
   const createTags = () => {
     return (
@@ -142,7 +125,7 @@ const AdvancedOptions = (
         label={trans.__('Idempotency token')}
         variant="outlined"
         onChange={handleInputChange}
-        value={textInputs['idempotencyToken'] ?? props.model.idempotencyToken}
+        value={props.model.idempotencyToken}
         id={`${formPrefix}idempotencyToken`}
         name="idempotencyToken"
         disabled={props.jobsView !== 'CreateJob'}
