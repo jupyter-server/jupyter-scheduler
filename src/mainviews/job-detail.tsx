@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
+import { convertDescribeJobtoJobDetail, ICreateJobModel, IJobDetailModel, JobsView } from '../model';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -52,9 +52,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ss = new SchedulerService({});
 
-  const getJobDefinion = async () => {
-    const jobDefinition = await ss.getJob(props.model.jobId);
-    setJob(jobDefinition);
+  const getJob = async () => {
+    const jobFromService = await ss.getJob(props.model.jobId);
+    setJob(jobFromService);
+    // Populate the model.
+    props.handleModelChange({
+      ...props.model,
+      ...(convertDescribeJobtoJobDetail(jobFromService))
+    });
     setLoading(false);
   };
 
@@ -95,7 +100,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     props.app.commands.execute('scheduling:stop-job', {
       id: job?.job_id
     });
-    getJobDefinion();
+    getJob();
   };
 
   const timestampLocalize = (time: number | '') => {
@@ -111,7 +116,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   useEffect(() => {
-    getJobDefinion();
+    getJob();
   }, []);
 
   function TextFieldStyled(props: ITextFieldStyledProps) {

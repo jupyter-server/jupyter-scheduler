@@ -97,6 +97,31 @@ export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
 }
 
+// Convert an IDescribeJobModel to an IJobDetailModel
+export function convertDescribeJobtoJobDetail(dj: Scheduler.IDescribeJob): IJobDetailModel {
+  // Convert parameters
+  const jdParameters = 
+    Object.entries(dj.parameters ?? {}).map(([pName, pValue]) => { return {
+      'name': pName,
+      'value': pValue,
+    }});
+
+  // TODO: Convert outputFormats
+
+  return {
+    jobId: dj.job_id,
+    jobName: dj.name ?? '',
+    inputFile: dj.input_uri,
+    outputPath: dj.output_uri,
+    environment: dj.runtime_environment_name,
+    parameters: jdParameters,
+    outputFormats: [],
+    computeType: dj.compute_type,
+    idempotencyToken: dj.idempotency_token,
+    tags: dj.tags
+  };
+}
+
 export class JobsModel extends VDomModel {
   private _jobsView: JobsView = 'ListJobs';
   private _createJobModel: ICreateJobModel;
