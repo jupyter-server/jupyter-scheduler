@@ -69,7 +69,78 @@ const AdvancedOptions = (
     props.handleModelChange({ ...props.model, tags: newTags });
   };
 
-  const noTags = <em>{trans.__('No tags')}</em>;
+  const createTags = () => {
+    return (
+      <Stack spacing={2}>
+        {tags.map((tag, idx) => (
+          <Cluster key={idx} justifyContent="flex-start">
+            <TextField
+              label={trans.__('Tag %1', idx + 1)}
+              id={`${formPrefix}tag-${idx}`}
+              name={`tag-${idx}`}
+              value={tag}
+              onChange={handleTagChange}
+            />
+            <IconButton
+              aria-label="delete"
+              onClick={() => {
+                // Remove tag
+                deleteTag(idx);
+                return false;
+              }}
+              title={trans.__('Delete tag %1', idx + 1)}
+            >
+              <closeIcon.react />
+            </IconButton>
+          </Cluster>
+        ))}
+        <Cluster justifyContent="flex-start">
+          <IconButton
+            onClick={(e: React.MouseEvent) => {
+              addTag();
+              return false;
+            }}
+            title={trans.__('Add new tag')}
+          >
+            <addIcon.react />
+          </IconButton>
+        </Cluster>
+      </Stack>
+    );
+  };
+
+  const showTags = () => {
+    if (!props.model.tags) {
+      return (
+        <Stack spacing={2}>
+          <p>
+            <em>{trans.__('No tags')}</em>
+          </p>
+        </Stack>
+      );
+    }
+
+    return (
+      <Stack spacing={2}>
+        {tags.map((tag, idx) => (
+          <TextField
+            label={trans.__('Tag %1', idx + 1)}
+            id={`${formPrefix}tag-${idx}`}
+            name={`tag-${idx}`}
+            value={tag}
+            InputProps={{
+              readOnly: true
+            }}
+            disabled
+          />
+        ))}
+      </Stack>
+    );
+  };
+
+  // Tags look different when they're for display or for editing.
+  const tagsDisplay: JSX.Element | null =
+    props.jobsView === 'CreateJob' ? createTags() : showTags();
 
   return (
     <Stack spacing={4}>
@@ -83,50 +154,7 @@ const AdvancedOptions = (
         disabled={props.jobsView !== 'CreateJob'}
       />
       <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
-      <Stack spacing={2}>
-        {props.jobsView === 'JobDetail' && !props.model.tags && noTags}
-        {tags.map((tag, idx) => (
-          <Cluster key={idx} justifyContent="flex-start">
-            <TextField
-              label={trans.__('Tag %1', idx + 1)}
-              id={`${formPrefix}tag-${idx}`}
-              name={`tag-${idx}`}
-              value={tag}
-              onChange={handleTagChange}
-              InputProps={{
-                readOnly: props.jobsView !== 'CreateJob'
-              }}
-              disabled={props.jobsView !== 'CreateJob'}
-            />
-            {props.jobsView === 'CreateJob' && (
-              <IconButton
-                aria-label="delete"
-                onClick={() => {
-                  // Remove tag
-                  deleteTag(idx);
-                  return false;
-                }}
-                title={trans.__('Delete tag %1', idx + 1)}
-              >
-                <closeIcon.react />
-              </IconButton>
-            )}
-          </Cluster>
-        ))}
-        {props.jobsView === 'CreateJob' && (
-          <Cluster justifyContent="flex-start">
-            <IconButton
-              onClick={(e: React.MouseEvent) => {
-                addTag();
-                return false;
-              }}
-              title={trans.__('Add new tag')}
-            >
-              <addIcon.react />
-            </IconButton>
-          </Cluster>
-        )}
-      </Stack>
+      {tagsDisplay}
     </Stack>
   );
 };
