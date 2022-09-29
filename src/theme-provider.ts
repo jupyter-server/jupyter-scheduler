@@ -80,7 +80,24 @@ export function getJupyterLabTheme(): Theme {
     palette: {
       mode: light === 'true' ? 'light' : 'dark',
       primary: {
-        main: getCSSVariable('--jp-brand-color1')
+        main: getCSSVariable('--jp-brand-color1'),
+        light: getCSSVariable('--jp-brand-color2'),
+        dark: getCSSVariable('--jp-brand-color0')
+      },
+      error: {
+        main: getCSSVariable('--jp-error-color1'),
+        light: getCSSVariable('--jp-error-color2'),
+        dark: getCSSVariable('--jp-error-color0')
+      },
+      warning: {
+        main: getCSSVariable('--jp-warn-color1'),
+        light: getCSSVariable('--jp-warn-color2'),
+        dark: getCSSVariable('--jp-warn-color0')
+      },
+      success: {
+        main: getCSSVariable('--jp-success-color1'),
+        light: getCSSVariable('--jp-success-color2'),
+        dark: getCSSVariable('--jp-success-color0')
       },
       text: {
         primary: getCSSVariable('--jp-ui-font-color1'),
