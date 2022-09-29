@@ -83,47 +83,50 @@ const AdvancedOptions = (
         disabled={props.jobsView !== 'CreateJob'}
       />
       <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
-      {props.jobsView === 'JobDetail' && !props.model.tags && noTags}
-      {tags.map((tag, idx) => (
-        <Cluster key={idx} justifyContent="flex-start">
-          <TextField
-            label={trans.__('Tag %1', idx + 1)}
-            id={`${formPrefix}tag-${idx}`}
-            name={`tag-${idx}`}
-            value={tag}
-            onChange={handleTagChange}
-            InputProps={{
-              readOnly: props.jobsView !== 'CreateJob'
-            }}
-          />
-          {props.jobsView === 'CreateJob' && (
+      <Stack spacing={2}>
+        {props.jobsView === 'JobDetail' && !props.model.tags && noTags}
+        {tags.map((tag, idx) => (
+          <Cluster key={idx} justifyContent="flex-start">
+            <TextField
+              label={trans.__('Tag %1', idx + 1)}
+              id={`${formPrefix}tag-${idx}`}
+              name={`tag-${idx}`}
+              value={tag}
+              onChange={handleTagChange}
+              InputProps={{
+                readOnly: props.jobsView !== 'CreateJob'
+              }}
+              disabled={props.jobsView !== 'CreateJob'}
+            />
+            {props.jobsView === 'CreateJob' && (
+              <IconButton
+                aria-label="delete"
+                onClick={() => {
+                  // Remove tag
+                  deleteTag(idx);
+                  return false;
+                }}
+                title={trans.__('Delete tag %1', idx + 1)}
+              >
+                <closeIcon.react />
+              </IconButton>
+            )}
+          </Cluster>
+        ))}
+        {props.jobsView === 'CreateJob' && (
+          <Cluster justifyContent="flex-start">
             <IconButton
-              aria-label="delete"
-              onClick={() => {
-                // Remove tag
-                deleteTag(idx);
+              onClick={(e: React.MouseEvent) => {
+                addTag();
                 return false;
               }}
-              title={trans.__('Delete this tag')}
+              title={trans.__('Add new tag')}
             >
-              <closeIcon.react />
+              <addIcon.react />
             </IconButton>
-          )}
-        </Cluster>
-      ))}
-      {props.jobsView === 'CreateJob' && (
-        <Cluster justifyContent="flex-start">
-          <IconButton
-            onClick={(e: React.MouseEvent) => {
-              addTag();
-              return false;
-            }}
-            title={trans.__('Add new tag')}
-          >
-            <addIcon.react />
-          </IconButton>
-        </Cluster>
-      )}
+          </Cluster>
+        )}
+      </Stack>
     </Stack>
   );
 };
