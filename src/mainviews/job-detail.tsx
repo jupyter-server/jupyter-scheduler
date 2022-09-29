@@ -194,7 +194,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               </Grid>
               <Grid xs={12} md={6}>
                 <TextFieldStyled
-                  label={trans.__('Value')}
+                  label={trans.__('Parameter value')}
                   defaultValue={value}
                 />
               </Grid>
