@@ -1,13 +1,12 @@
 import React, { ChangeEvent } from 'react';
 
-import { addIcon, closeIcon, LabIcon } from '@jupyterlab/ui-components';
-
-import { IconButton, InputLabel, TextField } from '@mui/material';
+import { InputLabel, TextField } from '@mui/material';
 import Stack from '@mui/system/Stack';
 
 import { Cluster } from '../components/cluster';
 import { IJobParameter } from '../model';
 import { useTranslator } from '../hooks';
+import { AddButton, DeleteButton } from './icon-buttons';
 
 export type ParametersPickerProps = {
   label: string;
@@ -43,29 +42,24 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
             placeholder={trans.__('Value')}
             onChange={props.onChange}
           />
-          <IconButton
-            aria-label="delete"
+          <DeleteButton
             onClick={() => {
               props.removeParameter(paramIdx);
               return false;
             }}
             title={trans.__('Delete this parameter')}
-          >
-            <LabIcon.resolveReact icon={closeIcon} tag="span" />
-          </IconButton>
+          />
         </Cluster>
       ))}
       {/* A one-item cluster to prevent the add-param button from being as wide as the widget */}
       <Cluster justifyContent="flex-start">
-        <IconButton
+        <AddButton
           onClick={(e: React.MouseEvent) => {
             props.addParameter();
             return false;
           }}
           title={trans.__('Add new parameter')}
-        >
-          <LabIcon.resolveReact icon={addIcon} tag="span" />
-        </IconButton>
+        />
       </Cluster>
     </Stack>
   );

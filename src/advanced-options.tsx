@@ -1,12 +1,11 @@
 import React, { ChangeEvent } from 'react';
 
-import { addIcon, closeIcon } from '@jupyterlab/ui-components';
+import { FormLabel, Stack, TextField } from '@mui/material';
 
-import { FormLabel, IconButton, Stack, TextField } from '@mui/material';
-
+import { Cluster } from './components/cluster';
+import { AddButton, DeleteButton } from './components/icon-buttons';
 import { useTranslator } from './hooks';
 import Scheduler from './tokens';
-import { Cluster } from './components/cluster';
 
 const AdvancedOptions = (
   props: Scheduler.IAdvancedOptionsProps
@@ -81,29 +80,24 @@ const AdvancedOptions = (
               value={tag}
               onChange={handleTagChange}
             />
-            <IconButton
-              aria-label="delete"
+            <DeleteButton
               onClick={() => {
                 // Remove tag
                 deleteTag(idx);
                 return false;
               }}
               title={trans.__('Delete tag %1', idx + 1)}
-            >
-              <closeIcon.react />
-            </IconButton>
+            />
           </Cluster>
         ))}
         <Cluster justifyContent="flex-start">
-          <IconButton
+          <AddButton
             onClick={(e: React.MouseEvent) => {
               addTag();
               return false;
             }}
             title={trans.__('Add new tag')}
-          >
-            <addIcon.react />
-          </IconButton>
+          />
         </Cluster>
       </Stack>
     );
