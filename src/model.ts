@@ -98,13 +98,18 @@ export interface IJobDetailModel extends ICreateJobModel {
 }
 
 // Convert an IDescribeJobModel to an IJobDetailModel
-export function convertDescribeJobtoJobDetail(dj: Scheduler.IDescribeJob): IJobDetailModel {
+export function convertDescribeJobtoJobDetail(
+  dj: Scheduler.IDescribeJob
+): IJobDetailModel {
   // Convert parameters
-  const jdParameters =
-    Object.entries(dj.parameters ?? {}).map(([pName, pValue]) => { return {
-      'name': pName,
-      'value': pValue,
-    }});
+  const jdParameters = Object.entries(dj.parameters ?? {}).map(
+    ([pName, pValue]) => {
+      return {
+        name: pName,
+        value: pValue
+      };
+    }
+  );
 
   // TODO: Convert outputFormats
 

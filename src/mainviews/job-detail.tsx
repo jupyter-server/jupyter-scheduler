@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { convertDescribeJobtoJobDetail, ICreateJobModel, IJobDetailModel, JobsView } from '../model';
+import {
+  convertDescribeJobtoJobDetail,
+  ICreateJobModel,
+  IJobDetailModel,
+  JobsView
+} from '../model';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -58,7 +63,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     // Populate the model.
     props.handleModelChange({
       ...props.model,
-      ...(convertDescribeJobtoJobDetail(jobFromService))
+      ...convertDescribeJobtoJobDetail(jobFromService)
     });
     setLoading(false);
   };
