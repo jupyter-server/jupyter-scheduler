@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 
-import { addIcon, closeIcon, LabIcon } from '@jupyterlab/ui-components';
+import { addIcon, closeIcon } from '@jupyterlab/ui-components';
 
 import { IconButton, InputLabel, TextField } from '@mui/material';
 import Stack from '@mui/system/Stack';
@@ -43,6 +43,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
             placeholder={trans.__('Value')}
             onChange={props.onChange}
           />
+          {/* Exaggerate horizontal padding to make the button circular, not oblate */}
           <IconButton
             aria-label="delete"
             onClick={() => {
@@ -50,21 +51,24 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               return false;
             }}
             title={trans.__('Delete this parameter')}
+            sx={{ px: '12.5px', py: '8px' }}
           >
-            <LabIcon.resolveReact icon={closeIcon} tag="span" />
+            <closeIcon.react />
           </IconButton>
         </Cluster>
       ))}
       {/* A one-item cluster to prevent the add-param button from being as wide as the widget */}
       <Cluster justifyContent="flex-start">
+        {/* Exaggerate horizontal padding to make the button circular, not oblate */}
         <IconButton
           onClick={(e: React.MouseEvent) => {
             props.addParameter();
             return false;
           }}
           title={trans.__('Add new parameter')}
+          sx={{ px: '12.5px', py: '8px' }}
         >
-          <LabIcon.resolveReact icon={addIcon} tag="span" />
+          <addIcon.react />
         </IconButton>
       </Cluster>
     </Stack>
