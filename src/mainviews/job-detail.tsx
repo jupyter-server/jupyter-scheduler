@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
+import {
+  convertDescribeJobtoJobDetail,
+  ICreateJobModel,
+  IJobDetailModel,
+  JobsView
+} from '../model';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -19,11 +24,14 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { caretDownIcon } from '@jupyterlab/ui-components';
-import { useTranslator } from '../hooks';
+
 import { Heading } from '../components/heading';
 import { Scheduler, SchedulerService } from '../handler';
-import { JupyterFrontEnd } from '@jupyterlab/application';
+import { useTranslator } from '../hooks';
+import SchedulerTokens from '../tokens';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -31,6 +39,8 @@ export interface IJobDetailProps {
   handleModelChange: (model: IJobDetailModel) => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
+  // Extension point: optional additional component
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
 
 interface ITextFieldStyledProps {
@@ -47,9 +57,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ss = new SchedulerService({});
 
-  const getJobDefinion = async () => {
-    const jobDefinition = await ss.getJob(props.model.jobId);
-    setJob(jobDefinition);
+  const getJob = async () => {
+    const jobFromService = await ss.getJob(props.model.jobId);
+    setJob(jobFromService);
+    // Populate the model.
+    props.handleModelChange({
+      ...props.model,
+      ...convertDescribeJobtoJobDetail(jobFromService)
+    });
     setLoading(false);
   };
 
@@ -90,7 +105,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     props.app.commands.execute('scheduling:stop-job', {
       id: job?.job_id
     });
-    getJobDefinion();
+    getJob();
   };
 
   const timestampLocalize = (time: number | '') => {
@@ -106,7 +121,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   useEffect(() => {
-    getJobDefinion();
+    getJob();
   }, []);
 
   function TextFieldStyled(props: ITextFieldStyledProps) {
@@ -231,21 +246,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <AccordionDetails id="panel-content">
               <Stack spacing={4}>
                 <TextFieldStyled
-                  label={trans.__('Idempotency token')}
-                  defaultValue={job?.idempotency_token ?? ''}
-                />
-                <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
-                {job?.tags &&
-                  job?.tags.map(tag => (
-                    <TextFieldStyled
-                      label={trans.__('Tag')}
-                      defaultValue={tag}
-                      InputProps={{
-                        readOnly: true
-                      }}
-                    />
-                  ))}
-                <TextFieldStyled
                   label={trans.__('Create time')}
                   defaultValue={timestampLocalize(job?.create_time ?? '')}
                 />
@@ -272,9 +272,18 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               </FormLabel>
             </AccordionSummary>
             <AccordionDetails id="panel-content">
-              <Stack component="form" spacing={4}>
-                Placeholder
-              </Stack>
+              {/* Read-only */}
+              <props.advancedOptions
+                jobsView={'JobDetail'}
+                model={props.model}
+                handleModelChange={model => {
+                  return;
+                }}
+                errors={{}}
+                handleErrorsChange={errors => {
+                  return;
+                }}
+              />
             </AccordionDetails>
           </Accordion>
         </>

@@ -97,6 +97,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
                 (this.model.createJobModel = newModel)
               }
               setView={view => (this.model.jobsView = view)}
+              advancedOptions={this._advancedOptions}
             />
           )}
         </TranslatorContext.Provider>
