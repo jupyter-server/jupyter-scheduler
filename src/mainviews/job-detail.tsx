@@ -272,7 +272,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   );
 
   return (
-    <Box sx={{ p: 4 }} style={{ boxSizing: 'border-box' }}>
+    <Box sx={{ p: 4 }}>
       <Stack spacing={4}>
         <BreadcrumbStyled />
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
