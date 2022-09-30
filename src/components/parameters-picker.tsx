@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useState } from 'react';
+import React, { ChangeEvent } from 'react';
 
 import { InputLabel, TextField } from '@mui/material';
 import Stack from '@mui/system/Stack';
@@ -23,18 +23,8 @@ export type ParametersPickerProps = {
   handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
 };
 
-const useForceUpdate = () => {
-  const [, setTick] = useState(0);
-  const update = useCallback(() => {
-    setTick(tick => tick + 1);
-  }, []);
-  return update;
-};
-
 export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-
-  const update = useForceUpdate();
 
   const checkParameter = (
     e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)
@@ -42,29 +32,20 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
     const paramInputName = e.name;
 
     const paramMatch = paramInputName.match(/^parameter-(\d+)/);
-    if (paramMatch === null) {
+    if (!paramMatch || paramMatch.length < 2) {
       return; // Invalid parameter name; should not happen
     }
     const paramIdx = parseInt(paramMatch[1]);
 
-    const modifiedParam = props.value[paramIdx];
-    const paramName = modifiedParam.name;
-    const paramValue = modifiedParam.value;
+    const param = props.value[paramIdx];
+    const invalid = param.name === '' && param.value !== '';
 
-    if (paramName === '' && paramValue !== '') {
-      const newErrors: Scheduler.ErrorsType = props.errors;
-      newErrors['parameter-' + paramIdx + '-name'] = trans.__(
-        'No name specified for this parameter.'
-      );
-      props.handleErrorsChange(newErrors);
-    } else {
-      const newErrors: Scheduler.ErrorsType = props.errors;
-      newErrors['parameter-' + paramIdx + '-name'] = '';
-      props.handleErrorsChange(newErrors);
-    }
-
-    // Force a rerender.
-    update();
+    props.handleErrorsChange({
+      ...props.errors,
+      [`parameter-${paramIdx}-name`]: invalid
+        ? trans.__('No name specified for this parameter.')
+        : ''
+    });
   };
 
   return (
