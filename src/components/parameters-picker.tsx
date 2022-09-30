@@ -77,11 +77,10 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               onBlur={e => checkParameter(e.target)}
               onChange={props.onChange}
             />
-            {/* The addedStyle will probably have to be changed again once MUI is restyled to have smaller text box height */}
             <DeleteButton
               onClick={() => props.removeParameter(paramIdx)}
               title={trans.__('Delete this parameter')}
-              addedStyle={{ marginTop: '12px' }}
+              addedStyle={{ marginTop: '14px' }}
             />
           </Cluster>
         );

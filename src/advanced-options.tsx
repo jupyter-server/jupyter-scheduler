@@ -70,6 +70,7 @@ const AdvancedOptions = (
                 return false;
               }}
               title={trans.__('Delete tag %1', idx + 1)}
+              addedStyle={{ marginTop: '4px' }}
             />
           </Cluster>
         ))}
