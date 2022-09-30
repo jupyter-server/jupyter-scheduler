@@ -148,7 +148,7 @@ See [RELEASE](RELEASE.md)
 You can configure the server extension to replace the Scheduler server API, replace the execution engine, re-create the database tables, and select a database path.
 
 #### drop_tables
-Setting this value to `True` will re-create the database tables on each JupyterLab start.
+Setting this value to `True` will re-create the database tables on each JupyterLab start. This will destroy all existing data. It may be necessary if your database's schema is out of date.
 ```
 jupyter lab --SchedulerApp.drop_tables=True
 ```
