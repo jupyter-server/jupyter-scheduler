@@ -25,21 +25,21 @@ function StopButton(props: {
   job: Scheduler.IDescribeJob;
   clickHandler: () => void;
 }): JSX.Element | null {
-  if (props.job.status !== 'IN_PROGRESS') {
-    return null;
-  }
-
   const trans = useTranslator('jupyterlab');
   const buttonTitle = props.job.name
     ? trans.__('Stop "%1"', props.job.name)
     : trans.__('Stop job');
 
   return (
-    <ToolbarButtonComponent
-      onClick={props.clickHandler}
-      tooltip={buttonTitle}
-      icon={stopIcon}
-    />
+    <div
+      style={props.job.status !== 'IN_PROGRESS' ? { visibility: 'hidden' } : {}}
+    >
+      <ToolbarButtonComponent
+        onClick={props.clickHandler}
+        tooltip={buttonTitle}
+        icon={stopIcon}
+      />
+    </div>
   );
 }
 
