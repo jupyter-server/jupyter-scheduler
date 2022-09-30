@@ -95,6 +95,11 @@ export interface IListJobsModel {
 
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
+  status: Scheduler.Status;
+  createTime: number;
+  updateTime: number;
+  startTime?: number;
+  endTime?: number;
 }
 
 // Convert an IDescribeJobModel to an IJobDetailModel
@@ -123,7 +128,12 @@ export function convertDescribeJobtoJobDetail(
     outputFormats: [],
     computeType: dj.compute_type,
     idempotencyToken: dj.idempotency_token,
-    tags: dj.tags
+    tags: dj.tags,
+    status: dj.status,
+    createTime: dj.create_time,
+    updateTime: dj.update_time,
+    startTime: dj.start_time,
+    endTime: dj.end_time
   };
 }
 
@@ -147,7 +157,10 @@ export class JobsModel extends VDomModel {
     this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
     this._jobDetailModel = options.jobDetailModel || {
       ...Private.emptyCreateModel(),
-      jobId: ''
+      jobId: '',
+      status: 'STOPPED',
+      createTime: 0,
+      updateTime: 0
     };
     this._onModelUpdate = options.onModelUpdate;
     this._jobCount = 0;
