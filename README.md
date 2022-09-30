@@ -11,6 +11,7 @@ notebook jobs; the UI provides an interface to create, list and view job
 details.
 
 ## Requirements
+
 - JupyterLab >= 3.0
 
 ## Install
@@ -145,34 +146,45 @@ More information are provided within the [ui-tests](./ui-tests/README.md) README
 See [RELEASE](RELEASE.md)
 
 ### Configuring the extension
+
 You can configure the server extension to replace the Scheduler server API, replace the execution engine, re-create the database tables, and select a database path.
 
 #### drop_tables
+
 Setting this value to `True` will re-create the database tables on each JupyterLab start. This will destroy all existing data. It may be necessary if your database's schema is out of date.
+
 ```
 jupyter lab --SchedulerApp.drop_tables=True
 ```
 
 #### db_url
+
 The fully qualified URL of the database. For example, a SQLite database path will look like `sqlite:///<database-file-path>`.
+
 ```
 jupyter lab --SchedulerApp.db_url=sqlite:///<database-file-path>
 ```
 
 #### scheduler_class
+
 The fully classified classname to use for the scheduler API. This class should extend `jupyter_scheduler.scheduler.BaseScheduler` and implement all abstract methods. The default class is `jupyter_scheduler.scheduler.Scheduler`.
+
 ```
 jupyter lab --SchedulerApp.scheduler_class=jupyter_scheduler.scheduler.Scheduler
 ```
 
 #### environment_manager_class
+
 The fully classified classname to use for the environment manager. This class should extend `jupyter_scheduler.environments.EnvironmentManager` and implement all abstract methods. The default class is `jupyter_scheduler.environments.CondaEnvironmentManager`.
+
 ```
 jupyter lab --SchedulerApp.environment_manager_class=jupyter_scheduler.environments.CondaEnvironmentManager
 ```
 
 #### execution_manager_class
+
 The fully classified classname to use for the execution manager, the module that is responsible for reading the input file, executing and writing the output. This option lets you specify a custom execution engine without replacing the whole scheduler API. This class should extend `jupyter_scheduler.executors.ExecutionManager` and implement the execute method. The default class is `jupyter_scheduler.executors.DefaultExecutionManager`.
+
 ```
 jupyter lab --SchedulerApp.execution_manager_class=jupyter_scheduler.executors.DefaultExecutionManager
 ```
