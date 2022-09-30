@@ -5,10 +5,12 @@ A JupyterLab extension for running notebook jobs
 
 This extension is composed of a Python package named `jupyter_scheduler`
 for the server extension and a NPM package named `@jupyterlab/scheduler`
-for the frontend extension.
+for the frontend extension. Installation of this extension provides a
+REST api that implements actions to run, query, stop and delete
+notebook jobs; the UI provides an interface to create, list and view job
+details.
 
 ## Requirements
-- NodeJS >= 16
 - JupyterLab >= 3.0
 
 ## Install
@@ -141,3 +143,36 @@ More information are provided within the [ui-tests](./ui-tests/README.md) README
 ### Packaging the extension
 
 See [RELEASE](RELEASE.md)
+
+### Configuring the extension
+The server extension comes with some configurable options, that helps with replacing the Scheduler server API, replacing the execution engine, re-creating database tables, selecting a database path. Here is the list of all options.
+
+#### drop_tables
+Setting this value to `True` will re-create the database tables on each JupyterLab start.
+```
+jupyter lab --SchedulerApp.drop_tables=True
+```
+
+#### db_url
+The fully qualified url of the database, for example a SQLite database path will look like `sqlite:///<database-file-path>`.
+```
+jupyter lab --SchedulerApp.db_url=sqlite:///<database-file-path>
+```
+
+#### scheduler_class
+The fully classified classname to use for the scheduler api. This class should extend from `jupyter_scheduler.scheduler.BaseScheduler` and implement all abstract methods. Default class is `jupyter_scheduler.scheduler.Scheduler`.
+```
+jupyter lab --SchedulerApp.scheduler_class=jupyter_scheduler.scheduler.Scheduler
+```
+
+#### environment_manager_class
+The fully classified classname to use for the environment manager. This class should extend from `jupyter_scheduler.environments.EnvironmentManager` and implement all abstract methods. Default class is `jupyter_scheduler.environments.CondaEnvironmentManager`.
+```
+jupyter lab --SchedulerApp.environment_manager_class=jupyter_scheduler.environments.CondaEnvironmentManager
+```
+
+#### execution_manager_class
+The fully classified classname to use for the execution manager. Execution manager is the module that is responsible for reading the input file, executing and writing the output. This provides control over using a custom execution engine without replacing the whole scheduler api. This class should extend from `jupyter_scheduler.executors.ExecutionManager` and implement the execute method. Default class is `jupyter_scheduler.executors.DefaultExecutionManager`.
+```
+jupyter lab --SchedulerApp.execution_manager_class=jupyter_scheduler.executors.DefaultExecutionManager
+```
