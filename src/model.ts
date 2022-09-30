@@ -100,6 +100,7 @@ export interface IJobDetailModel extends ICreateJobModel {
   updateTime?: number;
   startTime?: number;
   endTime?: number;
+  outputPrefix?: string;
 }
 
 // Convert an IDescribeJobModel to an IJobDetailModel
@@ -121,7 +122,8 @@ export function convertDescribeJobtoJobDetail(
     jobId: dj.job_id,
     jobName: dj.name ?? '',
     inputFile: dj.input_uri,
-    outputPath: dj.output_prefix,
+    outputPath: dj.output_uri,
+    outputPrefix: dj.output_prefix,
     environment: dj.runtime_environment_name,
     parameters: jdParameters,
     outputFormats: [],
