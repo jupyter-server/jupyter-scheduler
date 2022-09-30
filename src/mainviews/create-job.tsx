@@ -216,7 +216,31 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const newParams = props.model.parameters || [];
     newParams.splice(idx, 1);
 
+    const newErrors: Record<string, string> = {};
+    for (const formKey in errors) {
+      const paramMatch = formKey.match(/^parameter-(\d+)/);
+      const paramIdx =
+        paramMatch && paramMatch.length >= 2 ? parseInt(paramMatch[1]) : -1;
+
+      if (paramIdx === -1 || paramIdx < idx) {
+        // restore errors associated with params before deleted param and all
+        // other form fields
+        newErrors[formKey] = errors[formKey];
+        continue;
+      }
+      if (paramIdx === idx) {
+        // ignore errors associated with deleted param
+        continue;
+      }
+
+      // otherwise, restore errors with params after deleted param by offsetting
+      // their index by -1
+      newErrors[`parameter-${paramIdx - 1}-name`] =
+        errors[`parameter-${paramIdx}-name`];
+    }
+
     props.handleModelChange({ ...props.model, parameters: newParams });
+    setErrors(newErrors);
   };
 
   const addParameter = () => {
