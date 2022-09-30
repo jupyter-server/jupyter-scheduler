@@ -52,7 +52,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       ...convertDescribeJobtoJobDetail(jobFromService)
     });
     setJob(props.model);
-    setLoading(false);
   };
 
   const handleRerunJob = () => {
@@ -78,6 +77,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       id: job?.jobId
     });
     getJob();
+    setLoading(false);
   };
 
   const timestampLocalize = (time: number | '') => {

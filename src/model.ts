@@ -95,9 +95,9 @@ export interface IListJobsModel {
 
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
-  status: Scheduler.Status;
-  createTime: number;
-  updateTime: number;
+  status?: Scheduler.Status;
+  createTime?: number;
+  updateTime?: number;
   startTime?: number;
   endTime?: number;
 }
@@ -157,10 +157,7 @@ export class JobsModel extends VDomModel {
     this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
     this._jobDetailModel = options.jobDetailModel || {
       ...Private.emptyCreateModel(),
-      jobId: '',
-      status: 'STOPPED',
-      createTime: 0,
-      updateTime: 0
+      jobId: ''
     };
     this._onModelUpdate = options.onModelUpdate;
     this._jobCount = 0;
