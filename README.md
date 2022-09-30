@@ -6,7 +6,7 @@ A JupyterLab extension for running notebook jobs
 This extension is composed of a Python package named `jupyter_scheduler`
 for the server extension and a NPM package named `@jupyterlab/scheduler`
 for the frontend extension. Installation of this extension provides a
-REST api that implements actions to run, query, stop and delete
+REST API to run, query, stop and delete
 notebook jobs; the UI provides an interface to create, list and view job
 details.
 
