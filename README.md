@@ -172,7 +172,7 @@ jupyter lab --SchedulerApp.environment_manager_class=jupyter_scheduler.environme
 ```
 
 #### execution_manager_class
-The fully classified classname to use for the execution manager. Execution manager is the module that is responsible for reading the input file, executing and writing the output. This provides control over using a custom execution engine without replacing the whole scheduler api. This class should extend from `jupyter_scheduler.executors.ExecutionManager` and implement the execute method. Default class is `jupyter_scheduler.executors.DefaultExecutionManager`.
+The fully classified classname to use for the execution manager, the module that is responsible for reading the input file, executing and writing the output. This option lets you specify a custom execution engine without replacing the whole scheduler API. This class should extend `jupyter_scheduler.executors.ExecutionManager` and implement the execute method. The default class is `jupyter_scheduler.executors.DefaultExecutionManager`.
 ```
 jupyter lab --SchedulerApp.execution_manager_class=jupyter_scheduler.executors.DefaultExecutionManager
 ```
