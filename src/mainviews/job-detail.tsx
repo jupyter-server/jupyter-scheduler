@@ -205,28 +205,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const OtherOptions = () => (
-    <Card>
-      <CardContent>
-        <Stack spacing={4}>
-          <TextFieldStyled
-            label={trans.__('Idempotency token')}
-            defaultValue={job?.idempotency_token ?? ''}
-          />
-          <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
-          {job?.tags &&
-            job?.tags.map((tag, idx) => (
-              <TextFieldStyled
-                key={tag}
-                label={trans.__('Tag %1', idx + 1)}
-                defaultValue={tag}
-              />
-            ))}
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-
   const AdvancedOptions = () => (
     <Card>
       <CardContent>
@@ -283,7 +261,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             <ButtonBar />
             <CoreOptions />
             <Parameters />
-            <OtherOptions />
             <AdvancedOptions />
           </>
         )}
