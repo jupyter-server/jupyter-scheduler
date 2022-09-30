@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { SchedulerService } from '../handler';
+import { Scheduler, SchedulerService } from '../handler';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import Grid from '@mui/material/Unstable_Grid2';
 import { Scheduler as SchedulerTokens } from '../tokens';
@@ -38,7 +38,7 @@ export interface IJobDetailProps {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
-  const [job, setJob] = useState<IJobDetailModel | undefined>(undefined);
+  const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
 
   const trans = useTranslator('jupyterlab');
 
@@ -46,21 +46,33 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const getJob = async () => {
     const jobFromService = await ss.getJob(props.model.jobId);
+    setJob(jobFromService);
     // Populate the model.
     props.handleModelChange({
       ...props.model,
       ...convertDescribeJobtoJobDetail(jobFromService)
     });
-    setJob(props.model);
+    setLoading(false);
+  };
+
+  // Retrieve the key from the parameters list or return a parameter with a null value
+  const getParam = (key: string) => {
+    return {
+      name: key,
+      value: job?.parameters?.[key]
+    };
   };
 
   const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
-      jobName: job?.jobName ?? '',
-      inputFile: job?.inputFile ?? '',
-      outputPath: job?.outputPath ?? '',
-      environment: job?.environment ?? '',
-      ...job
+      inputFile: job?.input_uri ?? '',
+      jobName: job?.name ?? '',
+      outputPath: job?.output_prefix ?? '',
+      environment: job?.runtime_environment_name ?? '',
+      parameters:
+        job && job.parameters
+          ? Object.keys(job.parameters).map(key => getParam(key))
+          : undefined
     };
 
     props.setCreateJobModel(initialState);
@@ -68,16 +80,15 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   const handleDeleteJob = async () => {
-    await ss.deleteJob(job?.jobId ?? '');
+    await ss.deleteJob(job?.job_id ?? '');
     props.setView('ListJobs');
   };
 
   const handleStopJob = async () => {
     props.app.commands.execute('scheduling:stop-job', {
-      id: job?.jobId
+      id: job?.job_id
     });
     getJob();
-    setLoading(false);
   };
 
   const timestampLocalize = (time: number | '') => {
@@ -123,34 +134,30 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   );
 
   const coreOptionsFields: TextFieldProps[] = [
-    { defaultValue: job?.jobName ?? '', label: trans.__('Job name') },
-    { defaultValue: job?.jobId ?? '', label: trans.__('Job ID') },
+    { defaultValue: job?.name ?? '', label: trans.__('Job name') },
+    { defaultValue: job?.job_id ?? '', label: trans.__('Job ID') },
     {
-      defaultValue: job?.inputFile ?? '',
+      defaultValue: job?.input_uri ?? '',
       label: trans.__('Input file')
     },
     {
-      defaultValue: job?.outputPath ?? '',
+      defaultValue: job?.output_uri ?? '',
       label: trans.__('Output path')
     },
     {
-      defaultValue: job?.environment ?? '',
+      defaultValue: job?.runtime_environment_name ?? '',
       label: trans.__('Environment')
     },
     {
-      defaultValue: timestampLocalize(job?.createTime ?? ''),
+      defaultValue: timestampLocalize(job?.create_time ?? ''),
       label: trans.__('Create time')
     },
     {
-      defaultValue: timestampLocalize(job?.updateTime ?? ''),
-      label: trans.__('Update time')
-    },
-    {
-      defaultValue: timestampLocalize(job?.startTime ?? ''),
+      defaultValue: timestampLocalize(job?.start_time ?? ''),
       label: trans.__('Start time')
     },
     {
-      defaultValue: timestampLocalize(job?.endTime ?? ''),
+      defaultValue: timestampLocalize(job?.end_time ?? ''),
       label: trans.__('End time')
     },
     { defaultValue: job?.status ?? '', label: trans.__('Status') }
@@ -221,7 +228,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const BreadcrumbsStyled = () => (
+  const BreadcrumbStyled = () => (
     <div role="presentation">
       <Breadcrumbs aria-label="breadcrumb">
         <Link
@@ -236,7 +243,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {trans.__('Notebook Jobs')}
         </Link>
         <Typography color="text.primary">
-          {job?.jobName ?? props.model.jobName}
+          {job?.name ?? props.model.jobId}
         </Typography>
       </Breadcrumbs>
     </div>
@@ -245,7 +252,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   return (
     <Box sx={{ p: 4 }}>
       <Stack spacing={4}>
-        <BreadcrumbsStyled />
+        <BreadcrumbStyled />
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
           <Loading />
