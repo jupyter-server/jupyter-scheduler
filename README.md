@@ -154,7 +154,7 @@ jupyter lab --SchedulerApp.drop_tables=True
 ```
 
 #### db_url
-The fully qualified url of the database, for example a SQLite database path will look like `sqlite:///<database-file-path>`.
+The fully qualified URL of the database. For example, a SQLite database path will look like `sqlite:///<database-file-path>`.
 ```
 jupyter lab --SchedulerApp.db_url=sqlite:///<database-file-path>
 ```
