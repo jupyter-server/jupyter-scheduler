@@ -166,7 +166,7 @@ jupyter lab --SchedulerApp.scheduler_class=jupyter_scheduler.scheduler.Scheduler
 ```
 
 #### environment_manager_class
-The fully classified classname to use for the environment manager. This class should extend from `jupyter_scheduler.environments.EnvironmentManager` and implement all abstract methods. Default class is `jupyter_scheduler.environments.CondaEnvironmentManager`.
+The fully classified classname to use for the environment manager. This class should extend `jupyter_scheduler.environments.EnvironmentManager` and implement all abstract methods. The default class is `jupyter_scheduler.environments.CondaEnvironmentManager`.
 ```
 jupyter lab --SchedulerApp.environment_manager_class=jupyter_scheduler.environments.CondaEnvironmentManager
 ```
