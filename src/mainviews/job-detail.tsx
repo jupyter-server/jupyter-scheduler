@@ -60,7 +60,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       inputFile: job?.inputFile ?? '',
       outputPath: job?.outputPath ?? '',
       environment: job?.environment ?? '',
-      ...job
+      parameters: job?.parameters
     };
 
     props.setCreateJobModel(initialState);

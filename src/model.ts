@@ -117,12 +117,11 @@ export function convertDescribeJobtoJobDetail(
   );
 
   // TODO: Convert outputFormats
-
   return {
     jobId: dj.job_id,
     jobName: dj.name ?? '',
     inputFile: dj.input_uri,
-    outputPath: dj.output_uri,
+    outputPath: dj.output_prefix,
     environment: dj.runtime_environment_name,
     parameters: jdParameters,
     outputFormats: [],
