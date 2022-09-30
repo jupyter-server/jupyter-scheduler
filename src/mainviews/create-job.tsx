@@ -320,6 +320,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             addParameter={addParameter}
             removeParameter={removeParameter}
             formPrefix={formPrefix}
+            errors={errors}
+            handleErrorsChange={setErrors}
           />
           <Accordion defaultExpanded={false}>
             <AccordionSummary
