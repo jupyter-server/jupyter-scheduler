@@ -234,6 +234,17 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           <FormLabel component="legend">
             {trans.__('Advanced Options')}
           </FormLabel>
+          <props.advancedOptions
+            jobsView={'JobDetail'}
+            model={props.model}
+            handleModelChange={model => {
+              return;
+            }}
+            errors={{}}
+            handleErrorsChange={errors => {
+              return;
+            }}
+          />
         </Stack>
       </CardContent>
     </Card>
