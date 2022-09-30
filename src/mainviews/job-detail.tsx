@@ -38,7 +38,7 @@ export interface IJobDetailProps {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
-  const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
+  const [job, setJob] = useState<IJobDetailModel | undefined>(undefined);
 
   const trans = useTranslator('jupyterlab');
 
@@ -46,12 +46,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const getJob = async () => {
     const jobFromService = await ss.getJob(props.model.jobId);
-    setJob(jobFromService);
     // Populate the model.
     props.handleModelChange({
       ...props.model,
       ...convertDescribeJobtoJobDetail(jobFromService)
     });
+    setJob(props.model);
     setLoading(false);
   };
 
