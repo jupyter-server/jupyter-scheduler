@@ -145,7 +145,7 @@ More information are provided within the [ui-tests](./ui-tests/README.md) README
 See [RELEASE](RELEASE.md)
 
 ### Configuring the extension
-The server extension comes with some configurable options, that helps with replacing the Scheduler server API, replacing the execution engine, re-creating database tables, selecting a database path. Here is the list of all options.
+You can configure the server extension to replace the Scheduler server API, replace the execution engine, re-create the database tables, and select a database path.
 
 #### drop_tables
 Setting this value to `True` will re-create the database tables on each JupyterLab start.
