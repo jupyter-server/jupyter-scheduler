@@ -63,7 +63,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     };
   };
 
-  const rerunJob = () => {
+  const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
       inputFile: job?.input_uri ?? '',
       jobName: job?.name ?? '',
@@ -124,7 +124,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {trans.__('Stop Job')}
         </Button>
       )}
-      <Button variant="outlined" onClick={rerunJob}>
+      <Button variant="outlined" onClick={handleRerunJob}>
         {trans.__('Rerun Job')}
       </Button>
       <Button variant="contained" color="error" onClick={handleDeleteJob}>
@@ -228,7 +228,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const BreadcrumbStyled = () => (
+  const BreadcrumbsStyled = () => (
     <div role="presentation">
       <Breadcrumbs aria-label="breadcrumb">
         <Link
@@ -252,7 +252,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   return (
     <Box sx={{ p: 4 }}>
       <Stack spacing={4}>
-        <BreadcrumbStyled />
+        <BreadcrumbsStyled />
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
           <Loading />
