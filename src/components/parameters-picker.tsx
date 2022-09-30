@@ -48,6 +48,13 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
     });
   };
 
+  const removeParameter = (idx: number) => {
+    props.removeParameter(idx);
+    // Update the errors: remove errors for this parameter,
+    // and move errors for subsequent parameters one higher.
+    return false;
+  };
+
   return (
     <Stack spacing={2}>
       <InputLabel>{props.label}</InputLabel>
@@ -79,10 +86,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
             />
             {/* The addedStyle will probably have to be changed again once MUI is restyled to have smaller text box height */}
             <DeleteButton
-              onClick={() => {
-                props.removeParameter(paramIdx);
-                return false;
-              }}
+              onClick={() => removeParameter(paramIdx)}
               title={trans.__('Delete this parameter')}
               addedStyle={{ marginTop: '12px' }}
             />
