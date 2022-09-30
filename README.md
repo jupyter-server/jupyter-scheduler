@@ -160,7 +160,7 @@ jupyter lab --SchedulerApp.db_url=sqlite:///<database-file-path>
 ```
 
 #### scheduler_class
-The fully classified classname to use for the scheduler api. This class should extend from `jupyter_scheduler.scheduler.BaseScheduler` and implement all abstract methods. Default class is `jupyter_scheduler.scheduler.Scheduler`.
+The fully classified classname to use for the scheduler API. This class should extend `jupyter_scheduler.scheduler.BaseScheduler` and implement all abstract methods. The default class is `jupyter_scheduler.scheduler.Scheduler`.
 ```
 jupyter lab --SchedulerApp.scheduler_class=jupyter_scheduler.scheduler.Scheduler
 ```
