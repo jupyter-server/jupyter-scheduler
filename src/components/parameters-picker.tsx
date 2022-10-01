@@ -7,7 +7,7 @@ import { Cluster } from '../components/cluster';
 import { IJobParameter } from '../model';
 import { useTranslator } from '../hooks';
 import { AddButton, DeleteButton } from './icon-buttons';
-import Scheduler from '../tokens';
+import { Scheduler } from '../tokens';
 
 export type ParametersPickerProps = {
   label: string;

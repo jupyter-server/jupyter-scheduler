@@ -5,7 +5,7 @@ import { FormLabel, Stack, TextField } from '@mui/material';
 import { Cluster } from './components/cluster';
 import { AddButton, DeleteButton } from './components/icon-buttons';
 import { useTranslator } from './hooks';
-import Scheduler from './tokens';
+import { Scheduler } from './tokens';
 
 const AdvancedOptions = (
   props: Scheduler.IAdvancedOptionsProps

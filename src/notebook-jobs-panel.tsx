@@ -14,7 +14,7 @@ import { NotebookJobsList } from './mainviews/list-jobs';
 import { JobDetail } from './mainviews/job-detail';
 import { ICreateJobModel, JobsModel } from './model';
 import { getJupyterLabTheme } from './theme-provider';
-import Scheduler from './tokens';
+import { Scheduler } from './tokens';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
