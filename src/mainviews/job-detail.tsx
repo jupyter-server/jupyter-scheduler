@@ -112,7 +112,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   );
 
   const ButtonBar = () => (
-    <Stack direction="row" spacing={1} justifyContent="flex-end">
+    <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
       {job?.status === 'IN_PROGRESS' && (
         <Button variant="outlined" onClick={handleStopJob}>
           {trans.__('Stop Job')}
@@ -127,50 +127,69 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
-  const coreOptionsFields: TextFieldProps[] = [
-    { defaultValue: job?.jobName ?? '', label: trans.__('Job name') },
-    { defaultValue: job?.jobId ?? '', label: trans.__('Job ID') },
-    {
-      defaultValue: job?.inputFile ?? '',
-      label: trans.__('Input file')
-    },
-    {
-      defaultValue: job?.outputPath ?? '',
-      label: trans.__('Output path')
-    },
-    {
-      defaultValue: job?.environment ?? '',
-      label: trans.__('Environment')
-    },
-    {
-      defaultValue: timestampLocalize(job?.createTime ?? ''),
-      label: trans.__('Create time')
-    },
-    {
-      defaultValue: timestampLocalize(job?.updateTime ?? ''),
-      label: trans.__('Update time')
-    },
-    {
-      defaultValue: timestampLocalize(job?.startTime ?? ''),
-      label: trans.__('Start time')
-    },
-    {
-      defaultValue: timestampLocalize(job?.endTime ?? ''),
-      label: trans.__('End time')
-    },
-    { defaultValue: job?.status ?? '', label: trans.__('Status') }
+  const coreOptionsFields: TextFieldProps[][] = [
+    [
+      { defaultValue: job?.jobName ?? '', label: trans.__('Job name') },
+      { defaultValue: job?.jobId ?? '', label: trans.__('Job ID') }
+    ],
+    [
+      {
+        defaultValue: job?.inputFile ?? '',
+        label: trans.__('Input file')
+      },
+      {
+        defaultValue: job?.outputPath ?? '',
+        label: trans.__('Output path')
+      }
+    ],
+    [
+      {
+        defaultValue: job?.environment ?? '',
+        label: trans.__('Environment')
+      },
+      { defaultValue: job?.status ?? '', label: trans.__('Status') }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(job?.createTime ?? ''),
+        label: trans.__('Create time')
+      },
+      {
+        defaultValue: timestampLocalize(job?.updateTime ?? ''),
+        label: trans.__('Update time')
+      }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(job?.startTime ?? ''),
+        label: trans.__('Start time')
+      },
+      {
+        defaultValue: timestampLocalize(job?.endTime ?? ''),
+        label: trans.__('End time')
+      }
+    ]
   ];
 
   const CoreOptions = () => (
     <Card>
       <CardContent>
-        <Grid container spacing={4}>
-          {coreOptionsFields.map(textFieldProps => (
-            <Grid key={textFieldProps.defaultValue as string} xs={12} md={6}>
-              <TextFieldStyled {...textFieldProps} />
-            </Grid>
+        <Stack spacing={4}>
+          {coreOptionsFields.map(propsRow => (
+            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {propsRow.map(textProp => (
+                <TextFieldStyled
+                  {...textProp}
+                  style={{
+                    flexGrow: 1,
+                    flexBasis: 'min-content',
+                    flexShrink: 1
+                  }}
+                />
+              ))}
+            </Stack>
           ))}
-        </Grid>
+        </Stack>
       </CardContent>
     </Card>
   );
