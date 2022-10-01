@@ -102,7 +102,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   }, [job?.jobName]);
 
   const TextFieldStyled = (props: TextFieldProps) => (
-    <TextField {...props} variant="outlined" disabled fullWidth />
+    <TextField {...props} variant="outlined" disabled />
   );
 
   const Loading = () => (
@@ -181,9 +181,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 <TextFieldStyled
                   {...textProp}
                   style={{
-                    flexGrow: 1,
-                    flexBasis: 'min-content',
-                    flexShrink: 1
+                    flexGrow: 1
                   }}
                 />
               ))}
