@@ -26,7 +26,7 @@ import {
   calendarMonthIcon,
   eventNoteIcon
 } from './components/icons';
-import Scheduler from './tokens';
+import { Scheduler } from './tokens';
 import AdvancedOptions from './advanced-options';
 
 export namespace CommandIDs {
@@ -37,6 +37,7 @@ export namespace CommandIDs {
 }
 
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
+export { Scheduler } from './tokens'
 
 /**
  * Initialization data for the jupyterlab-scheduler extension.

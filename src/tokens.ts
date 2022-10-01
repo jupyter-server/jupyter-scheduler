@@ -1,7 +1,7 @@
 import { Token } from '@lumino/coreutils';
 import { ICreateJobModel, IJobDetailModel, JobsView } from './model';
 
-namespace Scheduler {
+export namespace Scheduler {
   export type EnvironmentParameterValue = string | number | boolean;
 
   export type ErrorsType = { [key: string]: string };
@@ -20,5 +20,3 @@ namespace Scheduler {
     '@jupyterlab/scheduler:IAdvancedOptions'
   );
 }
-
-export default Scheduler;

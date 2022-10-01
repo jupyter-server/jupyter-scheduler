@@ -12,7 +12,7 @@ import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IOutputFormat } from '../model';
-import SchedulerTokens from '../tokens';
+import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';

@@ -31,7 +31,7 @@ import { caretDownIcon } from '@jupyterlab/ui-components';
 import { Heading } from '../components/heading';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
-import SchedulerTokens from '../tokens';
+import { Scheduler as SchedulerTokens } from '../tokens';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
