@@ -17,7 +17,7 @@ const AdvancedOptions = (
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) =>
     props.handleModelChange({
       ...props.model,
-      [e.target.value]: e.target.name
+      [e.target.name]: e.target.value
     });
 
   const handleTagChange = (event: ChangeEvent<HTMLInputElement>) => {
