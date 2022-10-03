@@ -100,7 +100,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     }
   };
 
-  const Loading = () => (
+  const Loading = (
     <Stack direction="row" justifyContent="center">
       <CircularProgress title={trans.__('Loading')} />
     </Stack>
@@ -125,7 +125,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </div>
   );
 
-  const ButtonBar = () => (
+  const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
       {props.model.status === 'IN_PROGRESS' && (
         <Button variant="outlined" onClick={handleStopJob}>
@@ -213,7 +213,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     );
   }
 
-  const CoreOptions = () => (
+  const CoreOptions = (
     <Card>
       <CardContent>
         <Stack spacing={4}>
@@ -248,7 +248,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const Parameters = () => (
+  const Parameters = (
     <Card>
       <CardContent>
         <FormLabel sx={{ mb: 4 }} component="legend">
@@ -279,7 +279,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const AdvancedOptions = () => (
+  const AdvancedOptions = (
     <Card>
       <CardContent>
         <Stack component="form" spacing={4}>
@@ -312,13 +312,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         <BreadcrumbsStyled />
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
-          <Loading />
+          Loading
         ) : (
           <>
-            <ButtonBar />
-            <CoreOptions />
-            <Parameters />
-            <AdvancedOptions />
+            {ButtonBar}
+            {CoreOptions}
+            {Parameters}
+            {AdvancedOptions}
           </>
         )}
       </Stack>
