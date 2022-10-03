@@ -1,5 +1,6 @@
-import { InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import React from 'react';
+
+import { InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';

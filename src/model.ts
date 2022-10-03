@@ -82,6 +82,8 @@ export interface ICreateJobModel {
   inputFile: string;
   outputPath: string;
   environment: string;
+  // A "job" runs now; a "job definition" runs on a schedule
+  createType: 'Job' | 'JobDefinition';
   parameters?: IJobParameter[];
   outputFormats?: IOutputFormat[];
   computeType?: string;
@@ -119,6 +121,7 @@ export function convertDescribeJobtoJobDetail(
 
   // TODO: Convert outputFormats
   return {
+    createType: 'Job',
     jobId: dj.job_id,
     jobName: dj.name ?? '',
     inputFile: dj.input_uri,
@@ -226,7 +229,8 @@ namespace Private {
       jobName: '',
       inputFile: '',
       outputPath: '',
-      environment: ''
+      environment: '',
+      createType: 'Job'
     };
   }
 }

@@ -27,6 +27,7 @@ import {
 } from '@mui/material';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
+import { CreateScheduleOptions } from '../components/create-schedule-options';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -160,6 +161,24 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // If no change in checkedness, don't do anything
   };
 
+  const handleScheduleOptionsChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string
+  ) => {
+    const name = event.target.name;
+
+    props.handleModelChange({ ...props.model, [name]: value });
+  };
+
+  const submitForm = async (event: React.MouseEvent) => {
+    switch (props.model.createType) {
+      case 'Job':
+        return submitCreateJobRequest(event);
+      case 'JobDefinition':
+        return submitCreateJobDefinitionRequest(event);
+    }
+  };
+
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
     if (anyErrors) {
       console.error(
@@ -210,6 +229,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     api.createJob(jobOptions).then(response => {
       props.toggleView();
     });
+  };
+
+  const submitCreateJobDefinitionRequest = async (event: React.MouseEvent) => {
+    alert('submitCreateJobDefinitionRequest not implemented yet');
   };
 
   const removeParameter = (idx: number) => {
@@ -367,6 +390,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               />
             </AccordionDetails>
           </Accordion>
+          <CreateScheduleOptions
+            label={trans.__('Schedule')}
+            name={'createType'}
+            id={`${formPrefix}createType`}
+            value={props.model.createType}
+            onChange={handleScheduleOptionsChange}
+          />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
@@ -374,7 +404,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             <Button
               variant="contained"
               onClick={(e: React.MouseEvent) => {
-                submitCreateJobRequest(e);
+                submitForm(e);
                 return false;
               }}
               disabled={anyErrors}

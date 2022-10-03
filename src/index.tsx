@@ -204,7 +204,8 @@ async function activatePlugin(
         inputFile: filePath,
         jobName: fileName,
         outputPath: '',
-        environment: ''
+        environment: '',
+        createType: 'Job'
       };
 
       model.createJobModel = newModel;

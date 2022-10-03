@@ -65,11 +65,19 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
-      jobName: props.model.jobName,
-      inputFile: props.model.inputFile,
-      outputPath: props.model.outputPrefix ?? '',
-      environment: props.model.environment,
-      parameters: props.model.parameters
+      inputFile: job?.input_uri ?? '',
+      jobName: job?.name ?? '',
+      outputPath: job?.output_prefix ?? '',
+      environment: job?.runtime_environment_name ?? '',
+      createType: 'Job',
+      parameters:
+        job && job.parameters
+          ? Object.keys(job.parameters).map(key => getParam(key))
+          : undefined,
+      outputFormats: job?.output_formats?.map(format => ({
+        name: format,
+        label: format
+      }))
     };
 
     props.setCreateJobModel(initialState);
