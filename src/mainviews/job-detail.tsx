@@ -259,8 +259,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         </FormLabel>
         <Stack spacing={4}>
           {props.model.parameters &&
-            props.model.parameters.map(parameter => (
-              <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+            props.model.parameters.map((parameter, idx) => (
+              <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
                 <TextFieldStyled
                   label={trans.__('Parameter name')}
                   defaultValue={parameter.name}
