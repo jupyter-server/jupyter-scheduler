@@ -100,13 +100,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     }
   };
 
-  const Loading = () => (
+  const Loading: JSX.Element = (
     <Stack direction="row" justifyContent="center">
       <CircularProgress title={trans.__('Loading')} />
     </Stack>
   );
 
-  const BreadcrumbsStyled = () => (
+  const BreadcrumbsStyled: JSX.Element = (
     <div role="presentation">
       <Breadcrumbs aria-label="breadcrumb">
         <Link
@@ -125,7 +125,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </div>
   );
 
-  const ButtonBar = () => (
+  const ButtonBar: JSX.Element = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
       {props.model.status === 'IN_PROGRESS' && (
         <Button variant="outlined" onClick={handleStopJob}>
@@ -214,7 +214,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     );
   }
 
-  const CoreOptions = () => (
+  const CoreOptions: JSX.Element = (
     <Card>
       <CardContent>
         <Stack spacing={4}>
@@ -251,7 +251,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const Parameters = () => (
+  const Parameters: JSX.Element = (
     <Card>
       <CardContent>
         <FormLabel sx={{ mb: 4 }} component="legend">
@@ -282,7 +282,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const AdvancedOptions = () => (
+  const AdvancedOptions: JSX.Element = (
     <Card>
       <CardContent>
         <Stack component="form" spacing={4}>
@@ -312,16 +312,16 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   return (
     <Box sx={{ p: 4 }}>
       <Stack spacing={4}>
-        <BreadcrumbsStyled />
+        {BreadcrumbsStyled}
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
-          <Loading />
+          { Loading }
         ) : (
           <>
-            <ButtonBar />
-            <CoreOptions />
-            <Parameters />
-            <AdvancedOptions />
+            {ButtonBar}
+            {CoreOptions}
+            {Parameters}
+            {AdvancedOptions}
           </>
         )}
       </Stack>
