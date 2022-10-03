@@ -1,37 +1,32 @@
 import React, { useEffect, useState } from 'react';
+
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
   convertDescribeJobtoJobDetail,
   ICreateJobModel,
   IJobDetailModel,
   JobsView
 } from '../model';
+import { useTranslator } from '../hooks';
+import { Heading } from '../components/heading';
+import { SchedulerService } from '../handler';
+import { Scheduler } from '../tokens';
+
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Accordion from '@mui/material/Accordion';
+
 import {
-  AccordionDetails,
-  AccordionSummary,
-  Checkbox,
+  Card,
+  CardContent,
   CircularProgress,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
   FormLabel,
-  OutlinedInputProps,
   TextField,
+  TextFieldProps,
   Typography
 } from '@mui/material';
-
-import { JupyterFrontEnd } from '@jupyterlab/application';
-import { caretDownIcon } from '@jupyterlab/ui-components';
-
-import { Heading } from '../components/heading';
-import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
-import { Scheduler as SchedulerTokens } from '../tokens';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -40,56 +35,41 @@ export interface IJobDetailProps {
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
-  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 }
 
-interface ITextFieldStyledProps {
-  label: string;
-  defaultValue?: string;
-  InputProps?: Partial<OutlinedInputProps> | undefined;
-}
+const TextFieldStyled = (props: TextFieldProps) => (
+  <TextField {...props} variant="outlined" InputProps={{ readOnly: true }} />
+);
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
-  const [job, setJob] = useState<Scheduler.IDescribeJob | undefined>(undefined);
+  const [outputFormatsStrings, setOutputFormatsStrings] = useState<string[]>(
+    []
+  );
 
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
 
-  const getJob = async () => {
+  const updateJob = async () => {
     const jobFromService = await ss.getJob(props.model.jobId);
-    setJob(jobFromService);
-    // Populate the model.
-    props.handleModelChange({
+    setOutputFormatsStrings(jobFromService.output_formats ?? []);
+    const newModel = {
       ...props.model,
       ...convertDescribeJobtoJobDetail(jobFromService)
-    });
+    };
+    props.handleModelChange(newModel);
     setLoading(false);
   };
 
-  // Retrieve the key from the parameters list or return a parameter with a null value
-  const getParam = (key: string) => {
-    return {
-      name: key,
-      value: job?.parameters?.[key]
-    };
-  };
-
-  const rerunJob = () => {
+  const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
-      inputFile: job?.input_uri ?? '',
-      jobName: job?.name ?? '',
-      outputPath: job?.output_prefix ?? '',
-      environment: job?.runtime_environment_name ?? '',
-      parameters:
-        job && job.parameters
-          ? Object.keys(job.parameters).map(key => getParam(key))
-          : undefined,
-      outputFormats: job?.output_formats?.map(format => ({
-        name: format,
-        label: format
-      }))
+      jobName: props.model.jobName,
+      inputFile: props.model.inputFile,
+      outputPath: props.model.outputPrefix ?? '',
+      environment: props.model.environment,
+      parameters: props.model.parameters
     };
 
     props.setCreateJobModel(initialState);
@@ -97,15 +77,15 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   const handleDeleteJob = async () => {
-    await ss.deleteJob(job?.job_id ?? '');
+    await ss.deleteJob(props.model.jobId ?? '');
     props.setView('ListJobs');
   };
 
   const handleStopJob = async () => {
-    props.app.commands.execute('scheduling:stop-job', {
-      id: job?.job_id
+    await props.app.commands.execute('scheduling:stop-job', {
+      id: props.model.jobId
     });
-    getJob();
+    updateJob();
   };
 
   const timestampLocalize = (time: number | '') => {
@@ -120,201 +100,228 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    getJob();
-  }, []);
+  const Loading = (
+    <Stack direction="row" justifyContent="center">
+      <CircularProgress title={trans.__('Loading')} />
+    </Stack>
+  );
 
-  function TextFieldStyled(props: ITextFieldStyledProps) {
+  const BreadcrumbsStyled = () => (
+    <div role="presentation">
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link
+          underline="hover"
+          color="inherit"
+          onClick={(
+            _:
+              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+              | React.MouseEvent<HTMLSpanElement, MouseEvent>
+          ): void => props.setView('ListJobs')}
+        >
+          {trans.__('Notebook Jobs')}
+        </Link>
+        <Typography color="text.primary">{props.model.jobName}</Typography>
+      </Breadcrumbs>
+    </div>
+  );
+
+  const ButtonBar = (
+    <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+      {props.model.status === 'IN_PROGRESS' && (
+        <Button variant="outlined" onClick={handleStopJob}>
+          {trans.__('Stop Job')}
+        </Button>
+      )}
+      <Button variant="outlined" onClick={handleRerunJob}>
+        {trans.__('Rerun Job')}
+      </Button>
+      <Button variant="contained" color="error" onClick={handleDeleteJob}>
+        {trans.__('Delete Job')}
+      </Button>
+    </Stack>
+  );
+
+  const coreOptionsFields: TextFieldProps[][] = [
+    [
+      { defaultValue: props.model.jobName, label: trans.__('Job name') },
+      { defaultValue: props.model.jobId, label: trans.__('Job ID') }
+    ],
+    [
+      {
+        defaultValue: props.model.inputFile,
+        label: trans.__('Input file')
+      },
+      {
+        defaultValue: props.model.outputPath,
+        label: trans.__('Output path')
+      }
+    ],
+    [
+      {
+        defaultValue: props.model.environment,
+        label: trans.__('Environment')
+      },
+      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        label: trans.__('Created at')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        label: trans.__('Updated at')
+      }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(props.model.startTime ?? ''),
+        label: trans.__('Start time')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.endTime ?? ''),
+        label: trans.__('End time')
+      }
+    ]
+  ];
+
+  function OutputFile(props: {
+    outputType: string;
+    app: JupyterFrontEnd;
+    outputPath: string;
+  }) {
+    const outputName = props.outputPath.replace(/ipynb$/, props.outputType);
     return (
-      <TextField
-        {...props}
-        label={props.label}
-        defaultValue={props.defaultValue}
-        variant="outlined"
-        disabled
-      />
+      <Link
+        key={props.outputType}
+        href={`/lab/tree/${outputName}`}
+        title={trans.__('Open "%1"', outputName)}
+        onClick={(
+          e:
+            | React.MouseEvent<HTMLSpanElement, MouseEvent>
+            | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+        ) => {
+          e.preventDefault();
+          props.app.commands.execute('docmanager:open', {
+            path: outputName
+          });
+        }}
+        style={{ paddingRight: '1em' }}
+      >
+        {outputName}
+      </Link>
     );
   }
 
-  function MainArea() {
-    if (loading) {
-      return (
-        <Stack direction="row" justifyContent="center">
-          <CircularProgress title={trans.__('Loading')} />
+  const CoreOptions = (
+    <Card>
+      <CardContent>
+        <Stack spacing={4}>
+          {coreOptionsFields.map(propsRow => (
+            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {propsRow.map(textProp => (
+                <TextFieldStyled
+                  {...textProp}
+                  style={{
+                    flexGrow: 1
+                  }}
+                />
+              ))}
+            </Stack>
+          ))}
+          {props.model.status === 'COMPLETED' && (
+            <>
+              <FormLabel component="legend">
+                {trans.__('Output files')}
+              </FormLabel>
+              {outputFormatsStrings.map(outputFormatString => (
+                <OutputFile
+                  outputType={outputFormatString}
+                  app={props.app}
+                  outputPath={props.model.outputPath}
+                />
+              ))}
+            </>
+          )}
         </Stack>
-      );
-    } else {
-      return (
-        <>
-          <Stack direction="row" spacing={1} justifyContent="flex-end">
-            {job?.status === 'IN_PROGRESS' && (
-              <Button variant="outlined" onClick={handleStopJob}>
-                {trans.__('Stop Job')}
-              </Button>
-            )}
-            <Button variant="outlined" onClick={rerunJob}>
-              {trans.__('Rerun Job')}
-            </Button>
-            <Button variant="contained" color="error" onClick={handleDeleteJob}>
-              {trans.__('Delete Job')}
-            </Button>
-          </Stack>
-          <Stack spacing={4}>
-            <TextFieldStyled
-              label={trans.__('Job name')}
-              defaultValue={job?.name ?? ''}
-            />
-            <TextFieldStyled
-              label={trans.__('Input file')}
-              defaultValue={job?.input_uri ?? ''}
-            />
-            <TextFieldStyled
-              label={trans.__('Output path')}
-              defaultValue={job?.output_uri ?? ''}
-            />
-            <TextFieldStyled
-              label={trans.__('Environment')}
-              defaultValue={job?.runtime_environment_name ?? ''}
-            />
-            <FormControl component="fieldset">
-              <FormLabel component="legend">
-                {trans.__('Output formats')}
-              </FormLabel>
-              <FormGroup style={{ display: 'flex', flexDirection: 'row' }}>
-                {job?.output_formats &&
-                  job?.output_formats.map(format => (
-                    <FormControlLabel
-                      key={format}
-                      control={<Checkbox checked={true} disabled />}
-                      label={format}
-                    />
-                  ))}
-              </FormGroup>
-            </FormControl>
-            <TextFieldStyled
-              label={trans.__('Compute type')}
-              defaultValue={job?.compute_type ?? ''}
-            />
-            <TextFieldStyled
-              label={trans.__('Status')}
-              defaultValue={job?.status ?? ''}
-            />
-            <Accordion defaultExpanded={true}>
-              <AccordionSummary
-                expandIcon={<caretDownIcon.react />}
-                aria-controls="panel-content"
-                id="panel-header"
-              >
-                <FormLabel component="legend">
-                  {trans.__('Parameters')}
-                </FormLabel>
-              </AccordionSummary>
-              <AccordionDetails id="panel-content">
-                <Stack spacing={4}>
-                  {Object.entries(job?.parameters ?? {}).map(
-                    ([parameter, value]) => (
-                      <Stack key={parameter} direction="row" spacing={1}>
-                        <TextFieldStyled
-                          label={trans.__('Parameter')}
-                          defaultValue={parameter}
-                          InputProps={{
-                            readOnly: true
-                          }}
-                        />
-                        <TextFieldStyled
-                          label={trans.__('Value')}
-                          defaultValue={value}
-                        />
-                      </Stack>
-                    )
-                  )}
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-          </Stack>
+      </CardContent>
+    </Card>
+  );
 
-          <Accordion defaultExpanded={true}>
-            <AccordionSummary
-              expandIcon={<caretDownIcon.react />}
-              aria-controls="panel-content"
-              id="panel-header"
-            >
-              <FormLabel component="legend">
-                {trans.__('Additional options')}
-              </FormLabel>
-            </AccordionSummary>
-            <AccordionDetails id="panel-content">
-              <Stack spacing={4}>
+  const Parameters = (
+    <Card>
+      <CardContent>
+        <FormLabel sx={{ mb: 4 }} component="legend">
+          {trans.__('Parameters')}
+        </FormLabel>
+        <Stack spacing={4}>
+          {props.model.parameters &&
+            props.model.parameters.map((parameter, idx) => (
+              <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
                 <TextFieldStyled
-                  label={trans.__('Create time')}
-                  defaultValue={timestampLocalize(job?.create_time ?? '')}
+                  label={trans.__('Parameter name')}
+                  defaultValue={parameter.name}
+                  style={{
+                    flexGrow: 1
+                  }}
                 />
                 <TextFieldStyled
-                  label={trans.__('Start time')}
-                  defaultValue={timestampLocalize(job?.start_time ?? '')}
-                />
-                <TextFieldStyled
-                  label={trans.__('End time')}
-                  defaultValue={timestampLocalize(job?.end_time ?? '')}
+                  label={trans.__('Parameter value')}
+                  defaultValue={parameter.value}
+                  style={{
+                    flexGrow: 1
+                  }}
                 />
               </Stack>
-            </AccordionDetails>
-          </Accordion>
+            ))}
+        </Stack>
+      </CardContent>
+    </Card>
+  );
 
-          <Accordion defaultExpanded={true}>
-            <AccordionSummary
-              expandIcon={<caretDownIcon.react />}
-              aria-controls="panel-content"
-              id="panel-header"
-            >
-              <FormLabel component="legend">
-                {trans.__('Advanced options')}
-              </FormLabel>
-            </AccordionSummary>
-            <AccordionDetails id="panel-content">
-              {/* Read-only */}
-              <props.advancedOptions
-                jobsView={'JobDetail'}
-                model={props.model}
-                handleModelChange={model => {
-                  return;
-                }}
-                errors={{}}
-                handleErrorsChange={errors => {
-                  return;
-                }}
-              />
-            </AccordionDetails>
-          </Accordion>
-        </>
-      );
-    }
-  }
+  const AdvancedOptions = (
+    <Card>
+      <CardContent>
+        <Stack component="form" spacing={4}>
+          <FormLabel component="legend">
+            {trans.__('Advanced Options')}
+          </FormLabel>
+          <props.advancedOptions
+            jobsView={'JobDetail'}
+            model={props.model}
+            handleModelChange={model => {
+              return;
+            }}
+            errors={{}}
+            handleErrorsChange={errors => {
+              return;
+            }}
+          />
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
+  useEffect(() => {
+    updateJob();
+  }, []);
 
   return (
-    <>
-      <Box sx={{ maxWidth: '500px', p: 4 }}>
-        <Stack spacing={4}>
-          <div role="presentation">
-            <Breadcrumbs aria-label="breadcrumb">
-              <Link
-                underline="hover"
-                color="inherit"
-                onClick={(
-                  _:
-                    | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-                    | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                ): void => props.setView('ListJobs')}
-              >
-                {trans.__('Notebook Jobs')}
-              </Link>
-              <Typography color="text.primary">{props.model.jobId}</Typography>
-            </Breadcrumbs>
-          </div>
-          <Heading level={1}>{trans.__('Job Detail')}</Heading>
-          <MainArea />
-        </Stack>
-      </Box>
-    </>
+    <Box sx={{ p: 4 }}>
+      <Stack spacing={4}>
+        <BreadcrumbsStyled />
+        <Heading level={1}>{trans.__('Job Detail')}</Heading>
+        {loading ? (
+          Loading
+        ) : (
+          <>
+            {ButtonBar}
+            {CoreOptions}
+            {Parameters}
+            {AdvancedOptions}
+          </>
+        )}
+      </Stack>
+    </Box>
   );
 }

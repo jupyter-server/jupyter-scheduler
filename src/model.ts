@@ -95,6 +95,12 @@ export interface IListJobsModel {
 
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
+  status?: Scheduler.Status;
+  createTime?: number;
+  updateTime?: number;
+  startTime?: number;
+  endTime?: number;
+  outputPrefix?: string;
 }
 
 // Convert an IDescribeJobModel to an IJobDetailModel
@@ -112,18 +118,23 @@ export function convertDescribeJobtoJobDetail(
   );
 
   // TODO: Convert outputFormats
-
   return {
     jobId: dj.job_id,
     jobName: dj.name ?? '',
     inputFile: dj.input_uri,
     outputPath: dj.output_uri,
+    outputPrefix: dj.output_prefix,
     environment: dj.runtime_environment_name,
     parameters: jdParameters,
     outputFormats: [],
     computeType: dj.compute_type,
     idempotencyToken: dj.idempotency_token,
-    tags: dj.tags
+    tags: dj.tags,
+    status: dj.status,
+    createTime: dj.create_time,
+    updateTime: dj.update_time,
+    startTime: dj.start_time,
+    endTime: dj.end_time
   };
 }
 
