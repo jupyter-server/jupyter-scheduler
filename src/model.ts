@@ -89,6 +89,10 @@ export interface ICreateJobModel {
   computeType?: string;
   idempotencyToken?: string;
   tags?: string[];
+  // String for schedule in cron format
+  schedule?: string;
+  // String for timezone in tz database format
+  timezone?: string;
 }
 
 export interface IListJobsModel {

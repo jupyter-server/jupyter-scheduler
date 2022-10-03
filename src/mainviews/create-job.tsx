@@ -394,8 +394,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             label={trans.__('Schedule')}
             name={'createType'}
             id={`${formPrefix}createType`}
-            value={props.model.createType}
-            onChange={handleScheduleOptionsChange}
+            createType={props.model.createType}
+            handleCreateTypeChange={handleScheduleOptionsChange}
+            handleScheduleChange={handleInputChange}
+            handleTimezoneChange={handleInputChange}
           />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>

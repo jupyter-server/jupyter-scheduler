@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 
 import {
   FormControlLabel,
@@ -10,13 +10,21 @@ import {
 import Stack from '@mui/system/Stack';
 
 import { useTranslator } from '../hooks';
+import { ScheduleInputs } from './schedule-inputs';
 
 export type CreateScheduleOptionsProps = {
   label: string;
   name: string;
   id: string;
-  value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>, value: string) => void;
+  createType: string;
+  schedule?: string;
+  timezone?: string;
+  handleCreateTypeChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string
+  ) => void;
+  handleScheduleChange: (event: ChangeEvent) => void;
+  handleTimezoneChange: (event: ChangeEvent) => void;
 };
 
 export function CreateScheduleOptions(
@@ -32,8 +40,8 @@ export function CreateScheduleOptions(
       <RadioGroup
         aria-labelledby={labelId}
         name={props.name}
-        value={props.value}
-        onChange={props.onChange}
+        value={props.createType}
+        onChange={props.handleCreateTypeChange}
       >
         <FormControlLabel
           value="Job"
@@ -52,6 +60,15 @@ export function CreateScheduleOptions(
           {trans.__('Schedule a notebook at a regular interval')}
         </Typography>
       </RadioGroup>
+      {props.createType === 'JobDefinition' && (
+        <ScheduleInputs
+          idPrefix={`${props.id}-definition-`}
+          schedule={props.schedule}
+          timezone={props.timezone}
+          handleScheduleChange={props.handleScheduleChange}
+          handleTimezoneChange={props.handleTimezoneChange}
+        />
+      )}
     </Stack>
   );
 }
