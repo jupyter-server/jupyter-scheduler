@@ -109,7 +109,6 @@ const AdvancedOptions = (
             InputProps={{
               readOnly: true
             }}
-            disabled
           />
         ))}
       </Stack>
@@ -129,7 +128,7 @@ const AdvancedOptions = (
         value={props.model.idempotencyToken}
         id={`${formPrefix}idempotencyToken`}
         name="idempotencyToken"
-        disabled={props.jobsView !== 'CreateJob'}
+        InputProps={{ readOnly: props.jobsView !== 'CreateJob' }}
       />
       <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
       {tagsDisplay}
