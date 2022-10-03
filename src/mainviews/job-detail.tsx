@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
+
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
   convertDescribeJobtoJobDetail,
   ICreateJobModel,
   IJobDetailModel,
   JobsView
 } from '../model';
+
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
+
 import {
   Card,
   CardContent,
@@ -22,7 +26,6 @@ import {
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 export interface IJobDetailProps {
