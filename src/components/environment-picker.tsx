@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
@@ -24,10 +24,11 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
   const labelId = `${props.id}-label`;
 
   return (
-    <>
+    <FormControl>
       <InputLabel id={labelId}>{props.label}</InputLabel>
       <Select
         labelId={labelId}
+        label={props.label}
         name={props.name}
         id={props.id}
         onChange={props.onChange}
@@ -39,6 +40,6 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
           </MenuItem>
         ))}
       </Select>
-    </>
+    </FormControl>
   );
 }
