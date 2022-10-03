@@ -23,7 +23,6 @@ import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import Grid from '@mui/material/Unstable_Grid2';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 export interface IJobDetailProps {
@@ -57,7 +56,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     const initialState: ICreateJobModel = {
       jobName: props.model.jobName,
       inputFile: props.model.inputFile,
-      outputPath: props.model.outputPrefix ?? '',
+      outputPath: '',
       environment: props.model.environment,
       parameters: props.model.parameters
     };
@@ -100,13 +99,32 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
+  const BreadcrumbsStyled = () => (
+    <div role="presentation">
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link
+          underline="hover"
+          color="inherit"
+          onClick={(
+            _:
+              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+              | React.MouseEvent<HTMLSpanElement, MouseEvent>
+          ): void => props.setView('ListJobs')}
+        >
+          {trans.__('Notebook Jobs')}
+        </Link>
+        <Typography color="text.primary">{props.model.jobName}</Typography>
+      </Breadcrumbs>
+    </div>
+  );
+
   const ButtonBar = () => (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {props.model.status === 'IN_PROGRESS' && (
+      {
         <Button variant="outlined" onClick={handleStopJob}>
           {trans.__('Stop Job')}
         </Button>
-      )}
+      }
       <Button variant="outlined" onClick={handleRerunJob}>
         {trans.__('Rerun Job')}
       </Button>
@@ -135,29 +153,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {
         defaultValue: props.model.environment,
         label: trans.__('Environment')
-      },
-      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
-    ],
-    [
-      {
-        defaultValue: timestampLocalize(props.model.createTime ?? ''),
-        label: trans.__('Create time')
-      },
-      {
-        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
-        label: trans.__('Update time')
       }
     ],
-    [
-      {
-        defaultValue: timestampLocalize(props.model.startTime ?? ''),
-        label: trans.__('Start time')
-      },
-      {
-        defaultValue: timestampLocalize(props.model.endTime ?? ''),
-        label: trans.__('End time')
-      }
-    ]
+    []
   ];
 
   const CoreOptions = () => (
@@ -187,25 +185,27 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         <FormLabel sx={{ mb: 4 }} component="legend">
           {trans.__('Parameters')}
         </FormLabel>
-        <Grid container spacing={4}>
+        <Stack spacing={4}>
           {props.model.parameters &&
             props.model.parameters.map(parameter => (
-              <React.Fragment key={parameter.name}>
-                <Grid xs={12} md={6}>
-                  <TextFieldStyled
-                    label={trans.__('Parameter name')}
-                    defaultValue={parameter.name}
-                  />
-                </Grid>
-                <Grid xs={12} md={6}>
-                  <TextFieldStyled
-                    label={trans.__('Parameter value')}
-                    defaultValue={parameter.value}
-                  />
-                </Grid>
-              </React.Fragment>
+              <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+                <TextFieldStyled
+                  label={trans.__('Parameter name')}
+                  defaultValue={parameter.name}
+                  style={{
+                    flexGrow: 1
+                  }}
+                />
+                <TextFieldStyled
+                  label={trans.__('Parameter value')}
+                  defaultValue={parameter.value}
+                  style={{
+                    flexGrow: 1
+                  }}
+                />
+              </Stack>
             ))}
-        </Grid>
+        </Stack>
       </CardContent>
     </Card>
   );
@@ -231,25 +231,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         </Stack>
       </CardContent>
     </Card>
-  );
-
-  const BreadcrumbsStyled = () => (
-    <div role="presentation">
-      <Breadcrumbs aria-label="breadcrumb">
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={(
-            _:
-              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-              | React.MouseEvent<HTMLSpanElement, MouseEvent>
-          ): void => props.setView('ListJobs')}
-        >
-          {trans.__('Notebook Jobs')}
-        </Link>
-        <Typography color="text.primary">{props.model.jobName}</Typography>
-      </Breadcrumbs>
-    </div>
   );
 
   useEffect(() => {
