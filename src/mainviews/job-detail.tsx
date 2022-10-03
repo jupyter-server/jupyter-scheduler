@@ -78,7 +78,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   const handleStopJob = async () => {
-    props.app.commands.execute('scheduling:stop-job', {
+    await props.app.commands.execute('scheduling:stop-job', {
       id: props.model.jobId
     });
     updateJob();
