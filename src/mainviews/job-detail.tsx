@@ -188,24 +188,23 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {trans.__('Parameters')}
         </FormLabel>
         <Grid container spacing={4}>
-          {Object.entries(props.model.parameters ?? {}).map(
-            ([parameter, value]) => (
-              <React.Fragment key={parameter}>
+          {props.model.parameters &&
+            props.model.parameters.map(parameter => (
+              <React.Fragment key={parameter.name}>
                 <Grid xs={12} md={6}>
                   <TextFieldStyled
                     label={trans.__('Parameter name')}
-                    defaultValue={parameter}
+                    defaultValue={parameter.name}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
                   <TextFieldStyled
                     label={trans.__('Parameter value')}
-                    defaultValue={value}
+                    defaultValue={parameter.value}
                   />
                 </Grid>
               </React.Fragment>
-            )
-          )}
+            ))}
         </Grid>
       </CardContent>
     </Card>
