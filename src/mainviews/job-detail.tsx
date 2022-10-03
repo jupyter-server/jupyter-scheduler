@@ -170,7 +170,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       },
       {
         defaultValue: timestampLocalize(props.model.updateTime ?? ''),
-        label: trans.__('Update time')
+        label: trans.__('Updated at')
       }
     ],
     [
