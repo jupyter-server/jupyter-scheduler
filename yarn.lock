@@ -9683,6 +9683,11 @@ typestyle@^2.0.4:
     csstype "3.0.10"
     free-style "3.1.0"
 
+tzdata@^1.0.33:
+  version "1.0.33"
+  resolved "https://registry.yarnpkg.com/tzdata/-/tzdata-1.0.33.tgz#a54f6b57b57fb835ba9bc21bbad8a4cbb6a0316e"
+  integrity sha512-uTF/a+mn8vYMLboIcySAG1vYaI28LgvRPUlrPtcs2kwNTAG4LLowRWhC5yTbxOhsC6Ie9L36dI9pmGW2I0G3sQ==
+
 uglify-js@3.4.x:
   version "3.4.10"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.4.10.tgz#9ad9563d8eb3acdfb8d38597d2af1d815f6a755f"
