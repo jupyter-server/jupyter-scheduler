@@ -145,6 +145,9 @@ class Scheduler(BaseScheduler):
             if job:
                 return job.job_id
 
+            if not model.output_formats:
+                model.output_formats = ["ipynb"]
+
             job = Job(**model.dict(exclude_none=True))
             session.add(job)
             session.commit()
