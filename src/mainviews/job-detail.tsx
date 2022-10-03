@@ -190,7 +190,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     app: JupyterFrontEnd;
     outputPath: string;
   }) {
-    // Get all output files.
     const outputName = props.outputPath.replace(/ipynb$/, props.outputType);
     return (
       <Link
@@ -209,7 +208,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         }}
         style={{ paddingRight: '1em' }}
       >
-        {props.outputType}
+        {outputName}
       </Link>
     );
   }
@@ -235,15 +234,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               <FormLabel component="legend">
                 {trans.__('Output files')}
               </FormLabel>
-              <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-                {outputFormatsStrings.map(outputFormatString => (
-                  <OutputFile
-                    outputType={outputFormatString}
-                    app={props.app}
-                    outputPath={props.model.outputPath}
-                  />
-                ))}
-              </Stack>
+              {outputFormatsStrings.map(outputFormatString => (
+                <OutputFile
+                  outputType={outputFormatString}
+                  app={props.app}
+                  outputPath={props.model.outputPath}
+                />
+              ))}
             </>
           )}
         </Stack>
