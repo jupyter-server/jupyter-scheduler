@@ -38,6 +38,10 @@ export interface IJobDetailProps {
   advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 }
 
+const TextFieldStyled = (props: TextFieldProps) => (
+  <TextField {...props} variant="outlined" disabled />
+);
+
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [outputFormatsStrings, setOutputFormatsStrings] = useState<string[]>(
@@ -95,10 +99,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return local_display_date;
     }
   };
-
-  const TextFieldStyled = (props: TextFieldProps) => (
-    <TextField {...props} variant="outlined" disabled />
-  );
 
   const Loading = () => (
     <Stack direction="row" justifyContent="center">
