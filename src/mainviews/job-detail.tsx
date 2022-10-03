@@ -7,6 +7,10 @@ import {
   IJobDetailModel,
   JobsView
 } from '../model';
+import { useTranslator } from '../hooks';
+import { Heading } from '../components/heading';
+import { SchedulerService } from '../handler';
+import { Scheduler } from '../tokens';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -23,10 +27,6 @@ import {
   TextFieldProps,
   Typography
 } from '@mui/material';
-import { useTranslator } from '../hooks';
-import { Heading } from '../components/heading';
-import { SchedulerService } from '../handler';
-import { Scheduler as SchedulerTokens } from '../tokens';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -35,7 +35,7 @@ export interface IJobDetailProps {
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
-  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 }
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
@@ -59,7 +59,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     const initialState: ICreateJobModel = {
       jobName: props.model.jobName,
       inputFile: props.model.inputFile,
-      outputPath: '',
+      outputPath: props.model.outputPrefix ?? '',
       environment: props.model.environment,
       parameters: props.model.parameters
     };
@@ -123,11 +123,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ButtonBar = () => (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {
+      {props.model.status === 'IN_PROGRESS' && (
         <Button variant="outlined" onClick={handleStopJob}>
           {trans.__('Stop Job')}
         </Button>
-      }
+      )}
       <Button variant="outlined" onClick={handleRerunJob}>
         {trans.__('Rerun Job')}
       </Button>
@@ -156,9 +156,29 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {
         defaultValue: props.model.environment,
         label: trans.__('Environment')
+      },
+      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        label: trans.__('Create time')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        label: trans.__('Update time')
       }
     ],
-    []
+    [
+      {
+        defaultValue: timestampLocalize(props.model.startTime ?? ''),
+        label: trans.__('Start time')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.endTime ?? ''),
+        label: trans.__('End time')
+      }
+    ]
   ];
 
   // const OutputFiles = (props: {
