@@ -38,29 +38,27 @@ export interface IJobDetailProps {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
-  const [job, setJob] = useState<IJobDetailModel | undefined>(undefined);
 
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
 
-  const getJob = async () => {
+  const updateJob = async () => {
     const jobFromService = await ss.getJob(props.model.jobId);
     const newModel = {
       ...props.model,
       ...convertDescribeJobtoJobDetail(jobFromService)
     };
     props.handleModelChange(newModel);
-    setJob(newModel);
   };
 
   const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
-      jobName: job?.jobName ?? '',
-      inputFile: job?.inputFile ?? '',
-      outputPath: job?.outputPrefix ?? '',
-      environment: job?.environment ?? '',
-      parameters: job?.parameters
+      jobName: props.model.jobName,
+      inputFile: props.model.inputFile,
+      outputPath: props.model.outputPrefix ?? '',
+      environment: props.model.environment,
+      parameters: props.model.parameters
     };
 
     props.setCreateJobModel(initialState);
@@ -68,15 +66,15 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   const handleDeleteJob = async () => {
-    await ss.deleteJob(job?.jobId ?? '');
+    await ss.deleteJob(props.model.jobId ?? '');
     props.setView('ListJobs');
   };
 
   const handleStopJob = async () => {
     props.app.commands.execute('scheduling:stop-job', {
-      id: job?.jobId
+      id: props.model.jobId
     });
-    getJob();
+    updateJob();
   };
 
   const timestampLocalize = (time: number | '') => {
@@ -92,14 +90,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   useEffect(() => {
-    getJob();
+    updateJob();
   }, []);
-
-  useEffect(() => {
-    if (job?.jobName) {
-      setLoading(false);
-    }
-  }, [job?.jobName]);
 
   const TextFieldStyled = (props: TextFieldProps) => (
     <TextField {...props} variant="outlined" disabled />
@@ -113,7 +105,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ButtonBar = () => (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {job?.status === 'IN_PROGRESS' && (
+      {props.model.status === 'IN_PROGRESS' && (
         <Button variant="outlined" onClick={handleStopJob}>
           {trans.__('Stop Job')}
         </Button>
@@ -129,43 +121,43 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const coreOptionsFields: TextFieldProps[][] = [
     [
-      { defaultValue: job?.jobName ?? '', label: trans.__('Job name') },
-      { defaultValue: job?.jobId ?? '', label: trans.__('Job ID') }
+      { defaultValue: props.model.jobName, label: trans.__('Job name') },
+      { defaultValue: props.model.jobId, label: trans.__('Job ID') }
     ],
     [
       {
-        defaultValue: job?.inputFile ?? '',
+        defaultValue: props.model.inputFile,
         label: trans.__('Input file')
       },
       {
-        defaultValue: job?.outputPath ?? '',
+        defaultValue: props.model.outputPath,
         label: trans.__('Output path')
       }
     ],
     [
       {
-        defaultValue: job?.environment ?? '',
+        defaultValue: props.model.environment,
         label: trans.__('Environment')
       },
-      { defaultValue: job?.status ?? '', label: trans.__('Status') }
+      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
     ],
     [
       {
-        defaultValue: timestampLocalize(job?.createTime ?? ''),
+        defaultValue: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Create time')
       },
       {
-        defaultValue: timestampLocalize(job?.updateTime ?? ''),
+        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
         label: trans.__('Update time')
       }
     ],
     [
       {
-        defaultValue: timestampLocalize(job?.startTime ?? ''),
+        defaultValue: timestampLocalize(props.model.startTime ?? ''),
         label: trans.__('Start time')
       },
       {
-        defaultValue: timestampLocalize(job?.endTime ?? ''),
+        defaultValue: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
       }
     ]
@@ -199,22 +191,24 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {trans.__('Parameters')}
         </FormLabel>
         <Grid container spacing={4}>
-          {Object.entries(job?.parameters ?? {}).map(([parameter, value]) => (
-            <React.Fragment key={parameter}>
-              <Grid xs={12} md={6}>
-                <TextFieldStyled
-                  label={trans.__('Parameter name')}
-                  defaultValue={parameter}
-                />
-              </Grid>
-              <Grid xs={12} md={6}>
-                <TextFieldStyled
-                  label={trans.__('Parameter value')}
-                  defaultValue={value}
-                />
-              </Grid>
-            </React.Fragment>
-          ))}
+          {Object.entries(props.model.parameters ?? {}).map(
+            ([parameter, value]) => (
+              <React.Fragment key={parameter}>
+                <Grid xs={12} md={6}>
+                  <TextFieldStyled
+                    label={trans.__('Parameter name')}
+                    defaultValue={parameter}
+                  />
+                </Grid>
+                <Grid xs={12} md={6}>
+                  <TextFieldStyled
+                    label={trans.__('Parameter value')}
+                    defaultValue={value}
+                  />
+                </Grid>
+              </React.Fragment>
+            )
+          )}
         </Grid>
       </CardContent>
     </Card>
@@ -257,9 +251,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         >
           {trans.__('Notebook Jobs')}
         </Link>
-        <Typography color="text.primary">
-          {job?.jobName ?? props.model.jobName}
-        </Typography>
+        <Typography color="text.primary">{props.model.jobName}</Typography>
       </Breadcrumbs>
     </div>
   );
