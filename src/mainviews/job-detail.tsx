@@ -50,6 +50,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       ...convertDescribeJobtoJobDetail(jobFromService)
     };
     props.handleModelChange(newModel);
+    setLoading(false);
   };
 
   const handleRerunJob = () => {
@@ -88,10 +89,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return local_display_date;
     }
   };
-
-  useEffect(() => {
-    updateJob();
-  }, []);
 
   const TextFieldStyled = (props: TextFieldProps) => (
     <TextField {...props} variant="outlined" disabled />
@@ -255,6 +252,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       </Breadcrumbs>
     </div>
   );
+
+  useEffect(() => {
+    updateJob();
+  }, []);
 
   return (
     <Box sx={{ p: 4 }}>
