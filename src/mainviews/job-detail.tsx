@@ -161,6 +161,39 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     []
   ];
 
+  // const OutputFiles = (props: {
+  //   job: IJobDetailModel;
+  //   openOnClick: (e: any, output_uri: string) => void;
+  // }): JSX.Element | null => {
+  //   if (props.job.status !== 'COMPLETED') {
+  //     return null;
+  //   }
+
+  //   const trans = useTranslator('jupyterlab');
+
+  //   // Get all output files.
+  //   const outputTypes = props.job.output_formats || ['ipynb'];
+  //   return (
+  //     <>
+  //       {outputTypes.map(outputType => {
+  //         // Compose a specific link.
+  //         const outputName = props.job.output_uri.replace(/ipynb$/, outputType);
+  //         return (
+  //           <a
+  //             key={outputType}
+  //             href={`/lab/tree/${outputName}`}
+  //             title={trans.__('Open "%1"', outputName)}
+  //             onClick={e => props.openOnClick(e, outputName)}
+  //             style={{ paddingRight: '1em' }}
+  //           >
+  //             {outputType}
+  //           </a>
+  //         );
+  //       })}
+  //     </>
+  //   );
+  // };
+
   const CoreOptions = () => (
     <Card>
       <CardContent>
@@ -177,6 +210,15 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               ))}
             </Stack>
           ))}
+          {/* <OutputFiles
+            job={props.model}
+            openOnClick={(e: Event, output_uri: string) => {
+              e.preventDefault();
+              props.app.commands.execute('docmanager:open', {
+                path: output_uri
+              });
+            }}
+          /> */}
         </Stack>
       </CardContent>
     </Card>
