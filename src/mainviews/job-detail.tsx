@@ -40,6 +40,9 @@ export interface IJobDetailProps {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
+  const [outputFormatsStrings, setOutputFormatsStrings] = useState<string[]>(
+    []
+  );
 
   const trans = useTranslator('jupyterlab');
 
@@ -47,6 +50,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const updateJob = async () => {
     const jobFromService = await ss.getJob(props.model.jobId);
+    setOutputFormatsStrings(jobFromService.output_formats ?? []);
     const newModel = {
       ...props.model,
       ...convertDescribeJobtoJobDetail(jobFromService)
@@ -181,38 +185,34 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ]
   ];
 
-  // const OutputFiles = (props: {
-  //   job: IJobDetailModel;
-  //   openOnClick: (e: any, output_uri: string) => void;
-  // }): JSX.Element | null => {
-  //   if (props.job.status !== 'COMPLETED') {
-  //     return null;
-  //   }
-
-  //   const trans = useTranslator('jupyterlab');
-
-  //   // Get all output files.
-  //   const outputTypes = props.job.output_formats || ['ipynb'];
-  //   return (
-  //     <>
-  //       {outputTypes.map(outputType => {
-  //         // Compose a specific link.
-  //         const outputName = props.job.output_uri.replace(/ipynb$/, outputType);
-  //         return (
-  //           <a
-  //             key={outputType}
-  //             href={`/lab/tree/${outputName}`}
-  //             title={trans.__('Open "%1"', outputName)}
-  //             onClick={e => props.openOnClick(e, outputName)}
-  //             style={{ paddingRight: '1em' }}
-  //           >
-  //             {outputType}
-  //           </a>
-  //         );
-  //       })}
-  //     </>
-  //   );
-  // };
+  function OutputFile(props: {
+    outputType: string;
+    app: JupyterFrontEnd;
+    outputPath: string;
+  }) {
+    // Get all output files.
+    const outputName = props.outputPath.replace(/ipynb$/, props.outputType);
+    return (
+      <Link
+        key={props.outputType}
+        href={`/lab/tree/${outputName}`}
+        title={trans.__('Open "%1"', outputName)}
+        onClick={(
+          e:
+            | React.MouseEvent<HTMLSpanElement, MouseEvent>
+            | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+        ) => {
+          e.preventDefault();
+          props.app.commands.execute('docmanager:open', {
+            path: outputName
+          });
+        }}
+        style={{ paddingRight: '1em' }}
+      >
+        {props.outputType}
+      </Link>
+    );
+  }
 
   const CoreOptions = () => (
     <Card>
@@ -230,15 +230,22 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               ))}
             </Stack>
           ))}
-          {/* <OutputFiles
-            job={props.model}
-            openOnClick={(e: Event, output_uri: string) => {
-              e.preventDefault();
-              props.app.commands.execute('docmanager:open', {
-                path: output_uri
-              });
-            }}
-          /> */}
+          {props.model.status === 'COMPLETED' && (
+            <>
+              <FormLabel component="legend">
+                {trans.__('Output files')}
+              </FormLabel>
+              <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+                {outputFormatsStrings.map(outputFormatString => (
+                  <OutputFile
+                    outputType={outputFormatString}
+                    app={props.app}
+                    outputPath={props.model.outputPath}
+                  />
+                ))}
+              </Stack>
+            </>
+          )}
         </Stack>
       </CardContent>
     </Card>
