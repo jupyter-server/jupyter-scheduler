@@ -3,7 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from jupyter_scheduler.orm import create_tables
+from jupyter_scheduler.config import ExecutionConfig
+from jupyter_scheduler.orm import create_session, create_tables
+from jupyter_scheduler.scheduler import Scheduler
+from jupyter_scheduler.tests.mocks import MockEnvironmentManager, MockExecutionManager
 
 pytest_plugins = ("jupyter_server.pytest_plugin",)
 
@@ -31,3 +34,21 @@ def setup_db():
     yield
     if os.path.exists(DB_FILE_PATH):
         os.remove(DB_FILE_PATH)
+
+
+@pytest.fixture
+def jp_scheduler_db():
+    return create_session(DB_URL)
+
+
+@pytest.fixture
+def jp_scheduler():
+    return Scheduler(
+        ExecutionConfig(
+            db_url=DB_URL,
+            root_dir="",
+            execution_manager_class=MockExecutionManager,
+            environments_manager_class=MockEnvironmentManager,
+            scheduler_class=Scheduler,
+        )
+    )
