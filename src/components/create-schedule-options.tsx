@@ -5,20 +5,23 @@ import Stack from '@mui/system/Stack';
 
 import { useTranslator } from '../hooks';
 import { ScheduleInputs } from './schedule-inputs';
+import { Scheduler } from '../tokens';
 
 export type CreateScheduleOptionsProps = {
   label: string;
   name: string;
   id: string;
   createType: string;
-  schedule?: string;
-  timezone?: string;
   handleCreateTypeChange: (
     event: React.ChangeEvent<HTMLInputElement>,
     value: string
   ) => void;
+  schedule?: string;
   handleScheduleChange: (event: ChangeEvent) => void;
+  timezone?: string;
   handleTimezoneChange: (newValue: string | null) => void;
+  errors: Scheduler.ErrorsType;
+  handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
 };
 
 export function CreateScheduleOptions(
@@ -52,9 +55,11 @@ export function CreateScheduleOptions(
         <ScheduleInputs
           idPrefix={`${props.id}-definition-`}
           schedule={props.schedule}
-          timezone={props.timezone}
           handleScheduleChange={props.handleScheduleChange}
+          timezone={props.timezone}
           handleTimezoneChange={props.handleTimezoneChange}
+          errors={props.errors}
+          handleErrorsChange={props.handleErrorsChange}
         />
       )}
     </Stack>

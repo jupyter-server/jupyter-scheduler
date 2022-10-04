@@ -4,13 +4,16 @@ import tzdata from 'tzdata';
 import { Autocomplete, TextField } from '@mui/material';
 
 import { useTranslator } from '../hooks';
+import { Scheduler } from '../tokens';
 
 export type ScheduleInputsProps = {
   idPrefix: string;
   schedule?: string;
-  timezone?: string;
   handleScheduleChange: (event: ChangeEvent) => void;
+  timezone?: string;
   handleTimezoneChange: (newValue: string | null) => void;
+  errors: Scheduler.ErrorsType;
+  handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
 };
 
 export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
@@ -29,6 +32,8 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
         value={props.schedule ?? ''}
         id={`${props.idPrefix}schedule`}
         name="schedule"
+        error={!!props.errors['schedule']}
+        helperText={props.errors['schedule']}
       />
       <Autocomplete
         id={`${props.idPrefix}timezone`}

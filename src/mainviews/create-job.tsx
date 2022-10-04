@@ -104,6 +104,29 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
+  const handleScheduleChange = (event: ChangeEvent) => {
+    // Validate the cron expression
+    const target = event.target as HTMLInputElement;
+    const scheduleExpression = target.value;
+    const cronRegex = new RegExp('^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$');
+
+    // TODO: Use more detailed cron regex
+    if (scheduleExpression.match(cronRegex)) {
+      // No error
+      setErrors({
+        ...errors,
+        [target.name]: ''
+      });
+    } else {
+      setErrors({
+        ...errors,
+        [target.name]: trans.__('You must provide a valid Cron expression.')
+      });
+    }
+    console.log('errors is now ' + JSON.stringify(errors));
+    handleInputChange(event);
+  };
+
   // Takes only a string as input
   const handleTimezoneChange = (value: string | null) => {
     props.handleModelChange({ ...props.model, timezone: value ?? '' });
@@ -407,9 +430,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             createType={props.model.createType}
             handleCreateTypeChange={handleScheduleOptionsChange}
             schedule={props.model.schedule}
-            handleScheduleChange={handleInputChange}
+            handleScheduleChange={handleScheduleChange}
             timezone={props.model.timezone}
             handleTimezoneChange={handleTimezoneChange}
+            errors={errors}
+            handleErrorsChange={setErrors}
           />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
