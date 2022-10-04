@@ -1,12 +1,6 @@
 import React, { ChangeEvent } from 'react';
 
-import {
-  FormControlLabel,
-  InputLabel,
-  Radio,
-  RadioGroup,
-  Typography
-} from '@mui/material';
+import { FormControlLabel, InputLabel, Radio, RadioGroup } from '@mui/material';
 import Stack from '@mui/system/Stack';
 
 import { useTranslator } from '../hooks';
@@ -48,17 +42,11 @@ export function CreateScheduleOptions(
           control={<Radio />}
           label={trans.__('Run now')}
         />
-        <Typography variant="body2" sx={{ marginLeft: '2.5em' }}>
-          {trans.__('Run your notebook immediately')}
-        </Typography>
         <FormControlLabel
           value="JobDefinition"
           control={<Radio />}
           label={trans.__('Run on a schedule')}
         />
-        <Typography variant="body2" sx={{ marginLeft: '2.5em' }}>
-          {trans.__('Schedule a notebook at a regular interval')}
-        </Typography>
       </RadioGroup>
       {props.createType === 'JobDefinition' && (
         <ScheduleInputs
