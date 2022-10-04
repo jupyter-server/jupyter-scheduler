@@ -21,7 +21,8 @@ export function getJupyterLabTheme(): Theme {
       },
       MuiFormControl: {
         defaultProps: {
-          margin: 'dense'
+          margin: 'dense',
+          size: 'small'
         }
       },
       MuiFormHelperText: {
