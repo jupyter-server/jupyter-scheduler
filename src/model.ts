@@ -82,6 +82,7 @@ export interface ICreateJobModel {
   inputFile: string;
   outputPath: string;
   environment: string;
+  runtimeEnvironmentParameters?: { [key: string]: any };
   parameters?: IJobParameter[];
   outputFormats?: IOutputFormat[];
   computeType?: string;
