@@ -303,6 +303,85 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
+  const jobDefinitionFields: TextFieldProps[][] = [
+    [
+      { defaultValue: props.model.jobName, label: trans.__('Job name') },
+      { defaultValue: props.model.jobId, label: trans.__('Job ID') }
+    ],
+    [
+      {
+        defaultValue: props.model.inputFile,
+        label: trans.__('Input file')
+      },
+      {
+        defaultValue: props.model.outputPath,
+        label: trans.__('Output path')
+      }
+    ],
+    [
+      {
+        defaultValue: props.model.environment,
+        label: trans.__('Environment')
+      },
+      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        label: trans.__('Created at')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        label: trans.__('Updated at')
+      }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(props.model.startTime ?? ''),
+        label: trans.__('Start time')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.endTime ?? ''),
+        label: trans.__('End time')
+      }
+    ]
+  ];
+
+  const JobDefinition = (
+    <Card>
+      <CardContent>
+        <Stack spacing={4}>
+          {jobDefinitionFields.map(propsRow => (
+            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {propsRow.map(textProp => (
+                <TextFieldStyled
+                  {...textProp}
+                  style={{
+                    flexGrow: 1
+                  }}
+                />
+              ))}
+            </Stack>
+          ))}
+          {props.model.status === 'COMPLETED' && (
+            <>
+              <FormLabel component="legend">
+                {trans.__('Output files')}
+              </FormLabel>
+              {outputFormatsStrings.map(outputFormatString => (
+                <OutputFile
+                  outputType={outputFormatString}
+                  app={props.app}
+                  outputPath={props.model.outputPath}
+                />
+              ))}
+            </>
+          )}
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
   useEffect(() => {
     updateJob();
     props.model.jobDefinition = true;
@@ -316,7 +395,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         {loading ? (
           Loading
         ) : props.model.jobDefinition ? (
-          'jobDefinition'
+          JobDefinition
         ) : (
           <>
             {ButtonBar}
