@@ -24,7 +24,7 @@ export type CreateScheduleOptionsProps = {
     value: string
   ) => void;
   handleScheduleChange: (event: ChangeEvent) => void;
-  handleTimezoneChange: (event: ChangeEvent) => void;
+  handleTimezoneChange: (newValue: string | null) => void;
 };
 
 export function CreateScheduleOptions(

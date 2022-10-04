@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from 'react';
+import tzdata from 'tzdata';
 
-import { TextField } from '@mui/material';
+import { Autocomplete, TextField } from '@mui/material';
 
 import { useTranslator } from '../hooks';
 
@@ -9,11 +10,15 @@ export type ScheduleInputsProps = {
   schedule?: string;
   timezone?: string;
   handleScheduleChange: (event: ChangeEvent) => void;
-  handleTimezoneChange: (event: ChangeEvent) => void;
+  handleTimezoneChange: (newValue: string | null) => void;
 };
 
 export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
+
+  const timezones = Object.keys(tzdata.zones).sort();
+
+  const timezoneLabel = trans.__('Time zone');
 
   return (
     <>
@@ -21,17 +26,28 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
         label={trans.__('Cron expression')}
         variant="outlined"
         onChange={props.handleScheduleChange}
-        value={props.schedule || ''}
+        value={props.schedule ?? ''}
         id={`${props.idPrefix}schedule`}
         name="schedule"
       />
-      <TextField
-        label={trans.__('Time zone')}
-        variant="outlined"
-        onChange={props.handleTimezoneChange}
-        value={props.timezone || ''}
+      <Autocomplete
         id={`${props.idPrefix}timezone`}
-        name="timezone"
+        options={timezones}
+        value={props.timezone ?? null}
+        onChange={(
+          event: React.SyntheticEvent<Element, Event>,
+          newValue: string | null
+        ) => {
+          props.handleTimezoneChange(newValue);
+        }}
+        renderInput={(params: any) => (
+          <TextField
+            {...params}
+            name="timezone"
+            label={timezoneLabel}
+            variant="outlined"
+          />
+        )}
       />
     </>
   );

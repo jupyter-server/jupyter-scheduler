@@ -104,6 +104,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
+  // Takes only a string as input
+  const handleTimezoneChange = (value: string | null) => {
+    const newValue = value ?? '';
+
+    setTextInputs({ ...textInputs, timezone: newValue });
+    props.handleModelChange({ ...props.model, timezone: newValue });
+  };
+
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
@@ -232,6 +240,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const submitCreateJobDefinitionRequest = async (event: React.MouseEvent) => {
+    console.log(
+      'In submitCreateJobDefinitionRequest, model is ' +
+        JSON.stringify(props.model)
+    );
     alert('submitCreateJobDefinitionRequest not implemented yet');
   };
 
@@ -396,8 +408,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}createType`}
             createType={props.model.createType}
             handleCreateTypeChange={handleScheduleOptionsChange}
+            schedule={props.model.schedule}
             handleScheduleChange={handleInputChange}
-            handleTimezoneChange={handleInputChange}
+            timezone={props.model.timezone}
+            handleTimezoneChange={handleTimezoneChange}
           />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
