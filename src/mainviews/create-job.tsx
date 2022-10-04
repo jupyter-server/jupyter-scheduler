@@ -106,10 +106,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   // Takes only a string as input
   const handleTimezoneChange = (value: string | null) => {
-    const newValue = value ?? '';
-
-    setTextInputs({ ...textInputs, timezone: newValue });
-    props.handleModelChange({ ...props.model, timezone: newValue });
+    props.handleModelChange({ ...props.model, timezone: value ?? '' });
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
