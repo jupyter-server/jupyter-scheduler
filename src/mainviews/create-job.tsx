@@ -3,6 +3,7 @@ import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
+import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
 import {
   OutputFormatPicker,
@@ -27,7 +28,8 @@ import {
 } from '@mui/material';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
-import { CreateScheduleOptions } from '../components/create-schedule-options';
+
+import cron from 'cron-validate';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -107,11 +109,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleScheduleChange = (event: ChangeEvent) => {
     // Validate the cron expression
     const target = event.target as HTMLInputElement;
-    const scheduleExpression = target.value;
-    const cronRegex = new RegExp('^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$');
-
-    // TODO: Use more detailed cron regex
-    if (scheduleExpression.match(cronRegex)) {
+    const cronResult = cron(target.value);
+    if (cronResult.isValid()) {
       // No error
       setErrors({
         ...errors,
