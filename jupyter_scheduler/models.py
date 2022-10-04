@@ -215,16 +215,6 @@ class UpdateJobDefinition(BaseModel):
 
 
 class ListJobDefinitionsQuery(BaseModel):
-    job_definition_id: str
-    compute_type: Optional[str] = None
-    schedule: Optional[str] = None
-    timezone: Optional[str] = None
-    create_time: Optional[int]
-    update_time: Optional[int]
-    next_run_time: Optional[int]
-
-
-class ListJobDefinitionsQuery(BaseModel):
     job_definition_id: Optional[str]
     name: Optional[str] = None
     create_time: Optional[int] = None
