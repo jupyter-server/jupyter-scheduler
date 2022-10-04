@@ -48,7 +48,7 @@ export function CreateScheduleOptions(
           control={<Radio />}
           label={trans.__('Run now')}
         />
-        <Typography sx={{ fontSize: '90%', marginLeft: '2.5em' }}>
+        <Typography variant="body2" sx={{ marginLeft: '2.5em' }}>
           {trans.__('Run your notebook immediately')}
         </Typography>
         <FormControlLabel
@@ -56,7 +56,7 @@ export function CreateScheduleOptions(
           control={<Radio />}
           label={trans.__('Run on a schedule')}
         />
-        <Typography sx={{ fontSize: '90%', marginLeft: '2.5em' }}>
+        <Typography variant="body2" sx={{ marginLeft: '2.5em' }}>
           {trans.__('Schedule a notebook at a regular interval')}
         </Typography>
       </RadioGroup>
