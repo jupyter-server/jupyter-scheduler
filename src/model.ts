@@ -84,6 +84,7 @@ export interface ICreateJobModel {
   environment: string;
   // A "job" runs now; a "job definition" runs on a schedule
   createType: 'Job' | 'JobDefinition';
+  runtimeEnvironmentParameters?: { [key: string]: number | string };
   parameters?: IJobParameter[];
   outputFormats?: IOutputFormat[];
   computeType?: string;

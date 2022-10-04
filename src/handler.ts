@@ -266,6 +266,7 @@ export namespace Scheduler {
     input_uri: string;
     output_prefix: string;
     runtime_environment_name: string;
+    runtime_environment_parameters?: { [key: string]: number | string };
     idempotency_token?: string;
     job_definition_id?: string;
     parameters?: { [key: string]: any };
