@@ -235,7 +235,10 @@ export interface IListJobsProps {
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-  const [tab, setTab] = useState<number>(0);
+  // Set the initial tab based on the initial view.
+  const [tab, setTab] = useState<number>(
+    props.model.listJobsView === 'Job' ? 0 : 1
+  );
 
   const jobsHeader = useMemo(() => trans.__('Notebook Jobs'), [trans]);
   const jobDefinitionsHeader = useMemo(

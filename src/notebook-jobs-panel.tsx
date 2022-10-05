@@ -50,8 +50,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   }
 
   showListView(list: ListJobsView): void {
-    this.model.jobsView = 'ListJobs';
     this.model.listJobsModel.listJobsView = list;
+    this.model.jobsView = 'ListJobs';
   }
 
   showDetailView(jobId: string): void {
