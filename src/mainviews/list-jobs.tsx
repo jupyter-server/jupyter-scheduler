@@ -235,8 +235,6 @@ export interface IListJobsProps {
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-  // Set the initial tab based on the initial view.
-  const [tab, setTab] = useState<ListJobsView>(props.model.listJobsView);
 
   const jobsHeader = useMemo(() => trans.__('Notebook Jobs'), [trans]);
   const jobDefinitionsHeader = useMemo(
@@ -244,15 +242,24 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
     [trans]
   );
 
+  const changeTab = (newTab: ListJobsView) => {
+    const newModel: IListJobsModel = props.model;
+    newModel.listJobsView = newTab;
+    props.handleModelChange(newModel);
+  };
+
   // Retrieve the initial jobs list
   return (
     <Box sx={{ p: 4 }} style={{ height: '100%', boxSizing: 'border-box' }}>
       <Stack spacing={3} style={{ height: '100%' }}>
-        <Tabs value={tab} onChange={(_, newTab) => setTab(newTab)}>
+        <Tabs
+          value={props.model.listJobsView}
+          onChange={(_, newTab) => changeTab(newTab)}
+        >
           <Tab label={jobsHeader} value="Job" />
           <Tab label={jobDefinitionsHeader} value="JobDefinition" />
         </Tabs>
-        {tab === 'Job' && (
+        {props.model.listJobsView === 'Job' && (
           <>
             <Heading level={1}>{jobsHeader}</Heading>
             <ListJobsTable
@@ -262,7 +269,7 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
             />
           </>
         )}
-        {tab === 'JobDefinition' && (
+        {props.model.listJobsView === 'JobDefinition' && (
           <>
             <Heading level={1}>{jobDefinitionsHeader}</Heading>
             <ListJobDefinitionsTable
