@@ -88,11 +88,6 @@ class CreateJob(BaseModel):
     parameters: Optional[Dict[str, ParameterValues]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
-    email_notifications: Optional[EmailNotifications] = None
-    timeout_seconds: Optional[int] = 600
-    retry_on_timeout: Optional[bool] = False
-    max_retries: Optional[int] = 0
-    min_retry_interval_millis: Optional[int] = 0
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
 
@@ -154,6 +149,7 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     status_message: Optional[str] = None
     name: Optional[str] = None
+    compute_type: Optional[str] = None
 
 
 class DeleteJob(BaseModel):
@@ -166,15 +162,9 @@ class CreateJobDefinition(BaseModel):
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
-    idempotency_token: Optional[str] = None
     parameters: Optional[Dict[str, ParameterValues]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
-    email_notifications: Optional[EmailNotifications] = None
-    timeout_seconds: Optional[int] = 600
-    retry_on_timeout: Optional[bool] = False
-    max_retries: Optional[int] = 0
-    min_retry_interval_millis: Optional[int] = 0
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
@@ -185,9 +175,7 @@ class DescribeJobDefinition(CreateJobDefinition):
     job_definition_id: str
     create_time: int
     update_time: int
-    next_run_time: int
     active: bool
-    job_ids: Optional[List[str]] = []
 
     class Config:
         orm_mode = True
@@ -204,18 +192,12 @@ class UpdateJobDefinition(BaseModel):
     parameters: Optional[Dict[str, ParameterValues]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
-    email_notifications: Optional[EmailNotifications] = None
-    timeout_seconds: Optional[int] = 600
-    max_retries: Optional[int] = 0
-    min_retry_interval_millis: Optional[int] = 0
-    retry_on_timeout: Optional[bool] = False
     url: Optional[str] = None
     timezone: Optional[str] = None  # Should be a timezone e.g., US/Eastern, Asia/Kolkata
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
 
 
 class ListJobDefinitionsQuery(BaseModel):
-    job_definition_id: Optional[str]
     name: Optional[str] = None
     create_time: Optional[int] = None
     tags: Optional[Tags] = None

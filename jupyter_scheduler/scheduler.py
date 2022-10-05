@@ -110,6 +110,11 @@ class BaseScheduler(ABC):
         pass
 
     @abstractmethod
+    def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
+        """Returns job definition record for a single job definition"""
+        pass
+
+    @abstractmethod
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         """Returns list of all job definitions filtered by query"""
         pass
@@ -286,6 +291,16 @@ class Scheduler(BaseScheduler):
             ).delete()
             session.commit()
 
+    def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
+        with self.db_session() as session:
+            job_definition = (
+                session.query(JobDefinition)
+                .filter(JobDefinition.job_definition_id == job_definition_id)
+                .one()
+            )
+
+        return DescribeJobDefinition.from_orm(job_definition)
+
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         with self.db_session() as session:
             definitions = session.query(JobDefinition)
@@ -330,7 +345,7 @@ class Scheduler(BaseScheduler):
         with self.db_session() as session:
             session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == job_definition_id
-            ).update(active=False)
+            ).update({"active": False})
             session.commit()
 
     def resume_jobs(self, job_definition_id: str):
@@ -338,6 +353,5 @@ class Scheduler(BaseScheduler):
             job_definition = session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == job_definition_id
             )
-            next_run_time = compute_next_run_time(job_definition.schedule, job_definition.timezone)
-            job_definition.update(active=True, next_run_time=next_run_time)
+            job_definition.update({"active": True})
             session.commit()

@@ -85,7 +85,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 name=self.get_query_argument("name", None),
                 tags=self.get_query_arguments("tags", None),
                 create_time=int(create_time) if create_time else None,
-                sort_by=sort_by if sort_by else [DEFAULT_JOB_DEFINITION_SORT],
+                sort_by=sort_by if sort_by else [DEFAULT_SORT],
                 max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                 next_token=self.get_query_argument("next_token", None),
             )

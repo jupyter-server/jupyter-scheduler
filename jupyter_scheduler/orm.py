@@ -135,7 +135,6 @@ class JobDefinition(CommonColumns, Base):
     timezone = Column(String(36))
     url = Column(String(256), default=generate_job_definitions_url)
     create_time = Column(Integer, default=get_utc_timestamp)
-    next_run_time = Column(Integer, default=next_run_time)
     active = Column(Boolean, default=True)
 
 
