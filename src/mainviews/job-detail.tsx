@@ -9,8 +9,8 @@ import {
 } from '../model';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { SchedulerService } from '../handler';
-import { Scheduler } from '../tokens';
+import { SchedulerService, Scheduler } from '../handler';
+import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -35,7 +35,7 @@ export interface IJobDetailProps {
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
-  advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
 
 const TextFieldStyled = (props: TextFieldProps) => (
@@ -303,46 +303,84 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
+  const DefinitionBreadcrumbsStyled = () => (
+    <div role="presentation">
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link
+          underline="hover"
+          color="inherit"
+          onClick={(
+            _:
+              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+              | React.MouseEvent<HTMLSpanElement, MouseEvent>
+          ): void => props.setView('ListJobs')}
+        >
+          {trans.__('Notebook Job Definitions')}
+        </Link>
+        <Typography color="text.primary">
+          {mockJobDefinition.name ?? mockJobDefinition.job_definition_id}
+        </Typography>
+      </Breadcrumbs>
+    </div>
+  );
+
+  const DefinitionButtonBar = (
+    <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+      <Button
+        variant="outlined"
+        onClick={() => console.log('pause definition')}
+      >
+        {trans.__('Pause Job Definition')}
+      </Button>
+      <Button
+        variant="contained"
+        color="error"
+        onClick={() => console.log('delete definition')}
+      >
+        {trans.__('Delete Job Definition')}
+      </Button>
+    </Stack>
+  );
+
+  const mockJobDefinition: Scheduler.IDescribeJobDefinition = {
+    name: 'My Job Definition',
+    job_definition_id: '7a139aa5-250f-427f-88ae-72bd6c7de740',
+    input_path: 'in_Untitled-20221003_074708_AM.ipynb',
+    output_path: 'out_Untitled-20221003_074708_AM.ipynb',
+
+    last_modified_time: '1664579884508',
+    job_ids: [
+      '7a139aa5-250f-427f-88ae-72bd6c7de740',
+      '4e1cef9c-227a-437e-b4a3-83526cbb24c3',
+      '4aaf9da2-644c-4844-bd59-2c6274fe3ced'
+    ]
+  };
+
   const jobDefinitionFields: TextFieldProps[][] = [
     [
-      { defaultValue: props.model.jobName, label: trans.__('Job name') },
-      { defaultValue: props.model.jobId, label: trans.__('Job ID') }
+      {
+        defaultValue: mockJobDefinition.name,
+        label: trans.__('Job Definition name')
+      },
+      {
+        defaultValue: mockJobDefinition.job_definition_id,
+        label: trans.__('Job Definition ID')
+      }
     ],
     [
       {
-        defaultValue: props.model.inputFile,
-        label: trans.__('Input file')
+        defaultValue: mockJobDefinition.input_path,
+        label: trans.__('Input path')
       },
       {
-        defaultValue: props.model.outputPath,
+        defaultValue: mockJobDefinition.output_path,
         label: trans.__('Output path')
       }
     ],
     [
       {
-        defaultValue: props.model.environment,
-        label: trans.__('Environment')
-      },
-      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
-    ],
-    [
-      {
-        defaultValue: timestampLocalize(props.model.createTime ?? ''),
-        label: trans.__('Created at')
-      },
-      {
-        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
-        label: trans.__('Updated at')
-      }
-    ],
-    [
-      {
-        defaultValue: timestampLocalize(props.model.startTime ?? ''),
-        label: trans.__('Start time')
-      },
-      {
-        defaultValue: timestampLocalize(props.model.endTime ?? ''),
-        label: trans.__('End time')
+        defaultValue: mockJobDefinition.last_modified_time,
+        label: trans.__('Modified at')
       }
     ]
   ];
@@ -363,17 +401,32 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               ))}
             </Stack>
           ))}
-          {props.model.status === 'COMPLETED' && (
+          {mockJobDefinition.job_ids.length && (
             <>
-              <FormLabel component="legend">
-                {trans.__('Output files')}
-              </FormLabel>
-              {outputFormatsStrings.map(outputFormatString => (
-                <OutputFile
-                  outputType={outputFormatString}
-                  app={props.app}
-                  outputPath={props.model.outputPath}
-                />
+              <FormLabel component="legend">{trans.__('Jobs')}</FormLabel>
+              {mockJobDefinition.job_ids.map(jobId => (
+                <Link
+                  key={jobId}
+                  title={trans.__('Open Job "%1"', jobId)}
+                  onClick={(
+                    e:
+                      | React.MouseEvent<HTMLSpanElement, MouseEvent>
+                      | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                  ) => {
+                    const newModel: IJobDetailModel = {
+                      jobId: jobId,
+                      jobName: '',
+                      inputFile: '',
+                      environment: '',
+                      outputPath: '',
+                      detailType: 'Job'
+                    };
+                    props.handleModelChange(newModel);
+                  }}
+                  style={{ paddingRight: '1em' }}
+                >
+                  {jobId}
+                </Link>
               ))}
             </>
           )}
@@ -384,19 +437,30 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   useEffect(() => {
     updateJob();
+  }, [props.model.jobId]);
+
+  useEffect(() => {
     props.model.detailType = 'JobDefinition';
   }, []);
 
   return (
     <Box sx={{ p: 4 }}>
       <Stack spacing={4}>
-        <BreadcrumbsStyled />
+        {props.model.detailType &&
+        props.model.detailType === 'JobDefinition' ? (
+          <DefinitionBreadcrumbsStyled />
+        ) : (
+          <BreadcrumbsStyled />
+        )}
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
           Loading
         ) : props.model.detailType &&
           props.model.detailType === 'JobDefinition' ? (
-          JobDefinition
+          <>
+            {DefinitionButtonBar}
+            {JobDefinition}
+          </>
         ) : (
           <>
             {ButtonBar}
