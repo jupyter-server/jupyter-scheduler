@@ -12,7 +12,7 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
-import { ICreateJobModel, IOutputFormat } from '../model';
+import { ICreateJobModel, IJobParameter, IOutputFormat } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
@@ -122,7 +122,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         [target.name]: trans.__('You must provide a valid Cron expression.')
       });
     }
-    console.log('errors is now ' + JSON.stringify(errors));
+
     handleInputChange(event);
   };
 
@@ -206,6 +206,30 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
+  // Convert an array of parameters (as used for display) to an object
+  // (for submission to the API)
+  const serializeParameters = (parameters: IJobParameter[]) => {
+    const jobParameters: { [key: string]: any } = {};
+
+    parameters.forEach(param => {
+      const { name, value } = param;
+      if (jobParameters[name] !== undefined) {
+        console.error(
+          'Parameter ' +
+            name +
+            ' already set to ' +
+            jobParameters[name] +
+            ' and is about to be set again to ' +
+            value
+        );
+      } else {
+        jobParameters[name] = value;
+      }
+    });
+
+    return jobParameters;
+  };
+
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
     if (anyErrors) {
       console.error(
@@ -227,25 +251,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     };
 
     if (props.model.parameters !== undefined) {
-      const jobParameters: { [key: string]: any } = {};
-
-      props.model.parameters.forEach(param => {
-        const { name, value } = param;
-        if (jobParameters[name] !== undefined) {
-          console.error(
-            'Parameter ' +
-              name +
-              ' already set to ' +
-              jobParameters[name] +
-              ' and is about to be set again to ' +
-              value
-          );
-        } else {
-          jobParameters[name] = value;
-        }
-      });
-
-      jobOptions.parameters = jobParameters;
+      jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
     if (props.model.outputFormats !== undefined) {
@@ -255,16 +261,48 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
 
     api.createJob(jobOptions).then(response => {
+      // TODO: Switch to the list view with "Job List" active
       props.toggleView();
     });
   };
 
   const submitCreateJobDefinitionRequest = async (event: React.MouseEvent) => {
-    console.log(
-      'In submitCreateJobDefinitionRequest, model is ' +
-        JSON.stringify(props.model)
-    );
-    alert('submitCreateJobDefinitionRequest not implemented yet');
+    if (anyErrors) {
+      console.error(
+        'User attempted to submit a createJobDefinition request; button should have been disabled'
+      );
+      return;
+    }
+
+    const jobDefinitionOptions: Scheduler.ICreateJobDefinition = {
+      name: props.model.jobName,
+      input_uri: props.model.inputFile,
+      output_prefix: props.model.outputPath,
+      runtime_environment_name: props.model.environment,
+      compute_type: props.model.computeType,
+      // idempotency_token is in the form, but not in Scheduler.ICreateJobDefinition
+      tags: props.model.tags,
+      runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
+      schedule: props.model.schedule,
+      timezone: props.model.timezone
+    };
+
+    if (props.model.parameters !== undefined) {
+      jobDefinitionOptions.parameters = serializeParameters(
+        props.model.parameters
+      );
+    }
+
+    if (props.model.outputFormats !== undefined) {
+      jobDefinitionOptions.output_formats = props.model.outputFormats.map(
+        entry => entry.name
+      );
+    }
+
+    api.createJobDefinition(jobDefinitionOptions).then(response => {
+      // TODO: Switch to the list view with "Job Definition List" active
+      props.toggleView();
+    });
   };
 
   const removeParameter = (idx: number) => {
