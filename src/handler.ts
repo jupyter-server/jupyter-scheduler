@@ -28,7 +28,7 @@ export class SchedulerService {
   }
 
   async createJobDefinition(
-    definition: Scheduler.IBaseJobDefinition
+    definition: Scheduler.ICreateJobDefinition
   ): Promise<Scheduler.IDescribeJobDefinition> {
     let data;
     try {
@@ -239,20 +239,32 @@ export namespace SchedulerService {
 }
 
 export namespace Scheduler {
-  export interface IBaseJobDefinition {
-    input_path: string;
-    output_path: string;
+  export interface ICreateJobDefinition {
+    input_uri: string;
+    output_prefix: string;
+    runtime_environment_name: string;
+    runtime_environment_parameters?: { [key: string]: number | string };
+    output_formats?: string[];
+    parameters?: { [key: string]: any };
+    tags?: string[];
     name?: string;
+    output_filename_template?: string;
+    compute_type?: string;
+    schedule?: string;
+    timezone?: string;
   }
 
-  export type IUpdateJobDefinition = IBaseJobDefinition;
-
-  export interface IDescribeJobDefinition extends IBaseJobDefinition {
+  export interface IUpdateJobDefinition extends ICreateJobDefinition {
     job_definition_id: string;
-    last_modified_time: string;
-    job_ids: string[];
+    idempotency_token?: string;
     url?: string;
-    name?: string;
+  }
+
+  export interface IDescribeJobDefinition extends ICreateJobDefinition {
+    job_definition_id: string;
+    create_time: number;
+    update_time: number;
+    active: boolean;
   }
 
   export interface IEmailNotifications {
