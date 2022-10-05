@@ -384,7 +384,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   useEffect(() => {
     updateJob();
-    props.model.jobDefinition = true;
+    props.model.detailType = 'JobDefinition';
   }, []);
 
   return (
@@ -394,7 +394,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
           Loading
-        ) : props.model.jobDefinition ? (
+        ) : props.model.detailType &&
+          props.model.detailType === 'JobDefinition' ? (
           JobDefinition
         ) : (
           <>

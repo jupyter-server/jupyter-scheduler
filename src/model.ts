@@ -108,7 +108,7 @@ export interface IJobDetailModel extends ICreateJobModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  jobDefinition?: boolean;
+  detailType?: 'Job' | 'JobDefinition';
 }
 
 // Convert an IDescribeJobModel to an IJobDetailModel
