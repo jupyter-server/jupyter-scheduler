@@ -100,6 +100,10 @@ export interface IListJobsModel {
   listJobsView: ListJobsView;
 }
 
+export interface IDetailViewModel {
+  detailType: 'Job' | 'JobDefinition';
+  id: string;
+}
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
   status?: Scheduler.Status;
@@ -108,8 +112,11 @@ export interface IJobDetailModel extends ICreateJobModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
+  //TO DELETE detailType
   detailType?: 'Job' | 'JobDefinition';
 }
+
+export type IJobDefinitionModel = Scheduler.IDescribeJobDefinition;
 
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(

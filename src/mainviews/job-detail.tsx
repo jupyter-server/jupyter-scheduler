@@ -347,7 +347,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     job_definition_id: '7a139aa5-250f-427f-88ae-72bd6c7de740',
     input_path: 'in_Untitled-20221003_074708_AM.ipynb',
     output_path: 'out_Untitled-20221003_074708_AM.ipynb',
-
     last_modified_time: '1664579884508',
     job_ids: [
       '7a139aa5-250f-427f-88ae-72bd6c7de740',
