@@ -9,7 +9,7 @@ import {
 } from '../model';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
-import { SchedulerService, Scheduler } from '../handler';
+import { SchedulerService } from '../handler';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Box from '@mui/material/Box';
@@ -317,9 +317,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         >
           {trans.__('Notebook Job Definitions')}
         </Link>
-        <Typography color="text.primary">
-          {mockJobDefinition.name ?? mockJobDefinition.job_definition_id}
-        </Typography>
+        <Typography color="text.primary">{'jobname'}</Typography>
       </Breadcrumbs>
     </div>
   );
@@ -342,94 +340,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
-  const mockJobDefinition: Scheduler.IDescribeJobDefinition = {
-    name: 'My Job Definition',
-    job_definition_id: '7a139aa5-250f-427f-88ae-72bd6c7de740',
-    input_path: 'in_Untitled-20221003_074708_AM.ipynb',
-    output_path: 'out_Untitled-20221003_074708_AM.ipynb',
-    last_modified_time: '1664579884508',
-    job_ids: [
-      '7a139aa5-250f-427f-88ae-72bd6c7de740',
-      '4e1cef9c-227a-437e-b4a3-83526cbb24c3',
-      '4aaf9da2-644c-4844-bd59-2c6274fe3ced'
-    ]
-  };
-
-  const jobDefinitionFields: TextFieldProps[][] = [
-    [
-      {
-        defaultValue: mockJobDefinition.name,
-        label: trans.__('Job Definition name')
-      },
-      {
-        defaultValue: mockJobDefinition.job_definition_id,
-        label: trans.__('Job Definition ID')
-      }
-    ],
-    [
-      {
-        defaultValue: mockJobDefinition.input_path,
-        label: trans.__('Input path')
-      },
-      {
-        defaultValue: mockJobDefinition.output_path,
-        label: trans.__('Output path')
-      }
-    ],
-    [
-      {
-        defaultValue: mockJobDefinition.last_modified_time,
-        label: trans.__('Modified at')
-      }
-    ]
-  ];
-
   const JobDefinition = (
     <Card>
       <CardContent>
-        <Stack spacing={4}>
-          {jobDefinitionFields.map(propsRow => (
-            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-              {propsRow.map(textProp => (
-                <TextFieldStyled
-                  {...textProp}
-                  style={{
-                    flexGrow: 1
-                  }}
-                />
-              ))}
-            </Stack>
-          ))}
-          {mockJobDefinition.job_ids.length && (
-            <>
-              <FormLabel component="legend">{trans.__('Jobs')}</FormLabel>
-              {mockJobDefinition.job_ids.map(jobId => (
-                <Link
-                  key={jobId}
-                  title={trans.__('Open Job "%1"', jobId)}
-                  onClick={(
-                    e:
-                      | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                      | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-                  ) => {
-                    const newModel: IJobDetailModel = {
-                      jobId: jobId,
-                      jobName: '',
-                      inputFile: '',
-                      environment: '',
-                      outputPath: '',
-                      detailType: 'Job'
-                    };
-                    props.handleModelChange(newModel);
-                  }}
-                  style={{ paddingRight: '1em' }}
-                >
-                  {jobId}
-                </Link>
-              ))}
-            </>
-          )}
-        </Stack>
+        <Stack spacing={4}></Stack>
       </CardContent>
     </Card>
   );
