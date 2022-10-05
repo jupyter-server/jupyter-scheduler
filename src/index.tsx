@@ -37,7 +37,7 @@ export namespace CommandIDs {
 }
 
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
-export { Scheduler } from './tokens'
+export { Scheduler } from './tokens';
 
 /**
  * Initialization data for the jupyterlab-scheduler extension.
@@ -204,7 +204,8 @@ async function activatePlugin(
         inputFile: filePath,
         jobName: fileName,
         outputPath: '',
-        environment: ''
+        environment: '',
+        createType: 'Job'
       };
 
       model.createJobModel = newModel;

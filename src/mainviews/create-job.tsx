@@ -3,6 +3,7 @@ import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
+import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
 import {
   OutputFormatPicker,
@@ -11,7 +12,7 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
-import { ICreateJobModel, IOutputFormat } from '../model';
+import { ICreateJobModel, IJobParameter, IOutputFormat } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
@@ -27,6 +28,8 @@ import {
 } from '@mui/material';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
+
+import cron from 'cron-validate';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -103,6 +106,33 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
+  const validateSchedule = (schedule: string) => {
+    const cronResult = cron(schedule);
+    if (cronResult.isValid()) {
+      // No error
+      setErrors({
+        ...errors,
+        schedule: ''
+      });
+    } else {
+      setErrors({
+        ...errors,
+        schedule: trans.__('You must provide a valid Cron expression.')
+      });
+    }
+  };
+
+  const handleScheduleChange = (event: ChangeEvent) => {
+    // Validate the cron expression
+    validateSchedule((event.target as HTMLInputElement).value);
+    handleInputChange(event);
+  };
+
+  // Takes only a string as input
+  const handleTimezoneChange = (value: string | null) => {
+    props.handleModelChange({ ...props.model, timezone: value ?? '' });
+  };
+
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target as HTMLInputElement;
 
@@ -160,6 +190,65 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // If no change in checkedness, don't do anything
   };
 
+  const handleScheduleOptionsChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    value: string
+  ) => {
+    const name = event.target.name;
+
+    // When changing from JobDefinition to Job, remove errors,
+    // so that in case there's an error with the schedule,
+    // the form can still be submitted.
+    if (value === 'Job') {
+      // Change from 'JobDefinition'
+      setErrors({
+        ...errors,
+        ['schedule']: ''
+      });
+    }
+    if (value === 'JobDefinition') {
+      // If the schedule is not populated, don't display an error for now.
+      if (props.model.schedule) {
+        validateSchedule(props.model.schedule);
+      }
+    }
+
+    props.handleModelChange({ ...props.model, [name]: value });
+  };
+
+  const submitForm = async (event: React.MouseEvent) => {
+    switch (props.model.createType) {
+      case 'Job':
+        return submitCreateJobRequest(event);
+      case 'JobDefinition':
+        return submitCreateJobDefinitionRequest(event);
+    }
+  };
+
+  // Convert an array of parameters (as used for display) to an object
+  // (for submission to the API)
+  const serializeParameters = (parameters: IJobParameter[]) => {
+    const jobParameters: { [key: string]: any } = {};
+
+    parameters.forEach(param => {
+      const { name, value } = param;
+      if (jobParameters[name] !== undefined) {
+        console.error(
+          'Parameter ' +
+            name +
+            ' already set to ' +
+            jobParameters[name] +
+            ' and is about to be set again to ' +
+            value
+        );
+      } else {
+        jobParameters[name] = value;
+      }
+    });
+
+    return jobParameters;
+  };
+
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
     if (anyErrors) {
       console.error(
@@ -181,25 +270,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     };
 
     if (props.model.parameters !== undefined) {
-      const jobParameters: { [key: string]: any } = {};
-
-      props.model.parameters.forEach(param => {
-        const { name, value } = param;
-        if (jobParameters[name] !== undefined) {
-          console.error(
-            'Parameter ' +
-              name +
-              ' already set to ' +
-              jobParameters[name] +
-              ' and is about to be set again to ' +
-              value
-          );
-        } else {
-          jobParameters[name] = value;
-        }
-      });
-
-      jobOptions.parameters = jobParameters;
+      jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
     if (props.model.outputFormats !== undefined) {
@@ -209,6 +280,46 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
 
     api.createJob(jobOptions).then(response => {
+      // TODO: Switch to the list view with "Job List" active
+      props.toggleView();
+    });
+  };
+
+  const submitCreateJobDefinitionRequest = async (event: React.MouseEvent) => {
+    if (anyErrors) {
+      console.error(
+        'User attempted to submit a createJobDefinition request; button should have been disabled'
+      );
+      return;
+    }
+
+    const jobDefinitionOptions: Scheduler.ICreateJobDefinition = {
+      name: props.model.jobName,
+      input_uri: props.model.inputFile,
+      output_prefix: props.model.outputPath,
+      runtime_environment_name: props.model.environment,
+      compute_type: props.model.computeType,
+      // idempotency_token is in the form, but not in Scheduler.ICreateJobDefinition
+      tags: props.model.tags,
+      runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
+      schedule: props.model.schedule,
+      timezone: props.model.timezone
+    };
+
+    if (props.model.parameters !== undefined) {
+      jobDefinitionOptions.parameters = serializeParameters(
+        props.model.parameters
+      );
+    }
+
+    if (props.model.outputFormats !== undefined) {
+      jobDefinitionOptions.output_formats = props.model.outputFormats.map(
+        entry => entry.name
+      );
+    }
+
+    api.createJobDefinition(jobDefinitionOptions).then(response => {
+      // TODO: Switch to the list view with "Job Definition List" active
       props.toggleView();
     });
   };
@@ -368,6 +479,19 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               />
             </AccordionDetails>
           </Accordion>
+          <CreateScheduleOptions
+            label={trans.__('Schedule')}
+            name={'createType'}
+            id={`${formPrefix}createType`}
+            createType={props.model.createType}
+            handleCreateTypeChange={handleScheduleOptionsChange}
+            schedule={props.model.schedule}
+            handleScheduleChange={handleScheduleChange}
+            timezone={props.model.timezone}
+            handleTimezoneChange={handleTimezoneChange}
+            errors={errors}
+            handleErrorsChange={setErrors}
+          />
           <Cluster gap={3} justifyContent="flex-end">
             <Button variant="outlined" onClick={props.toggleView}>
               {trans.__('Cancel')}
@@ -375,7 +499,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             <Button
               variant="contained"
               onClick={(e: React.MouseEvent) => {
-                submitCreateJobRequest(e);
+                submitForm(e);
                 return false;
               }}
               disabled={anyErrors}

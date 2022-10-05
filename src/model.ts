@@ -82,12 +82,18 @@ export interface ICreateJobModel {
   inputFile: string;
   outputPath: string;
   environment: string;
+  // A "job" runs now; a "job definition" runs on a schedule
+  createType: 'Job' | 'JobDefinition';
   runtimeEnvironmentParameters?: { [key: string]: number | string };
   parameters?: IJobParameter[];
   outputFormats?: IOutputFormat[];
   computeType?: string;
   idempotencyToken?: string;
   tags?: string[];
+  // String for schedule in cron format
+  schedule?: string;
+  // String for timezone in tz database format
+  timezone?: string;
 }
 
 export interface IListJobsModel {
@@ -120,6 +126,7 @@ export function convertDescribeJobtoJobDetail(
 
   // TODO: Convert outputFormats
   return {
+    createType: 'Job',
     jobId: dj.job_id,
     jobName: dj.name ?? '',
     inputFile: dj.input_uri,
@@ -227,7 +234,8 @@ namespace Private {
       jobName: '',
       inputFile: '',
       outputPath: '',
-      environment: ''
+      environment: '',
+      createType: 'Job'
     };
   }
 }

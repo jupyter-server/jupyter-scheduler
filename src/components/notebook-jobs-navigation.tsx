@@ -18,6 +18,7 @@ export function NotebookJobsNavigation(props: {
         jobName: '',
         outputPath: '',
         environment: '',
+        createType: 'Job',
         parameters: undefined
       };
 
