@@ -106,23 +106,25 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
-  const handleScheduleChange = (event: ChangeEvent) => {
-    // Validate the cron expression
-    const target = event.target as HTMLInputElement;
-    const cronResult = cron(target.value);
+  const validateSchedule = (schedule: string) => {
+    const cronResult = cron(schedule);
     if (cronResult.isValid()) {
       // No error
       setErrors({
         ...errors,
-        [target.name]: ''
+        schedule: ''
       });
     } else {
       setErrors({
         ...errors,
-        [target.name]: trans.__('You must provide a valid Cron expression.')
+        schedule: trans.__('You must provide a valid Cron expression.')
       });
     }
+  };
 
+  const handleScheduleChange = (event: ChangeEvent) => {
+    // Validate the cron expression
+    validateSchedule((event.target as HTMLInputElement).value);
     handleInputChange(event);
   };
 
@@ -193,6 +195,23 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     value: string
   ) => {
     const name = event.target.name;
+
+    // When changing from JobDefinition to Job, remove errors,
+    // so that in case there's an error with the schedule,
+    // the form can still be submitted.
+    if (value === 'Job') {
+      // Change from 'JobDefinition'
+      setErrors({
+        ...errors,
+        ['schedule']: ''
+      });
+    }
+    if (value === 'JobDefinition') {
+      // If the schedule is not populated, don't display an error for now.
+      if (props.model.schedule) {
+        validateSchedule(props.model.schedule);
+      }
+    }
 
     props.handleModelChange({ ...props.model, [name]: value });
   };
