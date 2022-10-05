@@ -67,6 +67,7 @@ matching attribute in DescribeJob, but probably the most
 expected in the output filename. These templates are
 expecting jinja2 format for attributes. Attributes that
 don't follow valid filenames will be normalized.
+
 Examples of other formats:
 "{{name}}-{{timestamp}}"
 "{{runtime_environment_name}}_{{filename}}_{{job_id}}"
