@@ -11,10 +11,10 @@ import { calendarMonthIcon } from './components/icons';
 import TranslatorContext from './context';
 import { CreateJob } from './mainviews/create-job';
 import { NotebookJobsList } from './mainviews/list-jobs';
-import { JobDetail } from './mainviews/job-detail';
 import { ICreateJobModel, JobsModel } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
+import { DetailView } from './mainviews/detail-view';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -97,7 +97,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
-            <JobDetail
+            <DetailView
               app={this._app}
               model={this.model.jobDetailModel}
               handleModelChange={newModel =>

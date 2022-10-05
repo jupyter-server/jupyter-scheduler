@@ -2,13 +2,13 @@ import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Scheduler as SchedulerTokens } from '../tokens';
-import { ICreateJobModel, IDetailViewModel, JobsView } from '../model';
+import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
 import { JobDetail } from './job-detail';
 
 export interface IDetailViewProps {
   app: JupyterFrontEnd;
-  model: IDetailViewModel;
-  handleModelChange: (model: IDetailViewModel) => void;
+  model: IJobDetailModel;
+  handleModelChange: (model: IJobDetailModel) => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
@@ -16,5 +16,21 @@ export interface IDetailViewProps {
 }
 
 export function DetailView(props: IDetailViewProps): JSX.Element {
-  return <JobDetail app={props.app} model={{ jobId: props.model.id }} />;
+  return (
+    <JobDetail
+      app={props.app}
+      model={{
+        jobId: props.model.jobId,
+        jobName: '',
+        outputPath: '',
+        environment: '',
+        inputFile: '',
+        detailType: 'JobDefinition'
+      }}
+      handleModelChange={props.handleModelChange}
+      setCreateJobModel={props.setCreateJobModel}
+      setView={props.setView}
+      advancedOptions={props.advancedOptions}
+    />
+  );
 }
