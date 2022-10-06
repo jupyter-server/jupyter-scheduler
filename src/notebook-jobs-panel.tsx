@@ -14,7 +14,7 @@ import { NotebookJobsList } from './mainviews/list-jobs';
 import { ICreateJobModel, JobsModel } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
-import { DetailView } from './mainviews/detail-view';
+import { JobDetail } from './mainviews/job-detail';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -97,7 +97,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
-            <DetailView
+            <JobDetail
               app={this._app}
               model={this.model.jobDetailModel}
               handleModelChange={newModel =>

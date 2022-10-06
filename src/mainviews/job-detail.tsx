@@ -10,7 +10,7 @@ import {
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
-import { Scheduler as SchedulerTokens } from '../tokens';
+import { Scheduler } from '../tokens';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -35,7 +35,7 @@ export interface IJobDetailProps {
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
-  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 }
 
 const TextFieldStyled = (props: TextFieldProps) => (
@@ -303,77 +303,17 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  const DefinitionBreadcrumbsStyled = () => (
-    <div role="presentation">
-      <Breadcrumbs aria-label="breadcrumb">
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={(
-            _:
-              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-              | React.MouseEvent<HTMLSpanElement, MouseEvent>
-          ): void => props.setView('ListJobs')}
-        >
-          {trans.__('Notebook Job Definitions')}
-        </Link>
-        <Typography color="text.primary">{'jobname'}</Typography>
-      </Breadcrumbs>
-    </div>
-  );
-
-  const DefinitionButtonBar = (
-    <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      <Button
-        variant="outlined"
-        onClick={() => console.log('pause definition')}
-      >
-        {trans.__('Pause Job Definition')}
-      </Button>
-      <Button
-        variant="contained"
-        color="error"
-        onClick={() => console.log('delete definition')}
-      >
-        {trans.__('Delete Job Definition')}
-      </Button>
-    </Stack>
-  );
-
-  const JobDefinition = (
-    <Card>
-      <CardContent>
-        <Stack spacing={4}></Stack>
-      </CardContent>
-    </Card>
-  );
-
   useEffect(() => {
     updateJob();
-  }, [props.model.jobId]);
-
-  useEffect(() => {
-    props.model.detailType = 'JobDefinition';
   }, []);
 
   return (
     <Box sx={{ p: 4 }}>
       <Stack spacing={4}>
-        {props.model.detailType &&
-        props.model.detailType === 'JobDefinition' ? (
-          <DefinitionBreadcrumbsStyled />
-        ) : (
-          <BreadcrumbsStyled />
-        )}
+        <BreadcrumbsStyled />
         <Heading level={1}>{trans.__('Job Detail')}</Heading>
         {loading ? (
           Loading
-        ) : props.model.detailType &&
-          props.model.detailType === 'JobDefinition' ? (
-          <>
-            {DefinitionButtonBar}
-            {JobDefinition}
-          </>
         ) : (
           <>
             {ButtonBar}
