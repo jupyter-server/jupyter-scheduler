@@ -10,7 +10,7 @@ import {
   JobsView
 } from '../model';
 import { useTranslator } from '../hooks';
-import { SchedulerService, Scheduler as HandlerScheduler } from '../handler';
+import { SchedulerService } from '../handler';
 import { Scheduler } from '../tokens';
 import { JobDetail } from './job-detail';
 import { JobDefinition } from './job-definition';
