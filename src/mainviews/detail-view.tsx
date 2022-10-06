@@ -14,7 +14,7 @@ import { Scheduler } from '../tokens';
 import { JobDetail } from './job-detail';
 
 import Stack from '@mui/material/Stack';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -72,16 +72,20 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
 
   if (props.model.detailType === 'Job' && jobsModel) {
     return (
-      <JobDetail
-        app={props.app}
-        model={jobsModel}
-        handleModelChange={props.handleModelChange}
-        setCreateJobModel={props.setCreateJobModel}
-        setView={props.setView}
-        // Extension point: optional additional component
-        advancedOptions={props.advancedOptions}
-        outputFormatsStrings={outputFormatStrings ?? []}
-      />
+      <Box sx={{ p: 4 }}>
+        <Stack spacing={4}>
+          <JobDetail
+            app={props.app}
+            model={jobsModel}
+            handleModelChange={props.handleModelChange}
+            setCreateJobModel={props.setCreateJobModel}
+            setView={props.setView}
+            // Extension point: optional additional component
+            advancedOptions={props.advancedOptions}
+            outputFormatsStrings={outputFormatStrings ?? []}
+          />
+        </Stack>
+      </Box>
     );
   }
 

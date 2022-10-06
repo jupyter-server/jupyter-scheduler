@@ -6,7 +6,6 @@ import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
 
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -267,15 +266,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   );
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Stack spacing={4}>
-        <BreadcrumbsStyled />
-        <Heading level={1}>{trans.__('Job Detail')}</Heading>
-        {ButtonBar}
-        {CoreOptions}
-        {Parameters}
-        {AdvancedOptions}
-      </Stack>
-    </Box>
+    <>
+      <BreadcrumbsStyled />
+      <Heading level={1}>{trans.__('Job Detail')}</Heading>
+      {ButtonBar}
+      {CoreOptions}
+      {Parameters}
+      {AdvancedOptions}
+    </>
   );
 }
