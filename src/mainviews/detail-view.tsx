@@ -119,7 +119,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             <JobDetail
               app={props.app}
               model={jobModel}
-              handleModelChange={props.handleModelChange}
+              handleModelChange={() => fetchJobDetailModel()}
               setCreateJobModel={props.setCreateJobModel}
               setView={props.setView}
               // Extension point: optional additional component

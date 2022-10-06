@@ -23,7 +23,7 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
-  handleModelChange: (model: IJobDetailModel) => void;
+  handleModelChange: () => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
@@ -61,6 +61,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     await props.app.commands.execute('scheduling:stop-job', {
       id: props.model.jobId
     });
+    props.handleModelChange();
   };
 
   const timestampLocalize = (time: number | '') => {
