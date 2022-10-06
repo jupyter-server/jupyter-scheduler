@@ -39,7 +39,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {trans.__('Notebook Job Definitions')}
         </Link>
         <Typography color="text.primary">
-          {props.model.name ?? props.model.job_definition_id}
+          {props.model.name ?? props.model.definitionId}
         </Typography>
       </Breadcrumbs>
     </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
+  convertDescribeDefinitiontoDefinition,
   convertDescribeJobtoJobDetail,
   ICreateJobModel,
   IDetailViewModel,
@@ -60,13 +61,16 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
   const fetchJobDetailModel = async () => {
     const jobFromService = await ss.getJob(props.model.id);
     setOutputFormatStrings(jobFromService.output_formats ?? []);
-    const newModel = convertDescribeJobtoJobDetail(jobFromService);
-    setJobsModel(newModel);
+    const jobDetailModel = convertDescribeJobtoJobDetail(jobFromService);
+    setJobsModel(jobDetailModel);
   };
 
   const fetchJobDefinitionlModel = async () => {
     const definitionFromService = await ss.getJobDefinition(props.model.id);
-    setJobDefinitionModel(definitionFromService);
+    const jobDefinitionModel = convertDescribeDefinitiontoDefinition(
+      definitionFromService
+    );
+    setJobDefinitionModel(jobDefinitionModel);
   };
 
   useEffect(() => {
