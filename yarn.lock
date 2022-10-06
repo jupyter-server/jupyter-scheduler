@@ -4076,6 +4076,11 @@ cron-validate@^1.4.3:
   dependencies:
     yup "0.32.9"
 
+cronstrue@^2.12.0:
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/cronstrue/-/cronstrue-2.12.0.tgz#3497b98dab3cba54d3acdc63fe424947b708098b"
+  integrity sha512-PAIluUuZfZnJQcrS0XrhEVywO5+rIneWgBnwS4R0ebIeUdLnbsNBW/pWiJQIKx48WabRYwlxIEPy+qWJVmaINQ==
+
 cross-spawn@^6.0.0, cross-spawn@^6.0.5:
   version "6.0.5"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-6.0.5.tgz#4a5ec7c64dfae22c3a14124dbacdee846d80cbc4"

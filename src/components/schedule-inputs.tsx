@@ -1,4 +1,6 @@
 import React, { ChangeEvent } from 'react';
+
+import cronstrue from 'cronstrue';
 import tzdata from 'tzdata';
 
 import { Autocomplete, TextField } from '@mui/material';
@@ -23,6 +25,16 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
 
   const timezoneLabel = trans.__('Time zone');
 
+  let cronString;
+  try {
+    if (props.schedule !== undefined && !props.errors['schedule']) {
+      cronString = cronstrue.toString(props.schedule);
+    }
+  }
+  catch (e) {
+    // Do nothing; let the errors or nothing display instead
+  }
+
   return (
     <>
       <TextField
@@ -33,7 +45,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
         id={`${props.idPrefix}schedule`}
         name="schedule"
         error={!!props.errors['schedule']}
-        helperText={props.errors['schedule']}
+        helperText={props.errors['schedule'] || cronString}
       />
       <Autocomplete
         id={`${props.idPrefix}timezone`}
