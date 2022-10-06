@@ -2,10 +2,12 @@ import json
 import os
 import random
 import subprocess
+import zoneinfo
+from uuid import uuid4
 
 import click
 
-from jupyter_scheduler.orm import Job, create_session, create_tables
+from jupyter_scheduler.orm import Job, JobDefinition, create_session, create_tables
 from jupyter_scheduler.utils import get_utc_timestamp
 
 
@@ -17,7 +19,39 @@ def get_db_path():
     return os.path.join(data[0], "scheduler.sqlite")
 
 
-def create_random_job(index: int):
+def create_random_job_def(index: int):
+    name = random.choice(
+        [
+            "definition alpha",
+            "definition beta",
+            "super schedule",
+            "cool definition",
+            "lame definition",
+        ]
+    )
+    job_definition_id = str(uuid4())
+    input_uri = "".join(name.split()) + ".ipynb"
+    output_prefix = ""
+    timezone = random.choice(list(zoneinfo.available_timezones()))
+    # random schedules can be generated via https://crontab.guru/
+    schedule = random.choice(
+        ["0 0,12 1 */2 *", "0 4 8-14 * *", "0 0 1,15 * 3", "@weekly", "5 0 * 8 *", "15 14 1 * *"]
+    )
+    active = random.choice([True, False])
+
+    return JobDefinition(
+        name=f"{name} {index}",
+        job_definition_id=job_definition_id,
+        input_uri=input_uri,
+        output_prefix=output_prefix,
+        timezone=timezone,
+        schedule=schedule,
+        active=active,
+        runtime_environment_name="",
+    )
+
+
+def create_random_job(index: int, job_def_id: str):
     status = random.choice(["CREATED", "QUEUED", "COMPLETED", "FAILED", "IN_PROGRESS", "STOPPED"])
     name = random.choice(
         [
@@ -47,6 +81,7 @@ def create_random_job(index: int):
 
     return Job(
         name=f"{name} {index}",
+        job_definition_id=job_def_id,
         input_uri=input_uri,
         output_prefix=output_prefix,
         status=status,
@@ -57,7 +92,7 @@ def create_random_job(index: int):
     )
 
 
-def load_data(count: int, db_path: str):
+def load_data(jobs_count: int, job_defs_count: int, db_path: str):
     db_url = f"sqlite:///{db_path}"
 
     if os.path.exists(db_path):
@@ -67,13 +102,22 @@ def load_data(count: int, db_path: str):
     db_session = create_session(db_url)
 
     with db_session() as session:
-        for index in range(1, count + 1):
-            session.add(create_random_job(index))
+        job_def_ids = []
+
+        for index in range(1, job_defs_count + 1):
+            job_def = create_random_job_def(index)
+            session.add(job_def)
+            job_def_ids.append(job_def.job_definition_id)
+
+        for index in range(1, jobs_count + 1):
+            session.add(create_random_job(index, random.choice(job_def_ids)))
 
         session.commit()
 
-    click.echo(f"\nCreated {count} jobs in the scheduler database")
-    click.echo(f"present at {db_path}, copy the following command")
+    click.echo(
+        f"\nCreated {jobs_count} jobs and {job_defs_count} job definitions in the scheduler database"
+    )
+    click.echo(f"present at {db_path}. Copy the following command")
     click.echo(f"to start JupyterLab with this database.\n")
     click.echo(f"`jupyter lab --SchedulerApp.db_url={db_url}`\n")
 
@@ -81,15 +125,20 @@ def load_data(count: int, db_path: str):
 @click.command(
     help="Inserts random jobs in the scheduler database. Note, that this command will drop the tables and re-create."
 )
-@click.option("--count", default=25, help="No of jobs to create, default is 25")
+
+# set to unique numbers by default to help test pagination with partially empty pages.
+@click.option("--jobs-count", default=57, help="No of jobs to create, default is 57.")
+@click.option(
+    "--job-defs-count", default=27, help="No of job definitions to create, default is 27."
+)
 @click.option(
     "--db_path",
     type=click.Path(),
     default=get_db_path(),
     help="DB file path, default is scheduler db path",
 )
-def main(count, db_path) -> None:
-    load_data(count, db_path)
+def main(jobs_count, job_defs_count, db_path) -> None:
+    load_data(jobs_count, job_defs_count, db_path)
 
 
 if __name__ == "__main__":
