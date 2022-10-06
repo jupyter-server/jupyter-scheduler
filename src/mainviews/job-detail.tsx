@@ -1,16 +1,16 @@
 import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ICreateJobModel } from '../model';
+import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
 import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
+import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-
 import {
   Card,
   CardContent,
@@ -19,11 +19,20 @@ import {
   TextFieldProps,
   Typography
 } from '@mui/material';
-import { IJobDetailProps } from './detail-view';
 
-const TextFieldStyled = (props: TextFieldProps) => (
+export const TextFieldStyled = (props: TextFieldProps) => (
   <TextField {...props} variant="outlined" InputProps={{ readOnly: true }} />
 );
+export interface IJobDetailProps {
+  app: JupyterFrontEnd;
+  model: IJobDetailModel;
+  handleModelChange: (model: IJobDetailModel) => void;
+  setCreateJobModel: (createModel: ICreateJobModel) => void;
+  setView: (view: JobsView) => void;
+  // Extension point: optional additional component
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  outputFormatsStrings?: string[];
+}
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');

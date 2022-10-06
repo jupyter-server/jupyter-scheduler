@@ -5,27 +5,18 @@ import {
   convertDescribeJobtoJobDetail,
   ICreateJobModel,
   IDetailViewModel,
+  IJobDefinitionModel,
   IJobDetailModel,
   JobsView
 } from '../model';
 import { useTranslator } from '../hooks';
-import { SchedulerService } from '../handler';
+import { SchedulerService, Scheduler as HandlerScheduler } from '../handler';
 import { Scheduler } from '../tokens';
 import { JobDetail } from './job-detail';
+import { JobDefinition } from './job-definition';
 
 import Stack from '@mui/material/Stack';
 import { Box, CircularProgress } from '@mui/material';
-
-export interface IJobDetailProps {
-  app: JupyterFrontEnd;
-  model: IJobDetailModel;
-  handleModelChange: (model: IJobDetailModel) => void;
-  setCreateJobModel: (createModel: ICreateJobModel) => void;
-  setView: (view: JobsView) => void;
-  // Extension point: optional additional component
-  advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
-  outputFormatsStrings?: string[];
-}
 
 export interface IDetailViewProps {
   app: JupyterFrontEnd;
@@ -47,8 +38,37 @@ const Loading = (props: ILoadingProps) => (
   </Stack>
 );
 
+// export interface ICreateJobDefinition {
+//   input_uri: string;
+//   output_prefix: string;
+//   runtime_environment_name: string;
+//   runtime_environment_parameters?: { [key: string]: number | string };
+//   output_formats?: string[];
+//   parameters?: { [key: string]: any };
+//   tags?: string[];
+//   name?: string;
+//   output_filename_template?: string;
+//   compute_type?: string;
+//   schedule?: string;
+//   timezone?: string;
+// }
+
+// export interface IDescribeJobDefinition extends ICreateJobDefinition {
+//   job_definition_id: string;
+//   create_time: number;
+//   update_time: number;
+//   active: boolean;
+// }
+
+// const mockJobDefinition: HandlerScheduler.IDescribeJobDefinition = {
+//   name: 'My Job Definition',
+//   job_definition_id: '7a139aa5-250f-427f-88ae-72bd6c7de740',
+// };
+
 export function DetailView(props: IDetailViewProps): JSX.Element {
   const [jobsModel, setJobsModel] = useState<IJobDetailModel | null>(null);
+  const [jobDefinitionModel, setJobDefinitionModel] =
+    useState<IJobDefinitionModel | null>(null);
   const [outputFormatStrings, setOutputFormatStrings] = useState<
     string[] | null
   >(null);
@@ -65,10 +85,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
   };
 
   const fetchJobDefinitionlModel = async () => {
-    const jobFromService = await ss.getJob(props.model.id);
-    setOutputFormatStrings(jobFromService.output_formats ?? []);
-    const newModel = convertDescribeJobtoJobDetail(jobFromService);
-    setJobsModel(newModel);
+    const definitionFromService = await ss.getJobDefinition(props.model.id);
+    setJobDefinitionModel(definitionFromService);
   };
 
   useEffect(() => {
@@ -98,7 +116,9 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
               outputFormatsStrings={outputFormatStrings ?? []}
             />
           )}
-          {props.model.detailType === 'JobDefinition' && <>'Definition'</>}
+          {props.model.detailType === 'JobDefinition' && jobDefinitionModel && (
+            <JobDefinition model={jobDefinitionModel} setView={props.setView} />
+          )}
         </Stack>
       </Box>
     );
