@@ -114,8 +114,15 @@ export interface IJobDetailModel extends ICreateJobModel {
   outputPrefix?: string;
 }
 
-export type IJobDefinitionModel = Scheduler.IDescribeJobDefinition;
-
+export interface IJobDefinitionModel extends ICreateJobModel {
+  definitionId: string;
+  active?: Scheduler.Status;
+  createTime?: number;
+  updateTime?: number;
+  startTime?: number;
+  endTime?: number;
+  outputPrefix?: string;
+}
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(
   dj: Scheduler.IDescribeJob
@@ -149,6 +156,40 @@ export function convertDescribeJobtoJobDetail(
     updateTime: dj.update_time,
     startTime: dj.start_time,
     endTime: dj.end_time
+  };
+}
+
+export function convertDescribeJobDefinitiontoJobDefinition(
+  dj: Scheduler.IDescribeJobDefinition
+): IJobDefinitionModel {
+  // Convert parameters
+  const jdParameters = Object.entries(dj.parameters ?? {}).map(
+    ([pName, pValue]) => {
+      return {
+        name: pName,
+        value: pValue
+      };
+    }
+  );
+
+  // TODO: Convert outputFormats
+  return {
+    jobName: dj.name ?? '',
+    inputFile: dj.input_uri,
+    createType: 'JobDefinition',
+    definitionId: dj.job_definition_id,
+    outputPath: dj.output_filename_template ?? '',
+    outputPrefix: dj.output_prefix,
+    environment: dj.runtime_environment_name,
+    parameters: jdParameters,
+    outputFormats: [],
+    computeType: dj.compute_type,
+    tags: dj.tags,
+    active: dj.active ? 'IN_PROGRESS' : 'STOPPED',
+    createTime: dj.create_time,
+    updateTime: dj.update_time,
+    schedule: dj.schedule,
+    timezone: dj.timezone
   };
 }
 
