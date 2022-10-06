@@ -38,33 +38,6 @@ const Loading = (props: ILoadingProps) => (
   </Stack>
 );
 
-// export interface ICreateJobDefinition {
-//   input_uri: string;
-//   output_prefix: string;
-//   runtime_environment_name: string;
-//   runtime_environment_parameters?: { [key: string]: number | string };
-//   output_formats?: string[];
-//   parameters?: { [key: string]: any };
-//   tags?: string[];
-//   name?: string;
-//   output_filename_template?: string;
-//   compute_type?: string;
-//   schedule?: string;
-//   timezone?: string;
-// }
-
-// export interface IDescribeJobDefinition extends ICreateJobDefinition {
-//   job_definition_id: string;
-//   create_time: number;
-//   update_time: number;
-//   active: boolean;
-// }
-
-// const mockJobDefinition: HandlerScheduler.IDescribeJobDefinition = {
-//   name: 'My Job Definition',
-//   job_definition_id: '7a139aa5-250f-427f-88ae-72bd6c7de740',
-// };
-
 export function DetailView(props: IDetailViewProps): JSX.Element {
   const [jobsModel, setJobsModel] = useState<IJobDetailModel | null>(null);
   const [jobDefinitionModel, setJobDefinitionModel] =
