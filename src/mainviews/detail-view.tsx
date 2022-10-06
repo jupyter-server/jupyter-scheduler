@@ -70,27 +70,26 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     }
   }, [props.model]);
 
-  if (props.model.detailType === 'Job' && jobsModel) {
+  if (props.model.detailType) {
     return (
       <Box sx={{ p: 4 }}>
         <Stack spacing={4}>
-          <JobDetail
-            app={props.app}
-            model={jobsModel}
-            handleModelChange={props.handleModelChange}
-            setCreateJobModel={props.setCreateJobModel}
-            setView={props.setView}
-            // Extension point: optional additional component
-            advancedOptions={props.advancedOptions}
-            outputFormatsStrings={outputFormatStrings ?? []}
-          />
+          {props.model.detailType === 'Job' && jobsModel && (
+            <JobDetail
+              app={props.app}
+              model={jobsModel}
+              handleModelChange={props.handleModelChange}
+              setCreateJobModel={props.setCreateJobModel}
+              setView={props.setView}
+              // Extension point: optional additional component
+              advancedOptions={props.advancedOptions}
+              outputFormatsStrings={outputFormatStrings ?? []}
+            />
+          )}
+          {props.model.detailType === 'JobDefinition' && <>'Definition'</>}
         </Stack>
       </Box>
     );
-  }
-
-  if (props.model.detailType === 'JobDefinition') {
-    return <>'Definition'</>;
   }
 
   return <Loading title={trans.__('Loading')} />;
