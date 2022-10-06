@@ -112,8 +112,6 @@ export interface IJobDetailModel extends ICreateJobModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  //TO DELETE detailType
-  detailType?: 'Job' | 'JobDefinition';
 }
 
 export type IJobDefinitionModel = Scheduler.IDescribeJobDefinition;
