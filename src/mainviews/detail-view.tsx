@@ -49,6 +49,9 @@ const Loading = (props: ILoadingProps) => (
 
 export function DetailView(props: IDetailViewProps): JSX.Element {
   const [jobsModel, setJobsModel] = useState<IJobDetailModel | null>(null);
+  const [outputFormatStrings, setOutputFormatStrings] = useState<
+    string[] | null
+  >(null);
 
   const trans = useTranslator('jupyterlab');
 
@@ -56,9 +59,9 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
 
   const fetchJobDetailModel = async () => {
     const jobFromService = await ss.getJob(props.model.id);
+    setOutputFormatStrings(jobFromService.output_formats ?? []);
     const newModel = convertDescribeJobtoJobDetail(jobFromService);
     setJobsModel(newModel);
-    console.log(newModel);
   };
 
   useEffect(() => {
@@ -77,6 +80,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         setView={props.setView}
         // Extension point: optional additional component
         advancedOptions={props.advancedOptions}
+        outputFormatsStrings={outputFormatStrings ?? []}
       />
     );
   }
