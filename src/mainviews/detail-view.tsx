@@ -43,6 +43,20 @@ const TextFieldStyled = (props: TextFieldProps) => (
 );
 
 export function DetailView(props: IJobDetailProps): JSX.Element {
+  return (
+    <JobDetail
+      app={props.app}
+      model={props.model}
+      handleModelChange={props.handleModelChange}
+      setCreateJobModel={props.setCreateJobModel}
+      setView={props.setView}
+      // Extension point: optional additional component
+      advancedOptions={props.advancedOptions}
+    />
+  );
+}
+
+export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [outputFormatsStrings, setOutputFormatsStrings] = useState<string[]>(
     []
