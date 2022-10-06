@@ -48,9 +48,7 @@ const Loading = (props: ILoadingProps) => (
 );
 
 export function DetailView(props: IDetailViewProps): JSX.Element {
-  const [jobsModel, setJobsModel] = useState<IJobDetailModel | undefined>(
-    undefined
-  );
+  const [jobsModel, setJobsModel] = useState<IJobDetailModel | null>(null);
 
   const trans = useTranslator('jupyterlab');
 
@@ -69,7 +67,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     }
   }, [props.model]);
 
-  if (props.model.detailType === 'Job' && jobsModel !== undefined) {
+  if (props.model.detailType === 'Job' && jobsModel) {
     return (
       <JobDetail
         app={props.app}
