@@ -14,6 +14,7 @@ import {
   Typography
 } from '@mui/material';
 import { TextFieldStyled } from './job-detail';
+import { Heading } from '../components/heading';
 
 export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
@@ -145,6 +146,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   return (
     <>
       {DefinitionBreadcrumbsStyled}
+      <Heading level={1}>{trans.__('Job Detail')}</Heading>
       {DefinitionButtonBar}
       {JobDefinition}
     </>

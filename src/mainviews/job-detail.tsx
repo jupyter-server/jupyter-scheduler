@@ -3,12 +3,10 @@ import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
-import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import {
@@ -16,8 +14,7 @@ import {
   CardContent,
   FormLabel,
   TextField,
-  TextFieldProps,
-  Typography
+  TextFieldProps
 } from '@mui/material';
 
 export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
@@ -77,25 +74,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       return local_display_date;
     }
   };
-
-  const BreadcrumbsStyled = () => (
-    <div role="presentation">
-      <Breadcrumbs aria-label="breadcrumb">
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={(
-            _:
-              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-              | React.MouseEvent<HTMLSpanElement, MouseEvent>
-          ): void => props.setView('ListJobs')}
-        >
-          {trans.__('Notebook Jobs')}
-        </Link>
-        <Typography color="text.primary">{props.model.jobName}</Typography>
-      </Breadcrumbs>
-    </div>
-  );
 
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
@@ -276,8 +254,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   return (
     <>
-      <BreadcrumbsStyled />
-      <Heading level={1}>{trans.__('Job Detail')}</Heading>
       {ButtonBar}
       {CoreOptions}
       {Parameters}

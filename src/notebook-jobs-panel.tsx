@@ -97,9 +97,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
+            //TODO: update jobDetailModel (IJobDetailModel) passed to the element to detailViewModel (IDetailViewModel) in all props
             <DetailView
               app={this._app}
-              model={{ id: this.model.jobDetailModel.jobId, detailType: 'Job' }}
+              model={{
+                id: this.model.jobDetailModel.jobId,
+                //detailType: 'JobDefinition'
+                detailType: 'Job'
+              }}
               handleModelChange={newModel =>
                 (this.model.jobDetailModel = newModel)
               }

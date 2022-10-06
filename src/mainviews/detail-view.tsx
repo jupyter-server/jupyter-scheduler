@@ -16,7 +16,14 @@ import { JobDetail } from './job-detail';
 import { JobDefinition } from './job-definition';
 
 import Stack from '@mui/material/Stack';
-import { Box, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Breadcrumbs,
+  CircularProgress,
+  Link,
+  Typography
+} from '@mui/material';
+import { Heading } from '../components/heading';
 
 export interface IDetailViewProps {
   app: JupyterFrontEnd;
@@ -39,7 +46,7 @@ const Loading = (props: ILoadingProps) => (
 );
 
 export function DetailView(props: IDetailViewProps): JSX.Element {
-  const [jobsModel, setJobsModel] = useState<IJobDetailModel | null>(null);
+  const [jobModel, setJobsModel] = useState<IJobDetailModel | null>(null);
   const [jobDefinitionModel, setJobDefinitionModel] =
     useState<IJobDefinitionModel | null>(null);
   const [outputFormatStrings, setOutputFormatStrings] = useState<
@@ -73,14 +80,45 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     }
   }, [props.model]);
 
+  const BreadcrumbsStyled = (
+    <div role="presentation">
+      <Breadcrumbs aria-label="breadcrumb">
+        <Link
+          underline="hover"
+          color="inherit"
+          onClick={(
+            _:
+              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+              | React.MouseEvent<HTMLSpanElement, MouseEvent>
+          ): void => props.setView('ListJobs')}
+        >
+          {props.model.detailType === 'Job'
+            ? trans.__('Notebook Jobs')
+            : trans.__('Notebook Definitions')}
+        </Link>
+        <Typography color="text.primary">
+          {props.model.detailType === 'Job'
+            ? jobModel?.jobName ?? ''
+            : jobDefinitionModel?.name ?? ''}
+        </Typography>
+      </Breadcrumbs>
+    </div>
+  );
+
   if (props.model.detailType) {
     return (
       <Box sx={{ p: 4 }}>
         <Stack spacing={4}>
-          {props.model.detailType === 'Job' && jobsModel && (
+          {BreadcrumbsStyled}
+          <Heading level={1}>
+            {props.model.detailType === 'Job'
+              ? trans.__('Job Detail')
+              : trans.__('Job Definition')}
+          </Heading>
+          {props.model.detailType === 'Job' && jobModel && (
             <JobDetail
               app={props.app}
-              model={jobsModel}
+              model={jobModel}
               handleModelChange={props.handleModelChange}
               setCreateJobModel={props.setCreateJobModel}
               setView={props.setView}
