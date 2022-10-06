@@ -116,6 +116,7 @@ export interface IJobDetailModel extends ICreateJobModel {
 
 export interface IJobDefinitionModel extends ICreateJobModel {
   definitionId: string;
+  name?: string;
   active?: Scheduler.Status;
   createTime?: number;
   updateTime?: number;
@@ -174,7 +175,8 @@ export function convertDescribeDefinitiontoDefinition(
 
   // TODO: Convert outputFormats
   return {
-    jobName: dj.name ?? '',
+    name: dj.name ?? '',
+    jobName: '',
     inputFile: dj.input_uri,
     createType: 'JobDefinition',
     definitionId: dj.job_definition_id,
