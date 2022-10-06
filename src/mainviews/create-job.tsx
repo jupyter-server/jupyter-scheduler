@@ -483,6 +483,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             label={trans.__('Schedule')}
             name={'createType'}
             id={`${formPrefix}createType`}
+            model={props.model}
+            handleModelChange={props.handleModelChange}
             createType={props.model.createType}
             handleCreateTypeChange={handleScheduleOptionsChange}
             schedule={props.model.schedule}

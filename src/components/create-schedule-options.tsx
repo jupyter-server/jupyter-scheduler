@@ -4,6 +4,7 @@ import { FormControlLabel, InputLabel, Radio, RadioGroup } from '@mui/material';
 import Stack from '@mui/system/Stack';
 
 import { useTranslator } from '../hooks';
+import { ICreateJobModel } from '../model';
 import { ScheduleInputs } from './schedule-inputs';
 import { Scheduler } from '../tokens';
 
@@ -11,6 +12,8 @@ export type CreateScheduleOptionsProps = {
   label: string;
   name: string;
   id: string;
+  model: ICreateJobModel;
+  handleModelChange: (model: ICreateJobModel) => void;
   createType: string;
   handleCreateTypeChange: (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -55,6 +58,8 @@ export function CreateScheduleOptions(
         <ScheduleInputs
           idPrefix={`${props.id}-definition-`}
           schedule={props.schedule}
+          model={props.model}
+          handleModelChange={props.handleModelChange}
           handleScheduleChange={props.handleScheduleChange}
           timezone={props.timezone}
           handleTimezoneChange={props.handleTimezoneChange}
