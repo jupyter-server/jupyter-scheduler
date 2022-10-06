@@ -9,6 +9,25 @@ export class SchedulerService {
       options.serverSettings || ServerConnection.makeSettings();
   }
 
+  async getJobDefinition(
+    definition_id: string
+  ): Promise<Scheduler.IDescribeJobDefinition> {
+    let data;
+
+    try {
+      data = await requestAPI(
+        this.serverSettings,
+        `job_definitions/${definition_id}`,
+        {
+          method: 'GET'
+        }
+      );
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJobDefinition;
+  }
+
   async getJobDefinitions(
     definition_id: string
   ): Promise<Scheduler.IDescribeJobDefinition[]> {
