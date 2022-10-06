@@ -31,6 +31,18 @@ export interface IJobDetailProps {
   outputFormatsStrings?: string[];
 }
 
+export const timestampLocalize = (time: number | ''): string => {
+  if (time === '') {
+    return '';
+  } else {
+    const display_date = new Date(time);
+    const local_display_date = display_date
+      ? display_date.toLocaleString()
+      : '';
+    return local_display_date;
+  }
+};
+
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   console.log('job detail model');
@@ -62,18 +74,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       id: props.model.jobId
     });
     props.handleModelChange();
-  };
-
-  const timestampLocalize = (time: number | '') => {
-    if (time === '') {
-      return '';
-    } else {
-      const display_date = new Date(time);
-      const local_display_date = display_date
-        ? display_date.toLocaleString()
-        : '';
-      return local_display_date;
-    }
   };
 
   const ButtonBar = (

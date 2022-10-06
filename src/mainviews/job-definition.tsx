@@ -13,7 +13,7 @@ import {
   TextFieldProps,
   Typography
 } from '@mui/material';
-import { TextFieldStyled } from './job-detail';
+import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { Heading } from '../components/heading';
 
 export interface IJobDefinitionProps {
@@ -64,32 +64,44 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   );
 
   const jobDefinitionFields: TextFieldProps[][] = [
-    // [
-    //   {
-    //     defaultValue: mockJobDefinition.name,
-    //     label: trans.__('Job Definition name')
-    //   },
-    //   {
-    //     defaultValue: mockJobDefinition.job_definition_id,
-    //     label: trans.__('Job Definition ID')
-    //   }
-    // ],
-    // [
-    //   {
-    //     defaultValue: mockJobDefinition.input_path,
-    //     label: trans.__('Input path')
-    //   },
-    //   {
-    //     defaultValue: mockJobDefinition.output_path,
-    //     label: trans.__('Output path')
-    //   }
-    // ],
-    // [
-    //   {
-    //     defaultValue: mockJobDefinition.last_modified_time,
-    //     label: trans.__('Modified at')
-    //   }
-    // ]
+    [{ defaultValue: props.model.name, label: trans.__('Name') }],
+    [
+      {
+        defaultValue: props.model.inputFile,
+        label: trans.__('Input file')
+      },
+      {
+        defaultValue: props.model.outputPath,
+        label: trans.__('Output path')
+      }
+    ],
+    [
+      {
+        defaultValue: props.model.environment,
+        label: trans.__('Environment')
+      },
+      { defaultValue: props.model.active ?? '', label: trans.__('Status') }
+    ],
+    [
+      {
+        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        label: trans.__('Created at')
+      },
+      {
+        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        label: trans.__('Updated at')
+      }
+    ],
+    [
+      {
+        defaultValue: props.model.schedule ?? '',
+        label: trans.__('Schedule')
+      },
+      {
+        defaultValue: props.model.timezone ?? '',
+        label: trans.__('Time zone')
+      }
+    ]
   ];
 
   const JobDefinition = (

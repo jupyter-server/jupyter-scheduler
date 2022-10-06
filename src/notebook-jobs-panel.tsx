@@ -102,8 +102,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               app={this._app}
               model={{
                 id: this.model.jobDetailModel.jobId,
-                //detailType: 'JobDefinition'
-                detailType: 'Job'
+                detailType: 'JobDefinition'
+                //detailType: 'Job'
               }}
               handleModelChange={newModel =>
                 (this.model.jobDetailModel = newModel)
