@@ -42,7 +42,7 @@ const TextFieldStyled = (props: TextFieldProps) => (
   <TextField {...props} variant="outlined" InputProps={{ readOnly: true }} />
 );
 
-export function JobDetail(props: IJobDetailProps): JSX.Element {
+export function DetailView(props: IJobDetailProps): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [outputFormatsStrings, setOutputFormatsStrings] = useState<string[]>(
     []
