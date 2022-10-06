@@ -159,7 +159,7 @@ export function convertDescribeJobtoJobDetail(
   };
 }
 
-export function convertDescribeJobDefinitiontoJobDefinition(
+export function convertDescribeDefinitiontoDefinition(
   dj: Scheduler.IDescribeJobDefinition
 ): IJobDefinitionModel {
   // Convert parameters
