@@ -102,7 +102,6 @@ class CommonColumns:
     output_prefix = Column(String(256))
     output_formats = Column(JsonType(512))
     name = Column(String(256))
-    idempotency_token = Column(String(256))
     tags = Column(JsonType(1024))
     parameters = Column(JsonType(1024))
     email_notifications = Column(EmailNotificationType(1024))
@@ -126,6 +125,7 @@ class Job(CommonColumns, Base):
     end_time = Column(Integer)
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
+    idempotency_token = Column(String(256))
 
 
 class JobDefinition(CommonColumns, Base):
