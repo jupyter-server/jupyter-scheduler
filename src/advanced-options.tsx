@@ -119,17 +119,20 @@ const AdvancedOptions = (
   const tagsDisplay: JSX.Element | null =
     props.jobsView === 'CreateJob' ? createTags() : showTags();
 
+  // The idempotency token is only used for jobs, not for job definitions
   return (
     <Stack spacing={4}>
-      <TextField
-        label={trans.__('Idempotency token')}
-        variant="outlined"
-        onChange={handleInputChange}
-        value={props.model.idempotencyToken}
-        id={`${formPrefix}idempotencyToken`}
-        name="idempotencyToken"
-        InputProps={{ readOnly: props.jobsView !== 'CreateJob' }}
-      />
+      {props.model.createType === 'Job' && (
+        <TextField
+          label={trans.__('Idempotency token')}
+          variant="outlined"
+          onChange={handleInputChange}
+          value={props.model.idempotencyToken}
+          id={`${formPrefix}idempotencyToken`}
+          name="idempotencyToken"
+          InputProps={{ readOnly: props.jobsView !== 'CreateJob' }}
+        />
+      )}
       <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
       {tagsDisplay}
     </Stack>
