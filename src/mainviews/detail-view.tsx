@@ -25,7 +25,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         outputPath: '',
         environment: '',
         inputFile: '',
-        detailType: 'JobDefinition'
+        detailType: 'JobDefinition',
+        createType: 'JobDefinition'
       }}
       handleModelChange={props.handleModelChange}
       setCreateJobModel={props.setCreateJobModel}
