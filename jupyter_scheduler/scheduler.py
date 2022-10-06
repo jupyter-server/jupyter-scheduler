@@ -191,7 +191,7 @@ class Scheduler(BaseScheduler):
             if query.status:
                 jobs = jobs.filter(Job.status == query.status)
             if query.job_definition_id:
-                jobs = jobs.filter(Job.status == query.job_definition_id)
+                jobs = jobs.filter(Job.job_definition_id == query.job_definition_id)
             if query.start_time:
                 jobs = jobs.filter(Job.start_time >= query.start_time)
             if query.name:
