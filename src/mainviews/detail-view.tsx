@@ -64,9 +64,21 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     setJobsModel(newModel);
   };
 
+  const fetchJobDefinitionlModel = async () => {
+    const jobFromService = await ss.getJob(props.model.id);
+    setOutputFormatStrings(jobFromService.output_formats ?? []);
+    const newModel = convertDescribeJobtoJobDetail(jobFromService);
+    setJobsModel(newModel);
+  };
+
   useEffect(() => {
-    if (props.model.detailType === 'Job') {
-      fetchJobDetailModel();
+    switch (props.model.detailType) {
+      case 'Job':
+        fetchJobDetailModel();
+        break;
+      case 'JobDefinition':
+        fetchJobDefinitionlModel();
+        break;
     }
   }, [props.model]);
 
