@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { Heading } from '../components/heading';
+import { SchedulerService } from '../handler';
 
 export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
@@ -23,6 +24,13 @@ export interface IJobDefinitionProps {
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
+
+  const ss = new SchedulerService({});
+
+  const handleDeleteJobDefinition = async () => {
+    await ss.deleteJob(props.model.definitionId ?? '');
+    props.setView('ListJobs');
+  };
 
   const DefinitionBreadcrumbsStyled = (
     <div role="presentation">
@@ -48,15 +56,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const DefinitionButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
       <Button
-        variant="outlined"
-        onClick={() => console.log('pause definition')}
-      >
-        {trans.__('Pause Job Definition')}
-      </Button>
-      <Button
         variant="contained"
         color="error"
-        onClick={() => console.log('delete definition')}
+        onClick={handleDeleteJobDefinition}
       >
         {trans.__('Delete Job Definition')}
       </Button>

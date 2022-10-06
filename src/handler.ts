@@ -61,6 +61,25 @@ export class SchedulerService {
     return data as Scheduler.IDescribeJobDefinition;
   }
 
+  async deleteJobDefinition(
+    definition_id: string
+  ): Promise<Scheduler.IDescribeJobDefinition> {
+    let data;
+
+    try {
+      data = await requestAPI(
+        this.serverSettings,
+        `job_definitions/${definition_id}`,
+        {
+          method: 'DELETE'
+        }
+      );
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJobDefinition;
+  }
+
   async getJob(job_id: string): Promise<Scheduler.IDescribeJob> {
     let data;
     let query = '';
