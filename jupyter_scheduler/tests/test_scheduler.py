@@ -7,6 +7,7 @@ from jupyter_scheduler.models import (
     ListJobDefinitionsQuery,
     SortDirection,
     SortField,
+    UpdateJobDefinition,
 )
 from jupyter_scheduler.orm import JobDefinition
 
@@ -141,7 +142,7 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
         assert not active
 
 
-def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
+def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_3["job_definition_id"]
     jp_scheduler.resume_jobs(job_definition_id)
 
@@ -153,3 +154,26 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
             .active
         )
         assert active
+
+
+def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
+    job_definition_id = job_definition_1["job_definition_id"]
+    schedule = "*/5 * * * *"
+    timezone = "America/New_York"
+    update = UpdateJobDefinition(
+        job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
+    )
+    jp_scheduler.update_job_definition(update)
+
+    with jp_scheduler_db() as session:
+        definition = session.get(JobDefinition, job_definition_id)
+        assert schedule == definition.schedule
+        assert timezone == definition.timezone
+
+
+def test_delete_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
+    job_definition_id = job_definition_1["job_definition_id"]
+    jp_scheduler.delete_job_definition(job_definition_id)
+    with jp_scheduler_db() as session:
+        definition = session.get(JobDefinition, job_definition_id)
+        assert not definition

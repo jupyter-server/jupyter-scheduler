@@ -28,6 +28,7 @@ from jupyter_scheduler.models import (
 class JobHandlersMixin:
     _scheduler = None
     _environment_manager = None
+    _task_runner = None
 
     @property
     def execution_config(self):
@@ -35,11 +36,7 @@ class JobHandlersMixin:
 
     @property
     def scheduler(self):
-        if self._scheduler is None:
-            scheduler_class = self.execution_config.scheduler_class
-            self._scheduler = scheduler_class(self.execution_config)
-
-        return self._scheduler
+        return self.settings.get("scheduler")
 
     @property
     def environment_manager(self):
@@ -103,11 +100,8 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def patch(self, job_definition_id):
         payload = self.get_json_body()
-        await ensure_async(
-            self.scheduler.update_job_definition(
-                UpdateJobDefinition(**payload, job_definition_id=job_definition_id)
-            )
-        )
+        payload["job_definition_id"] = job_definition_id
+        await ensure_async(self.scheduler.update_job_definition(UpdateJobDefinition(**payload)))
         self.set_status(204)
         self.finish()
 

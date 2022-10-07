@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
+import pytz
+from croniter import croniter
 from nbformat import NotebookNode
 
 from jupyter_scheduler.models import CreateJob
@@ -62,5 +64,17 @@ def get_utc_timestamp() -> int:
 
 
 def compute_next_run_time(schedule: str, timezone: Optional[str] = None) -> int:
-    # TODO: Compute this based on schedule and timezone
-    return get_utc_timestamp()
+    if timezone:
+        tz = pytz.timezone(timezone)
+        local_date = datetime.now(tz=tz)
+        cron = croniter(schedule, local_date)
+    else:
+        cron = croniter(schedule, datetime.now(pytz.utc))
+
+    return int(cron.get_next(float) * 1000)
+
+
+def get_localized_timestamp(timezone) -> int:
+    tz = pytz.timezone(timezone)
+    local_date = datetime.now(tz=tz)
+    return int(local_date.timestamp() * 1000)

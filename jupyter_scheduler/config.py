@@ -13,4 +13,4 @@ class ExecutionConfig:
     root_dir: str
     execution_manager_class: Any
     environments_manager_class: Any
-    scheduler_class: Any
+    task_runner_run_interval: int

@@ -24,6 +24,7 @@ def jp_server_config(jp_server_config):
             "environment_manager_class": "jupyter_scheduler.tests.mocks.MockEnvironmentManager",
             "db_url": DB_URL,
             "drop_tables": True,
+            "task_runner_run_interval": -1,
         },
     }
 
@@ -49,6 +50,6 @@ def jp_scheduler():
             root_dir="",
             execution_manager_class=MockExecutionManager,
             environments_manager_class=MockEnvironmentManager,
-            scheduler_class=Scheduler,
+            task_runner_run_interval=-1,
         )
     )
