@@ -26,6 +26,7 @@ export type ScheduleInputsProps = {
   handleModelChange: (model: ICreateJobModel) => void;
   handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
   handleScheduleTimeChange: (event: ChangeEvent) => void;
+  handleScheduleMinuteChange: (event: ChangeEvent) => void;
   handleScheduleChange: (event: ChangeEvent) => void;
   handleTimezoneChange: (newValue: string | null) => void;
   errors: Scheduler.ErrorsType;
@@ -130,11 +131,25 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
           onChange={props.handleScheduleIntervalChange}
         >
           <MenuItem value={'minute'}>{trans.__('Minute')}</MenuItem>
+          <MenuItem value={'hour'}>{trans.__('Hour')}</MenuItem>
           <MenuItem value={'day'}>{trans.__('Day')}</MenuItem>
           <MenuItem value={'weekday'}>{trans.__('Weekday')}</MenuItem>
           <MenuItem value={'custom'}>{trans.__('Custom schedule')}</MenuItem>
         </Select>
       </FormControl>
+      {props.model.scheduleInterval === 'hour' && (
+        <>
+          <TextField
+            label={trans.__('Minutes past the hour')}
+            value={
+              props.model.scheduleMinuteInput ?? props.model.scheduleMinute ?? 0
+            }
+            onChange={props.handleScheduleMinuteChange}
+            error={!!props.errors['scheduleMinute']}
+            helperText={props.errors['scheduleMinute'] || trans.__('0–59')}
+          />
+        </>
+      )}
       {(props.model.scheduleInterval === 'weekday' ||
         props.model.scheduleInterval === 'day') && (
         <>

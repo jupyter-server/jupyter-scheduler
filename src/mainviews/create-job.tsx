@@ -201,20 +201,34 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const timeRegex = /^(\d\d?):(\d\d)$/;
     const timeResult = timeRegex.exec(value);
 
-    let hours, minutes;
+    let hours = props.model.scheduleHour;
+    let minutes = props.model.scheduleMinute;
     let schedule = props.model.schedule;
 
     if (timeResult) {
+      hours = parseInt(timeResult[1]);
+      minutes = parseInt(timeResult[2]);
+    }
+
+    if (
+      timeResult &&
+      hours !== undefined &&
+      hours >= 0 &&
+      hours <= 23 &&
+      minutes !== undefined &&
+      minutes >= 0 &&
+      minutes <= 59
+    ) {
       setErrors({
         ...errors,
         scheduleTime: ''
       });
 
-      hours = parseInt(timeResult[1]);
-      minutes = parseInt(timeResult[2]);
-
       // Compose a new schedule in cron format
       switch (props.model.scheduleInterval) {
+        case 'day':
+          schedule = `${minutes} ${hours} * * *`;
+          break;
         case 'weekday':
           schedule = `${minutes} ${hours} * * MON-FRI`;
           break;
@@ -231,6 +245,50 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       schedule: schedule,
       scheduleTimeInput: value,
       scheduleHour: hours,
+      scheduleMinute: minutes
+    });
+  };
+
+  const handleScheduleMinuteChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+    const minuteRegex = /^(\d\d?)$/;
+    const minuteResult = minuteRegex.exec(value);
+
+    let minutes = props.model.scheduleMinute;
+    let schedule = props.model.schedule;
+
+    if (minuteResult) {
+      minutes = parseInt(minuteResult[1]);
+    }
+
+    if (
+      minuteResult &&
+      minutes !== undefined &&
+      minutes >= 0 &&
+      minutes <= 59
+    ) {
+      setErrors({
+        ...errors,
+        scheduleMinute: ''
+      });
+
+      // Compose a new schedule in cron format
+      switch (props.model.scheduleInterval) {
+        case 'hour':
+          schedule = `${minutes} * * * *`;
+          break;
+      }
+    } else {
+      setErrors({
+        ...errors,
+        scheduleMinute: trans.__('Minute must be between 0 and 59')
+      });
+    }
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleMinuteInput: value,
       scheduleMinute: minutes
     });
   };
@@ -562,6 +620,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleModelChange={props.handleModelChange}
             handleScheduleIntervalChange={handleScheduleIntervalChange}
             handleScheduleTimeChange={handleScheduleTimeChange}
+            handleScheduleMinuteChange={handleScheduleMinuteChange}
             handleCreateTypeChange={handleScheduleOptionsChange}
             handleScheduleChange={handleScheduleChange}
             handleTimezoneChange={handleTimezoneChange}
