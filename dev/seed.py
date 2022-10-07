@@ -35,7 +35,7 @@ def create_random_job_def(index: int):
     timezone = random.choice(list(zoneinfo.available_timezones()))
     # random schedules can be generated via https://crontab.guru/
     schedule = random.choice(
-        ["0 0,12 1 */2 *", "0 4 8-14 * *", "0 0 1,15 * 3", "@weekly", "5 0 * 8 *", "15 14 1 * *"]
+        ["0 0,12 1 */2 *", "0 4 8-14 * *", "0 0 1,15 * 3", "5 0 * 8 *", "15 14 1 * *"]
     )
     active = random.choice([True, False])
 
