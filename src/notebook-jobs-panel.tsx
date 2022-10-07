@@ -110,7 +110,10 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               setCreateJobModel={newModel =>
                 (this.model.createJobModel = newModel)
               }
-              setView={view => (this.model.jobsView = view)}
+              setJobsView={view => (this.model.jobsView = view)}
+              setListJobsView={view => {
+                this.model.listJobsModel.listJobsView = view;
+              }}
               advancedOptions={this._advancedOptions}
             />
           )}

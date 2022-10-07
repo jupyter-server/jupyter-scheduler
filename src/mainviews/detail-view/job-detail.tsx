@@ -1,7 +1,12 @@
 import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
+import {
+  ICreateJobModel,
+  IJobDetailModel,
+  JobsView,
+  ListJobsView
+} from '../../model';
 import { useTranslator } from '../../hooks';
 import { SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
@@ -25,7 +30,8 @@ export interface IJobDetailProps {
   model: IJobDetailModel;
   handleModelChange: () => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
-  setView: (view: JobsView) => void;
+  setJobsView: (view: JobsView) => void;
+  setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
   outputFormatsStrings?: string[];
@@ -59,12 +65,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     };
 
     props.setCreateJobModel(initialState);
-    props.setView('CreateJob');
+    props.setJobsView('CreateJob');
   };
 
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
-    props.setView('ListJobs');
+    props.setJobsView('ListJobs');
+    props.setListJobsView('Job');
   };
 
   const handleStopJob = async () => {

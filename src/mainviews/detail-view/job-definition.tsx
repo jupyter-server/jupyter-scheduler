@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView } from '../../model';
+import { IJobDefinitionModel, JobsView, ListJobsView } from '../../model';
 import { useTranslator } from '../../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
@@ -16,7 +16,8 @@ import {
 export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
   refresh: () => void;
-  setView: (view: JobsView) => void;
+  setJobsView: (view: JobsView) => void;
+  setListJobsView: (view: ListJobsView) => void;
 }
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
@@ -26,7 +27,8 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   const handleDeleteJobDefinition = async () => {
     await ss.deleteJob(props.model.definitionId ?? '');
-    props.setView('ListJobs');
+    props.setJobsView('ListJobs');
+    props.setListJobsView('JobDefinition');
   };
 
   const pauseJobDefinition = async () => {

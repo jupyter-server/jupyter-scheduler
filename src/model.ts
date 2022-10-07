@@ -64,11 +64,7 @@ export interface INotebookJobsListingModel {
 // Revised models
 
 // TODO: make these values enums
-export type JobsView =
-  | 'CreateJob'
-  | 'ListJobs'
-  | 'JobDetail'
-  | 'JobDefinitionDetail';
+export type JobsView = 'CreateJob' | 'ListJobs' | 'JobDetail';
 export type ListJobsView = 'Job' | 'JobDefinition';
 
 export type IJobParameter = {

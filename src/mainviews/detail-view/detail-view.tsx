@@ -8,7 +8,8 @@ import {
   IDetailViewModel,
   IJobDefinitionModel,
   IJobDetailModel,
-  JobsView
+  JobsView,
+  ListJobsView
 } from '../../model';
 import { useTranslator } from '../../hooks';
 import { SchedulerService } from '../../handler';
@@ -30,7 +31,8 @@ export interface IDetailViewProps {
   app: JupyterFrontEnd;
   model: IDetailViewModel;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
-  setView: (view: JobsView) => void;
+  setJobsView: (view: JobsView) => void;
+  setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 }
@@ -97,7 +99,12 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             _:
               | React.MouseEvent<HTMLAnchorElement, MouseEvent>
               | React.MouseEvent<HTMLSpanElement, MouseEvent>
-          ): void => props.setView('ListJobs')}
+          ): void => {
+            props.setJobsView('ListJobs');
+            props.setListJobsView(
+              props.model.detailType === 'Job' ? 'Job' : 'JobDefinition'
+            );
+          }}
         >
           {props.model.detailType === 'Job'
             ? trans.__('Notebook Jobs')
@@ -128,7 +135,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
               model={jobModel}
               handleModelChange={() => fetchJobDetailModel()}
               setCreateJobModel={props.setCreateJobModel}
-              setView={props.setView}
+              setJobsView={props.setJobsView}
+              setListJobsView={props.setListJobsView}
               // Extension point: optional additional component
               advancedOptions={props.advancedOptions}
               outputFormatsStrings={outputFormatStrings ?? []}
@@ -137,7 +145,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
           {props.model.detailType === 'JobDefinition' && jobDefinitionModel && (
             <JobDefinition
               model={jobDefinitionModel}
-              setView={props.setView}
+              setJobsView={props.setJobsView}
+              setListJobsView={props.setListJobsView}
               refresh={fetchJobDefinitionModel}
             />
           )}
