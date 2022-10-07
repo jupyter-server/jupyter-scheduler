@@ -2,19 +2,15 @@ import React from 'react';
 import { IJobDefinitionModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
-import { Heading } from '../components/heading';
 import { SchedulerService } from '../handler';
 import cronstrue from 'cronstrue';
 
 import {
-  Breadcrumbs,
   Button,
   Card,
   CardContent,
-  Link,
   Stack,
-  TextFieldProps,
-  Typography
+  TextFieldProps
 } from '@mui/material';
 
 export interface IJobDefinitionProps {
@@ -40,27 +36,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   } catch (e) {
     // Do nothing; let the errors or nothing display instead
   }
-
-  const DefinitionBreadcrumbsStyled = (
-    <div role="presentation">
-      <Breadcrumbs aria-label="breadcrumb">
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={(
-            _:
-              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-              | React.MouseEvent<HTMLSpanElement, MouseEvent>
-          ): void => props.setView('ListJobs')}
-        >
-          {trans.__('Notebook Job Definitions')}
-        </Link>
-        <Typography color="text.primary">
-          {props.model.name ?? props.model.definitionId}
-        </Typography>
-      </Breadcrumbs>
-    </div>
-  );
 
   const DefinitionButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
@@ -138,8 +113,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   return (
     <>
-      {DefinitionBreadcrumbsStyled}
-      <Heading level={1}>{trans.__('Job Detail')}</Heading>
       {DefinitionButtonBar}
       {JobDefinition}
     </>

@@ -98,7 +98,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         >
           {props.model.detailType === 'Job'
             ? trans.__('Notebook Jobs')
-            : trans.__('Notebook Definitions')}
+            : trans.__('Notebook Job Definitions')}
         </Link>
         <Typography color="text.primary">
           {props.model.detailType === 'Job'
