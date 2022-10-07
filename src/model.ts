@@ -202,7 +202,8 @@ export function convertDescribeDefinitiontoDefinition(
     createTime: dj.create_time,
     updateTime: dj.update_time,
     schedule: dj.schedule,
-    timezone: dj.timezone
+    timezone: dj.timezone,
+    scheduleInterval: 'custom'
   };
 }
 
