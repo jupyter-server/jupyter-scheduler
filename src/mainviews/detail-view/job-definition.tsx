@@ -26,7 +26,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const ss = useMemo(() => new SchedulerService({}), []);
 
   const handleDeleteJobDefinition = async () => {
-    await ss.deleteJob(props.model.definitionId ?? '');
+    await ss.deleteJobDefinition(props.model.definitionId ?? '');
     props.setJobsView('ListJobs');
     props.setListJobsView('JobDefinition');
   };
