@@ -1,67 +1,58 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
-  convertDescribeJobtoJobDetail,
   ICreateJobModel,
   IJobDetailModel,
-  JobsView
-} from '../model';
-import { useTranslator } from '../hooks';
-import { Heading } from '../components/heading';
-import { SchedulerService } from '../handler';
-import { Scheduler } from '../tokens';
+  JobsView,
+  ListJobsView
+} from '../../model';
+import { useTranslator } from '../../hooks';
+import { SchedulerService } from '../../handler';
+import { Scheduler as SchedulerTokens } from '../../tokens';
 
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-
 import {
   Card,
   CardContent,
-  CircularProgress,
   FormLabel,
   TextField,
-  TextFieldProps,
-  Typography
+  TextFieldProps
 } from '@mui/material';
 
+export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
+  <TextField {...props} variant="outlined" InputProps={{ readOnly: true }} />
+);
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
-  handleModelChange: (model: IJobDetailModel) => void;
+  handleModelChange: () => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
-  setView: (view: JobsView) => void;
+  setJobsView: (view: JobsView) => void;
+  setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
-  advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  outputFormatsStrings?: string[];
 }
 
-const TextFieldStyled = (props: TextFieldProps) => (
-  <TextField {...props} variant="outlined" InputProps={{ readOnly: true }} />
-);
+export const timestampLocalize = (time: number | ''): string => {
+  if (time === '') {
+    return '';
+  } else {
+    const display_date = new Date(time);
+    const local_display_date = display_date
+      ? display_date.toLocaleString()
+      : '';
+    return local_display_date;
+  }
+};
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
-  const [loading, setLoading] = useState(true);
-  const [outputFormatsStrings, setOutputFormatsStrings] = useState<string[]>(
-    []
-  );
-
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
-
-  const updateJob = async () => {
-    const jobFromService = await ss.getJob(props.model.jobId);
-    setOutputFormatsStrings(jobFromService.output_formats ?? []);
-    const newModel = {
-      ...props.model,
-      ...convertDescribeJobtoJobDetail(jobFromService)
-    };
-    props.handleModelChange(newModel);
-    setLoading(false);
-  };
 
   const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
@@ -74,57 +65,21 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     };
 
     props.setCreateJobModel(initialState);
-    props.setView('CreateJob');
+    props.setJobsView('CreateJob');
   };
 
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
-    props.setView('ListJobs');
+    props.setJobsView('ListJobs');
+    props.setListJobsView('Job');
   };
 
   const handleStopJob = async () => {
     await props.app.commands.execute('scheduling:stop-job', {
       id: props.model.jobId
     });
-    updateJob();
+    props.handleModelChange();
   };
-
-  const timestampLocalize = (time: number | '') => {
-    if (time === '') {
-      return '';
-    } else {
-      const display_date = new Date(time);
-      const local_display_date = display_date
-        ? display_date.toLocaleString()
-        : '';
-      return local_display_date;
-    }
-  };
-
-  const Loading = (
-    <Stack direction="row" justifyContent="center">
-      <CircularProgress title={trans.__('Loading')} />
-    </Stack>
-  );
-
-  const BreadcrumbsStyled = () => (
-    <div role="presentation">
-      <Breadcrumbs aria-label="breadcrumb">
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={(
-            _:
-              | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-              | React.MouseEvent<HTMLSpanElement, MouseEvent>
-          ): void => props.setView('ListJobs')}
-        >
-          {trans.__('Notebook Jobs')}
-        </Link>
-        <Typography color="text.primary">{props.model.jobName}</Typography>
-      </Breadcrumbs>
-    </div>
-  );
 
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
@@ -144,43 +99,43 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const coreOptionsFields: TextFieldProps[][] = [
     [
-      { defaultValue: props.model.jobName, label: trans.__('Job name') },
-      { defaultValue: props.model.jobId, label: trans.__('Job ID') }
+      { value: props.model.jobName, label: trans.__('Job name') },
+      { value: props.model.jobId, label: trans.__('Job ID') }
     ],
     [
       {
-        defaultValue: props.model.inputFile,
+        value: props.model.inputFile,
         label: trans.__('Input file')
       },
       {
-        defaultValue: props.model.outputPath,
+        value: props.model.outputPath,
         label: trans.__('Output path')
       }
     ],
     [
       {
-        defaultValue: props.model.environment,
+        value: props.model.environment,
         label: trans.__('Environment')
       },
-      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
+      { value: props.model.status ?? '', label: trans.__('Status') }
     ],
     [
       {
-        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
       },
       {
-        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        value: timestampLocalize(props.model.updateTime ?? ''),
         label: trans.__('Updated at')
       }
     ],
     [
       {
-        defaultValue: timestampLocalize(props.model.startTime ?? ''),
+        value: timestampLocalize(props.model.startTime ?? ''),
         label: trans.__('Start time')
       },
       {
-        defaultValue: timestampLocalize(props.model.endTime ?? ''),
+        value: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
       }
     ]
@@ -235,7 +190,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               <FormLabel component="legend">
                 {trans.__('Output files')}
               </FormLabel>
-              {outputFormatsStrings.map(outputFormatString => (
+              {props.outputFormatsStrings?.map(outputFormatString => (
                 <OutputFile
                   outputType={outputFormatString}
                   app={props.app}
@@ -261,14 +216,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
                 <TextFieldStyled
                   label={trans.__('Parameter name')}
-                  defaultValue={parameter.name}
+                  value={parameter.name}
                   style={{
                     flexGrow: 1
                   }}
                 />
                 <TextFieldStyled
                   label={trans.__('Parameter value')}
-                  defaultValue={parameter.value}
+                  value={parameter.value}
                   style={{
                     flexGrow: 1
                   }}
@@ -303,26 +258,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Card>
   );
 
-  useEffect(() => {
-    updateJob();
-  }, []);
-
   return (
-    <Box sx={{ p: 4 }}>
-      <Stack spacing={4}>
-        <BreadcrumbsStyled />
-        <Heading level={1}>{trans.__('Job Detail')}</Heading>
-        {loading ? (
-          Loading
-        ) : (
-          <>
-            {ButtonBar}
-            {CoreOptions}
-            {Parameters}
-            {AdvancedOptions}
-          </>
-        )}
-      </Stack>
-    </Box>
+    <>
+      {ButtonBar}
+      {CoreOptions}
+      {Parameters}
+      {AdvancedOptions}
+    </>
   );
 }

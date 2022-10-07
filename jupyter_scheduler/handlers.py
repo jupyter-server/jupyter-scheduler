@@ -103,7 +103,11 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def patch(self, job_definition_id):
         payload = self.get_json_body()
-        await ensure_async(self.scheduler.update_job_definition(UpdateJobDefinition(**payload)))
+        await ensure_async(
+            self.scheduler.update_job_definition(
+                UpdateJobDefinition(**payload, job_definition_id=job_definition_id)
+            )
+        )
         self.set_status(204)
         self.finish()
 

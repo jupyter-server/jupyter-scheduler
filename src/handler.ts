@@ -9,6 +9,25 @@ export class SchedulerService {
       options.serverSettings || ServerConnection.makeSettings();
   }
 
+  async getJobDefinition(
+    definition_id: string
+  ): Promise<Scheduler.IDescribeJobDefinition> {
+    let data;
+
+    try {
+      data = await requestAPI(
+        this.serverSettings,
+        `job_definitions/${definition_id}`,
+        {
+          method: 'GET'
+        }
+      );
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJobDefinition;
+  }
+
   async getJobDefinitions(
     definition_id: string
   ): Promise<Scheduler.IDescribeJobDefinition[]> {
@@ -36,6 +55,25 @@ export class SchedulerService {
         method: 'POST',
         body: JSON.stringify(definition)
       });
+    } catch (e: any) {
+      console.error(e);
+    }
+    return data as Scheduler.IDescribeJobDefinition;
+  }
+
+  async deleteJobDefinition(
+    definition_id: string
+  ): Promise<Scheduler.IDescribeJobDefinition> {
+    let data;
+
+    try {
+      data = await requestAPI(
+        this.serverSettings,
+        `job_definitions/${definition_id}`,
+        {
+          method: 'DELETE'
+        }
+      );
     } catch (e: any) {
       console.error(e);
     }
@@ -176,6 +214,28 @@ export class SchedulerService {
     try {
       await requestAPI(this.serverSettings, `jobs/${job_id}`, {
         method: 'DELETE'
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async pauseJobDefinition(jobDefId: string): Promise<void> {
+    try {
+      await requestAPI(this.serverSettings, `job_definitions/${jobDefId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ active: false })
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async resumeJobDefinition(jobDefId: string): Promise<void> {
+    try {
+      await requestAPI(this.serverSettings, `job_definitions/${jobDefId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ active: true })
       });
     } catch (e) {
       console.error(e);

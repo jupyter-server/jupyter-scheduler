@@ -100,6 +100,10 @@ export interface IListJobsModel {
   listJobsView: ListJobsView;
 }
 
+export interface IDetailViewModel {
+  detailType: 'Job' | 'JobDefinition';
+  id: string;
+}
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
   status?: Scheduler.Status;
@@ -110,6 +114,16 @@ export interface IJobDetailModel extends ICreateJobModel {
   outputPrefix?: string;
 }
 
+export interface IJobDefinitionModel extends ICreateJobModel {
+  definitionId: string;
+  name?: string;
+  active?: Scheduler.Status;
+  createTime?: number;
+  updateTime?: number;
+  startTime?: number;
+  endTime?: number;
+  outputPrefix?: string;
+}
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(
   dj: Scheduler.IDescribeJob
@@ -146,11 +160,46 @@ export function convertDescribeJobtoJobDetail(
   };
 }
 
+export function convertDescribeDefinitiontoDefinition(
+  dj: Scheduler.IDescribeJobDefinition
+): IJobDefinitionModel {
+  // Convert parameters
+  const jdParameters = Object.entries(dj.parameters ?? {}).map(
+    ([pName, pValue]) => {
+      return {
+        name: pName,
+        value: pValue
+      };
+    }
+  );
+
+  // TODO: Convert outputFormats
+  return {
+    name: dj.name ?? '',
+    jobName: '',
+    inputFile: dj.input_uri,
+    createType: 'JobDefinition',
+    definitionId: dj.job_definition_id,
+    outputPath: dj.output_filename_template ?? '',
+    outputPrefix: dj.output_prefix,
+    environment: dj.runtime_environment_name,
+    parameters: jdParameters,
+    outputFormats: [],
+    computeType: dj.compute_type,
+    tags: dj.tags,
+    active: dj.active ? 'IN_PROGRESS' : 'STOPPED',
+    createTime: dj.create_time,
+    updateTime: dj.update_time,
+    schedule: dj.schedule,
+    timezone: dj.timezone
+  };
+}
+
 export class JobsModel extends VDomModel {
   private _jobsView: JobsView = 'ListJobs';
   private _createJobModel: ICreateJobModel;
   private _listJobsModel: IListJobsModel;
-  private _jobDetailModel: IJobDetailModel;
+  private _jobDetailModel: IDetailViewModel;
   /**
    * Callback that gets invoked whenever a model is updated. This should be used
    * to call `ReactWidget.renderDOM()` to synchronously update the VDOM rather
@@ -165,8 +214,8 @@ export class JobsModel extends VDomModel {
     this._createJobModel = options.createJobModel || Private.emptyCreateModel();
     this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
     this._jobDetailModel = options.jobDetailModel || {
-      ...Private.emptyCreateModel(),
-      jobId: ''
+      detailType: 'Job',
+      id: ''
     };
     this._onModelUpdate = options.onModelUpdate;
     this._jobCount = 0;
@@ -201,11 +250,11 @@ export class JobsModel extends VDomModel {
     this.stateChanged.emit(void 0);
   }
 
-  get jobDetailModel(): IJobDetailModel {
+  get jobDetailModel(): IDetailViewModel {
     return this._jobDetailModel;
   }
 
-  set jobDetailModel(model: IJobDetailModel) {
+  set jobDetailModel(model: IDetailViewModel) {
     this._jobDetailModel = model;
     this._onModelUpdate?.();
     this.stateChanged.emit(void 0);
@@ -224,7 +273,7 @@ export interface IJobsModelOptions {
   jobsView?: JobsView;
   createJobModel?: ICreateJobModel;
   listJobsModel?: IListJobsModel;
-  jobDetailModel?: IJobDetailModel;
+  jobDetailModel?: IDetailViewModel;
   onModelUpdate?: () => unknown;
 }
 
