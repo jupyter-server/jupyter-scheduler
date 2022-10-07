@@ -45,8 +45,6 @@ export const timestampLocalize = (time: number | ''): string => {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-  console.log('job detail model');
-  console.log(props.model);
 
   const ss = new SchedulerService({});
 

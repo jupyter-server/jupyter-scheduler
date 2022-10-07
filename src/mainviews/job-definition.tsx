@@ -48,8 +48,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     // Do nothing; let the errors or nothing display instead
   }
 
-  console.log(props.model.active);
-
   const DefinitionButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
       {props.model.active === 'IN_PROGRESS' ? (

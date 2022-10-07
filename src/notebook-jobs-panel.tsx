@@ -63,7 +63,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
 
   showDetailView(jobId: string): void {
     this.model.jobsView = 'JobDetail';
-    this.model.jobDetailModel.jobId = jobId;
+    this.model.jobDetailModel.detailType = 'Job';
+    this.model.jobDetailModel.id = jobId;
+  }
+
+  showJobDefinitionDetail(jobDefId: string): void {
+    this.model.jobsView = 'JobDetail';
+    this.model.jobDetailModel.detailType = 'JobDefinition';
+    this.model.jobDetailModel.id = jobDefId;
   }
 
   render(): JSX.Element {
@@ -97,17 +104,9 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             />
           )}
           {this.model.jobsView === 'JobDetail' && (
-            //TODO: update jobDetailModel (IJobDetailModel) passed to the element to detailViewModel (IDetailViewModel) in all props
             <DetailView
               app={this._app}
-              model={{
-                id: this.model.jobDetailModel.jobId,
-                detailType: 'JobDefinition'
-                //detailType: 'Job'
-              }}
-              handleModelChange={newModel =>
-                (this.model.jobDetailModel = newModel)
-              }
+              model={this.model.jobDetailModel}
               setCreateJobModel={newModel =>
                 (this.model.createJobModel = newModel)
               }

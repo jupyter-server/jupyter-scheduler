@@ -64,7 +64,11 @@ export interface INotebookJobsListingModel {
 // Revised models
 
 // TODO: make these values enums
-export type JobsView = 'CreateJob' | 'ListJobs' | 'JobDetail';
+export type JobsView =
+  | 'CreateJob'
+  | 'ListJobs'
+  | 'JobDetail'
+  | 'JobDefinitionDetail';
 export type ListJobsView = 'Job' | 'JobDefinition';
 
 export type IJobParameter = {
@@ -199,7 +203,7 @@ export class JobsModel extends VDomModel {
   private _jobsView: JobsView = 'ListJobs';
   private _createJobModel: ICreateJobModel;
   private _listJobsModel: IListJobsModel;
-  private _jobDetailModel: IJobDetailModel;
+  private _jobDetailModel: IDetailViewModel;
   /**
    * Callback that gets invoked whenever a model is updated. This should be used
    * to call `ReactWidget.renderDOM()` to synchronously update the VDOM rather
@@ -214,8 +218,8 @@ export class JobsModel extends VDomModel {
     this._createJobModel = options.createJobModel || Private.emptyCreateModel();
     this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
     this._jobDetailModel = options.jobDetailModel || {
-      ...Private.emptyCreateModel(),
-      jobId: ''
+      detailType: 'Job',
+      id: ''
     };
     this._onModelUpdate = options.onModelUpdate;
     this._jobCount = 0;
@@ -250,11 +254,11 @@ export class JobsModel extends VDomModel {
     this.stateChanged.emit(void 0);
   }
 
-  get jobDetailModel(): IJobDetailModel {
+  get jobDetailModel(): IDetailViewModel {
     return this._jobDetailModel;
   }
 
-  set jobDetailModel(model: IJobDetailModel) {
+  set jobDetailModel(model: IDetailViewModel) {
     this._jobDetailModel = model;
     this._onModelUpdate?.();
     this.stateChanged.emit(void 0);
@@ -273,7 +277,7 @@ export interface IJobsModelOptions {
   jobsView?: JobsView;
   createJobModel?: ICreateJobModel;
   listJobsModel?: IListJobsModel;
-  jobDetailModel?: IJobDetailModel;
+  jobDetailModel?: IDetailViewModel;
   onModelUpdate?: () => unknown;
 }
 

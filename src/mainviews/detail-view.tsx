@@ -29,7 +29,6 @@ import { Heading } from '../components/heading';
 export interface IDetailViewProps {
   app: JupyterFrontEnd;
   model: IDetailViewModel;
-  handleModelChange: (model: IJobDetailModel) => void;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setView: (view: JobsView) => void;
   // Extension point: optional additional component
@@ -46,6 +45,10 @@ const Loading = (props: ILoadingProps) => (
   </Stack>
 );
 
+/**
+ * Renders both the job details view and the job definition details view,
+ * dispatching on `props.model.detailType`.
+ */
 export function DetailView(props: IDetailViewProps): JSX.Element {
   const [jobModel, setJobsModel] = useState<IJobDetailModel | null>(null);
   const [jobDefinitionModel, setJobDefinitionModel] =
