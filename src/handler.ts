@@ -256,7 +256,6 @@ export namespace Scheduler {
 
   export interface IUpdateJobDefinition extends ICreateJobDefinition {
     job_definition_id: string;
-    idempotency_token?: string;
     url?: string;
   }
 

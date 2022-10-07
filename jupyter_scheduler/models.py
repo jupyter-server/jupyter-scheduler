@@ -188,7 +188,6 @@ class UpdateJobDefinition(BaseModel):
     runtime_environment_name: Optional[str]
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
-    idempotency_token: Optional[str] = None
     parameters: Optional[Dict[str, ParameterValues]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
