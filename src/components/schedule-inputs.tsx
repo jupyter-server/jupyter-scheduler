@@ -3,7 +3,16 @@ import React, { ChangeEvent } from 'react';
 import cronstrue from 'cronstrue';
 import tzdata from 'tzdata';
 
-import { Autocomplete, Button, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  TextField
+} from '@mui/material';
 
 import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
@@ -15,13 +24,22 @@ export type ScheduleInputsProps = {
   idPrefix: string;
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
-  schedule?: string;
+  handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
+  handleScheduleTimeChange: (event: ChangeEvent) => void;
   handleScheduleChange: (event: ChangeEvent) => void;
-  timezone?: string;
   handleTimezoneChange: (newValue: string | null) => void;
   errors: Scheduler.ErrorsType;
   handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
 };
+
+// Converts hours and minutes to hh:mm format
+function formatTime(hours: number, minutes: number): string {
+  return (
+    (hours < 10 ? '0' + hours : hours) +
+    ':' +
+    (minutes < 10 ? '0' + minutes : minutes)
+  );
+}
 
 export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
@@ -32,8 +50,8 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
 
   let cronString;
   try {
-    if (props.schedule !== undefined && !props.errors['schedule']) {
-      cronString = cronstrue.toString(props.schedule);
+    if (props.model.schedule !== undefined && !props.errors['schedule']) {
+      cronString = cronstrue.toString(props.model.schedule);
     }
   } catch (e) {
     // Do nothing; let the errors or nothing display instead
@@ -73,40 +91,84 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     }
   ];
 
+  const labelId = `${props.idPrefix}every-label`;
+  const labelText = trans.__('Every');
+
+  const timezonePicker = (
+    <Autocomplete
+      id={`${props.idPrefix}timezone`}
+      options={timezones}
+      value={props.model.timezone ?? null}
+      onChange={(
+        event: React.SyntheticEvent<Element, Event>,
+        newValue: string | null
+      ) => {
+        props.handleTimezoneChange(newValue);
+      }}
+      renderInput={(params: any) => (
+        <TextField
+          {...params}
+          name="timezone"
+          label={timezoneLabel}
+          variant="outlined"
+        />
+      )}
+    />
+  );
+
   return (
     <>
-      <Cluster gap={4}>
-        {presets.map(preset => presetButton(preset.label, preset.schedule))}
-      </Cluster>
-      <TextField
-        label={trans.__('Cron expression')}
-        variant="outlined"
-        onChange={props.handleScheduleChange}
-        value={props.schedule ?? ''}
-        id={`${props.idPrefix}schedule`}
-        name="schedule"
-        error={!!props.errors['schedule']}
-        helperText={props.errors['schedule'] || cronString}
-      />
-      <Autocomplete
-        id={`${props.idPrefix}timezone`}
-        options={timezones}
-        value={props.timezone ?? null}
-        onChange={(
-          event: React.SyntheticEvent<Element, Event>,
-          newValue: string | null
-        ) => {
-          props.handleTimezoneChange(newValue);
-        }}
-        renderInput={(params: any) => (
+      <FormControl>
+        <InputLabel id={labelId}>{labelText}</InputLabel>
+        <Select
+          labelId={labelId}
+          label={labelText}
+          variant="outlined"
+          id={`${props.idPrefix}every`}
+          name="every"
+          value={props.model.scheduleInterval}
+          onChange={props.handleScheduleIntervalChange}
+        >
+          <MenuItem value={'weekday'}>{trans.__('Weekday')}</MenuItem>
+          <MenuItem value={'custom'}>{trans.__('Custom schedule')}</MenuItem>
+        </Select>
+      </FormControl>
+      {props.model.scheduleInterval === 'weekday' && (
+        <>
           <TextField
-            {...params}
-            name="timezone"
-            label={timezoneLabel}
-            variant="outlined"
+            label={trans.__('Time')}
+            value={
+              props.model.scheduleTimeInput ??
+              formatTime(
+                props.model.scheduleHour ?? 0,
+                props.model.scheduleMinute ?? 0
+              )
+            }
+            onChange={props.handleScheduleTimeChange}
+            error={!!props.errors['scheduleTime']}
+            helperText={props.errors['scheduleTime'] || trans.__('00:00–23:59')}
           />
-        )}
-      />
+          {timezonePicker}
+        </>
+      )}
+      {props.model.scheduleInterval === 'custom' && (
+        <>
+          <Cluster gap={4}>
+            {presets.map(preset => presetButton(preset.label, preset.schedule))}
+          </Cluster>
+          <TextField
+            label={trans.__('Cron expression')}
+            variant="outlined"
+            onChange={props.handleScheduleChange}
+            value={props.model.schedule ?? ''}
+            id={`${props.idPrefix}schedule`}
+            name="schedule"
+            error={!!props.errors['schedule']}
+            helperText={props.errors['schedule'] || cronString}
+          />
+          {timezonePicker}
+        </>
+      )}
     </>
   );
 }

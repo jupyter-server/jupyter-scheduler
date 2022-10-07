@@ -195,6 +195,45 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // If no change in checkedness, don't do anything
   };
 
+  const handleScheduleTimeChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+    // Allow h:mm or hh:mm
+    const timeRegex = /^(\d\d?):(\d\d)$/;
+    const timeResult = timeRegex.exec(value);
+
+    let hours, minutes;
+
+    if (timeResult) {
+      setErrors({
+        ...errors,
+        scheduleTime: ''
+      });
+
+      hours = parseInt(timeResult[1]);
+      minutes = parseInt(timeResult[2]);
+    } else {
+      setErrors({
+        ...errors,
+        scheduleTime: trans.__('Time must be in hh:mm format')
+      });
+    }
+
+    props.handleModelChange({
+      ...props.model,
+      scheduleTimeInput: value,
+      scheduleHour: hours,
+      scheduleMinute: minutes
+    });
+  };
+
+  const handleScheduleIntervalChange = (event: SelectChangeEvent<string>) => {
+    // TODO: Set the schedule (in cron format) based on the new interval
+    props.handleModelChange({
+      ...props.model,
+      scheduleInterval: event.target.value
+    });
+  };
+
   const handleScheduleOptionsChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     value: string
@@ -490,11 +529,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}createType`}
             model={props.model}
             handleModelChange={props.handleModelChange}
-            createType={props.model.createType}
+            handleScheduleIntervalChange={handleScheduleIntervalChange}
+            handleScheduleTimeChange={handleScheduleTimeChange}
             handleCreateTypeChange={handleScheduleOptionsChange}
-            schedule={props.model.schedule}
             handleScheduleChange={handleScheduleChange}
-            timezone={props.model.timezone}
             handleTimezoneChange={handleTimezoneChange}
             errors={errors}
             handleErrorsChange={setErrors}

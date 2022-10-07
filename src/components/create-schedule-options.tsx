@@ -1,6 +1,12 @@
 import React, { ChangeEvent } from 'react';
 
-import { FormControlLabel, InputLabel, Radio, RadioGroup } from '@mui/material';
+import {
+  FormControlLabel,
+  InputLabel,
+  Radio,
+  RadioGroup,
+  SelectChangeEvent
+} from '@mui/material';
 import Stack from '@mui/system/Stack';
 
 import { useTranslator } from '../hooks';
@@ -14,7 +20,8 @@ export type CreateScheduleOptionsProps = {
   id: string;
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
-  createType: string;
+  handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
+  handleScheduleTimeChange: (event: ChangeEvent) => void;
   handleCreateTypeChange: (
     event: React.ChangeEvent<HTMLInputElement>,
     value: string
@@ -40,7 +47,7 @@ export function CreateScheduleOptions(
       <RadioGroup
         aria-labelledby={labelId}
         name={props.name}
-        value={props.createType}
+        value={props.model.createType}
         onChange={props.handleCreateTypeChange}
       >
         <FormControlLabel
@@ -54,14 +61,14 @@ export function CreateScheduleOptions(
           label={trans.__('Run on a schedule')}
         />
       </RadioGroup>
-      {props.createType === 'JobDefinition' && (
+      {props.model.createType === 'JobDefinition' && (
         <ScheduleInputs
           idPrefix={`${props.id}-definition-`}
-          schedule={props.schedule}
           model={props.model}
           handleModelChange={props.handleModelChange}
+          handleScheduleIntervalChange={props.handleScheduleIntervalChange}
+          handleScheduleTimeChange={props.handleScheduleTimeChange}
           handleScheduleChange={props.handleScheduleChange}
-          timezone={props.timezone}
           handleTimezoneChange={props.handleTimezoneChange}
           errors={props.errors}
           handleErrorsChange={props.handleErrorsChange}
