@@ -103,7 +103,7 @@ export interface ICreateJobModel {
   scheduleMinute?: number;
   scheduleHour?: number;
   scheduleMonthDay?: number;
-  scheduleWeekDay?: number;
+  scheduleWeekDay?: string;
 }
 
 export interface IListJobsModel {

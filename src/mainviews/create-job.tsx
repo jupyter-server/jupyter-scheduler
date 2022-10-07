@@ -293,6 +293,23 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     });
   };
 
+  const handleScheduleWeekDayChange = (event: SelectChangeEvent<string>) => {
+    // Days of the week are numbered 0 (Sunday) through 6 (Saturday)
+    const value = (event.target as HTMLSelectElement).value;
+
+    let schedule = props.model.schedule;
+
+    schedule = `${props.model.scheduleMinute ?? '0'} ${
+      props.model.scheduleHour ?? '0'
+    } * * ${value}`;
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleWeekDay: value
+    });
+  };
+
   const handleScheduleIntervalChange = (event: SelectChangeEvent<string>) => {
     // Set the schedule (in cron format) based on the new interval
     let schedule = props.model.schedule;
@@ -308,6 +325,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         schedule = `${props.model.scheduleMinute ?? '0'} ${
           props.model.scheduleHour ?? '0'
         } * * *`;
+        break;
+      case 'week':
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
+        } * * ${props.model.scheduleWeekDay ?? '1'}`;
         break;
       case 'weekday':
         schedule = `${props.model.scheduleMinute ?? '0'} ${
@@ -619,6 +641,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             model={props.model}
             handleModelChange={props.handleModelChange}
             handleScheduleIntervalChange={handleScheduleIntervalChange}
+            handleScheduleWeekDayChange={handleScheduleWeekDayChange}
             handleScheduleTimeChange={handleScheduleTimeChange}
             handleScheduleMinuteChange={handleScheduleMinuteChange}
             handleCreateTypeChange={handleScheduleOptionsChange}

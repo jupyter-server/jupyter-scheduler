@@ -25,6 +25,7 @@ export type ScheduleInputsProps = {
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
   handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
+  handleScheduleWeekDayChange: (event: SelectChangeEvent<string>) => void;
   handleScheduleTimeChange: (event: ChangeEvent) => void;
   handleScheduleMinuteChange: (event: ChangeEvent) => void;
   handleScheduleChange: (event: ChangeEvent) => void;
@@ -92,8 +93,11 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     }
   ];
 
-  const labelId = `${props.idPrefix}every-label`;
-  const labelText = trans.__('Every');
+  const everyLabelId = `${props.idPrefix}every-label`;
+  const everyLabelText = trans.__('Every');
+
+  const dayOfWeekLabelId = `${props.idPrefix}dayofweek-label`;
+  const dayOfWeekText = trans.__('Day of the week');
 
   const timezonePicker = (
     <Autocomplete
@@ -120,10 +124,10 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   return (
     <>
       <FormControl>
-        <InputLabel id={labelId}>{labelText}</InputLabel>
+        <InputLabel id={everyLabelId}>{everyLabelText}</InputLabel>
         <Select
-          labelId={labelId}
-          label={labelText}
+          labelId={everyLabelId}
+          label={everyLabelText}
           variant="outlined"
           id={`${props.idPrefix}every`}
           name="every"
@@ -133,7 +137,9 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
           <MenuItem value={'minute'}>{trans.__('Minute')}</MenuItem>
           <MenuItem value={'hour'}>{trans.__('Hour')}</MenuItem>
           <MenuItem value={'day'}>{trans.__('Day')}</MenuItem>
+          <MenuItem value={'week'}>{trans.__('Week')}</MenuItem>
           <MenuItem value={'weekday'}>{trans.__('Weekday')}</MenuItem>
+          <MenuItem value={'month'}>{trans.__('Month')}</MenuItem>
           <MenuItem value={'custom'}>{trans.__('Custom schedule')}</MenuItem>
         </Select>
       </FormControl>
@@ -148,6 +154,44 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
             error={!!props.errors['scheduleMinute']}
             helperText={props.errors['scheduleMinute'] || trans.__('0–59')}
           />
+        </>
+      )}
+      {props.model.scheduleInterval === 'week' && (
+        <>
+          <FormControl>
+            <InputLabel id={dayOfWeekLabelId}>{dayOfWeekText}</InputLabel>
+            <Select
+              labelId={dayOfWeekLabelId}
+              label={dayOfWeekText}
+              variant="outlined"
+              id={`${props.idPrefix}dayOfWeek`}
+              name="dayOfWeek"
+              value={props.model.scheduleWeekDay + ''}
+              onChange={props.handleScheduleWeekDayChange}
+            >
+              <MenuItem value={'1'}>{trans.__('Monday')}</MenuItem>
+              <MenuItem value={'2'}>{trans.__('Tuesday')}</MenuItem>
+              <MenuItem value={'3'}>{trans.__('Wednesday')}</MenuItem>
+              <MenuItem value={'4'}>{trans.__('Thursday')}</MenuItem>
+              <MenuItem value={'5'}>{trans.__('Friday')}</MenuItem>
+              <MenuItem value={'6'}>{trans.__('Saturday')}</MenuItem>
+              <MenuItem value={'0'}>{trans.__('Sunday')}</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            label={trans.__('Time')}
+            value={
+              props.model.scheduleTimeInput ??
+              formatTime(
+                props.model.scheduleHour ?? 0,
+                props.model.scheduleMinute ?? 0
+              )
+            }
+            onChange={props.handleScheduleTimeChange}
+            error={!!props.errors['scheduleTime']}
+            helperText={props.errors['scheduleTime'] || trans.__('00:00–23:59')}
+          />
+          {timezonePicker}
         </>
       )}
       {(props.model.scheduleInterval === 'weekday' ||

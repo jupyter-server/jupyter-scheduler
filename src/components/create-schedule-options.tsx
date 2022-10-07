@@ -21,6 +21,7 @@ export type CreateScheduleOptionsProps = {
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
   handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
+  handleScheduleWeekDayChange: (event: SelectChangeEvent<string>) => void;
   handleScheduleTimeChange: (event: ChangeEvent) => void;
   handleScheduleMinuteChange: (event: ChangeEvent) => void;
   handleCreateTypeChange: (
@@ -68,6 +69,7 @@ export function CreateScheduleOptions(
           model={props.model}
           handleModelChange={props.handleModelChange}
           handleScheduleIntervalChange={props.handleScheduleIntervalChange}
+          handleScheduleWeekDayChange={props.handleScheduleWeekDayChange}
           handleScheduleTimeChange={props.handleScheduleTimeChange}
           handleScheduleMinuteChange={props.handleScheduleMinuteChange}
           handleScheduleChange={props.handleScheduleChange}
