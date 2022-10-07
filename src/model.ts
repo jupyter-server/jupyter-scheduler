@@ -167,7 +167,7 @@ export function convertDescribeJobtoJobDetail(
     updateTime: dj.update_time,
     startTime: dj.start_time,
     endTime: dj.end_time,
-    scheduleInterval: 'custom'
+    scheduleInterval: 'weekday'
   };
 }
 
@@ -296,7 +296,7 @@ namespace Private {
       outputPath: '',
       environment: '',
       createType: 'Job',
-      scheduleInterval: 'custom'
+      scheduleInterval: 'weekday'
     };
   }
 }

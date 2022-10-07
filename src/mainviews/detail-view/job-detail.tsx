@@ -62,7 +62,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       environment: props.model.environment,
       parameters: props.model.parameters,
       createType: 'Job',
-      scheduleInterval: 'custom'
+      scheduleInterval: 'weekday'
     };
 
     props.setCreateJobModel(initialState);

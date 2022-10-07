@@ -206,7 +206,7 @@ async function activatePlugin(
         outputPath: '',
         environment: '',
         createType: 'Job',
-        scheduleInterval: 'custom'
+        scheduleInterval: 'weekday'
       };
 
       model.createJobModel = newModel;
