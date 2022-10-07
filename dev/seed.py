@@ -127,12 +127,13 @@ def load_data(jobs_count: int, job_defs_count: int, db_path: str):
 )
 
 # set to unique numbers by default to help test pagination with partially empty pages.
-@click.option("--jobs-count", default=57, help="No of jobs to create, default is 57.")
+@click.option("--jobs-count", "--j", default=57, help="No of jobs to create, default is 57.")
 @click.option(
-    "--job-defs-count", default=27, help="No of job definitions to create, default is 27."
+    "--job-defs-count", "--jd", default=27, help="No of job definitions to create, default is 27."
 )
 @click.option(
     "--db_path",
+    "--db",
     type=click.Path(),
     default=get_db_path(),
     help="DB file path, default is scheduler db path",
