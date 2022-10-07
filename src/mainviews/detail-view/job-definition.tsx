@@ -102,7 +102,8 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     ],
     [
       {
-        value: cronString ?? '',
+        value: props.model.schedule ?? '',
+        helperText: cronString ?? '',
         label: trans.__('Schedule')
       },
       {
