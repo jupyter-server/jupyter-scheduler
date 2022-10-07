@@ -133,9 +133,12 @@ class BaseScheduler(ABC):
 class Scheduler(BaseScheduler):
 
     _db_session = None
+    task_runner = None
 
-    def __init__(self, config: ExecutionConfig = {}):
+    def __init__(self, config: ExecutionConfig = {}, task_runner_class=None):
         self.config = config
+        if task_runner_class:
+            self.task_runner = task_runner_class(self, self.config.task_runner_run_interval)
 
     @property
     def db_session(self):
@@ -272,24 +275,46 @@ class Scheduler(BaseScheduler):
 
             job_definition_id = job_definition.job_definition_id
 
+        if self.task_runner and job_definition.schedule:
+            self.task_runner.add_job_definition(job_definition_id)
+
         return job_definition_id
 
     def update_job_definition(self, model: UpdateJobDefinition):
         with self.db_session() as session:
             session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == model.job_definition_id
-            ).update(model.dict(exclude_none=True))
+            ).update(model.dict(exclude_none=True, exclude={"job_definition_id"}))
             session.commit()
+
+            schedule = (
+                session.query(JobDefinition.schedule)
+                .filter(JobDefinition.job_definition_id == model.job_definition_id)
+                .scalar()
+            )
+
+        if self.task_runner and schedule:
+            self.task_runner.update_job_definition(model)
 
     def delete_job_definition(self, job_definition_id: str):
         with self.db_session() as session:
             jobs = session.query(Job).filter(Job.job_definition_id == job_definition_id)
             for job in jobs:
                 self.delete_job(job.job_id)
+
+            schedule = (
+                session.query(JobDefinition.schedule)
+                .filter(JobDefinition.job_definition_id == job_definition_id)
+                .scalar()
+            )
+
             session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == job_definition_id
             ).delete()
             session.commit()
+
+        if self.task_runner and schedule:
+            self.task_runner.delete_job_definition(job_definition_id)
 
     def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
         with self.db_session() as session:
@@ -343,15 +368,26 @@ class Scheduler(BaseScheduler):
 
     def pause_jobs(self, job_definition_id: str):
         with self.db_session() as session:
-            session.query(JobDefinition).filter(
-                JobDefinition.job_definition_id == job_definition_id
-            ).update({"active": False})
+            job_definition = (
+                session.query(JobDefinition)
+                .filter(JobDefinition.job_definition_id == job_definition_id)
+                .one()
+            )
+            job_definition.active = False
             session.commit()
+
+        if self.task_runner and job_definition.schedule:
+            self.task_runner.pause_jobs(job_definition_id)
 
     def resume_jobs(self, job_definition_id: str):
         with self.db_session() as session:
-            job_definition = session.query(JobDefinition).filter(
-                JobDefinition.job_definition_id == job_definition_id
+            job_definition = (
+                session.query(JobDefinition)
+                .filter(JobDefinition.job_definition_id == job_definition_id)
+                .one()
             )
-            job_definition.update({"active": True})
+            job_definition.active = True
             session.commit()
+
+        if self.task_runner and job_definition.schedule:
+            self.task_runner.resume_jobs(job_definition_id)

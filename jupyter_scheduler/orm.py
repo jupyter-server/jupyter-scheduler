@@ -1,6 +1,5 @@
 import json
 import os
-from datetime import datetime
 from sqlite3 import OperationalError
 from uuid import uuid4
 
@@ -45,12 +44,6 @@ def output_uri(context) -> str:
         )
 
     return os.path.join(output_prefix, output_filename)
-
-
-def next_run_time(context) -> int:
-    return compute_next_run_time(
-        context.get_current_parameters()["schedule"], context.get_current_parameters()["timezone"]
-    )
 
 
 class JsonType(types.TypeDecorator):

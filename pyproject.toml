@@ -32,7 +32,9 @@ dependencies = [
     "traitlets",
     "nbconvert",
     "pydantic",
-    "sqlalchemy<2"
+    "sqlalchemy<2",
+    "croniter",
+    "pytz"
 ]
 
 [project.optional-dependencies]
