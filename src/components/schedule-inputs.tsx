@@ -129,11 +129,14 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
           value={props.model.scheduleInterval}
           onChange={props.handleScheduleIntervalChange}
         >
+          <MenuItem value={'minute'}>{trans.__('Minute')}</MenuItem>
+          <MenuItem value={'day'}>{trans.__('Day')}</MenuItem>
           <MenuItem value={'weekday'}>{trans.__('Weekday')}</MenuItem>
           <MenuItem value={'custom'}>{trans.__('Custom schedule')}</MenuItem>
         </Select>
       </FormControl>
-      {props.model.scheduleInterval === 'weekday' && (
+      {(props.model.scheduleInterval === 'weekday' ||
+        props.model.scheduleInterval === 'day') && (
         <>
           <TextField
             label={trans.__('Time')}

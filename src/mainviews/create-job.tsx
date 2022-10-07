@@ -244,16 +244,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         schedule = '* * * * *'; // every minute
         break;
       case 'hour':
-        schedule = `${props.model.scheduleMinute ?? '*'} * * * *`;
+        schedule = `${props.model.scheduleMinute ?? '0'} * * * *`;
         break;
       case 'day':
-        schedule = `${props.model.scheduleMinute ?? '*'} ${
-          props.model.scheduleHour ?? '*'
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
         } * * *`;
         break;
       case 'weekday':
-        schedule = `${props.model.scheduleMinute ?? '*'} ${
-          props.model.scheduleHour ?? '*'
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
         } * * MON-FRI`;
         break;
     }
