@@ -125,7 +125,6 @@ class DefaultExecutionManager(ExecutionManager):
             nb = add_parameters(nb, job.parameters)
 
         ep = ExecutePreprocessor(
-            timeout=job.timeout_seconds,
             kernel_name=nb.metadata.kernelspec["name"],
             store_widget_state=True,
         )
