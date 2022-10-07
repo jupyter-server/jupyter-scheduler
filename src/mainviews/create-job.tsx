@@ -29,7 +29,7 @@ import {
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
-import cron from 'cron-validate';
+import cronstrue from 'cronstrue';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -107,14 +107,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const validateSchedule = (schedule: string) => {
-    const cronResult = cron(schedule);
-    if (cronResult.isValid()) {
+    try {
+      cronstrue.toString(schedule);
       // No error
       setErrors({
         ...errors,
         schedule: ''
       });
-    } else {
+    } catch {
       setErrors({
         ...errors,
         schedule: trans.__('You must provide a valid Cron expression.')
