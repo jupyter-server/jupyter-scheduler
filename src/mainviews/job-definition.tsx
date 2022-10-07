@@ -1,7 +1,10 @@
 import React from 'react';
-
 import { IJobDefinitionModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
+import { TextFieldStyled, timestampLocalize } from './job-detail';
+import { Heading } from '../components/heading';
+import { SchedulerService } from '../handler';
+import cronstrue from 'cronstrue';
 
 import {
   Breadcrumbs,
@@ -13,9 +16,6 @@ import {
   TextFieldProps,
   Typography
 } from '@mui/material';
-import { TextFieldStyled, timestampLocalize } from './job-detail';
-import { Heading } from '../components/heading';
-import { SchedulerService } from '../handler';
 
 export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
@@ -31,6 +31,15 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     await ss.deleteJob(props.model.definitionId ?? '');
     props.setView('ListJobs');
   };
+
+  let cronString;
+  try {
+    if (props.model.schedule !== undefined) {
+      cronString = cronstrue.toString(props.model.schedule);
+    }
+  } catch (e) {
+    // Do nothing; let the errors or nothing display instead
+  }
 
   const DefinitionBreadcrumbsStyled = (
     <div role="presentation">
@@ -96,7 +105,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     ],
     [
       {
-        defaultValue: props.model.schedule ?? '',
+        defaultValue: cronString ?? '',
         label: trans.__('Schedule')
       },
       {
@@ -122,36 +131,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
               ))}
             </Stack>
           ))}
-          {/* {mockJobDefinition.job_ids.length && (
-            <>
-              <FormLabel component="legend">{trans.__('Jobs')}</FormLabel>
-              {mockJobDefinition.job_ids.map(jobId => (
-                <Link
-                  key={jobId}
-                  title={trans.__('Open Job "%1"', jobId)}
-                  onClick={(
-                    e:
-                      | React.MouseEvent<HTMLSpanElement, MouseEvent>
-                      | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-                  ) => {
-                    const newModel: IJobDetailModel = {
-                      jobId: jobId,
-                      jobName: '',
-                      inputFile: '',
-                      environment: '',
-                      outputPath: '',
-                      detailType: 'Job',
-                      createType: 'Job'
-                    };
-                    props.handleModelChange(newModel);
-                  }}
-                  style={{ paddingRight: '1em' }}
-                >
-                  {jobId}
-                </Link>
-              ))}
-            </>
-          )} */}
         </Stack>
       </CardContent>
     </Card>
