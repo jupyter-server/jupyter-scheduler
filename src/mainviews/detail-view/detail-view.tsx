@@ -9,10 +9,10 @@ import {
   IJobDefinitionModel,
   IJobDetailModel,
   JobsView
-} from '../model';
-import { useTranslator } from '../hooks';
-import { SchedulerService } from '../handler';
-import { Scheduler } from '../tokens';
+} from '../../model';
+import { useTranslator } from '../../hooks';
+import { SchedulerService } from '../../handler';
+import { Scheduler } from '../../tokens';
 import { JobDetail } from './job-detail';
 import { JobDefinition } from './job-definition';
 
@@ -24,7 +24,7 @@ import {
   Link,
   Typography
 } from '@mui/material';
-import { Heading } from '../components/heading';
+import { Heading } from '../../components/heading';
 
 export interface IDetailViewProps {
   app: JupyterFrontEnd;

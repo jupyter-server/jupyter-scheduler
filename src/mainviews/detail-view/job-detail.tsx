@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ICreateJobModel, IJobDetailModel, JobsView } from '../model';
-import { useTranslator } from '../hooks';
-import { SchedulerService } from '../handler';
-import { Scheduler as SchedulerTokens } from '../tokens';
+import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
+import { useTranslator } from '../../hooks';
+import { SchedulerService } from '../../handler';
+import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';

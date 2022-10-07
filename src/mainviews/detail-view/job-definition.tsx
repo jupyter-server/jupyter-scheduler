@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView } from '../model';
-import { useTranslator } from '../hooks';
+import { IJobDefinitionModel, JobsView } from '../../model';
+import { useTranslator } from '../../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
-import { SchedulerService } from '../handler';
+import { SchedulerService } from '../../handler';
 import cronstrue from 'cronstrue';
 
 import {
