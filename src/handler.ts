@@ -220,6 +220,28 @@ export class SchedulerService {
     }
   }
 
+  async pauseJobDefinition(jobDefId: string): Promise<void> {
+    try {
+      await requestAPI(this.serverSettings, `job_definitions/${jobDefId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ active: false })
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async resumeJobDefinition(jobDefId: string): Promise<void> {
+    try {
+      await requestAPI(this.serverSettings, `job_definitions/${jobDefId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ active: true })
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   /**
    * The server settings used to make API requests.
    */

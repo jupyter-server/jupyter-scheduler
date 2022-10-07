@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IJobDefinitionModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
@@ -15,17 +15,28 @@ import {
 
 export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
+  refresh: () => void;
   setView: (view: JobsView) => void;
 }
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  const ss = new SchedulerService({});
+  const ss = useMemo(() => new SchedulerService({}), []);
 
   const handleDeleteJobDefinition = async () => {
     await ss.deleteJob(props.model.definitionId ?? '');
     props.setView('ListJobs');
+  };
+
+  const pauseJobDefinition = async () => {
+    await ss.pauseJobDefinition(props.model.definitionId);
+    props.refresh();
+  };
+
+  const resumeJobDefinition = async () => {
+    await ss.resumeJobDefinition(props.model.definitionId);
+    props.refresh();
   };
 
   let cronString;
@@ -37,8 +48,19 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     // Do nothing; let the errors or nothing display instead
   }
 
+  console.log(props.model.active);
+
   const DefinitionButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+      {props.model.active === 'IN_PROGRESS' ? (
+        <Button variant="outlined" onClick={pauseJobDefinition}>
+          {trans.__('Pause')}
+        </Button>
+      ) : (
+        <Button variant="outlined" onClick={resumeJobDefinition}>
+          {trans.__('Resume')}
+        </Button>
+      )}
       <Button
         variant="contained"
         color="error"
@@ -50,41 +72,41 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   );
 
   const jobDefinitionFields: TextFieldProps[][] = [
-    [{ defaultValue: props.model.name, label: trans.__('Name') }],
+    [{ value: props.model.name, label: trans.__('Name') }],
     [
       {
-        defaultValue: props.model.inputFile,
+        value: props.model.inputFile,
         label: trans.__('Input file')
       },
       {
-        defaultValue: props.model.outputPath,
+        value: props.model.outputPath,
         label: trans.__('Output path')
       }
     ],
     [
       {
-        defaultValue: props.model.environment,
+        value: props.model.environment,
         label: trans.__('Environment')
       },
-      { defaultValue: props.model.active ?? '', label: trans.__('Status') }
+      { value: props.model.active ?? '', label: trans.__('Status') }
     ],
     [
       {
-        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
       },
       {
-        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        value: timestampLocalize(props.model.updateTime ?? ''),
         label: trans.__('Updated at')
       }
     ],
     [
       {
-        defaultValue: cronString ?? '',
+        value: cronString ?? '',
         label: trans.__('Schedule')
       },
       {
-        defaultValue: props.model.timezone ?? '',
+        value: props.model.timezone ?? '',
         label: trans.__('Time zone')
       }
     ]

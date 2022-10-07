@@ -65,7 +65,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     setJobsModel(jobDetailModel);
   };
 
-  const fetchJobDefinitionlModel = async () => {
+  const fetchJobDefinitionModel = async () => {
     const definitionFromService = await ss.getJobDefinition(props.model.id);
     const jobDefinitionModel = convertDescribeDefinitiontoDefinition(
       definitionFromService
@@ -79,7 +79,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         fetchJobDetailModel();
         break;
       case 'JobDefinition':
-        fetchJobDefinitionlModel();
+        fetchJobDefinitionModel();
         break;
     }
   }, [props.model]);
@@ -132,7 +132,11 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             />
           )}
           {props.model.detailType === 'JobDefinition' && jobDefinitionModel && (
-            <JobDefinition model={jobDefinitionModel} setView={props.setView} />
+            <JobDefinition
+              model={jobDefinitionModel}
+              setView={props.setView}
+              refresh={fetchJobDefinitionModel}
+            />
           )}
         </Stack>
       </Box>

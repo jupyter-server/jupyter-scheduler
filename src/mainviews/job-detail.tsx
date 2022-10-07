@@ -94,43 +94,43 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const coreOptionsFields: TextFieldProps[][] = [
     [
-      { defaultValue: props.model.jobName, label: trans.__('Job name') },
-      { defaultValue: props.model.jobId, label: trans.__('Job ID') }
+      { value: props.model.jobName, label: trans.__('Job name') },
+      { value: props.model.jobId, label: trans.__('Job ID') }
     ],
     [
       {
-        defaultValue: props.model.inputFile,
+        value: props.model.inputFile,
         label: trans.__('Input file')
       },
       {
-        defaultValue: props.model.outputPath,
+        value: props.model.outputPath,
         label: trans.__('Output path')
       }
     ],
     [
       {
-        defaultValue: props.model.environment,
+        value: props.model.environment,
         label: trans.__('Environment')
       },
-      { defaultValue: props.model.status ?? '', label: trans.__('Status') }
+      { value: props.model.status ?? '', label: trans.__('Status') }
     ],
     [
       {
-        defaultValue: timestampLocalize(props.model.createTime ?? ''),
+        value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
       },
       {
-        defaultValue: timestampLocalize(props.model.updateTime ?? ''),
+        value: timestampLocalize(props.model.updateTime ?? ''),
         label: trans.__('Updated at')
       }
     ],
     [
       {
-        defaultValue: timestampLocalize(props.model.startTime ?? ''),
+        value: timestampLocalize(props.model.startTime ?? ''),
         label: trans.__('Start time')
       },
       {
-        defaultValue: timestampLocalize(props.model.endTime ?? ''),
+        value: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
       }
     ]
@@ -211,14 +211,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
                 <TextFieldStyled
                   label={trans.__('Parameter name')}
-                  defaultValue={parameter.name}
+                  value={parameter.name}
                   style={{
                     flexGrow: 1
                   }}
                 />
                 <TextFieldStyled
                   label={trans.__('Parameter value')}
-                  defaultValue={parameter.value}
+                  value={parameter.value}
                   style={{
                     flexGrow: 1
                   }}
