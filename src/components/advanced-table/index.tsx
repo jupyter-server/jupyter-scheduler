@@ -1,1 +1,1 @@
-export { AdvancedTable } from './advanced-table';
+export * from './advanced-table';

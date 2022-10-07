@@ -164,7 +164,7 @@ function OutputFiles(props: {
   );
 }
 
-export function buildTableRow(
+export function buildJobRow(
   job: Scheduler.IDescribeJob,
   environmentList: Scheduler.IRuntimeEnvironment[],
   app: JupyterFrontEnd,

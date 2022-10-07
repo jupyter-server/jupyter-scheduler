@@ -4,16 +4,22 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
 import { Heading } from '../components/heading';
 import { useTranslator } from '../hooks';
-import { buildTableRow } from '../components/job-row';
+import { buildJobRow } from '../components/job-row';
+import { buildJobDefinitionRow } from '../components/job-definition-row';
 import { ICreateJobModel, IListJobsModel } from '../model';
 import { Scheduler, SchedulerService } from '../handler';
 import { Cluster } from '../components/cluster';
-import { AdvancedTable } from '../components/advanced-table';
+import {
+  AdvancedTable,
+  AdvancedTableColumn
+} from '../components/advanced-table';
 
-interface INotebookJobsListBodyProps {
+interface IListJobsTableProps {
   startToken?: string;
   app: JupyterFrontEnd;
   // Function that results in the create job form being made visible
@@ -23,14 +29,7 @@ interface INotebookJobsListBodyProps {
   showDetailView: (jobId: string) => void;
 }
 
-type GridColumn = {
-  sortField: string | null;
-  name: string;
-};
-
-export function NotebookJobsListBody(
-  props: INotebookJobsListBodyProps
-): JSX.Element {
+function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   const [jobsQuery, setJobsQuery] = useState<Scheduler.IListJobsQuery>({});
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJob['job_id']>
@@ -91,7 +90,7 @@ export function NotebookJobsListBody(
   );
 
   // Display column headers with sort indicators.
-  const columns: GridColumn[] = [
+  const columns: AdvancedTableColumn[] = [
     {
       sortField: 'name',
       name: trans.__('Job name')
@@ -119,7 +118,7 @@ export function NotebookJobsListBody(
   ];
 
   const renderRow = (job: Scheduler.IDescribeJob) =>
-    buildTableRow(
+    buildJobRow(
       job,
       environmentList,
       props.app,
@@ -161,27 +160,108 @@ export function NotebookJobsListBody(
   );
 }
 
+type ListJobDefinitionsTableProps = {
+  app: JupyterFrontEnd;
+  showJobDefinitionDetail: (jobDefId: string) => void;
+};
+
+function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
+  const trans = useTranslator('jupyterlab');
+  const [jobDefsQuery, setJobDefsQuery] =
+    useState<Scheduler.IListJobDefinitionsQuery>({});
+  const api = useMemo(() => new SchedulerService({}), []);
+
+  const columns: AdvancedTableColumn[] = [
+    {
+      sortField: 'name',
+      name: trans.__('Job definition name')
+    }
+  ];
+
+  const reloadButton = (
+    <Cluster justifyContent="flex-end">
+      <Button
+        variant="contained"
+        size="small"
+        onClick={() => setJobDefsQuery({})}
+      >
+        {trans.__('Reload')}
+      </Button>
+    </Cluster>
+  );
+
+  const renderRow = (jobDef: Scheduler.IDescribeJobDefinition) =>
+    buildJobDefinitionRow(jobDef, props.app, props.showJobDefinitionDetail);
+
+  const emptyRowMessage = useMemo(
+    () => trans.__('There are no notebook job definitions.'),
+    [trans]
+  );
+
+  return (
+    <>
+      {reloadButton}
+      <AdvancedTable
+        query={jobDefsQuery}
+        setQuery={setJobDefsQuery}
+        request={api.getJobDefinitions.bind(api)}
+        extractRows={(payload: Scheduler.IListJobDefinitionsResponse) =>
+          payload?.job_definitions || []
+        }
+        renderRow={renderRow}
+        columns={columns}
+        emptyRowMessage={emptyRowMessage}
+      />
+    </>
+  );
+}
+
 export interface IListJobsProps {
   app: JupyterFrontEnd;
   model: IListJobsModel;
   handleModelChange: (model: IListJobsModel) => void;
   showCreateJob: (newModel: ICreateJobModel) => void;
-  showDetailView: (jobId: string) => void;
+  showJobDetail: (jobId: string) => void;
+  showJobDefinitionDetail: (jobDefId: string) => void;
 }
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
+  const [tab, setTab] = useState<number>(0);
+
+  const jobsHeader = useMemo(() => trans.__('Notebook Jobs'), [trans]);
+  const jobDefinitionsHeader = useMemo(
+    () => trans.__('Notebook Job Definitions'),
+    [trans]
+  );
 
   // Retrieve the initial jobs list
   return (
     <Box sx={{ p: 4 }} style={{ height: '100%', boxSizing: 'border-box' }}>
       <Stack spacing={3} style={{ height: '100%' }}>
-        <Heading level={1}>{trans.__('Notebook Jobs')}</Heading>
-        <NotebookJobsListBody
-          app={props.app}
-          showCreateJob={props.showCreateJob}
-          showDetailView={props.showDetailView}
-        />
+        <Tabs value={tab} onChange={(_, newTab) => setTab(newTab)}>
+          <Tab label={jobsHeader} />
+          <Tab label={jobDefinitionsHeader} />
+        </Tabs>
+        {tab === 0 && (
+          <>
+            <Heading level={1}>{jobsHeader}</Heading>
+            <ListJobsTable
+              app={props.app}
+              showCreateJob={props.showCreateJob}
+              showDetailView={props.showJobDetail}
+            />
+          </>
+        )}
+        {tab === 1 && (
+          <>
+            <Heading level={1}>{jobDefinitionsHeader}</Heading>
+            <ListJobDefinitionsTable
+              app={props.app}
+              showJobDefinitionDetail={props.showJobDefinitionDetail}
+            />
+          </>
+        )}
       </Stack>
     </Box>
   );
