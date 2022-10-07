@@ -202,6 +202,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const timeResult = timeRegex.exec(value);
 
     let hours, minutes;
+    let schedule = props.model.schedule;
 
     if (timeResult) {
       setErrors({
@@ -211,6 +212,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
       hours = parseInt(timeResult[1]);
       minutes = parseInt(timeResult[2]);
+
+      // Compose a new schedule in cron format
+      switch (props.model.scheduleInterval) {
+        case 'weekday':
+          schedule = `${minutes} ${hours} * * MON-FRI`;
+          break;
+      }
     } else {
       setErrors({
         ...errors,
@@ -220,6 +228,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     props.handleModelChange({
       ...props.model,
+      schedule: schedule,
       scheduleTimeInput: value,
       scheduleHour: hours,
       scheduleMinute: minutes
