@@ -9,6 +9,44 @@ export class SchedulerService {
       options.serverSettings || ServerConnection.makeSettings();
   }
 
+  /**
+   * Serializes a query object into a URI query string. Assumes the keys and
+   * values of the query object as URI-encodable via `encoderURIComponent()`.
+   */
+  private serializeToQueryString<
+    T extends { sort_by?: Scheduler.ISortField[] }
+  >(jobQuery: T): string {
+    return (
+      '?' +
+      (Object.keys(jobQuery) as (keyof T)[])
+        .map(prop => {
+          if (prop === 'sort_by') {
+            const sortList: T['sort_by'] | undefined = jobQuery.sort_by;
+            if (sortList === undefined) {
+              return null;
+            }
+
+            // Serialize sort_by as a series of parameters in the firm dir(name)
+            // where 'dir' is the direction and 'name' the sort field
+            return sortList
+              .map(
+                sort =>
+                  `sort_by=${encodeURIComponent(
+                    sort.direction
+                  )}(${encodeURIComponent(sort.name)})`
+              )
+              .join('&');
+          }
+
+          const value = jobQuery[prop];
+          return `${encodeURIComponent(prop as any)}=${encodeURIComponent(
+            value as any
+          )}`;
+        })
+        .join('&')
+    );
+  }
+
   async getJobDefinition(
     definition_id: string
   ): Promise<Scheduler.IDescribeJobDefinition> {
@@ -29,13 +67,13 @@ export class SchedulerService {
   }
 
   async getJobDefinitions(
-    definition_id: string
-  ): Promise<Scheduler.IDescribeJobDefinition[]> {
+    jobDefintionsQuery: Scheduler.IListJobDefinitionsQuery,
+    definition_id?: string
+  ): Promise<Scheduler.IListJobDefinitionsResponse> {
     let data;
-    let query = '';
-    if (definition_id) {
-      query = `/${definition_id}`;
-    }
+    const query = definition_id
+      ? `/${definition_id}`
+      : this.serializeToQueryString(jobDefintionsQuery);
     try {
       data = await requestAPI(this.serverSettings, `job_definitions${query}`, {
         method: 'GET'
@@ -43,7 +81,7 @@ export class SchedulerService {
     } catch (e: any) {
       console.error(e);
     }
-    return data as Scheduler.IDescribeJobDefinition[];
+    return data as Scheduler.IListJobDefinitionsResponse;
   }
 
   async createJobDefinition(
@@ -101,41 +139,7 @@ export class SchedulerService {
     job_id?: string
   ): Promise<Scheduler.IListJobsResponse> {
     let data;
-    let query = '';
-
-    if (job_id) {
-      query = `/${job_id}`;
-    } else if (jobQuery) {
-      query =
-        '?' +
-        Object.keys(jobQuery)
-          .map(prop => {
-            if (prop === 'sort_by') {
-              const sortList: Scheduler.ISortField[] | undefined =
-                jobQuery.sort_by;
-              if (sortList === undefined) {
-                return null;
-              }
-
-              // Serialize sort_by as a series of parameters in the firm dir(name)
-              // where 'dir' is the direction and 'name' the sort field
-              return sortList
-                .map(
-                  sort =>
-                    `sort_by=${encodeURIComponent(
-                      sort.direction
-                    )}(${encodeURIComponent(sort.name)})`
-                )
-                .join('&');
-            }
-
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const value = jobQuery[prop];
-            return `${encodeURIComponent(prop)}=${encodeURIComponent(value)}`;
-          })
-          .join('&');
-    }
+    const query = job_id ? `/${job_id}` : this.serializeToQueryString(jobQuery);
 
     try {
       data = await requestAPI(this.serverSettings, `jobs${query}`, {
@@ -400,6 +404,18 @@ export namespace Scheduler {
 
   export interface IListJobsResponse {
     jobs: IDescribeJob[];
+    next_token?: string;
+    total_count: number;
+  }
+
+  export interface IListJobDefinitionsQuery {
+    sort_by?: ISortField[];
+    max_items?: number;
+    next_token?: string;
+  }
+
+  export interface IListJobDefinitionsResponse {
+    job_definitions: IDescribeJobDefinition[];
     next_token?: string;
     total_count: number;
   }
