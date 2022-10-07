@@ -236,9 +236,31 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleScheduleIntervalChange = (event: SelectChangeEvent<string>) => {
-    // TODO: Set the schedule (in cron format) based on the new interval
+    // Set the schedule (in cron format) based on the new interval
+    let schedule = props.model.schedule;
+
+    switch (props.model.scheduleInterval) {
+      case 'minute':
+        schedule = '* * * * *'; // every minute
+        break;
+      case 'hour':
+        schedule = `${props.model.scheduleMinute ?? '*'} * * * *`;
+        break;
+      case 'day':
+        schedule = `${props.model.scheduleMinute ?? '*'} ${
+          props.model.scheduleHour ?? '*'
+        } * * *`;
+        break;
+      case 'weekday':
+        schedule = `${props.model.scheduleMinute ?? '*'} ${
+          props.model.scheduleHour ?? '*'
+        } * * MON-FRI`;
+        break;
+    }
+
     props.handleModelChange({
       ...props.model,
+      schedule: schedule,
       scheduleInterval: event.target.value
     });
   };
