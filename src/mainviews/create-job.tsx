@@ -12,7 +12,12 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
-import { ICreateJobModel, IJobParameter, IOutputFormat } from '../model';
+import {
+  ICreateJobModel,
+  IJobParameter,
+  IOutputFormat,
+  ListJobsView
+} from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
@@ -34,7 +39,7 @@ import cronstrue from 'cronstrue';
 export interface ICreateJobProps {
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
-  toggleView: () => unknown;
+  showListView: (list: ListJobsView) => unknown;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
@@ -280,8 +285,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
 
     api.createJob(jobOptions).then(response => {
-      // TODO: Switch to the list view with "Job List" active
-      props.toggleView();
+      // Switch to the list view with "Job List" active
+      props.showListView('Job');
     });
   };
 
@@ -319,8 +324,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
 
     api.createJobDefinition(jobDefinitionOptions).then(response => {
-      // TODO: Switch to the list view with "Job Definition List" active
-      props.toggleView();
+      // Switch to the list view with "Job Definition List" active
+      props.showListView('JobDefinition');
     });
   };
 
@@ -495,7 +500,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleErrorsChange={setErrors}
           />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button variant="outlined" onClick={props.toggleView}>
+            <Button variant="outlined" onClick={e => props.showListView('Job')}>
               {trans.__('Cancel')}
             </Button>
             <Button

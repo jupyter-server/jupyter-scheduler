@@ -175,6 +175,14 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
     {
       sortField: 'name',
       name: trans.__('Job definition name')
+    },
+    {
+      sortField: 'input_uri',
+      name: trans.__('Input file')
+    },
+    {
+      sortField: 'create_time',
+      name: trans.__('Created at')
     }
   ];
 

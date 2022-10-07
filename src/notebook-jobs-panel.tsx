@@ -11,10 +11,10 @@ import { calendarMonthIcon } from './components/icons';
 import TranslatorContext from './context';
 import { CreateJob } from './mainviews/create-job';
 import { NotebookJobsList } from './mainviews/list-jobs';
-import { ICreateJobModel, JobsModel } from './model';
+import { ICreateJobModel, JobsModel, ListJobsView } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
-import { DetailView } from './mainviews/detail-view/index';
+import { DetailView } from './mainviews/detail-view';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -49,16 +49,9 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
-  toggleView(): void {
-    if (
-      this.model.jobsView !== 'CreateJob' &&
-      this.model.jobsView !== 'ListJobs'
-    ) {
-      return;
-    }
-
-    this.model.jobsView =
-      this.model.jobsView === 'ListJobs' ? 'CreateJob' : 'ListJobs';
+  showListView(list: ListJobsView): void {
+    this.model.jobsView = 'ListJobs';
+    this.model.listJobsModel.listJobsView = list;
   }
 
   showDetailView(jobId: string): void {
@@ -88,7 +81,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               handleModelChange={newModel =>
                 (this.model.createJobModel = newModel)
               }
-              toggleView={this.toggleView.bind(this)}
+              showListView={this.showListView.bind(this)}
               advancedOptions={this._advancedOptions}
             />
           )}
