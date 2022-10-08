@@ -44,17 +44,6 @@ function formatTime(hours: number, minutes: number): string {
   );
 }
 
-// Converts 24-hour hh:mm format to 12-hour hh:mm AM/PM format
-function twentyFourToTwelveHourTime(hours: number, minutes: number): string {
-  if (hours === 12) {
-    return `${hours}:${minutes} PM`;
-  } else if (hours > 12) {
-    return `${hours - 12}:${minutes} PM`;
-  } else {
-    return `${hours}:${minutes} AM`;
-  }
-}
-
 export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
 
@@ -84,6 +73,19 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
         {label}
       </Button>
     );
+  };
+
+  // Converts 24-hour hh:mm format to 12-hour hh:mm AM/PM format
+  const twentyFourToTwelveHourTime = (hours: number, minutes: number) => {
+    if (hours === 0) {
+      return trans.__('%1:%2 AM', hours, minutes);
+    } else if (hours === 12) {
+      return trans.__('%1:%2 PM', hours, minutes);
+    } else if (hours > 12) {
+      return trans.__('%1:%2 PM', hours - 12, minutes);
+    } else {
+      return trans.__('%1:%2 AM', hours, minutes);
+    }
   };
 
   const presets = [
