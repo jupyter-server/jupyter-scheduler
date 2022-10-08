@@ -293,6 +293,52 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     });
   };
 
+  const handleScheduleMonthDayChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+    const monthDayRegex = /^(\d\d?)$/;
+    const monthDayResult = monthDayRegex.exec(value);
+
+    let monthDay = props.model.scheduleMonthDay;
+    let schedule = props.model.schedule;
+
+    if (monthDayResult) {
+      monthDay = parseInt(monthDayResult[1]);
+    }
+
+    if (
+      monthDayResult &&
+      monthDay !== undefined &&
+      monthDay >= 1 &&
+      monthDay <= 31
+    ) {
+      setErrors({
+        ...errors,
+        scheduleMonthDay: ''
+      });
+
+      // Compose a new schedule in cron format
+      switch (props.model.scheduleInterval) {
+        case 'month':
+          schedule = `${props.model.scheduleMinute ?? 0} ${
+            props.model.scheduleHour ?? 0
+          } ${monthDay} * *`;
+          break;
+      }
+    } else {
+      setErrors({
+        ...errors,
+        scheduleMonthDay: trans.__('Day of the month must be between 1 and 31')
+      });
+    }
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleMonthDayInput: value,
+      scheduleMonthDay: monthDay
+    });
+  };
+
   const handleScheduleWeekDayChange = (event: SelectChangeEvent<string>) => {
     // Days of the week are numbered 0 (Sunday) through 6 (Saturday)
     const value = (event.target as HTMLSelectElement).value;
@@ -313,6 +359,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleScheduleIntervalChange = (event: SelectChangeEvent<string>) => {
     // Set the schedule (in cron format) based on the new interval
     let schedule = props.model.schedule;
+    let dayOfWeek = props.model.scheduleWeekDay;
 
     switch (props.model.scheduleInterval) {
       case 'minute':
@@ -330,18 +377,25 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         schedule = `${props.model.scheduleMinute ?? '0'} ${
           props.model.scheduleHour ?? '0'
         } * * ${props.model.scheduleWeekDay ?? '1'}`;
+        dayOfWeek ??= '1'; // Default to Monday
         break;
       case 'weekday':
         schedule = `${props.model.scheduleMinute ?? '0'} ${
           props.model.scheduleHour ?? '0'
         } * * MON-FRI`;
         break;
+      case 'month':
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
+        } ${props.model.scheduleMonthDay ?? '1'} * *`;
+        break;
     }
 
     props.handleModelChange({
       ...props.model,
       schedule: schedule,
-      scheduleInterval: event.target.value
+      scheduleInterval: event.target.value,
+      scheduleWeekDay: dayOfWeek
     });
   };
 
@@ -641,6 +695,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             model={props.model}
             handleModelChange={props.handleModelChange}
             handleScheduleIntervalChange={handleScheduleIntervalChange}
+            handleScheduleMonthDayChange={handleScheduleMonthDayChange}
             handleScheduleWeekDayChange={handleScheduleWeekDayChange}
             handleScheduleTimeChange={handleScheduleTimeChange}
             handleScheduleMinuteChange={handleScheduleMinuteChange}

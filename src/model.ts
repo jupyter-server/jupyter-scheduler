@@ -102,6 +102,7 @@ export interface ICreateJobModel {
   scheduleMinuteInput?: string;
   scheduleMinute?: number;
   scheduleHour?: number;
+  scheduleMonthDayInput?: string;
   scheduleMonthDay?: number;
   scheduleWeekDay?: string;
 }

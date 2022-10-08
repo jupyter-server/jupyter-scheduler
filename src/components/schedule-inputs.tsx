@@ -26,6 +26,7 @@ export type ScheduleInputsProps = {
   handleModelChange: (model: ICreateJobModel) => void;
   handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
   handleScheduleWeekDayChange: (event: SelectChangeEvent<string>) => void;
+  handleScheduleMonthDayChange: (event: ChangeEvent) => void;
   handleScheduleTimeChange: (event: ChangeEvent) => void;
   handleScheduleMinuteChange: (event: ChangeEvent) => void;
   handleScheduleChange: (event: ChangeEvent) => void;
@@ -99,6 +100,15 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   const dayOfWeekLabelId = `${props.idPrefix}dayofweek-label`;
   const dayOfWeekText = trans.__('Day of the week');
 
+  const monthDayHelperText =
+    props.model.scheduleMonthDay !== undefined &&
+    props.model.scheduleMonthDay > 28
+      ? trans.__(
+          'Will not execute in months with fewer than %1 days',
+          props.model.scheduleMonthDay
+        )
+      : '1–31';
+
   const timezonePicker = (
     <Autocomplete
       id={`${props.idPrefix}timezone`}
@@ -166,7 +176,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
               variant="outlined"
               id={`${props.idPrefix}dayOfWeek`}
               name="dayOfWeek"
-              value={props.model.scheduleWeekDay + ''}
+              value={props.model.scheduleWeekDay ?? '1'}
               onChange={props.handleScheduleWeekDayChange}
             >
               <MenuItem value={'1'}>{trans.__('Monday')}</MenuItem>
@@ -197,6 +207,35 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
       {(props.model.scheduleInterval === 'weekday' ||
         props.model.scheduleInterval === 'day') && (
         <>
+          <TextField
+            label={trans.__('Time')}
+            value={
+              props.model.scheduleTimeInput ??
+              formatTime(
+                props.model.scheduleHour ?? 0,
+                props.model.scheduleMinute ?? 0
+              )
+            }
+            onChange={props.handleScheduleTimeChange}
+            error={!!props.errors['scheduleTime']}
+            helperText={props.errors['scheduleTime'] || trans.__('00:00–23:59')}
+          />
+          {timezonePicker}
+        </>
+      )}
+      {props.model.scheduleInterval === 'month' && (
+        <>
+          <TextField
+            label={trans.__('Day of the month')}
+            value={
+              props.model.scheduleMonthDayInput ??
+              props.model.scheduleMonthDay ??
+              ''
+            }
+            onChange={props.handleScheduleMonthDayChange}
+            error={!!props.errors['scheduleMonthDay']}
+            helperText={props.errors['scheduleMonthDay'] || monthDayHelperText}
+          />
           <TextField
             label={trans.__('Time')}
             value={
