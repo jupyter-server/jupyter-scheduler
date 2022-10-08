@@ -44,6 +44,17 @@ function formatTime(hours: number, minutes: number): string {
   );
 }
 
+// Converts 24-hour hh:mm format to 12-hour hh:mm AM/PM format
+function twentyFourToTwelveHourTime(hours: number, minutes: number): string {
+  if (hours === 12) {
+    return `${hours}:${minutes} PM`;
+  } else if (hours > 12) {
+    return `${hours - 12}:${minutes} PM`;
+  } else {
+    return `${hours}:${minutes} AM`;
+  }
+}
+
 export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
 
@@ -108,6 +119,16 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
           props.model.scheduleMonthDay
         )
       : '1–31';
+
+  const timeHelperText =
+    !props.errors['scheduleTime'] &&
+    props.model.scheduleHour !== undefined &&
+    props.model.scheduleMinute !== undefined
+      ? twentyFourToTwelveHourTime(
+          props.model.scheduleHour,
+          props.model.scheduleMinute
+        )
+      : trans.__('00:00–23:59');
 
   const timezonePicker = (
     <Autocomplete
@@ -199,7 +220,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
             }
             onChange={props.handleScheduleTimeChange}
             error={!!props.errors['scheduleTime']}
-            helperText={props.errors['scheduleTime'] || trans.__('00:00–23:59')}
+            helperText={props.errors['scheduleTime'] || timeHelperText}
           />
           {timezonePicker}
         </>
@@ -218,7 +239,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
             }
             onChange={props.handleScheduleTimeChange}
             error={!!props.errors['scheduleTime']}
-            helperText={props.errors['scheduleTime'] || trans.__('00:00–23:59')}
+            helperText={props.errors['scheduleTime'] || timeHelperText}
           />
           {timezonePicker}
         </>
@@ -247,7 +268,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
             }
             onChange={props.handleScheduleTimeChange}
             error={!!props.errors['scheduleTime']}
-            helperText={props.errors['scheduleTime'] || trans.__('00:00–23:59')}
+            helperText={props.errors['scheduleTime'] || timeHelperText}
           />
           {timezonePicker}
         </>
