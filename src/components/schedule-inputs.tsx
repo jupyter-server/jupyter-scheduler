@@ -152,6 +152,22 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     />
   );
 
+  const timePicker = (
+    <TextField
+      label={trans.__('Time')}
+      value={
+        props.model.scheduleTimeInput ??
+        formatTime(
+          props.model.scheduleHour ?? 0,
+          props.model.scheduleMinute ?? 0
+        )
+      }
+      onChange={props.handleScheduleTimeChange}
+      error={!!props.errors['scheduleTime']}
+      helperText={props.errors['scheduleTime'] || timeHelperText}
+    />
+  );
+
   return (
     <>
       <FormControl>
@@ -209,38 +225,14 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
               <MenuItem value={'0'}>{trans.__('Sunday')}</MenuItem>
             </Select>
           </FormControl>
-          <TextField
-            label={trans.__('Time')}
-            value={
-              props.model.scheduleTimeInput ??
-              formatTime(
-                props.model.scheduleHour ?? 0,
-                props.model.scheduleMinute ?? 0
-              )
-            }
-            onChange={props.handleScheduleTimeChange}
-            error={!!props.errors['scheduleTime']}
-            helperText={props.errors['scheduleTime'] || timeHelperText}
-          />
+          {timePicker}
           {timezonePicker}
         </>
       )}
       {(props.model.scheduleInterval === 'weekday' ||
         props.model.scheduleInterval === 'day') && (
         <>
-          <TextField
-            label={trans.__('Time')}
-            value={
-              props.model.scheduleTimeInput ??
-              formatTime(
-                props.model.scheduleHour ?? 0,
-                props.model.scheduleMinute ?? 0
-              )
-            }
-            onChange={props.handleScheduleTimeChange}
-            error={!!props.errors['scheduleTime']}
-            helperText={props.errors['scheduleTime'] || timeHelperText}
-          />
+          {timePicker}
           {timezonePicker}
         </>
       )}
@@ -257,19 +249,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
             error={!!props.errors['scheduleMonthDay']}
             helperText={props.errors['scheduleMonthDay'] || monthDayHelperText}
           />
-          <TextField
-            label={trans.__('Time')}
-            value={
-              props.model.scheduleTimeInput ??
-              formatTime(
-                props.model.scheduleHour ?? 0,
-                props.model.scheduleMinute ?? 0
-              )
-            }
-            onChange={props.handleScheduleTimeChange}
-            error={!!props.errors['scheduleTime']}
-            helperText={props.errors['scheduleTime'] || timeHelperText}
-          />
+          {timePicker}
           {timezonePicker}
         </>
       )}
