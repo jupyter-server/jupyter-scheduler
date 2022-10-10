@@ -122,7 +122,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     } catch {
       setErrors({
         ...errors,
-        schedule: trans.__('You must provide a valid Cron expression.')
+        schedule: trans.__('You must provide a valid cron expression.')
       });
     }
   };
