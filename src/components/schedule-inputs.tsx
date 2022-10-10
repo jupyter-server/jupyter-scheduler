@@ -72,8 +72,8 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     }
   };
 
-  const everyLabelId = `${props.idPrefix}every-label`;
-  const everyLabelText = trans.__('Every');
+  const intervalLabelId = `${props.idPrefix}interval-label`;
+  const intervalLabelText = trans.__('Interval');
 
   const dayOfWeekLabelId = `${props.idPrefix}dayofweek-label`;
   const dayOfWeekText = trans.__('Day of the week');
@@ -138,13 +138,13 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
   return (
     <>
       <FormControl>
-        <InputLabel id={everyLabelId}>{everyLabelText}</InputLabel>
+        <InputLabel id={intervalLabelId}>{intervalLabelText}</InputLabel>
         <Select
-          labelId={everyLabelId}
-          label={everyLabelText}
+          labelId={intervalLabelId}
+          label={intervalLabelText}
           variant="outlined"
-          id={`${props.idPrefix}every`}
-          name="every"
+          id={`${props.idPrefix}interval`}
+          name="interval"
           value={props.model.scheduleInterval}
           onChange={props.handleScheduleIntervalChange}
         >
