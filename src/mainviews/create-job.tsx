@@ -195,34 +195,58 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // If no change in checkedness, don't do anything
   };
 
-  const handleScheduleTimeChange = (event: ChangeEvent) => {
-    const value = (event.target as HTMLInputElement).value;
+  const parseTime = (input: string) => {
     // Allow h:mm or hh:mm
     const timeRegex = /^(\d\d?):(\d\d)$/;
-    const timeResult = timeRegex.exec(value);
+    const timeResult = timeRegex.exec(input);
 
-    let hours = props.model.scheduleHour;
-    let minutes = props.model.scheduleMinute;
-    let schedule = props.model.schedule;
+    let hours;
+    let minutes;
 
     if (timeResult) {
       hours = parseInt(timeResult[1]);
       minutes = parseInt(timeResult[2]);
     }
 
+    return [hours, minutes];
+  };
+
+  const validateTime = (input: string) => {
+    const errorMessage = trans.__('Time must be in hh:mm format');
+
+    const [hours, minutes] = parseTime(input);
+
     if (
-      timeResult &&
-      hours !== undefined &&
-      hours >= 0 &&
-      hours <= 23 &&
-      minutes !== undefined &&
-      minutes >= 0 &&
-      minutes <= 59
+      hours === undefined ||
+      minutes === undefined ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
     ) {
+      return errorMessage;
+    }
+
+    return '';
+  };
+
+  const handleScheduleTimeChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+
+    let hours: number | null | undefined = props.model.scheduleHour;
+    let minutes: number | null | undefined = props.model.scheduleMinute;
+    let schedule = props.model.schedule;
+
+    const timeError = validateTime(value);
+
+    if (!timeError) {
       setErrors({
         ...errors,
         scheduleTime: ''
       });
+
+      // Parse the time (we expect that neither minutes nor hours will be undefined)
+      [hours, minutes] = parseTime(value);
 
       // Compose a new schedule in cron format
       switch (props.model.scheduleInterval) {
@@ -233,12 +257,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           schedule = `${minutes} ${hours} * * MON-FRI`;
           break;
       }
-    } else {
-      setErrors({
-        ...errors,
-        scheduleTime: trans.__('Time must be in hh:mm format')
-      });
     }
+
+    setErrors({
+      ...errors,
+      scheduleTime: timeError
+    });
 
     props.handleModelChange({
       ...props.model,
@@ -374,16 +398,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const neededFields: { [key: string]: string[] } = {
       minute: [], // No inputs
       hour: ['scheduleHourMinute'],
-      day: ['scheduleMinute', 'scheduleHour'],
-      week: ['scheduleMinute', 'scheduleHour', 'scheduleWeekDay'],
+      day: ['scheduleTime'],
+      week: ['scheduleTime', 'scheduleWeekDay'],
       weekday: ['scheduleMinute', 'scheduleHour'],
-      month: ['scheduleMinute', 'scheduleHour', 'scheduleMonthDay'],
+      month: ['scheduleTime', 'scheduleMonthDay'],
       custom: []
     };
 
     const allFields = [
-      'scheduleMinute',
-      'scheduleHour',
+      'scheduleTime',
       'scheduleHourMinute',
       'scheduleWeekDay',
       'scheduleMonthDay'
@@ -393,14 +416,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     for (const fieldToValidate of allFields) {
       if (neededFields[newInterval].includes(fieldToValidate)) {
         // Validate the field.
+        // Skip validation if value in model is undefined; this typically indicates initial load.
         switch (fieldToValidate) {
-          case 'scheduleMinute':
-            break;
-          case 'scheduleHour':
+          case 'scheduleTime':
+            if (props.model.scheduleTimeInput !== undefined) {
+              newErrors[fieldToValidate] = validateTime(
+                props.model.scheduleTimeInput
+              );
+            }
             break;
           case 'scheduleHourMinute':
-            // Don't indicate errors if scheduleMinuteInput is undefined
-            // (typically on first load)
             if (props.model.scheduleMinuteInput !== undefined) {
               newErrors[fieldToValidate] = validateHourMinute(
                 props.model.scheduleMinuteInput
