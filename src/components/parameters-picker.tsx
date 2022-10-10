@@ -68,6 +68,10 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               error={nameHasError}
               helperText={props.errors[`parameter-${paramIdx}-name`] ?? ''}
               onChange={props.onChange}
+              FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
+              style={{
+                flexGrow: 1
+              }}
             />
             <TextField
               name={`parameter-${paramIdx}-value`}
@@ -76,6 +80,10 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               placeholder={trans.__('Value')}
               onBlur={e => checkParameter(e.target)}
               onChange={props.onChange}
+              FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
+              style={{
+                flexGrow: 1
+              }}
             />
             <DeleteButton
               onClick={() => props.removeParameter(paramIdx)}
