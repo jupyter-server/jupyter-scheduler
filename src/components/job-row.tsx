@@ -93,7 +93,8 @@ function RefillButton(props: {
       environment: props.job.runtime_environment_name,
       parameters: jobParameters,
       createType: 'Job',
-      scheduleInterval: 'weekday'
+      scheduleInterval: 'weekday',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
 
     // Convert the list of output formats, if any, into a list for the initial state

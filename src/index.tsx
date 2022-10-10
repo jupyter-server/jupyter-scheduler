@@ -206,7 +206,8 @@ async function activatePlugin(
         outputPath: '',
         environment: '',
         createType: 'Job',
-        scheduleInterval: 'weekday'
+        scheduleInterval: 'weekday',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       };
 
       model.createJobModel = newModel;
