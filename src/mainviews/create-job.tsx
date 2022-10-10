@@ -278,20 +278,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const minuteRegex = /^(\d\d?)$/;
     const minuteResult = minuteRegex.exec(input);
 
-    let minutes = null;
+    let minutes;
     if (minuteResult) {
       minutes = parseInt(minuteResult[1]);
     }
 
-    if (minutes === null || minutes === undefined) {
+    if (minutes === undefined || minutes < 0 || minutes > 59) {
       return errorMessage;
     }
 
-    if (minutes >= 0 && minutes <= 59) {
-      return ''; // No error
-    } else {
-      return errorMessage;
-    }
+    return ''; // No error
   };
 
   const handleScheduleMinuteChange = (event: ChangeEvent) => {
@@ -303,7 +299,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const scheduleHourMinuteError = validateHourMinute(value);
 
     if (!scheduleHourMinuteError) {
-      minutes = parseInt(props.model.scheduleMinuteInput ?? '');
+      minutes = parseInt(value);
       // No errors; compose a new schedule in cron format
       switch (props.model.scheduleInterval) {
         case 'hour':
@@ -325,29 +321,34 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     });
   };
 
-  const handleScheduleMonthDayChange = (event: ChangeEvent) => {
-    const value = (event.target as HTMLInputElement).value;
+  const validateMonthDay = (input: string) => {
+    const errorMessage = trans.__('Day of the month must be between 1 and 31');
+
     const monthDayRegex = /^(\d\d?)$/;
-    const monthDayResult = monthDayRegex.exec(value);
+    const monthDayResult = monthDayRegex.exec(input);
 
-    let monthDay = props.model.scheduleMonthDay;
-    let schedule = props.model.schedule;
-
+    let monthDay;
     if (monthDayResult) {
       monthDay = parseInt(monthDayResult[1]);
     }
 
-    if (
-      monthDayResult &&
-      monthDay !== undefined &&
-      monthDay >= 1 &&
-      monthDay <= 31
-    ) {
-      setErrors({
-        ...errors,
-        scheduleMonthDay: ''
-      });
+    if (monthDay === undefined || monthDay < 1 || monthDay > 31) {
+      return errorMessage;
+    }
 
+    return ''; // No error
+  };
+
+  const handleScheduleMonthDayChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+
+    let monthDay = props.model.scheduleMonthDay;
+    let schedule = props.model.schedule;
+
+    const monthDayError = validateMonthDay(value);
+
+    if (!monthDayError) {
+      monthDay = parseInt(value);
       // Compose a new schedule in cron format
       switch (props.model.scheduleInterval) {
         case 'month':
@@ -356,12 +357,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           } ${monthDay} * *`;
           break;
       }
-    } else {
-      setErrors({
-        ...errors,
-        scheduleMonthDay: trans.__('Day of the month must be between 1 and 31')
-      });
     }
+
+    setErrors({
+      ...errors,
+      scheduleMonthDay: monthDayError
+    });
 
     props.handleModelChange({
       ...props.model,
@@ -394,13 +395,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     let schedule = props.model.schedule;
     let dayOfWeek = props.model.scheduleWeekDay;
 
-    // On switch, validate only the needed fields, and remove errors for unneeded fields.
+    // On switch, validate only the needed text fields, and remove errors for unneeded fields.
     const neededFields: { [key: string]: string[] } = {
       minute: [], // No inputs
       hour: ['scheduleHourMinute'],
       day: ['scheduleTime'],
-      week: ['scheduleTime', 'scheduleWeekDay'],
-      weekday: ['scheduleMinute', 'scheduleHour'],
+      week: ['scheduleTime'],
+      weekday: ['scheduleTime'],
       month: ['scheduleTime', 'scheduleMonthDay'],
       custom: []
     };
@@ -408,7 +409,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const allFields = [
       'scheduleTime',
       'scheduleHourMinute',
-      'scheduleWeekDay',
       'scheduleMonthDay'
     ];
 
@@ -432,9 +432,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               );
             }
             break;
-          case 'scheduleWeekDay':
-            break;
           case 'scheduleMonthDay':
+            if (props.model.scheduleMonthDayInput !== undefined) {
+              newErrors[fieldToValidate] = validateMonthDay(
+                props.model.scheduleMonthDayInput
+              );
+            }
             break;
         }
       } else {
