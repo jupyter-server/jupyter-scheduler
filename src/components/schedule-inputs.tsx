@@ -77,14 +77,16 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
 
   // Converts 24-hour hh:mm format to 12-hour hh:mm AM/PM format
   const twentyFourToTwelveHourTime = (hours: number, minutes: number) => {
+    const displayMinutes: string = minutes < 10 ? '0' + minutes : '' + minutes;
+
     if (hours === 0) {
-      return trans.__('%1:%2 AM', hours, minutes);
+      return trans.__('%1:%2 AM', hours, displayMinutes);
     } else if (hours === 12) {
-      return trans.__('%1:%2 PM', hours, minutes);
+      return trans.__('%1:%2 PM', hours, displayMinutes);
     } else if (hours > 12) {
-      return trans.__('%1:%2 PM', hours - 12, minutes);
+      return trans.__('%1:%2 PM', hours - 12, displayMinutes);
     } else {
-      return trans.__('%1:%2 AM', hours, minutes);
+      return trans.__('%1:%2 AM', hours, displayMinutes);
     }
   };
 
