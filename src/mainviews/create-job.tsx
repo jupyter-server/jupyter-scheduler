@@ -249,41 +249,49 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     });
   };
 
-  const handleScheduleMinuteChange = (event: ChangeEvent) => {
-    const value = (event.target as HTMLInputElement).value;
+  const validateHourMinute = (input: string) => {
+    const errorMessage = trans.__('Minute must be between 0 and 59');
     const minuteRegex = /^(\d\d?)$/;
-    const minuteResult = minuteRegex.exec(value);
+    const minuteResult = minuteRegex.exec(input);
 
-    let minutes = props.model.scheduleHourMinute;
-    let schedule = props.model.schedule;
-
+    let minutes = null;
     if (minuteResult) {
       minutes = parseInt(minuteResult[1]);
     }
 
-    if (
-      minuteResult &&
-      minutes !== undefined &&
-      minutes >= 0 &&
-      minutes <= 59
-    ) {
-      setErrors({
-        ...errors,
-        scheduleHourMinute: ''
-      });
+    if (minutes === null || minutes === undefined) {
+      return errorMessage;
+    }
 
-      // Compose a new schedule in cron format
+    if (minutes >= 0 && minutes <= 59) {
+      return ''; // No error
+    } else {
+      return errorMessage;
+    }
+  };
+
+  const handleScheduleMinuteChange = (event: ChangeEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+
+    let minutes = props.model.scheduleHourMinute;
+    let schedule = props.model.schedule;
+
+    const scheduleHourMinuteError = validateHourMinute(value);
+
+    if (!scheduleHourMinuteError) {
+      minutes = parseInt(props.model.scheduleMinuteInput ?? '');
+      // No errors; compose a new schedule in cron format
       switch (props.model.scheduleInterval) {
         case 'hour':
           schedule = `${minutes} * * * *`;
           break;
       }
-    } else {
-      setErrors({
-        ...errors,
-        scheduleHourMinute: trans.__('Minute must be between 0 and 59')
-      });
     }
+
+    setErrors({
+      ...errors,
+      scheduleHourMinute: scheduleHourMinuteError
+    });
 
     props.handleModelChange({
       ...props.model,
@@ -357,9 +365,60 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleScheduleIntervalChange = (event: SelectChangeEvent<string>) => {
+    const newInterval = event.target.value;
     // Set the schedule (in cron format) based on the new interval
     let schedule = props.model.schedule;
     let dayOfWeek = props.model.scheduleWeekDay;
+
+    // On switch, validate only the needed fields, and remove errors for unneeded fields.
+    const neededFields: { [key: string]: string[] } = {
+      minute: [], // No inputs
+      hour: ['scheduleHourMinute'],
+      day: ['scheduleMinute', 'scheduleHour'],
+      week: ['scheduleMinute', 'scheduleHour', 'scheduleWeekDay'],
+      weekday: ['scheduleMinute', 'scheduleHour'],
+      month: ['scheduleMinute', 'scheduleHour', 'scheduleMonthDay'],
+      custom: []
+    };
+
+    const allFields = [
+      'scheduleMinute',
+      'scheduleHour',
+      'scheduleHourMinute',
+      'scheduleWeekDay',
+      'scheduleMonthDay'
+    ];
+
+    const newErrors = errors;
+    for (const fieldToValidate of allFields) {
+      if (neededFields[newInterval].includes(fieldToValidate)) {
+        // Validate the field.
+        switch (fieldToValidate) {
+          case 'scheduleMinute':
+            break;
+          case 'scheduleHour':
+            break;
+          case 'scheduleHourMinute':
+            // Don't indicate errors if scheduleMinuteInput is undefined
+            // (typically on first load)
+            if (props.model.scheduleMinuteInput !== undefined) {
+              newErrors[fieldToValidate] = validateHourMinute(
+                props.model.scheduleMinuteInput
+              );
+            }
+            break;
+          case 'scheduleWeekDay':
+            break;
+          case 'scheduleMonthDay':
+            break;
+        }
+      } else {
+        // Clear validation errors.
+        newErrors[fieldToValidate] = '';
+      }
+    }
+
+    setErrors(newErrors);
 
     switch (props.model.scheduleInterval) {
       case 'minute':
