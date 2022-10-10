@@ -82,7 +82,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     props.model.scheduleMonthDay !== undefined &&
     props.model.scheduleMonthDay > 28
       ? trans.__(
-          'Will not execute in months with fewer than %1 days',
+          'The job will not run in months with fewer than %1 days',
           props.model.scheduleMonthDay
         )
       : '1–31';
