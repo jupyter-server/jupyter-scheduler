@@ -197,11 +197,13 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
           <TextField
             label={trans.__('Minutes past the hour')}
             value={
-              props.model.scheduleMinuteInput ?? props.model.scheduleMinute ?? 0
+              props.model.scheduleMinuteInput ??
+              props.model.scheduleHourMinute ??
+              0
             }
             onChange={props.handleScheduleMinuteChange}
-            error={!!props.errors['scheduleMinute']}
-            helperText={props.errors['scheduleMinute'] || trans.__('0–59')}
+            error={!!props.errors['scheduleHourMinute']}
+            helperText={props.errors['scheduleHourMinute'] || trans.__('0–59')}
           />
         </>
       )}

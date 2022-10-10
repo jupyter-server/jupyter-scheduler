@@ -254,7 +254,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const minuteRegex = /^(\d\d?)$/;
     const minuteResult = minuteRegex.exec(value);
 
-    let minutes = props.model.scheduleMinute;
+    let minutes = props.model.scheduleHourMinute;
     let schedule = props.model.schedule;
 
     if (minuteResult) {
@@ -269,7 +269,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     ) {
       setErrors({
         ...errors,
-        scheduleMinute: ''
+        scheduleHourMinute: ''
       });
 
       // Compose a new schedule in cron format
@@ -281,7 +281,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     } else {
       setErrors({
         ...errors,
-        scheduleMinute: trans.__('Minute must be between 0 and 59')
+        scheduleHourMinute: trans.__('Minute must be between 0 and 59')
       });
     }
 
@@ -289,7 +289,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ...props.model,
       schedule: schedule,
       scheduleMinuteInput: value,
-      scheduleMinute: minutes
+      scheduleHourMinute: minutes
     });
   };
 
@@ -366,7 +366,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         schedule = '* * * * *'; // every minute
         break;
       case 'hour':
-        schedule = `${props.model.scheduleMinute ?? '0'} * * * *`;
+        schedule = `${props.model.scheduleHourMinute ?? '0'} * * * *`;
         break;
       case 'day':
         schedule = `${props.model.scheduleMinute ?? '0'} ${

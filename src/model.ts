@@ -97,9 +97,11 @@ export interface ICreateJobModel {
   // "Easy scheduling" inputs
   // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
   scheduleInterval: string;
-  // Form input values for time and minutes
-  scheduleTimeInput?: string;
+  // Minute for an input that only accepts minutes (of the hour)
   scheduleMinuteInput?: string;
+  scheduleHourMinute?: number;
+  // Hour and minute for time inputs
+  scheduleTimeInput?: string;
   scheduleMinute?: number;
   scheduleHour?: number;
   scheduleMonthDayInput?: string;
