@@ -61,7 +61,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       outputPath: props.model.outputPrefix ?? '',
       environment: props.model.environment,
       parameters: props.model.parameters,
-      createType: 'Job'
+      createType: 'Job',
+      scheduleInterval: 'weekday'
     };
 
     props.setCreateJobModel(initialState);

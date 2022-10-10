@@ -94,6 +94,19 @@ export interface ICreateJobModel {
   schedule?: string;
   // String for timezone in tz database format
   timezone?: string;
+  // "Easy scheduling" inputs
+  // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
+  scheduleInterval: string;
+  // Minute for an input that only accepts minutes (of the hour)
+  scheduleMinuteInput?: string;
+  scheduleHourMinute?: number;
+  // Hour and minute for time inputs
+  scheduleTimeInput?: string;
+  scheduleMinute?: number;
+  scheduleHour?: number;
+  scheduleMonthDayInput?: string;
+  scheduleMonthDay?: number;
+  scheduleWeekDay?: string;
 }
 
 export interface IListJobsModel {
@@ -156,7 +169,8 @@ export function convertDescribeJobtoJobDetail(
     createTime: dj.create_time,
     updateTime: dj.update_time,
     startTime: dj.start_time,
-    endTime: dj.end_time
+    endTime: dj.end_time,
+    scheduleInterval: 'weekday'
   };
 }
 
@@ -191,7 +205,8 @@ export function convertDescribeDefinitiontoDefinition(
     createTime: dj.create_time,
     updateTime: dj.update_time,
     schedule: dj.schedule,
-    timezone: dj.timezone
+    timezone: dj.timezone,
+    scheduleInterval: 'custom'
   };
 }
 
@@ -284,7 +299,8 @@ namespace Private {
       inputFile: '',
       outputPath: '',
       environment: '',
-      createType: 'Job'
+      createType: 'Job',
+      scheduleInterval: 'weekday'
     };
   }
 }

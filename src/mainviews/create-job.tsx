@@ -91,8 +91,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // If any error message is "truthy" (not null or empty), the form should not be submitted.
   const anyErrors = Object.keys(errors).some(key => !!errors[key]);
 
-  const handleInputChange = (event: ChangeEvent) => {
-    const target = event.target as HTMLInputElement;
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target;
 
     const parameterNameIdx = parameterNameMatch(target.name);
     const parameterValueIdx = parameterValueMatch(target.name);
@@ -127,9 +127,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
-  const handleScheduleChange = (event: ChangeEvent) => {
+  const handleScheduleChange = (event: ChangeEvent<HTMLInputElement>) => {
     // Validate the cron expression
-    validateSchedule((event.target as HTMLInputElement).value);
+    validateSchedule(event.target.value);
     handleInputChange(event);
   };
 
@@ -139,7 +139,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
-    const target = event.target as HTMLInputElement;
+    const target = event.target;
 
     // if setting the environment, default the compute type to its first value (if any are presnt)
     if (target.name === 'environment') {
@@ -195,8 +195,301 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // If no change in checkedness, don't do anything
   };
 
+  const parseTime = (input: string) => {
+    // Allow h:mm or hh:mm
+    const timeRegex = /^(\d\d?):(\d\d)$/;
+    const timeResult = timeRegex.exec(input);
+
+    let hours;
+    let minutes;
+
+    if (timeResult) {
+      hours = parseInt(timeResult[1]);
+      minutes = parseInt(timeResult[2]);
+    }
+
+    return [hours, minutes];
+  };
+
+  const validateTime = (input: string) => {
+    const errorMessage = trans.__('Time must be in hh:mm format');
+
+    const [hours, minutes] = parseTime(input);
+
+    if (
+      hours === undefined ||
+      minutes === undefined ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      return errorMessage;
+    }
+
+    return '';
+  };
+
+  const handleScheduleTimeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    let hours = props.model.scheduleHour;
+    let minutes = props.model.scheduleMinute;
+    let schedule = props.model.schedule;
+
+    const timeError = validateTime(value);
+
+    if (!timeError) {
+      setErrors({
+        ...errors,
+        scheduleTime: ''
+      });
+
+      // Parse the time (we expect that neither minutes nor hours will be undefined)
+      [hours, minutes] = parseTime(value);
+
+      // Compose a new schedule in cron format
+      switch (props.model.scheduleInterval) {
+        case 'day':
+          schedule = `${minutes} ${hours} * * *`;
+          break;
+        case 'weekday':
+          schedule = `${minutes} ${hours} * * MON-FRI`;
+          break;
+      }
+    }
+
+    setErrors({
+      ...errors,
+      scheduleTime: timeError
+    });
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleTimeInput: value,
+      scheduleHour: hours,
+      scheduleMinute: minutes
+    });
+  };
+
+  const validateHourMinute = (input: string) => {
+    const errorMessage = trans.__('Minute must be between 0 and 59');
+    const minuteRegex = /^(\d\d?)$/;
+    const minuteResult = minuteRegex.exec(input);
+
+    let minutes;
+    if (minuteResult) {
+      minutes = parseInt(minuteResult[1]);
+    }
+
+    if (minutes === undefined || minutes < 0 || minutes > 59) {
+      return errorMessage;
+    }
+
+    return ''; // No error
+  };
+
+  const handleScheduleMinuteChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    let minutes = props.model.scheduleHourMinute;
+    let schedule = props.model.schedule;
+
+    const scheduleHourMinuteError = validateHourMinute(value);
+
+    if (!scheduleHourMinuteError) {
+      minutes = parseInt(value);
+      // No errors; compose a new schedule in cron format
+      switch (props.model.scheduleInterval) {
+        case 'hour':
+          schedule = `${minutes} * * * *`;
+          break;
+      }
+    }
+
+    setErrors({
+      ...errors,
+      scheduleHourMinute: scheduleHourMinuteError
+    });
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleMinuteInput: value,
+      scheduleHourMinute: minutes
+    });
+  };
+
+  const validateMonthDay = (input: string) => {
+    const errorMessage = trans.__('Day of the month must be between 1 and 31');
+
+    const monthDayRegex = /^(\d\d?)$/;
+    const monthDayResult = monthDayRegex.exec(input);
+
+    let monthDay;
+    if (monthDayResult) {
+      monthDay = parseInt(monthDayResult[1]);
+    }
+
+    if (monthDay === undefined || monthDay < 1 || monthDay > 31) {
+      return errorMessage;
+    }
+
+    return ''; // No error
+  };
+
+  const handleScheduleMonthDayChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
+
+    let monthDay = props.model.scheduleMonthDay;
+    let schedule = props.model.schedule;
+
+    const monthDayError = validateMonthDay(value);
+
+    if (!monthDayError) {
+      monthDay = parseInt(value);
+      // Compose a new schedule in cron format
+      switch (props.model.scheduleInterval) {
+        case 'month':
+          schedule = `${props.model.scheduleMinute ?? 0} ${
+            props.model.scheduleHour ?? 0
+          } ${monthDay} * *`;
+          break;
+      }
+    }
+
+    setErrors({
+      ...errors,
+      scheduleMonthDay: monthDayError
+    });
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleMonthDayInput: value,
+      scheduleMonthDay: monthDay
+    });
+  };
+
+  const handleScheduleWeekDayChange = (event: SelectChangeEvent<string>) => {
+    // Days of the week are numbered 0 (Sunday) through 6 (Saturday)
+    const value = event.target.value;
+
+    let schedule = props.model.schedule;
+
+    schedule = `${props.model.scheduleMinute ?? '0'} ${
+      props.model.scheduleHour ?? '0'
+    } * * ${value}`;
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleWeekDay: value
+    });
+  };
+
+  const handleScheduleIntervalChange = (event: SelectChangeEvent<string>) => {
+    const newInterval = event.target.value;
+    // Set the schedule (in cron format) based on the new interval
+    let schedule = props.model.schedule;
+    let dayOfWeek = props.model.scheduleWeekDay;
+
+    // On switch, validate only the needed text fields, and remove errors for unneeded fields.
+    const neededFields: { [key: string]: string[] } = {
+      minute: [], // No inputs
+      hour: ['scheduleHourMinute'],
+      day: ['scheduleTime'],
+      week: ['scheduleTime'],
+      weekday: ['scheduleTime'],
+      month: ['scheduleTime', 'scheduleMonthDay'],
+      custom: []
+    };
+
+    const allFields = [
+      'scheduleTime',
+      'scheduleHourMinute',
+      'scheduleMonthDay'
+    ];
+
+    const newErrors = errors;
+    for (const fieldToValidate of allFields) {
+      if (neededFields[newInterval].includes(fieldToValidate)) {
+        // Validate the field.
+        // Skip validation if value in model is undefined; this typically indicates initial load.
+        switch (fieldToValidate) {
+          case 'scheduleTime':
+            if (props.model.scheduleTimeInput !== undefined) {
+              newErrors[fieldToValidate] = validateTime(
+                props.model.scheduleTimeInput
+              );
+            }
+            break;
+          case 'scheduleHourMinute':
+            if (props.model.scheduleMinuteInput !== undefined) {
+              newErrors[fieldToValidate] = validateHourMinute(
+                props.model.scheduleMinuteInput
+              );
+            }
+            break;
+          case 'scheduleMonthDay':
+            if (props.model.scheduleMonthDayInput !== undefined) {
+              newErrors[fieldToValidate] = validateMonthDay(
+                props.model.scheduleMonthDayInput
+              );
+            }
+            break;
+        }
+      } else {
+        // Clear validation errors.
+        newErrors[fieldToValidate] = '';
+      }
+    }
+
+    setErrors(newErrors);
+
+    switch (props.model.scheduleInterval) {
+      case 'minute':
+        schedule = '* * * * *'; // every minute
+        break;
+      case 'hour':
+        schedule = `${props.model.scheduleHourMinute ?? '0'} * * * *`;
+        break;
+      case 'day':
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
+        } * * *`;
+        break;
+      case 'week':
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
+        } * * ${props.model.scheduleWeekDay ?? '1'}`;
+        dayOfWeek ??= '1'; // Default to Monday
+        break;
+      case 'weekday':
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
+        } * * MON-FRI`;
+        break;
+      case 'month':
+        schedule = `${props.model.scheduleMinute ?? '0'} ${
+          props.model.scheduleHour ?? '0'
+        } ${props.model.scheduleMonthDay ?? '1'} * *`;
+        break;
+    }
+
+    props.handleModelChange({
+      ...props.model,
+      schedule: schedule,
+      scheduleInterval: event.target.value,
+      scheduleWeekDay: dayOfWeek
+    });
+  };
+
   const handleScheduleOptionsChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     value: string
   ) => {
     const name = event.target.name;
@@ -490,11 +783,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}createType`}
             model={props.model}
             handleModelChange={props.handleModelChange}
-            createType={props.model.createType}
+            handleScheduleIntervalChange={handleScheduleIntervalChange}
+            handleScheduleMonthDayChange={handleScheduleMonthDayChange}
+            handleScheduleWeekDayChange={handleScheduleWeekDayChange}
+            handleScheduleTimeChange={handleScheduleTimeChange}
+            handleScheduleMinuteChange={handleScheduleMinuteChange}
             handleCreateTypeChange={handleScheduleOptionsChange}
-            schedule={props.model.schedule}
             handleScheduleChange={handleScheduleChange}
-            timezone={props.model.timezone}
             handleTimezoneChange={handleTimezoneChange}
             errors={errors}
             handleErrorsChange={setErrors}
