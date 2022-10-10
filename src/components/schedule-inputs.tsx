@@ -50,7 +50,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
 
   let cronString;
   try {
-    if (props.model.schedule !== undefined && !props.errors['schedule']) {
+    if (props.model.schedule && !props.errors['schedule']) {
       cronString = cronstrue.toString(props.model.schedule);
     }
   } catch (e) {
