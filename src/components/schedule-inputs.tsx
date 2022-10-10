@@ -5,7 +5,6 @@ import tzdata from 'tzdata';
 
 import {
   Autocomplete,
-  Button,
   FormControl,
   InputLabel,
   MenuItem,
@@ -17,8 +16,6 @@ import {
 import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import { Scheduler } from '../tokens';
-
-import { Cluster } from './cluster';
 
 export type ScheduleInputsProps = {
   idPrefix: string;
@@ -60,21 +57,6 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     // Do nothing; let the errors or nothing display instead
   }
 
-  const presetButton = (label: string, schedule: string) => {
-    return (
-      <Button
-        onClick={e => {
-          props.handleModelChange({
-            ...props.model,
-            schedule: schedule
-          });
-        }}
-      >
-        {label}
-      </Button>
-    );
-  };
-
   // Converts 24-hour hh:mm format to 12-hour hh:mm AM/PM format
   const twentyFourToTwelveHourTime = (hours: number, minutes: number) => {
     const displayMinutes: string = minutes < 10 ? '0' + minutes : '' + minutes;
@@ -89,25 +71,6 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
       return trans.__('%1:%2 AM', hours, displayMinutes);
     }
   };
-
-  const presets = [
-    {
-      label: trans.__('Every day'),
-      schedule: '0 7 * * *'
-    },
-    {
-      label: trans.__('Every 6 hours'),
-      schedule: '* */6 * * *'
-    },
-    {
-      label: trans.__('Every weekday'),
-      schedule: '0 6 * * MON-FRI'
-    },
-    {
-      label: trans.__('Every month'),
-      schedule: '0 5 1 * *'
-    }
-  ];
 
   const everyLabelId = `${props.idPrefix}every-label`;
   const everyLabelText = trans.__('Every');
@@ -261,9 +224,6 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
       )}
       {props.model.scheduleInterval === 'custom' && (
         <>
-          <Cluster gap={4}>
-            {presets.map(preset => presetButton(preset.label, preset.schedule))}
-          </Cluster>
           <TextField
             label={trans.__('Cron expression')}
             variant="outlined"
