@@ -300,7 +300,8 @@ namespace Private {
       outputPath: '',
       environment: '',
       createType: 'Job',
-      scheduleInterval: 'weekday'
+      scheduleInterval: 'weekday',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
   }
 }
