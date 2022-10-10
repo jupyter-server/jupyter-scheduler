@@ -22,15 +22,15 @@ export type CreateScheduleOptionsProps = {
   handleModelChange: (model: ICreateJobModel) => void;
   handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
   handleScheduleWeekDayChange: (event: SelectChangeEvent<string>) => void;
-  handleScheduleMonthDayChange: (event: ChangeEvent) => void;
-  handleScheduleTimeChange: (event: ChangeEvent) => void;
-  handleScheduleMinuteChange: (event: ChangeEvent) => void;
+  handleScheduleMonthDayChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleScheduleTimeChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleScheduleMinuteChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleCreateTypeChange: (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     value: string
   ) => void;
   schedule?: string;
-  handleScheduleChange: (event: ChangeEvent) => void;
+  handleScheduleChange: (event: ChangeEvent<HTMLInputElement>) => void;
   timezone?: string;
   handleTimezoneChange: (newValue: string | null) => void;
   errors: Scheduler.ErrorsType;

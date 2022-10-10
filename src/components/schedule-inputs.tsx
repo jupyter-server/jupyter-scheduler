@@ -23,10 +23,10 @@ export type ScheduleInputsProps = {
   handleModelChange: (model: ICreateJobModel) => void;
   handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
   handleScheduleWeekDayChange: (event: SelectChangeEvent<string>) => void;
-  handleScheduleMonthDayChange: (event: ChangeEvent) => void;
-  handleScheduleTimeChange: (event: ChangeEvent) => void;
-  handleScheduleMinuteChange: (event: ChangeEvent) => void;
-  handleScheduleChange: (event: ChangeEvent) => void;
+  handleScheduleMonthDayChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleScheduleTimeChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleScheduleMinuteChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleScheduleChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleTimezoneChange: (newValue: string | null) => void;
   errors: Scheduler.ErrorsType;
   handleErrorsChange: (errors: Scheduler.ErrorsType) => void;

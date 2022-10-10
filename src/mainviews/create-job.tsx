@@ -91,8 +91,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // If any error message is "truthy" (not null or empty), the form should not be submitted.
   const anyErrors = Object.keys(errors).some(key => !!errors[key]);
 
-  const handleInputChange = (event: ChangeEvent) => {
-    const target = event.target as HTMLInputElement;
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target;
 
     const parameterNameIdx = parameterNameMatch(target.name);
     const parameterValueIdx = parameterValueMatch(target.name);
@@ -127,9 +127,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
   };
 
-  const handleScheduleChange = (event: ChangeEvent) => {
+  const handleScheduleChange = (event: ChangeEvent<HTMLInputElement>) => {
     // Validate the cron expression
-    validateSchedule((event.target as HTMLInputElement).value);
+    validateSchedule(event.target.value);
     handleInputChange(event);
   };
 
@@ -139,7 +139,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
-    const target = event.target as HTMLInputElement;
+    const target = event.target;
 
     // if setting the environment, default the compute type to its first value (if any are presnt)
     if (target.name === 'environment') {
@@ -230,11 +230,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     return '';
   };
 
-  const handleScheduleTimeChange = (event: ChangeEvent) => {
-    const value = (event.target as HTMLInputElement).value;
+  const handleScheduleTimeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
 
-    let hours: number | null | undefined = props.model.scheduleHour;
-    let minutes: number | null | undefined = props.model.scheduleMinute;
+    let hours = props.model.scheduleHour;
+    let minutes = props.model.scheduleMinute;
     let schedule = props.model.schedule;
 
     const timeError = validateTime(value);
@@ -290,8 +290,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     return ''; // No error
   };
 
-  const handleScheduleMinuteChange = (event: ChangeEvent) => {
-    const value = (event.target as HTMLInputElement).value;
+  const handleScheduleMinuteChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
 
     let minutes = props.model.scheduleHourMinute;
     let schedule = props.model.schedule;
@@ -339,8 +339,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     return ''; // No error
   };
 
-  const handleScheduleMonthDayChange = (event: ChangeEvent) => {
-    const value = (event.target as HTMLInputElement).value;
+  const handleScheduleMonthDayChange = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
 
     let monthDay = props.model.scheduleMonthDay;
     let schedule = props.model.schedule;
@@ -374,7 +376,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const handleScheduleWeekDayChange = (event: SelectChangeEvent<string>) => {
     // Days of the week are numbered 0 (Sunday) through 6 (Saturday)
-    const value = (event.target as HTMLSelectElement).value;
+    const value = event.target.value;
 
     let schedule = props.model.schedule;
 
@@ -487,7 +489,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleScheduleOptionsChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
     value: string
   ) => {
     const name = event.target.name;
