@@ -135,6 +135,17 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
     />
   );
 
+  const cronTips = (
+    <p>
+      <a
+        href="https://www.gnu.org/software/mcron/manual/html_node/Crontab-file.html"
+        target="_blank"
+      >
+        {trans.__('Get help with cron syntax')}
+      </a>
+    </p>
+  );
+
   return (
     <>
       <FormControl>
@@ -225,7 +236,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
       {props.model.scheduleInterval === 'custom' && (
         <>
           <TextField
-            label={trans.__('Cron expression')}
+            label={trans.__('cron expression')}
             variant="outlined"
             onChange={props.handleScheduleChange}
             value={props.model.schedule ?? ''}
@@ -234,6 +245,7 @@ export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
             error={!!props.errors['schedule']}
             helperText={props.errors['schedule'] || cronString}
           />
+          {cronTips}
           {timezonePicker}
         </>
       )}
