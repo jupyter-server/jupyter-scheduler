@@ -141,10 +141,10 @@ export interface IJobDefinitionModel extends ICreateJobModel {
 }
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(
-  jd: Scheduler.IDescribeJob
+  describeJob: Scheduler.IDescribeJob
 ): IJobDetailModel {
   // Convert parameters
-  const jdParameters = Object.entries(jd.parameters ?? {}).map(
+  const jdParameters = Object.entries(describeJob.parameters ?? {}).map(
     ([pName, pValue]) => {
       return {
         name: pName,
@@ -155,32 +155,32 @@ export function convertDescribeJobtoJobDetail(
 
   return {
     createType: 'Job',
-    jobId: jd.job_id,
-    jobName: jd.name ?? '',
-    inputFile: jd.input_uri,
-    outputPath: jd.output_uri,
-    outputPrefix: jd.output_prefix,
-    environment: jd.runtime_environment_name,
+    jobId: describeJob.job_id,
+    jobName: describeJob.name ?? '',
+    inputFile: describeJob.input_uri,
+    outputPath: describeJob.output_uri,
+    outputPrefix: describeJob.output_prefix,
+    environment: describeJob.runtime_environment_name,
     parameters: jdParameters,
     outputFormats: [],
-    computeType: jd.compute_type,
-    idempotencyToken: jd.idempotency_token,
-    tags: jd.tags,
-    status: jd.status,
-    statusMessage: jd.status_message,
-    createTime: jd.create_time,
-    updateTime: jd.update_time,
-    startTime: jd.start_time,
-    endTime: jd.end_time,
+    computeType: describeJob.compute_type,
+    idempotencyToken: describeJob.idempotency_token,
+    tags: describeJob.tags,
+    status: describeJob.status,
+    statusMessage: describeJob.status_message,
+    createTime: describeJob.create_time,
+    updateTime: describeJob.update_time,
+    startTime: describeJob.start_time,
+    endTime: describeJob.end_time,
     scheduleInterval: 'weekday'
   };
 }
 
 export function convertDescribeDefinitiontoDefinition(
-  jd: Scheduler.IDescribeJobDefinition
+  describeDefinition: Scheduler.IDescribeJobDefinition
 ): IJobDefinitionModel {
   // Convert parameters
-  const jdParameters = Object.entries(jd.parameters ?? {}).map(
+  const jdParameters = Object.entries(describeDefinition.parameters ?? {}).map(
     ([pName, pValue]) => {
       return {
         name: pName,
@@ -190,23 +190,23 @@ export function convertDescribeDefinitiontoDefinition(
   );
 
   return {
-    name: jd.name ?? '',
+    name: describeDefinition.name ?? '',
     jobName: '',
-    inputFile: jd.input_uri,
+    inputFile: describeDefinition.input_uri,
     createType: 'JobDefinition',
-    definitionId: jd.job_definition_id,
-    outputPath: jd.output_filename_template ?? '',
-    outputPrefix: jd.output_prefix,
-    environment: jd.runtime_environment_name,
+    definitionId: describeDefinition.job_definition_id,
+    outputPath: describeDefinition.output_filename_template ?? '',
+    outputPrefix: describeDefinition.output_prefix,
+    environment: describeDefinition.runtime_environment_name,
     parameters: jdParameters,
     outputFormats: [],
-    computeType: jd.compute_type,
-    tags: jd.tags,
-    active: jd.active ? 'IN_PROGRESS' : 'STOPPED',
-    createTime: jd.create_time,
-    updateTime: jd.update_time,
-    schedule: jd.schedule,
-    timezone: jd.timezone,
+    computeType: describeDefinition.compute_type,
+    tags: describeDefinition.tags,
+    active: describeDefinition.active ? 'IN_PROGRESS' : 'STOPPED',
+    createTime: describeDefinition.create_time,
+    updateTime: describeDefinition.update_time,
+    schedule: describeDefinition.schedule,
+    timezone: describeDefinition.timezone,
     scheduleInterval: 'custom'
   };
 }
