@@ -150,6 +150,9 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
               refresh={fetchJobDefinitionModel}
             />
           )}
+          {!jobModel && !jobDefinitionModel && (
+            <Loading title={trans.__('Loading')} />
+          )}
         </Stack>
       </Box>
     );
