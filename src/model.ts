@@ -86,7 +86,8 @@ export interface ICreateJobModel {
   createType: 'Job' | 'JobDefinition';
   runtimeEnvironmentParameters?: { [key: string]: number | string };
   parameters?: IJobParameter[];
-  outputFormats?: IOutputFormat[];
+  // List of values for output formats; labels are specified by the environment
+  outputFormats?: string[];
   computeType?: string;
   idempotencyToken?: string;
   tags?: string[];
@@ -151,7 +152,6 @@ export function convertDescribeJobtoJobDetail(
     }
   );
 
-  // TODO: Convert outputFormats
   return {
     createType: 'Job',
     jobId: dj.job_id,
@@ -162,7 +162,7 @@ export function convertDescribeJobtoJobDetail(
     environment: dj.runtime_environment_name,
     runtimeEnvironmentParameters: dj.runtime_environment_parameters,
     parameters: jdParameters,
-    outputFormats: [],
+    outputFormats: dj.output_formats,
     computeType: dj.compute_type,
     idempotencyToken: dj.idempotency_token,
     tags: dj.tags,
@@ -188,7 +188,6 @@ export function convertDescribeDefinitiontoDefinition(
     }
   );
 
-  // TODO: Convert outputFormats
   return {
     name: dj.name ?? '',
     jobName: '',
@@ -200,7 +199,7 @@ export function convertDescribeDefinitiontoDefinition(
     environment: dj.runtime_environment_name,
     runtimeEnvironmentParameters: dj.runtime_environment_parameters,
     parameters: jdParameters,
-    outputFormats: [],
+    outputFormats: dj.output_formats,
     computeType: dj.compute_type,
     tags: dj.tags,
     active: dj.active ? 'IN_PROGRESS' : 'STOPPED',

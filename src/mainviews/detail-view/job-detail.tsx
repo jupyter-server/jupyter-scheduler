@@ -66,6 +66,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       outputPath: props.model.outputPrefix ?? '',
       environment: props.model.environment,
       parameters: props.model.parameters,
+      outputFormats: props.model.outputFormats,
       createType: 'Job',
       scheduleInterval: 'weekday',
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
