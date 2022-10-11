@@ -660,29 +660,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     props.handleModelChange({ ...props.model, parameters: newParams });
   };
 
-  // If the text field is blank, record an error.
-  const validateEmpty = (
-    e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)
-  ) => {
-    const inputName = e.name;
-    const inputValue = e.value;
-
-    if (inputValue === '') {
-      // blank
-      setErrors({
-        ...errors,
-        [inputName]: trans.__('You must provide a value.')
-      });
-    } else {
-      setErrors({ ...errors, [inputName]: '' });
-    }
-  };
-
-  // Is there a truthy (non-empty) error for this field?
-  const hasError = (inputName: string) => {
-    return !!errors[inputName];
-  };
-
   const formPrefix = 'jp-create-job-';
 
   const cantSubmit = trans.__('One or more of the fields has an error.');
@@ -706,10 +683,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleInputChange}
             value={props.model.inputFile}
             id={`${formPrefix}inputFile`}
-            onBlur={e => validateEmpty(e.target)}
-            error={hasError('inputFile')}
             helperText={errors['inputFile'] ?? ''}
             name="inputFile"
+            InputProps={{
+              readOnly: true
+            }}
           />
           <TextField
             label={trans.__('Output path')}
