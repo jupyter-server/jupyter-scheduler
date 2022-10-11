@@ -121,6 +121,7 @@ export interface IDetailViewModel {
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
   status?: Scheduler.Status;
+  statusMessage?: string;
   createTime?: number;
   updateTime?: number;
   startTime?: number;
@@ -140,10 +141,10 @@ export interface IJobDefinitionModel extends ICreateJobModel {
 }
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(
-  dj: Scheduler.IDescribeJob
+  jd: Scheduler.IDescribeJob
 ): IJobDetailModel {
   // Convert parameters
-  const jdParameters = Object.entries(dj.parameters ?? {}).map(
+  const jdParameters = Object.entries(jd.parameters ?? {}).map(
     ([pName, pValue]) => {
       return {
         name: pName,
@@ -154,32 +155,32 @@ export function convertDescribeJobtoJobDetail(
 
   return {
     createType: 'Job',
-    jobId: dj.job_id,
-    jobName: dj.name ?? '',
-    inputFile: dj.input_uri,
-    outputPath: dj.output_uri,
-    outputPrefix: dj.output_prefix,
-    environment: dj.runtime_environment_name,
-    runtimeEnvironmentParameters: dj.runtime_environment_parameters,
+    jobId: jd.job_id,
+    jobName: jd.name ?? '',
+    inputFile: jd.input_uri,
+    outputPath: jd.output_uri,
+    outputPrefix: jd.output_prefix,
+    environment: jd.runtime_environment_name,
     parameters: jdParameters,
-    outputFormats: dj.output_formats,
-    computeType: dj.compute_type,
-    idempotencyToken: dj.idempotency_token,
-    tags: dj.tags,
-    status: dj.status,
-    createTime: dj.create_time,
-    updateTime: dj.update_time,
-    startTime: dj.start_time,
-    endTime: dj.end_time,
+    outputFormats: [],
+    computeType: jd.compute_type,
+    idempotencyToken: jd.idempotency_token,
+    tags: jd.tags,
+    status: jd.status,
+    statusMessage: jd.status_message,
+    createTime: jd.create_time,
+    updateTime: jd.update_time,
+    startTime: jd.start_time,
+    endTime: jd.end_time,
     scheduleInterval: 'weekday'
   };
 }
 
 export function convertDescribeDefinitiontoDefinition(
-  dj: Scheduler.IDescribeJobDefinition
+  jd: Scheduler.IDescribeJobDefinition
 ): IJobDefinitionModel {
   // Convert parameters
-  const jdParameters = Object.entries(dj.parameters ?? {}).map(
+  const jdParameters = Object.entries(jd.parameters ?? {}).map(
     ([pName, pValue]) => {
       return {
         name: pName,
@@ -189,24 +190,23 @@ export function convertDescribeDefinitiontoDefinition(
   );
 
   return {
-    name: dj.name ?? '',
+    name: jd.name ?? '',
     jobName: '',
-    inputFile: dj.input_uri,
+    inputFile: jd.input_uri,
     createType: 'JobDefinition',
-    definitionId: dj.job_definition_id,
-    outputPath: dj.output_filename_template ?? '',
-    outputPrefix: dj.output_prefix,
-    environment: dj.runtime_environment_name,
-    runtimeEnvironmentParameters: dj.runtime_environment_parameters,
+    definitionId: jd.job_definition_id,
+    outputPath: jd.output_filename_template ?? '',
+    outputPrefix: jd.output_prefix,
+    environment: jd.runtime_environment_name,
     parameters: jdParameters,
-    outputFormats: dj.output_formats,
-    computeType: dj.compute_type,
-    tags: dj.tags,
-    active: dj.active ? 'IN_PROGRESS' : 'STOPPED',
-    createTime: dj.create_time,
-    updateTime: dj.update_time,
-    schedule: dj.schedule,
-    timezone: dj.timezone,
+    outputFormats: [],
+    computeType: jd.compute_type,
+    tags: jd.tags,
+    active: jd.active ? 'IN_PROGRESS' : 'STOPPED',
+    createTime: jd.create_time,
+    updateTime: jd.update_time,
+    schedule: jd.schedule,
+    timezone: jd.timezone,
     scheduleInterval: 'custom'
   };
 }

@@ -15,6 +15,8 @@ import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import {
+  Alert,
+  AlertTitle,
   Card,
   CardContent,
   FormLabel,
@@ -269,6 +271,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   return (
     <>
       {ButtonBar}
+      {props.model.statusMessage && (
+        <Alert severity="error">
+          <AlertTitle>Error</AlertTitle>
+          {props.model.statusMessage}
+        </Alert>
+      )}
       {CoreOptions}
       {Parameters}
       {AdvancedOptions}
