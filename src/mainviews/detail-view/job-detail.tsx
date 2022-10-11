@@ -23,7 +23,12 @@ import {
 } from '@mui/material';
 
 export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
-  <TextField {...props} variant="outlined" InputProps={{ readOnly: true }} />
+  <TextField
+    {...props}
+    variant="outlined"
+    InputProps={{ readOnly: true }}
+    FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
+  />
 );
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
