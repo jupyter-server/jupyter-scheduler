@@ -716,6 +716,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.outputPath}
             id={`${formPrefix}outputPath`}
             name="outputPath"
+            helperText={trans.__(
+              'Relative path where output files are written'
+            )}
           />
           <EnvironmentPicker
             label={trans.__('Environment')}
