@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cronstrue from 'cronstrue';
+
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
@@ -7,6 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
 import { Scheduler } from '../handler';
+import { useTranslator } from '../hooks';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -21,18 +24,32 @@ function CreatedAt(props: {
   return <>{create_display_date}</>;
 }
 
+function ScheduleSummary(props: {
+  schedule: string | undefined;
+}): JSX.Element | null {
+  if (props.schedule === undefined) {
+    return null;
+  }
+
+  return <>{cronstrue.toString(props.schedule)}</>;
+}
+
 export function buildJobDefinitionRow(
   jobDef: Scheduler.IDescribeJobDefinition,
   app: JupyterFrontEnd,
   openJobDefinitionDetail: (jobDefId: string) => unknown
 ): JSX.Element {
+  const trans = useTranslator('jupyterlab');
+
   const cellContents: React.ReactNode[] = [
     // name
     <a onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}>
       {jobDef.name}
     </a>,
     PathExt.basename(jobDef.input_uri),
-    <CreatedAt job={jobDef} />
+    <CreatedAt job={jobDef} />,
+    <ScheduleSummary schedule={jobDef.schedule} />,
+    <>{jobDef.active ? trans.__('Active') : trans.__('Paused')}</>
   ];
 
   return (
