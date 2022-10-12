@@ -15,6 +15,7 @@ import TableCell from '@mui/material/TableCell';
 
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
+import { TranslationBundle } from '@jupyterlab/translation';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -105,12 +106,10 @@ export function buildJobDefinitionRow(
   deleteRow: (
     id: Scheduler.IDescribeJobDefinition['job_definition_id']
   ) => void,
-  forceReload: () => void
+  forceReload: () => void,
+  trans: TranslationBundle,
+  ss: SchedulerService
 ): JSX.Element {
-  const trans = useTranslator('jupyterlab');
-
-  const ss = new SchedulerService({});
-
   const cellContents: React.ReactNode[] = [
     // name
     <a onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}>

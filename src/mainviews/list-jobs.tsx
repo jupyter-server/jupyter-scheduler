@@ -226,7 +226,9 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
       props.app,
       props.showJobDefinitionDetail,
       deleteRow,
-      () => setJobDefsQuery({})
+      () => setJobDefsQuery({}),
+      trans,
+      new SchedulerService({})
     );
 
   const rowFilter = (jobDef: Scheduler.IDescribeJobDefinition) =>
