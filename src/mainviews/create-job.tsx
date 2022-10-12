@@ -648,7 +648,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const cantSubmit = trans.__('One or more of the fields has an error.');
 
-  console.log('Output formats: ' + JSON.stringify(props.model.outputFormats));
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
