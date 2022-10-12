@@ -101,7 +101,11 @@ class Cache:
                 .filter(JobDefinitionCache.job_definition_id == job_definition_id)
                 .first()
             )
-        return DescribeJobDefinitionCache.from_orm(definition)
+
+        if definition:
+            return DescribeJobDefinitionCache.from_orm(definition)
+        else:
+            return None
 
     def put(self, model: DescribeJobDefinitionCache):
         with self.session() as session:
@@ -275,6 +279,11 @@ class TaskRunner(BaseTaskRunner):
         while not self.queue.isempty():
             task = self.queue.peek()
             cache = self.cache.get(task.job_definition_id)
+
+            if not cache:
+                self.queue.pop()
+                continue
+
             cache_run_time = cache.next_run_time
             queue_run_time = task.next_run_time
 
@@ -283,7 +292,6 @@ class TaskRunner(BaseTaskRunner):
                 continue
 
             time_diff = self.compute_time_diff(queue_run_time, cache.timezone)
-            print(f"time difference is : {(time_diff)/1000}")
 
             # if run time is in future
             if time_diff < 0:
@@ -292,10 +300,8 @@ class TaskRunner(BaseTaskRunner):
             elif time_diff >= (self.run_interval * 1000):
                 break
             else:
-                print(f"Going to create job with job definition id: {task.job_definition_id}")
                 self.create_job(task.job_definition_id)
                 self.queue.pop()
-                print(f"heap after popping...{self.queue}")
                 run_time = self.compute_next_run_time(cache.schedule, cache.timezone)
                 self.cache.update(
                     task.job_definition_id, UpdateJobDefinitionCache(next_run_time=run_time)
