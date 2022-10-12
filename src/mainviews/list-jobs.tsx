@@ -187,6 +187,10 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
     {
       sortField: null,
       name: trans.__('Schedule')
+    },
+    {
+      sortField: null,
+      name: trans.__('Status')
     }
   ];
 

@@ -9,6 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
 import { Scheduler } from '../handler';
+import { useTranslator } from '../hooks';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -38,6 +39,8 @@ export function buildJobDefinitionRow(
   app: JupyterFrontEnd,
   openJobDefinitionDetail: (jobDefId: string) => unknown
 ): JSX.Element {
+  const trans = useTranslator('jupyterlab');
+
   const cellContents: React.ReactNode[] = [
     // name
     <a onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}>
@@ -45,7 +48,8 @@ export function buildJobDefinitionRow(
     </a>,
     PathExt.basename(jobDef.input_uri),
     <CreatedAt job={jobDef} />,
-    <ScheduleSummary schedule={jobDef.schedule} />
+    <ScheduleSummary schedule={jobDef.schedule} />,
+    <>{jobDef.active ? trans.__('Active') : trans.__('Paused')}</>
   ];
 
   return (
