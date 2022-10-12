@@ -272,10 +272,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     <>
       {ButtonBar}
       {props.model.statusMessage && (
-        <Alert severity="error">
-          <AlertTitle>Error</AlertTitle>
-          {props.model.statusMessage}
-        </Alert>
+        <Alert severity="error">{props.model.statusMessage}</Alert>
       )}
       {CoreOptions}
       {Parameters}
