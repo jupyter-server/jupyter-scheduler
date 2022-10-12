@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.4.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.4.0...0d13061a96a4a9865ac8b535573e7f2eba6f0d0d))
+
+### Merged PRs
+
+- Fix outputFormats in model conversion [#127](https://github.com/jupyter-server/jupyter-scheduler/pull/127) ([@jweill-aws](https://github.com/jweill-aws))
+- expose runtimeEnvironmentParameters [#126](https://github.com/jupyter-server/jupyter-scheduler/pull/126) ([@andrii-i](https://github.com/andrii-i))
+- Makes input file field readonly; removes validation on it [#123](https://github.com/jupyter-server/jupyter-scheduler/pull/123) ([@jweill-aws](https://github.com/jweill-aws))
+- Fix FormHelper changing the measurements of the parent element in Job Definition Detail, Create Job [#117](https://github.com/jupyter-server/jupyter-scheduler/pull/117) ([@andrii-i](https://github.com/andrii-i))
+- Adds cron tip link [#116](https://github.com/jupyter-server/jupyter-scheduler/pull/116) ([@jweill-aws](https://github.com/jweill-aws))
+- Sets default time zone in create-job form [#115](https://github.com/jupyter-server/jupyter-scheduler/pull/115) ([@jweill-aws](https://github.com/jweill-aws))
+- Easy create: Create job schedule by minute, hour, day, weekday, week, or month [#111](https://github.com/jupyter-server/jupyter-scheduler/pull/111) ([@jweill-aws](https://github.com/jweill-aws))
+- Added task runner to create scheduled jobs from job definition [#106](https://github.com/jupyter-server/jupyter-scheduler/pull/106) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-10-08&to=2022-10-12&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-10-08..2022-10-12&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-10-08..2022-10-12&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-10-08..2022-10-12&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-10-08..2022-10-12&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-10-08..2022-10-12&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.3.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.2.1...4c386efc6145af16c0f901edd6e2510c0a3b7522))
@@ -19,8 +42,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-09-27&to=2022-09-28&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-09-27..2022-09-28&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-09-27..2022-09-28&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.2.1
 
