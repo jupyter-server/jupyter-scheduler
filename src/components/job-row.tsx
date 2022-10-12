@@ -104,9 +104,9 @@ function RefillButton(props: {
       props.job.runtime_environment_name
     );
     if (jobOutputFormats && outputFormats) {
-      newModel.outputFormats = outputFormats.filter(of =>
-        jobOutputFormats.some(jof => of.name === jof)
-      );
+      newModel.outputFormats = outputFormats
+        .filter(of => jobOutputFormats.some(jof => of.name === jof))
+        .map(of => of.name);
     }
 
     // Switch the view to the form.

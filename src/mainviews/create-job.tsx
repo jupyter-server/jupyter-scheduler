@@ -12,12 +12,7 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
-import {
-  ICreateJobModel,
-  IJobParameter,
-  IOutputFormat,
-  ListJobsView
-} from '../model';
+import { ICreateJobModel, IJobParameter, ListJobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import Button from '@mui/material/Button';
@@ -168,10 +163,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const isChecked = event.target.checked;
 
     const wasChecked: boolean = props.model.outputFormats
-      ? props.model.outputFormats.some(of => of.name === formatName)
+      ? props.model.outputFormats.some(of => of === formatName)
       : false;
 
-    const oldOutputFormats: IOutputFormat[] = props.model.outputFormats || [];
+    const oldOutputFormats: string[] = props.model.outputFormats || [];
 
     // Go from unchecked to checked
     if (isChecked && !wasChecked) {
@@ -180,7 +175,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       if (newFormat) {
         props.handleModelChange({
           ...props.model,
-          outputFormats: [...oldOutputFormats, newFormat]
+          outputFormats: [...oldOutputFormats, newFormat.name]
         });
       }
     }
@@ -188,7 +183,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     else if (!isChecked && wasChecked) {
       props.handleModelChange({
         ...props.model,
-        outputFormats: oldOutputFormats.filter(of => of.name !== formatName)
+        outputFormats: oldOutputFormats.filter(of => of !== formatName)
       });
     }
 
@@ -561,6 +556,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       input_uri: props.model.inputFile,
       output_prefix: props.model.outputPath,
       runtime_environment_name: props.model.environment,
+      output_formats: props.model.outputFormats,
       compute_type: props.model.computeType,
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
@@ -569,12 +565,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     if (props.model.parameters !== undefined) {
       jobOptions.parameters = serializeParameters(props.model.parameters);
-    }
-
-    if (props.model.outputFormats !== undefined) {
-      jobOptions.output_formats = props.model.outputFormats.map(
-        entry => entry.name
-      );
     }
 
     api.createJob(jobOptions).then(response => {
@@ -597,7 +587,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       output_prefix: props.model.outputPath,
       runtime_environment_name: props.model.environment,
       compute_type: props.model.computeType,
-      // idempotency_token is in the form, but not in Scheduler.ICreateJobDefinition
+      output_formats: props.model.outputFormats,
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
@@ -607,12 +597,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     if (props.model.parameters !== undefined) {
       jobDefinitionOptions.parameters = serializeParameters(
         props.model.parameters
-      );
-    }
-
-    if (props.model.outputFormats !== undefined) {
-      jobDefinitionOptions.output_formats = props.model.outputFormats.map(
-        entry => entry.name
       );
     }
 

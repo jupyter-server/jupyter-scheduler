@@ -15,7 +15,7 @@ export type OutputFormatPickerProps = {
   environment: string;
   environmentList: Scheduler.IRuntimeEnvironment[];
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  value: IOutputFormat[];
+  value: string[];
 };
 
 export function outputFormatsForEnvironment(
@@ -51,7 +51,7 @@ export function OutputFormatPicker(
             key={idx}
             control={
               <Checkbox
-                defaultChecked={props.value.some(sof => of.name === sof.name)}
+                defaultChecked={props.value.some(sof => of.name === sof)}
                 id={`${props.id}-${of.name}`}
                 value={of.name}
                 onChange={props.onChange}
