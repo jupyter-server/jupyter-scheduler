@@ -14,6 +14,7 @@ from jupyter_scheduler.models import (
     SortDirection,
     SortField,
     Status,
+    UpdateJob,
 )
 from jupyter_scheduler.tests.utils import expected_http_error
 
@@ -162,11 +163,34 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
         assert actual_job["url"] == expected_job["url"]
 
 
-async def test_patch_jobs_for_missing_status(jp_fetch):
+async def test_patch_jobs_for_status(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
+        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        body = {"status": "STOPPED"}
+        response = await jp_fetch(
+            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
+        )
+        assert response.code == 204
+        mock_stop_job.assert_called_once_with(job_id)
+
+
+async def test_patch_jobs_for_invalid_status(jp_fetch):
     with pytest.raises(HTTPClientError) as e:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
-        response = await jp_fetch("scheduler", "jobs", job_id, method="PATCH", body="{}")
-    assert expected_http_error(e, 500, "Field 'status' missing in request body")
+        body = {"status": "IN_PROGRESS"}
+        await jp_fetch("scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body))
+        assert expected_http_error(e, 500, "Value of 'STOPPED' only allowed for field 'status'")
+
+
+async def test_patch_jobs(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
+        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        body = {"name": "hello world", "compute_type": "compute_type_a"}
+        response = await jp_fetch(
+            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
+        )
+        assert response.code == 204
+        mock_update_job.assert_called_once_with(job_id, UpdateJob(**body))
 
 
 async def test_patch_jobs_for_stop_job(jp_fetch):

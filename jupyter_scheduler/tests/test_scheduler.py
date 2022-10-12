@@ -163,7 +163,7 @@ def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_
     update = UpdateJobDefinition(
         job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
     )
-    jp_scheduler.update_job_definition(update)
+    jp_scheduler.update_job_definition(job_definition_id, update)
 
     with jp_scheduler_db() as session:
         definition = session.get(JobDefinition, job_definition_id)

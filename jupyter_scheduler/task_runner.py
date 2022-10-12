@@ -145,7 +145,7 @@ class BaseTaskRunner(ABC):
         pass
 
     @abstractmethod
-    def update_job_definition(self, model: UpdateJobDefinition):
+    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         """This handles update to job definitions"""
         pass
 
@@ -166,6 +166,8 @@ class BaseTaskRunner(ABC):
 
 
 class TaskRunner(BaseTaskRunner):
+    """Default task runner"""
+
     def __init__(self, scheduler, run_interval: int) -> None:
         self.run_interval = run_interval
         self.scheduler = scheduler
@@ -225,15 +227,15 @@ class TaskRunner(BaseTaskRunner):
                 )
             )
 
-    def update_job_definition(self, model: UpdateJobDefinition):
-        cache = self.cache.get(model.job_definition_id)
+    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
+        cache = self.cache.get(job_definition_id)
         schedule = model.schedule or cache.schedule
         timezone = model.timezone or cache.timezone
         active = model.active if model.active is not None else cache.active
         next_run_time = self.compute_next_run_time(schedule, timezone)
 
         self.cache.update(
-            model.job_definition_id,
+            job_definition_id,
             UpdateJobDefinitionCache(
                 timezone=timezone, next_run_time=next_run_time, active=active, schedule=schedule
             ),
@@ -241,9 +243,7 @@ class TaskRunner(BaseTaskRunner):
 
         if cache.next_run_time != next_run_time and active:
             self.queue.push(
-                JobDefinitionTask(
-                    job_definition_id=model.job_definition_id, next_run_time=next_run_time
-                )
+                JobDefinitionTask(job_definition_id=job_definition_id, next_run_time=next_run_time)
             )
 
     def delete_job_definition(self, job_definition_id: str):
