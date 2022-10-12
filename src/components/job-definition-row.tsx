@@ -101,7 +101,8 @@ function DeleteButton(props: {
 export function buildJobDefinitionRow(
   jobDef: Scheduler.IDescribeJobDefinition,
   app: JupyterFrontEnd,
-  openJobDefinitionDetail: (jobDefId: string) => unknown
+  openJobDefinitionDetail: (jobDefId: string) => unknown,
+  deleteRow: (id: Scheduler.IDescribeJobDefinition['job_definition_id']) => void
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
@@ -133,6 +134,8 @@ export function buildJobDefinitionRow(
         jobDef={jobDef}
         clickHandler={async () => {
           await ss.deleteJobDefinition(jobDef.job_definition_id);
+
+          deleteRow(jobDef.job_definition_id);
         }}
       />
     </Stack>

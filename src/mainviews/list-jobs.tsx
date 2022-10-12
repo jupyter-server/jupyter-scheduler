@@ -169,7 +169,17 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const trans = useTranslator('jupyterlab');
   const [jobDefsQuery, setJobDefsQuery] =
     useState<Scheduler.IListJobDefinitionsQuery>({});
+  const [deletedRows, setDeletedRows] = useState<
+    Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
+  >(new Set());
   const api = useMemo(() => new SchedulerService({}), []);
+
+  const deleteRow = useCallback(
+    (id: Scheduler.IDescribeJobDefinition['job_definition_id']) => {
+      setDeletedRows(deletedRows => new Set([...deletedRows, id]));
+    },
+    []
+  );
 
   const columns: AdvancedTableColumn[] = [
     {
@@ -211,7 +221,15 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   );
 
   const renderRow = (jobDef: Scheduler.IDescribeJobDefinition) =>
-    buildJobDefinitionRow(jobDef, props.app, props.showJobDefinitionDetail);
+    buildJobDefinitionRow(
+      jobDef,
+      props.app,
+      props.showJobDefinitionDetail,
+      deleteRow
+    );
+
+  const rowFilter = (jobDef: Scheduler.IDescribeJobDefinition) =>
+    !deletedRows.has(jobDef.job_definition_id);
 
   const emptyRowMessage = useMemo(
     () => trans.__('There are no notebook job definitions.'),
@@ -231,6 +249,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
         renderRow={renderRow}
         columns={columns}
         emptyRowMessage={emptyRowMessage}
+        rowFilter={rowFilter}
       />
     </>
   );
