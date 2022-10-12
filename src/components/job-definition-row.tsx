@@ -102,7 +102,10 @@ export function buildJobDefinitionRow(
   jobDef: Scheduler.IDescribeJobDefinition,
   app: JupyterFrontEnd,
   openJobDefinitionDetail: (jobDefId: string) => unknown,
-  deleteRow: (id: Scheduler.IDescribeJobDefinition['job_definition_id']) => void
+  deleteRow: (
+    id: Scheduler.IDescribeJobDefinition['job_definition_id']
+  ) => void,
+  forceReload: () => void
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
@@ -122,12 +125,14 @@ export function buildJobDefinitionRow(
         jobDef={jobDef}
         clickHandler={async () => {
           await ss.pauseJobDefinition(jobDef.job_definition_id);
+          forceReload();
         }}
       />
       <ResumeButton
         jobDef={jobDef}
         clickHandler={async () => {
           await ss.resumeJobDefinition(jobDef.job_definition_id);
+          forceReload();
         }}
       />
       <DeleteButton
