@@ -139,19 +139,23 @@ export interface IJobDefinitionModel extends ICreateJobModel {
   endTime?: number;
   outputPrefix?: string;
 }
+
+const convertParameters = (parameters: {
+  [key: string]: any;
+}): IJobParameter[] =>
+  Object.entries(parameters).map(([pName, pValue]) => {
+    return {
+      name: pName,
+      value: pValue
+    };
+  });
+
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(
   describeJob: Scheduler.IDescribeJob
 ): IJobDetailModel {
   // Convert parameters
-  const jdParameters = Object.entries(describeJob.parameters ?? {}).map(
-    ([pName, pValue]) => {
-      return {
-        name: pName,
-        value: pValue
-      };
-    }
-  );
+  const jobParameters = convertParameters(describeJob.parameters ?? {});
 
   return {
     createType: 'Job',
@@ -161,7 +165,7 @@ export function convertDescribeJobtoJobDetail(
     outputPath: describeJob.output_uri,
     outputPrefix: describeJob.output_prefix,
     environment: describeJob.runtime_environment_name,
-    parameters: jdParameters,
+    parameters: jobParameters,
     outputFormats: [],
     computeType: describeJob.compute_type,
     idempotencyToken: describeJob.idempotency_token,
@@ -180,13 +184,8 @@ export function convertDescribeDefinitiontoDefinition(
   describeDefinition: Scheduler.IDescribeJobDefinition
 ): IJobDefinitionModel {
   // Convert parameters
-  const jdParameters = Object.entries(describeDefinition.parameters ?? {}).map(
-    ([pName, pValue]) => {
-      return {
-        name: pName,
-        value: pValue
-      };
-    }
+  const definitionParameters = convertParameters(
+    describeDefinition.parameters ?? {}
   );
 
   return {
@@ -198,7 +197,7 @@ export function convertDescribeDefinitiontoDefinition(
     outputPath: describeDefinition.output_filename_template ?? '',
     outputPrefix: describeDefinition.output_prefix,
     environment: describeDefinition.runtime_environment_name,
-    parameters: jdParameters,
+    parameters: definitionParameters,
     outputFormats: [],
     computeType: describeDefinition.compute_type,
     tags: describeDefinition.tags,
