@@ -168,7 +168,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         status = Status(status) if status else None
 
         if status and status != Status.STOPPED:
-            raise tornado.web.HTTPError(500, "Value of 'STOPPED' only allowed for field 'status'")
+            raise tornado.web.HTTPError(
+                500,
+                "Invalid value for field 'status'. Jobs can only be updated to status 'STOPPED' after creation.",
+            )
 
         if status:
             await ensure_async(self.scheduler.stop_job(job_id))

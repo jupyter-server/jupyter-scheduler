@@ -189,9 +189,10 @@ class UpdateJobDefinition(BaseModel):
     name: Optional[str] = None
     url: Optional[str] = None
     schedule: Optional[str] = None
-    timezone: Optional[str] = None  # Should be a timezone e.g., US/Eastern, Asia/Kolkata
+    timezone: Optional[str] = None
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     active: Optional[bool] = None
+    compute_type: Optional[str] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):
