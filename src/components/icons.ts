@@ -5,7 +5,6 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import calendarAddOnSvgstr from '../../style/icons/calendar-add-on.svg';
 import calendarMonthSvgStr from '../../style/icons/calendar-month.svg';
 import eventNoteSvgstr from '../../style/icons/event-note.svg';
-import replaySvgstr from '../../style/icons/replay.svg';
 
 export const calendarAddOnIcon = new LabIcon({
   name: 'jupyterlab-scheduler:calendar-add-on',
@@ -18,8 +17,4 @@ export const calendarMonthIcon = new LabIcon({
 export const eventNoteIcon = new LabIcon({
   name: 'jupyterlab-scheduler:event-note',
   svgstr: eventNoteSvgstr
-});
-export const replayIcon = new LabIcon({
-  name: 'jupyterlab-scheduler:replay',
-  svgstr: replaySvgstr
 });

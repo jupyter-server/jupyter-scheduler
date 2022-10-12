@@ -1,10 +1,13 @@
 import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ToolbarButtonComponent } from '@jupyterlab/apputils';
 import { PathExt } from '@jupyterlab/coreutils';
-import { closeIcon, stopIcon } from '@jupyterlab/ui-components';
 
+import CloseIcon from '@mui/icons-material/Close';
+import StopIcon from '@mui/icons-material/Stop';
+import ReplayIcon from '@mui/icons-material/Replay';
+
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -14,7 +17,6 @@ import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
 
-import { replayIcon } from './icons';
 import { outputFormatsForEnvironment } from './output-format-picker';
 
 function get_file_from_path(path: string): string {
@@ -34,11 +36,9 @@ function StopButton(props: {
     <div
       style={props.job.status !== 'IN_PROGRESS' ? { visibility: 'hidden' } : {}}
     >
-      <ToolbarButtonComponent
-        onClick={props.clickHandler}
-        tooltip={buttonTitle}
-        icon={stopIcon}
-      />
+      <IconButton onClick={props.clickHandler} title={buttonTitle}>
+        <StopIcon fontSize="small" />
+      </IconButton>
     </div>
   );
 }
@@ -53,11 +53,9 @@ function DeleteButton(props: {
     : trans.__('Delete job');
 
   return (
-    <ToolbarButtonComponent
-      onClick={props.clickHandler}
-      tooltip={buttonTitle}
-      icon={closeIcon}
-    />
+    <IconButton onClick={props.clickHandler} title={buttonTitle}>
+      <CloseIcon fontSize="small" />
+    </IconButton>
   );
 }
 
@@ -114,11 +112,12 @@ function RefillButton(props: {
   };
 
   return (
-    <ToolbarButtonComponent
+    <IconButton
       onClick={clickHandler}
-      tooltip={buttonTitle}
-      icon={replayIcon}
-    />
+      title={buttonTitle}
+    >
+      <ReplayIcon fontSize="small" />
+    </IconButton>
   );
 }
 
