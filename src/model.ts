@@ -69,7 +69,7 @@ export type ListJobsView = 'Job' | 'JobDefinition';
 
 export type IJobParameter = {
   name: string;
-  value: string;
+  value: string | number | boolean | undefined;
 };
 
 export interface IOutputFormat {
@@ -84,7 +84,7 @@ export interface ICreateJobModel {
   environment: string;
   // A "job" runs now; a "job definition" runs on a schedule
   createType: 'Job' | 'JobDefinition';
-  runtimeEnvironmentParameters?: { [key: string]: number | string };
+  runtimeEnvironmentParameters?: { [key: string]: number | string | boolean };
   parameters?: IJobParameter[];
   // List of values for output formats; labels are specified by the environment
   outputFormats?: string[];
