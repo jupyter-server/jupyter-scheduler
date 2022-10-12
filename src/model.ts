@@ -121,6 +121,7 @@ export interface IDetailViewModel {
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
   status?: Scheduler.Status;
+  statusMessage?: string;
   createTime?: number;
   updateTime?: number;
   startTime?: number;
@@ -138,75 +139,76 @@ export interface IJobDefinitionModel extends ICreateJobModel {
   endTime?: number;
   outputPrefix?: string;
 }
+
+const convertParameters = (parameters: {
+  [key: string]: any;
+}): IJobParameter[] =>
+  Object.entries(parameters).map(([pName, pValue]) => {
+    return {
+      name: pName,
+      value: pValue
+    };
+  });
+
 // Convert an IDescribeJobModel to an IJobDetailModel
 export function convertDescribeJobtoJobDetail(
-  dj: Scheduler.IDescribeJob
+  describeJob: Scheduler.IDescribeJob
 ): IJobDetailModel {
   // Convert parameters
-  const jdParameters = Object.entries(dj.parameters ?? {}).map(
-    ([pName, pValue]) => {
-      return {
-        name: pName,
-        value: pValue
-      };
-    }
-  );
+  const jobParameters = convertParameters(describeJob.parameters ?? {});
 
   return {
     createType: 'Job',
-    jobId: dj.job_id,
-    jobName: dj.name ?? '',
-    inputFile: dj.input_uri,
-    outputPath: dj.output_uri,
-    outputPrefix: dj.output_prefix,
-    environment: dj.runtime_environment_name,
-    runtimeEnvironmentParameters: dj.runtime_environment_parameters,
-    parameters: jdParameters,
-    outputFormats: dj.output_formats,
-    computeType: dj.compute_type,
-    idempotencyToken: dj.idempotency_token,
-    tags: dj.tags,
-    status: dj.status,
-    createTime: dj.create_time,
-    updateTime: dj.update_time,
-    startTime: dj.start_time,
-    endTime: dj.end_time,
+    jobId: describeJob.job_id,
+    jobName: describeJob.name ?? '',
+    inputFile: describeJob.input_uri,
+    outputPath: describeJob.output_uri,
+    outputPrefix: describeJob.output_prefix,
+    environment: describeJob.runtime_environment_name,
+    runtimeEnvironmentParameters: describeJob.runtime_environment_parameters,
+    parameters: jobParameters,
+    outputFormats: describeJob.output_formats,
+    computeType: describeJob.compute_type,
+    idempotencyToken: describeJob.idempotency_token,
+    tags: describeJob.tags,
+    status: describeJob.status,
+    statusMessage: describeJob.status_message,
+    createTime: describeJob.create_time,
+    updateTime: describeJob.update_time,
+    startTime: describeJob.start_time,
+    endTime: describeJob.end_time,
     scheduleInterval: 'weekday'
   };
 }
 
 export function convertDescribeDefinitiontoDefinition(
-  dj: Scheduler.IDescribeJobDefinition
+  describeDefinition: Scheduler.IDescribeJobDefinition
 ): IJobDefinitionModel {
   // Convert parameters
-  const jdParameters = Object.entries(dj.parameters ?? {}).map(
-    ([pName, pValue]) => {
-      return {
-        name: pName,
-        value: pValue
-      };
-    }
+  const definitionParameters = convertParameters(
+    describeDefinition.parameters ?? {}
   );
 
   return {
-    name: dj.name ?? '',
+    name: describeDefinition.name ?? '',
     jobName: '',
-    inputFile: dj.input_uri,
+    inputFile: describeDefinition.input_uri,
     createType: 'JobDefinition',
-    definitionId: dj.job_definition_id,
-    outputPath: dj.output_filename_template ?? '',
-    outputPrefix: dj.output_prefix,
-    environment: dj.runtime_environment_name,
-    runtimeEnvironmentParameters: dj.runtime_environment_parameters,
-    parameters: jdParameters,
-    outputFormats: dj.output_formats,
-    computeType: dj.compute_type,
-    tags: dj.tags,
-    active: dj.active ? 'IN_PROGRESS' : 'STOPPED',
-    createTime: dj.create_time,
-    updateTime: dj.update_time,
-    schedule: dj.schedule,
-    timezone: dj.timezone,
+    definitionId: describeDefinition.job_definition_id,
+    outputPath: describeDefinition.output_filename_template ?? '',
+    outputPrefix: describeDefinition.output_prefix,
+    environment: describeDefinition.runtime_environment_name,
+    runtimeEnvironmentParameters:
+      describeDefinition.runtime_environment_parameters,
+    parameters: definitionParameters,
+    outputFormats: describeDefinition.output_formats,
+    computeType: describeDefinition.compute_type,
+    tags: describeDefinition.tags,
+    active: describeDefinition.active ? 'IN_PROGRESS' : 'STOPPED',
+    createTime: describeDefinition.create_time,
+    updateTime: describeDefinition.update_time,
+    schedule: describeDefinition.schedule,
+    timezone: describeDefinition.timezone,
     scheduleInterval: 'custom'
   };
 }
