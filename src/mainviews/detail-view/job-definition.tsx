@@ -134,10 +134,19 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     </Card>
   );
 
+  const JobsList = (
+    <Card>
+      <CardContent>
+        <Stack spacing={4}> List of jobs will go here </Stack>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <>
       {DefinitionButtonBar}
       {JobDefinition}
+      {JobsList}
     </>
   );
 }
