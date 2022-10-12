@@ -303,13 +303,17 @@ export namespace SchedulerService {
 }
 
 export namespace Scheduler {
+
+  export type RuntimeEnvironmentParameters = { [key: string]: number | string | boolean}
+  export type Parameters = { [key: string]: number | string | boolean}
+
   export interface ICreateJobDefinition {
     input_uri: string;
     output_prefix: string;
     runtime_environment_name: string;
-    runtime_environment_parameters?: { [key: string]: number | string };
+    runtime_environment_parameters?: RuntimeEnvironmentParameters;
     output_formats?: string[];
-    parameters?: { [key: string]: any };
+    parameters?: Parameters;
     tags?: string[];
     name?: string;
     output_filename_template?: string;
@@ -318,9 +322,21 @@ export namespace Scheduler {
     timezone?: string;
   }
 
-  export interface IUpdateJobDefinition extends ICreateJobDefinition {
-    job_definition_id: string;
-    url?: string;
+  export interface IUpdateJobDefinition {
+    input_uri?: string
+    output_prefix?: string
+    runtime_environment_name?: string
+    runtime_environment_parameters?: RuntimeEnvironmentParameters
+    output_formats?: string[]
+    parameters?: Parameters
+    tags?: string[];
+    name?: string;
+    output_filename_template?: string;
+    compute_type?: string;
+    schedule?: string;
+    timezone?: string;
+    url?: string
+    active?: boolean
   }
 
   export interface IDescribeJobDefinition extends ICreateJobDefinition {
@@ -341,10 +357,10 @@ export namespace Scheduler {
     input_uri: string;
     output_prefix: string;
     runtime_environment_name: string;
-    runtime_environment_parameters?: { [key: string]: number | string };
+    runtime_environment_parameters?: RuntimeEnvironmentParameters;
     idempotency_token?: string;
     job_definition_id?: string;
-    parameters?: { [key: string]: any };
+    parameters?: Parameters;
     tags?: string[];
     name?: string;
     email_notifications?: IEmailNotifications;
@@ -418,6 +434,12 @@ export namespace Scheduler {
     job_definitions: IDescribeJobDefinition[];
     next_token?: string;
     total_count: number;
+  }
+
+  export interface IUpdateJob {
+    status?: Status
+    name?: string
+    compute_type?: string
   }
 
   export interface IRuntimeEnvironment {
