@@ -445,7 +445,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     setErrors(newErrors);
 
-    switch (props.model.scheduleInterval) {
+    switch (newInterval) {
       case 'minute':
         schedule = '* * * * *'; // every minute
         break;
