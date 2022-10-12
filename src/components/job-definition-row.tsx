@@ -1,5 +1,7 @@
 import React from 'react';
 
+import cronstrue from 'cronstrue';
+
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
@@ -21,6 +23,16 @@ function CreatedAt(props: {
   return <>{create_display_date}</>;
 }
 
+function ScheduleSummary(props: {
+  schedule: string | undefined;
+}): JSX.Element | null {
+  if (props.schedule === undefined) {
+    return null;
+  }
+
+  return <>{cronstrue.toString(props.schedule)}</>;
+}
+
 export function buildJobDefinitionRow(
   jobDef: Scheduler.IDescribeJobDefinition,
   app: JupyterFrontEnd,
@@ -32,7 +44,8 @@ export function buildJobDefinitionRow(
       {jobDef.name}
     </a>,
     PathExt.basename(jobDef.input_uri),
-    <CreatedAt job={jobDef} />
+    <CreatedAt job={jobDef} />,
+    <ScheduleSummary schedule={jobDef.schedule} />
   ];
 
   return (

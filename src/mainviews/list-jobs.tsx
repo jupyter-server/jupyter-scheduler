@@ -183,6 +183,10 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
     {
       sortField: 'create_time',
       name: trans.__('Created at')
+    },
+    {
+      sortField: null,
+      name: trans.__('Schedule')
     }
   ];
 
