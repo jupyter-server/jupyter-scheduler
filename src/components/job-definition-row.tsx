@@ -5,10 +5,15 @@ import cronstrue from 'cronstrue';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
+import CloseIcon from '@mui/icons-material/Close';
+import PauseIcon from '@mui/icons-material/Pause';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { IconButton } from '@mui/material';
+import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
-import { Scheduler } from '../handler';
+import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 
 function CreatedAt(props: {
@@ -34,12 +39,73 @@ function ScheduleSummary(props: {
   return <>{cronstrue.toString(props.schedule)}</>;
 }
 
+function PauseButton(props: {
+  jobDef: Scheduler.IDescribeJobDefinition;
+  clickHandler: () => void;
+}): JSX.Element | null {
+  const trans = useTranslator('jupyterlab');
+
+  if (!props.jobDef.active) {
+    return null;
+  }
+
+  const buttonTitle = props.jobDef.name
+    ? trans.__('Pause "%1"', props.jobDef.name)
+    : trans.__('Pause job definition');
+
+  return (
+    <IconButton onClick={props.clickHandler} title={buttonTitle}>
+      <PauseIcon fontSize="small" />
+    </IconButton>
+  );
+}
+
+function ResumeButton(props: {
+  jobDef: Scheduler.IDescribeJobDefinition;
+  clickHandler: () => void;
+}): JSX.Element | null {
+  const trans = useTranslator('jupyterlab');
+
+  if (props.jobDef.active) {
+    return null;
+  }
+
+  const buttonTitle = props.jobDef.name
+    ? trans.__('Resume "%1"', props.jobDef.name)
+    : trans.__('Resume job definition');
+
+  return (
+    <IconButton onClick={props.clickHandler} title={buttonTitle}>
+      <PlayArrowIcon fontSize="small" />
+    </IconButton>
+  );
+}
+
+function DeleteButton(props: {
+  jobDef: Scheduler.IDescribeJobDefinition;
+  clickHandler: () => void;
+}): JSX.Element | null {
+  const trans = useTranslator('jupyterlab');
+
+  const buttonTitle = props.jobDef.name
+    ? trans.__('Delete "%1"', props.jobDef.name)
+    : trans.__('Delete job definition');
+
+  return (
+    <IconButton onClick={props.clickHandler} title={buttonTitle}>
+      <CloseIcon fontSize="small" />
+    </IconButton>
+  );
+}
+
 export function buildJobDefinitionRow(
   jobDef: Scheduler.IDescribeJobDefinition,
   app: JupyterFrontEnd,
   openJobDefinitionDetail: (jobDefId: string) => unknown
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
+
+  const ss = new SchedulerService({});
 
   const cellContents: React.ReactNode[] = [
     // name
@@ -49,7 +115,27 @@ export function buildJobDefinitionRow(
     PathExt.basename(jobDef.input_uri),
     <CreatedAt job={jobDef} />,
     <ScheduleSummary schedule={jobDef.schedule} />,
-    <>{jobDef.active ? trans.__('Active') : trans.__('Paused')}</>
+    jobDef.active ? trans.__('Active') : trans.__('Paused'),
+    <Stack spacing={1} direction="row">
+      <PauseButton
+        jobDef={jobDef}
+        clickHandler={async () => {
+          await ss.pauseJobDefinition(jobDef.job_definition_id);
+        }}
+      />
+      <ResumeButton
+        jobDef={jobDef}
+        clickHandler={async () => {
+          await ss.resumeJobDefinition(jobDef.job_definition_id);
+        }}
+      />
+      <DeleteButton
+        jobDef={jobDef}
+        clickHandler={async () => {
+          await ss.deleteJobDefinition(jobDef.job_definition_id);
+        }}
+      />
+    </Stack>
   ];
 
   return (
