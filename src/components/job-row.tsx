@@ -112,10 +112,7 @@ function RefillButton(props: {
   };
 
   return (
-    <IconButton
-      onClick={clickHandler}
-      title={buttonTitle}
-    >
+    <IconButton onClick={clickHandler} title={buttonTitle}>
       <ReplayIcon fontSize="small" />
     </IconButton>
   );
