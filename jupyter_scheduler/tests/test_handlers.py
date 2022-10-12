@@ -179,7 +179,11 @@ async def test_patch_jobs_for_invalid_status(jp_fetch):
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         body = {"status": "IN_PROGRESS"}
         await jp_fetch("scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body))
-        assert expected_http_error(e, 500, "Value of 'STOPPED' only allowed for field 'status'")
+        assert expected_http_error(
+            e,
+            500,
+            "Invalid value for field 'status'. Jobs can only be updated to status 'STOPPED' after creation.",
+        )
 
 
 async def test_patch_jobs(jp_fetch):
