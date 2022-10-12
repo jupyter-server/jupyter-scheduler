@@ -68,6 +68,7 @@
     "@lumino/polling": "^1.9.0",
     "@lumino/signaling": "^1.10.0",
     "@lumino/widgets": "^1.32.0",
+    "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.6",
     "@mui/system": "^5.10.6",
     "@types/react-dom": "^18.0.5",
