@@ -52,7 +52,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   const DefinitionButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {props.model.active === 'IN_PROGRESS' ? (
+      {props.model.active ? (
         <Button variant="outlined" onClick={pauseJobDefinition}>
           {trans.__('Pause')}
         </Button>
@@ -88,7 +88,10 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
         value: props.model.environment,
         label: trans.__('Environment')
       },
-      { value: props.model.active ?? '', label: trans.__('Status') }
+      {
+        value: props.model.active ? trans.__('Active') : trans.__('Paused'),
+        label: trans.__('Status')
+      }
     ],
     [
       {

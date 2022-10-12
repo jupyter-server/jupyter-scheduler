@@ -132,7 +132,7 @@ export interface IJobDetailModel extends ICreateJobModel {
 export interface IJobDefinitionModel extends ICreateJobModel {
   definitionId: string;
   name?: string;
-  active?: Scheduler.Status;
+  active?: boolean;
   createTime?: number;
   updateTime?: number;
   startTime?: number;
@@ -204,7 +204,7 @@ export function convertDescribeDefinitiontoDefinition(
     outputFormats: describeDefinition.output_formats,
     computeType: describeDefinition.compute_type,
     tags: describeDefinition.tags,
-    active: describeDefinition.active ? 'IN_PROGRESS' : 'STOPPED',
+    active: describeDefinition.active,
     createTime: describeDefinition.create_time,
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
