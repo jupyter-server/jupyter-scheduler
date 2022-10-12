@@ -46,7 +46,7 @@ class BaseScheduler(ABC):
         pass
 
     @abstractmethod
-    def update_job(self, model: UpdateJob):
+    def update_job(self, job_id: str, model: UpdateJob):
         """Updates job metadata in the persistence store,
         for example name, status etc. In case of status
         change to STOPPED, should call stop_job
@@ -96,7 +96,7 @@ class BaseScheduler(ABC):
         pass
 
     @abstractmethod
-    def update_job_definition(self, model: UpdateJobDefinition):
+    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         """Updates job definition metadata in the persistence store,
         should only impact all future jobs.
         """
@@ -180,11 +180,9 @@ class Scheduler(BaseScheduler):
 
         return job_id
 
-    def update_job(self, model: UpdateJob):
+    def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:
-            session.query(Job).filter(Job.job_id == model.job_id).update(
-                model.dict(exclude_none=True)
-            )
+            session.query(Job).filter(Job.job_id == job_id).update(model.dict(exclude_none=True))
             session.commit()
 
     def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
@@ -280,21 +278,21 @@ class Scheduler(BaseScheduler):
 
         return job_definition_id
 
-    def update_job_definition(self, model: UpdateJobDefinition):
+    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         with self.db_session() as session:
             session.query(JobDefinition).filter(
-                JobDefinition.job_definition_id == model.job_definition_id
-            ).update(model.dict(exclude_none=True, exclude={"job_definition_id"}))
+                JobDefinition.job_definition_id == job_definition_id
+            ).update(model.dict(exclude_none=True))
             session.commit()
 
             schedule = (
                 session.query(JobDefinition.schedule)
-                .filter(JobDefinition.job_definition_id == model.job_definition_id)
+                .filter(JobDefinition.job_definition_id == job_definition_id)
                 .scalar()
             )
 
         if self.task_runner and schedule:
-            self.task_runner.update_job_definition(model)
+            self.task_runner.update_job_definition(job_definition_id, model)
 
     def delete_job_definition(self, job_definition_id: str):
         with self.db_session() as session:

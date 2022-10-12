@@ -100,8 +100,9 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def patch(self, job_definition_id):
         payload = self.get_json_body()
-        payload["job_definition_id"] = job_definition_id
-        await ensure_async(self.scheduler.update_job_definition(UpdateJobDefinition(**payload)))
+        await ensure_async(
+            self.scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(**payload))
+        )
         self.set_status(204)
         self.finish()
 
@@ -163,16 +164,16 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def patch(self, job_id):
         payload = self.get_json_body()
 
-        if "status" not in payload:
-            raise tornado.web.HTTPError(500, "Field 'status' missing in request body")
+        status = payload.get("status", None)
+        status = Status(status) if status else None
 
-        status = Status(payload.get("status"))
-        if status == Status.STOPPED:
+        if status and status != Status.STOPPED:
+            raise tornado.web.HTTPError(500, "Value of 'STOPPED' only allowed for field 'status'")
+
+        if status:
             await ensure_async(self.scheduler.stop_job(job_id))
         else:
-            await ensure_async(
-                self.scheduler.update_job(UpdateJob(job_id=job_id, status=str(status)))
-            )
+            await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
 
         self.set_status(204)
         self.finish()

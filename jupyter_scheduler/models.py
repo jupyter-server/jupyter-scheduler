@@ -144,10 +144,7 @@ class CountJobsQuery(BaseModel):
 
 
 class UpdateJob(BaseModel):
-    job_id: str
-    end_time: Optional[int] = None
     status: Optional[Status] = None
-    status_message: Optional[str] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
 
@@ -182,7 +179,6 @@ class DescribeJobDefinition(CreateJobDefinition):
 
 
 class UpdateJobDefinition(BaseModel):
-    job_definition_id: str
     input_uri: Optional[str]
     output_prefix: Optional[str]
     runtime_environment_name: Optional[str]
