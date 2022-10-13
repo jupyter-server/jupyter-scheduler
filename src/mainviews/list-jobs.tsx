@@ -132,11 +132,7 @@ function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     !deletedRows.has(job.job_id);
 
   const emptyRowMessage = useMemo(
-    () =>
-      trans.__(
-        'There are no notebook jobs. ' +
-          'Right-click on a file in the file browser to run or schedule a notebook as a job.'
-      ),
+    () => trans.__('There are no notebook jobs.'),
     [trans]
   );
 
