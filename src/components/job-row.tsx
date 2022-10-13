@@ -89,6 +89,7 @@ function RefillButton(props: {
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,
       environment: props.job.runtime_environment_name,
+      runtimeEnvironmentParameters: props.job.runtime_environment_parameters,
       parameters: jobParameters,
       createType: 'Job',
       scheduleInterval: 'weekday',
