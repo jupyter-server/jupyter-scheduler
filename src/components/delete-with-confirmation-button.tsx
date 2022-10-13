@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogActions
 } from '@mui/material';
+import { useTranslator } from '../hooks';
 
 export const DeleteWithConfirmationButton = (props: {
   handleDelete: () => Promise<void>;
@@ -15,6 +16,8 @@ export const DeleteWithConfirmationButton = (props: {
   text?: string;
 }): JSX.Element => {
   const [open, setOpen] = React.useState(false);
+
+  const trans = useTranslator('jupyterlab');
 
   const handleClose = () => {
     setOpen(false);
@@ -33,6 +36,9 @@ export const DeleteWithConfirmationButton = (props: {
           </DialogContent>
         )}
         <DialogActions>
+          <Button variant="outlined" onClick={handleClose}>
+            {trans.__('Cancel')}
+          </Button>
           <Button
             variant="outlined"
             onClick={_ => {
@@ -40,10 +46,7 @@ export const DeleteWithConfirmationButton = (props: {
               props.handleDelete();
             }}
           >
-            Yes
-          </Button>
-          <Button variant="outlined" onClick={handleClose}>
-            No
+            {trans.__('Delete')}
           </Button>
         </DialogActions>
       </Dialog>
