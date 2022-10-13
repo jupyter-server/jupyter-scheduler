@@ -66,6 +66,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       inputFile: props.model.inputFile,
       outputPath: props.model.outputPrefix ?? '',
       environment: props.model.environment,
+      runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
       parameters: props.model.parameters,
       outputFormats: props.model.outputFormats,
       createType: 'Job',
