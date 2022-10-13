@@ -12,6 +12,7 @@ import {
   Stack,
   TextFieldProps
 } from '@mui/material';
+import { DeleteWithConfirmationButton } from '../../components/delete-with-confirmation-button';
 
 export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
@@ -61,13 +62,11 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {trans.__('Resume')}
         </Button>
       )}
-      <Button
-        variant="contained"
-        color="error"
-        onClick={handleDeleteJobDefinition}
-      >
-        {trans.__('Delete Job Definition')}
-      </Button>
+      <DeleteWithConfirmationButton
+        handleDelete={handleDeleteJobDefinition}
+        title={trans.__('Delete Job Definition')}
+        text={trans.__('Are you sure you want to delete this Job Definition?')}
+      />
     </Stack>
   );
 
