@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  createSemanticCommand,
   ILayoutRestorer,
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -219,16 +218,6 @@ async function activatePlugin(
   });
 
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
-    ...createSemanticCommand(
-      app,
-      menu.codeRunners.run,
-      {
-        label: trans.__('Create Notebook Job'),
-        caption: trans.__('Create Notebook Job')
-      },
-      trans
-    ),
-
     execute: async () => {
       await showJobsPane('CreateJob');
 
@@ -237,9 +226,8 @@ async function activatePlugin(
         return;
       }
 
-      const widget = tracker.currentWidget;
-      const filePath = getSelectedFilePath(widget) ?? '';
-      const fileName = getSelectedFileName(widget) ?? '';
+      const filePath = 'path/foo.ipynb';
+      const fileName = 'foo.ipynb';
 
       // Update the job form inside the notebook jobs widget
       const newModel: ICreateJobModel = {
@@ -256,11 +244,6 @@ async function activatePlugin(
     },
     label: trans.__('Create Notebook Job'),
     icon: calendarAddOnIcon
-
-
-
-    icon: args => (args.toolbar ? runIcon : undefined)
-
   });
 
   commands.addCommand(CommandIDs.stopJob, {

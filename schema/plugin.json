@@ -5,8 +5,9 @@
   "jupyter.lab.menus": {
     "Notebook": [
       {
+        "name": "create-job",
         "command": "scheduling:create-from-notebook",
-        "rank": 36
+        "rank": 46
       }
     ],
     "context": [
