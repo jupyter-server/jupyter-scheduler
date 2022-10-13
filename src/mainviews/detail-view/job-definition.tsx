@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView, ListJobsView } from '../../model';
+import {
+  ICreateJobModel,
+  IJobDefinitionModel,
+  JobsView,
+  ListJobsView
+} from '../../model';
 import { useTranslator } from '../../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
@@ -12,12 +17,18 @@ import {
   Stack,
   TextFieldProps
 } from '@mui/material';
+import { ListJobsTable } from '../list-jobs';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 export interface IJobDefinitionProps {
+  app: JupyterFrontEnd;
   model: IJobDefinitionModel;
   refresh: () => void;
+  setCreateJobModel: (createModel: ICreateJobModel) => void;
   setJobsView: (view: JobsView) => void;
   setListJobsView: (view: ListJobsView) => void;
+  showJobDetail: (jobId: string) => void;
+  showCreateJob: (state: ICreateJobModel) => void;
 }
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
@@ -140,7 +151,11 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const JobsList = (
     <Card>
       <CardContent>
-        <Stack spacing={4}> List of jobs will go here </Stack>
+        <ListJobsTable
+          app={props.app}
+          showCreateJob={props.showCreateJob}
+          showDetailView={props.showJobDetail}
+        />
       </CardContent>
     </Card>
   );

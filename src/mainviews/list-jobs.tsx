@@ -29,7 +29,7 @@ interface IListJobsTableProps {
   showDetailView: (jobId: string) => void;
 }
 
-function ListJobsTable(props: IListJobsTableProps): JSX.Element {
+export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   const [jobsQuery, setJobsQuery] = useState<Scheduler.IListJobsQuery>({});
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJob['job_id']>
