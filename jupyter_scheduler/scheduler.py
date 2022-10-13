@@ -1,12 +1,19 @@
 import os
-from abc import ABC, abstractmethod
 from multiprocessing import Process
+from typing import Dict, Type
 
 import psutil
 from jupyter_core.paths import jupyter_data_dir
+from jupyter_server.traittypes import TypeFromClasses
+from jupyter_server.transutils import _i18n
+from jupyter_server.utils import to_os_path
 from sqlalchemy import and_, asc, desc, func
+from traitlets import Instance
+from traitlets import Type as TType
+from traitlets import Unicode, default
+from traitlets.config import LoggingConfigurable
 
-from jupyter_scheduler.config import ExecutionConfig
+from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError
 from jupyter_scheduler.models import (
     CountJobsQuery,
@@ -18,21 +25,17 @@ from jupyter_scheduler.models import (
     ListJobDefinitionsResponse,
     ListJobsQuery,
     ListJobsResponse,
+    Output,
     SortDirection,
     Status,
     UpdateJob,
     UpdateJobDefinition,
 )
 from jupyter_scheduler.orm import Job, JobDefinition, create_session
-from jupyter_scheduler.utils import (
-    compute_next_run_time,
-    create_output_filename,
-    resolve_path,
-    timestamp_to_int,
-)
+from jupyter_scheduler.utils import create_output_filename
 
 
-class BaseScheduler(ABC):
+class BaseScheduler(LoggingConfigurable):
     """Base class for schedulers. A default implementation
     is provided in the `Scheduler` class, but extension creators
     can provide their own scheduler by subclassing this class.
@@ -40,127 +43,231 @@ class BaseScheduler(ABC):
     API and the persistence layer for the scheduler.
     """
 
-    @abstractmethod
+    staging_path = Unicode(
+        help=_i18n(
+            """Full path to staging location, where output
+        files will be stored after job execution completes. This
+        could be a local or remote path including cloud storage.
+        Default value is jupyter data directory.
+        """
+        )
+    )
+
+    @default("staging_path")
+    def _default_staging_path(self):
+        return jupyter_data_dir()
+
+    execution_manager_class = TType(
+        allow_none=True,
+        klass="jupyter_scheduler.executors.ExecutionManager",
+        default_value="jupyter_scheduler.executors.DefaultExecutionManager",
+        config=True,
+        help=_i18n("The execution manager class to use."),
+    )
+
+    root_dir = Unicode(help=_i18n("Jupyter server root directory"))
+
+    environments_manager = Instance(
+        klass="jupyter_scheduler.environments.EnvironmentManager",
+        help=_i18n("Environment manager instance"),
+    )
+
+    def __init__(
+        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
+    ):
+        super().__init__(config=config, **kwargs)
+        self.root_dir = root_dir
+        self.environments_manager = environments_manager
+
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
         In case a task runner is actually handling execution of the jobs,
         this method should just create the job record.
         """
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def update_job(self, job_id: str, model: UpdateJob):
         """Updates job metadata in the persistence store,
         for example name, status etc. In case of status
         change to STOPPED, should call stop_job
         """
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
         """Returns list of all jobs filtered by query"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def count_jobs(self, query: CountJobsQuery) -> int:
         """Returns number of jobs filtered by query"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def get_job(self, job_id: str) -> DescribeJob:
         """Returns job record for a single job"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def delete_job(self, job_id: str):
         """Deletes the job record, stops the job if running"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def stop_job(self, job_id: str):
         """Stops the job, this is not analogous
         to the REST API that will be called to
         stop the job. Front end will call the PUT
         API with status update to STOPPED, which will
-        call the update_job method. This method is
-        supposed to do the work of actually stopping
-        the process that is executing the job. In case
-        of a task runner, you can assume a call to task
-        runner to suspend the job.
+        call the stop_job method.
         """
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def create_job_definition(self, model: CreateJobDefinition) -> str:
         """Creates a new job definition record,
         consider this as the template for creating
         recurring/scheduled jobs.
         """
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         """Updates job definition metadata in the persistence store,
         should only impact all future jobs.
         """
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def delete_job_definition(self, job_definition_id: str):
         """Deletes the job definition record,
         implementors can optionally stop all running jobs
         """
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
         """Returns job definition record for a single job definition"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         """Returns list of all job definitions filtered by query"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def pause_jobs(self, job_definition_id: str):
         """Pauses all future jobs for a job definition"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def resume_jobs(self, job_definition_id: str):
         """Resumes future jobs for a job definition"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    def local_path_exists(self, path: str):
-        """Returns true if path relatve to Jupyter Lab root directory exists."""
-        return os.path.exists(resolve_path(path, self.config.root_dir))
+    def get_staging_paths(self, job_id: str) -> Dict[str, str]:
+        """Returns full staging paths for all job outputs"""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def file_exists(self, path: str):
+        """Returns True if the file exists, else returns False.
+
+        API-style wrapper for os.path.isfile
+
+        Parameters
+        ----------
+        path : string
+            The relative path to the file (with '/' as separator)
+
+        Returns
+        -------
+        exists : bool
+            Whether the file exists.
+        """
+        path = path.strip("/")
+        try:
+            os_path = self._get_os_path(path)
+        except ValueError:
+            return False
+        else:
+            return os.path.isfile(os_path)
+
+    def add_outputs(self, model: DescribeJob):
+        """Adds outputs to the model, ensures output
+        files are present in the local workspace. These
+        should be added in `get_job` and `list_job` APIs
+        once the rest of the model is populated.
+        """
+        mapping = self.environments_manager.output_formats_mapping()
+        outputs = []
+        for output_format in model.output_formats:
+            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            output_path = os.path.join(model.output_prefix, filename)
+            outputs.append(
+                Output(
+                    display_name=mapping[output_format],
+                    output_format=output_format,
+                    output_path=output_path if self.file_exists(output_path) else None,
+                )
+            )
+
+        model.outputs = outputs
+        model.downloaded = all(output.output_path for output in outputs)
+
+    def _get_os_path(self, path):
+        """Given an API path, return its file system path.
+
+        Parameters
+        ----------
+        path : string
+            The relative API path to the named file.
+
+        Returns
+        -------
+        path : string
+            Native, absolute OS path to for a file.
+
+        Raises
+        ------
+        ValueError: if path is outside root
+        """
+        root = os.path.abspath(self.root_dir)
+        os_path = to_os_path(path, root)
+        if not (os.path.abspath(os_path) + os.path.sep).startswith(root):
+            raise ValueError(f"{path} is outside root contents directory")
+        return os_path
 
 
 class Scheduler(BaseScheduler):
-
     _db_session = None
-    task_runner = None
 
-    def __init__(self, config: ExecutionConfig = {}, task_runner_class=None):
-        self.config = config
-        if task_runner_class:
-            self.task_runner = task_runner_class(self, self.config.task_runner_run_interval)
+    task_runner_class = TType(
+        allow_none=True,
+        config=True,
+        default_value="jupyter_scheduler.task_runner.TaskRunner",
+        klass="jupyter_scheduler.task_runner.BaseTaskRunner",
+        help=_i18n(
+            "The class that handles the job creation of scheduled jobs from job definitions."
+        ),
+    )
+
+    db_url = Unicode(help=_i18n("Scheduler database url"))
+
+    task_runner = Instance(allow_none=True, klass="jupyter_scheduler.task_runner.BaseTaskRunner")
+
+    def __init__(
+        self,
+        root_dir: str,
+        environments_manager: Type[EnvironmentManager],
+        db_url: str,
+        config=None,
+        **kwargs,
+    ):
+        super().__init__(
+            root_dir=root_dir, environments_manager=environments_manager, config=config, **kwargs
+        )
+        self.db_url = db_url
+        if self.task_runner_class:
+            self.task_runner = self.task_runner_class(scheduler=self, config=config)
 
     @property
     def db_session(self):
         if not self._db_session:
-            self._db_session = create_session(self.config.db_url)
+            self._db_session = create_session(self.db_url)
 
         return self._db_session
 
-    @property
-    def execution_manager_class(self):
-        return self.config.execution_manager_class
-
     def create_job(self, model: CreateJob) -> str:
         with self.db_session() as session:
-            if not self.local_path_exists(model.input_uri):
+            if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
 
             if model.idempotency_token:
@@ -169,8 +276,8 @@ class Scheduler(BaseScheduler):
                     .filter(Job.idempotency_token == model.idempotency_token)
                     .first()
                 )
-            if job:
-                raise IdempotencyTokenError(model.idempotency_token)
+                if job:
+                    raise IdempotencyTokenError(model.idempotency_token)
 
             if not model.output_formats:
                 model.output_formats = ["ipynb"]
@@ -179,7 +286,16 @@ class Scheduler(BaseScheduler):
             session.add(job)
             session.commit()
 
-            p = Process(target=self.execution_manager_class(job.job_id, self.config).process)
+            staging_paths = self.get_staging_paths(job.job_id)
+
+            p = Process(
+                target=self.execution_manager_class(
+                    job_id=job.job_id,
+                    staging_paths=staging_paths,
+                    root_dir=self.root_dir,
+                    db_url=self.db_url,
+                ).process
+            )
             p.start()
 
             job.pid = p.pid
@@ -224,8 +340,14 @@ class Scheduler(BaseScheduler):
         if next_token >= total:
             next_token = None
 
+        jobs_list = []
+        for job in jobs:
+            model = DescribeJob.from_orm(job)
+            self.add_outputs(model=model)
+            jobs_list.append(model)
+
         list_jobs_response = ListJobsResponse(
-            jobs=[DescribeJob.from_orm(job) for job in jobs or []],
+            jobs=jobs_list,
             next_token=next_token,
             total_count=total,
         )
@@ -243,7 +365,10 @@ class Scheduler(BaseScheduler):
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
 
-            return DescribeJob.from_orm(job_record)
+        model = DescribeJob.from_orm(job_record)
+        self.add_outputs(model=model)
+
+        return model
 
     def delete_job(self, job_id: str):
         with self.db_session() as session:
@@ -276,6 +401,9 @@ class Scheduler(BaseScheduler):
 
     def create_job_definition(self, model: CreateJobDefinition) -> str:
         with self.db_session() as session:
+            if not self.file_exists(model.input_uri):
+                raise InputUriError(model.input_uri)
+
             job_definition = JobDefinition(**model.dict(exclude_none=True))
             session.add(job_definition)
             session.commit()
@@ -374,6 +502,7 @@ class Scheduler(BaseScheduler):
         return list_response
 
     def pause_jobs(self, job_definition_id: str):
+        schedule = None
         with self.db_session() as session:
             job_definition = (
                 session.query(JobDefinition)
@@ -383,10 +512,13 @@ class Scheduler(BaseScheduler):
             job_definition.active = False
             session.commit()
 
-        if self.task_runner and job_definition.schedule:
+            schedule = job_definition.schedule
+
+        if self.task_runner and schedule:
             self.task_runner.pause_jobs(job_definition_id)
 
     def resume_jobs(self, job_definition_id: str):
+        schedule = None
         with self.db_session() as session:
             job_definition = (
                 session.query(JobDefinition)
@@ -396,5 +528,18 @@ class Scheduler(BaseScheduler):
             job_definition.active = True
             session.commit()
 
-        if self.task_runner and job_definition.schedule:
+            schedule = job_definition.schedule
+
+        if self.task_runner and schedule:
             self.task_runner.resume_jobs(job_definition_id)
+
+    def get_staging_paths(self, job_id: str) -> Dict[str, str]:
+        model = self.get_job(job_id)
+        staging_paths = {}
+        for output in model.outputs:
+            filename = create_output_filename(
+                model.input_uri, model.create_time, output.output_format
+            )
+            staging_paths[output.output_format] = os.path.join(self.staging_path, job_id, filename)
+
+        return staging_paths

@@ -184,21 +184,15 @@ export class SchedulerService {
     return data as Scheduler.ICreateJobResponse;
   }
 
-  async setJobStatus(
-    job_id: string,
-    status: Scheduler.Status
-  ): Promise<Scheduler.IDescribeJob> {
-    let data;
+  async setJobStatus(job_id: string, status: Scheduler.Status): Promise<void> {
     try {
-      data = await requestAPI(this.serverSettings, `jobs/${job_id}`, {
+      await requestAPI(this.serverSettings, `jobs/${job_id}`, {
         method: 'PATCH',
         body: JSON.stringify({ status })
       });
     } catch (e) {
       console.error(e);
     }
-
-    return data as Scheduler.IDescribeJob;
   }
 
   async getRuntimeEnvironments(): Promise<Scheduler.IRuntimeEnvironment[]> {
@@ -240,6 +234,16 @@ export class SchedulerService {
       await requestAPI(this.serverSettings, `job_definitions/${jobDefId}`, {
         method: 'PATCH',
         body: JSON.stringify({ active: true })
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async downloadOutputs(jobId: string, redownload = false): Promise<void> {
+    try {
+      await requestAPI(this.serverSettings, `jobs/${jobId}/download_outputs`, {
+        method: 'GET'
       });
     } catch (e) {
       console.error(e);
@@ -383,9 +387,15 @@ export namespace Scheduler {
     | 'STOPPING'
     | 'STOPPED';
 
+  export interface IOutput {
+    display_name: string;
+    output_format: string;
+    output_path?: string;
+  }
+
   export interface IDescribeJob extends ICreateJob {
     job_id: string;
-    output_uri: string;
+    outputs: IOutput[];
     url: string;
     status: Status;
     status_message: string;
@@ -393,6 +403,7 @@ export namespace Scheduler {
     update_time: number;
     start_time?: number;
     end_time?: number;
+    downloaded: boolean;
   }
 
   export interface ICreateJobResponse {

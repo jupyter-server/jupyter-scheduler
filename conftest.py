@@ -3,10 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from jupyter_scheduler.config import ExecutionConfig
 from jupyter_scheduler.orm import create_session, create_tables
 from jupyter_scheduler.scheduler import Scheduler
-from jupyter_scheduler.tests.mocks import MockEnvironmentManager, MockExecutionManager
+from jupyter_scheduler.tests.mocks import MockEnvironmentManager
 
 pytest_plugins = ("jupyter_server.pytest_plugin",)
 
@@ -20,12 +19,14 @@ def jp_server_config(jp_server_config):
     return {
         "ServerApp": {"jpserver_extensions": {"jupyter_scheduler": True}},
         "SchedulerApp": {
-            "execution_manager_class": "jupyter_scheduler.tests.mocks.MockExecutionManager",
-            "environment_manager_class": "jupyter_scheduler.tests.mocks.MockEnvironmentManager",
             "db_url": DB_URL,
             "drop_tables": True,
-            "task_runner_run_interval": -1,
+            "environment_manager_class": "jupyter_scheduler.tests.mocks.MockEnvironmentManager",
         },
+        "BaseScheduler": {
+            "execution_manager_class": "jupyter_scheduler.tests.mocks.MockExecutionManager"
+        },
+        "Scheduler": {"task_runner_class": "jupyter_scheduler.tests.mocks.MockTaskRunner"},
     }
 
 
@@ -43,13 +44,7 @@ def jp_scheduler_db():
 
 
 @pytest.fixture
-def jp_scheduler():
+def jp_scheduler(jp_data_dir):
     return Scheduler(
-        ExecutionConfig(
-            db_url=DB_URL,
-            root_dir="",
-            execution_manager_class=MockExecutionManager,
-            environments_manager_class=MockEnvironmentManager,
-            task_runner_run_interval=-1,
-        )
+        db_url=DB_URL, root_dir=str(jp_data_dir), environments_manager=MockEnvironmentManager()
     )

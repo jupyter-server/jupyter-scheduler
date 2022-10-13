@@ -3,19 +3,19 @@ import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
+import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
-
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
 import { outputFormatsForEnvironment } from './output-format-picker';
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
 import { ConfirmDeleteIcon } from './confirm-delete-icon';
+import TableRow from '@mui/material/TableRow';
+import { TableCell } from '@mui/material';
 
 function get_file_from_path(path: string): string {
   return PathExt.basename(path);
@@ -122,28 +122,35 @@ function OutputFiles(props: {
 
   const trans = useTranslator('jupyterlab');
 
-  // Get all output files.
-  const outputTypes = props.job.output_formats || ['ipynb'];
   return (
     <>
-      {outputTypes.map(outputType => {
-        // Compose a specific link.
-        const outputName = props.job.output_uri.replace(/ipynb$/, outputType);
-        return (
-          <a
-            key={outputType}
-            href={`/lab/tree/${outputName}`}
-            title={trans.__('Open "%1"', outputName)}
-            onClick={e => props.openOnClick(e, outputName)}
-            style={{ paddingRight: '1em' }}
-          >
-            {outputType}
-          </a>
-        );
-      })}
+      {props.job.outputs.map(
+        ({ output_format, display_name, output_path = null }) => {
+          return (
+            output_path && (
+              <a
+                key={output_format}
+                href={`/lab/tree/${output_path}`}
+                title={trans.__('Open "%1"', output_path)}
+                onClick={e => props.openOnClick(e, output_path)}
+                style={{ paddingRight: '1em' }}
+              >
+                {display_name}
+              </a>
+            )
+          );
+        }
+      )}
     </>
   );
 }
+
+const downloadOutputs = async (jobId: string, app: JupyterFrontEnd) => {
+  await app.commands.execute(CommandIDs.downloadOutputs, {
+    id: jobId,
+    redownload: false
+  });
+};
 
 export function buildJobRow(
   job: Scheduler.IDescribeJob,
@@ -157,13 +164,26 @@ export function buildJobRow(
   const cellContents: React.ReactNode[] = [
     <a onClick={() => showDetailView(job.job_id)}>{job.name}</a>,
     get_file_from_path(job.input_uri),
-    <OutputFiles
-      job={job}
-      openOnClick={(e: Event, output_uri: string) => {
-        e.preventDefault();
-        app.commands.execute('docmanager:open', { path: output_uri });
-      }}
-    />,
+    <>
+      {!job.downloaded && job.status === 'COMPLETED' && (
+        <IconButton
+          aria-label="download"
+          title="Download Output Files"
+          onClick={async () => {
+            await downloadOutputs(job.job_id, app);
+          }}
+        >
+          <DownloadIcon />
+        </IconButton>
+      )}
+      <OutputFiles
+        job={job}
+        openOnClick={(e: Event, output_uri: string) => {
+          e.preventDefault();
+          app.commands.execute('docmanager:open', { path: output_uri });
+        }}
+      />
+    </>,
     <Timestamp job={job} />,
     translateStatus(job.status),
     <Stack spacing={1} direction="row">

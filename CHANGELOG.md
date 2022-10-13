@@ -19,7 +19,7 @@
 - Add Card with placeholder text for Jobs List to Job Definition Details [#136](https://github.com/jupyter-server/jupyter-scheduler/pull/136) ([@andrii-i](https://github.com/andrii-i))
 - Sets schedule based on new schedule interval [#132](https://github.com/jupyter-server/jupyter-scheduler/pull/132) ([@jweill-aws](https://github.com/jweill-aws))
 - Made update apis consistent with REST APIs [#131](https://github.com/jupyter-server/jupyter-scheduler/pull/131) ([@3coins](https://github.com/3coins))
-- Show create job errors in banner above job detail  [#124](https://github.com/jupyter-server/jupyter-scheduler/pull/124) ([@andrii-i](https://github.com/andrii-i))
+- Show create job errors in banner above job detail [#124](https://github.com/jupyter-server/jupyter-scheduler/pull/124) ([@andrii-i](https://github.com/andrii-i))
 
 ### Contributors to this release
 

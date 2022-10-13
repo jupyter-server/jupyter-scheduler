@@ -8,7 +8,7 @@ import {
   ListJobsView
 } from '../../model';
 import { useTranslator } from '../../hooks';
-import { SchedulerService } from '../../handler';
+import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
@@ -23,6 +23,7 @@ import {
   TextField,
   TextFieldProps
 } from '@mui/material';
+import { CommandIDs } from '../..';
 
 export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
   <TextField
@@ -92,8 +93,20 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     props.handleModelChange();
   };
 
+  const downloadOutputs = async () => {
+    await props.app.commands.execute(CommandIDs.downloadOutputs, {
+      id: props.model.jobId,
+      redownload: false
+    });
+  };
+
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+      {props.model.downloaded === false && props.model.status === 'COMPLETED' && (
+        <Button variant="outlined" onClick={downloadOutputs}>
+          {trans.__('Download Output Files')}
+        </Button>
+      )}
       {props.model.status === 'IN_PROGRESS' && (
         <Button variant="outlined" onClick={handleStopJob}>
           {trans.__('Stop Job')}
@@ -155,16 +168,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   ];
 
   function OutputFile(props: {
-    outputType: string;
+    output: Scheduler.IOutput;
     app: JupyterFrontEnd;
-    outputPath: string;
   }) {
-    const outputName = props.outputPath.replace(/ipynb$/, props.outputType);
     return (
       <Link
-        key={props.outputType}
-        href={`/lab/tree/${outputName}`}
-        title={trans.__('Open "%1"', outputName)}
+        key={props.output.output_format}
+        href={`/lab/tree/${props.output.output_path}`}
+        title={trans.__('Open "%1"', props.output.output_path)}
         onClick={(
           e:
             | React.MouseEvent<HTMLSpanElement, MouseEvent>
@@ -172,14 +183,22 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         ) => {
           e.preventDefault();
           props.app.commands.execute('docmanager:open', {
-            path: outputName
+            path: props.output.output_path
           });
         }}
         style={{ paddingRight: '1em' }}
       >
-        {outputName}
+        {props.output.display_name}
       </Link>
     );
+  }
+
+  const converJsonToOutput = (output: {[key: string]: string}) => {
+      return {
+        display_name: output['display_name'],
+        output_format: output['output_format'],
+        output_path: output['output_path'] || null
+      } as Scheduler.IOutput
   }
 
   const CoreOptions = (
@@ -203,13 +222,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               <FormLabel component="legend">
                 {trans.__('Output files')}
               </FormLabel>
-              {props.outputFormatsStrings?.map(outputFormatString => (
-                <OutputFile
-                  outputType={outputFormatString}
-                  app={props.app}
-                  outputPath={props.model.outputPath}
-                />
-              ))}
+              {props.model.outputs.map(
+                output =>
+                  output['output_path'] && (
+                    <OutputFile output={converJsonToOutput(output)} app={props.app} />
+                  )
+              )}
             </>
           )}
         </Stack>

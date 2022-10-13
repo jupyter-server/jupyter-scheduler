@@ -11,13 +11,6 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
-class OutputFormat(BaseModel):
-    """Output format for job run, for example html, notebook"""
-
-    name: str  # coded name for the output format, e.g., ipynb
-    label: str  # label used on the UI, e.g., Notebook
-
-
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda
@@ -28,7 +21,7 @@ class RuntimeEnvironment(BaseModel):
     label: str
     description: str
     file_extensions: List[str]  # Supported input file types
-    output_formats: List[OutputFormat]  # Supported output formats
+    output_formats: List[str]  # Supported output formats
     metadata: Optional[Dict[str, str]]  # Optional metadata
     compute_types: Optional[List[str]]
 
@@ -92,9 +85,37 @@ class CreateJob(BaseModel):
     compute_type: Optional[str] = None
 
 
+class Output(BaseModel):
+    """This model is used to describe the display value,
+    output format, and the filepath for a single job output file.
+
+    Attributes
+    ----------
+    display_name : str
+        Human readable display value for use in UI
+
+    output_format : str
+        System encoded value of output format, this value
+        should match the output_format value passed into
+        the `CreateJob` or `CreateJobDefinition`models by
+        the `create_job` and `create_job_definition` APIs
+        respectively
+
+    output_path : str
+        Output file path relative to the server root dir.
+        This should always specify the local path within
+        the JupyterLab workspace.
+
+    """
+
+    display_name: str
+    output_format: str
+    output_path: Optional[str] = None
+
+
 class DescribeJob(CreateJob):
     job_id: str
-    output_uri: str
+    outputs: List[Output] = []
     url: str
     create_time: int
     update_time: int
@@ -102,6 +123,7 @@ class DescribeJob(CreateJob):
     end_time: Optional[int] = None
     status: Status = Status.CREATED
     status_message: Optional[str] = None
+    downloaded: Optional[bool] = False
 
     class Config:
         orm_mode = True

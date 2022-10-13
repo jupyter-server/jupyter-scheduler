@@ -1,7 +1,6 @@
 import inspect
 import json
 import re
-from dataclasses import asdict
 
 import tornado
 from jupyter_server.base.handlers import APIHandler
@@ -28,27 +27,22 @@ from jupyter_scheduler.models import (
 
 class JobHandlersMixin:
     _scheduler = None
-    _environment_manager = None
-    _task_runner = None
-
-    @property
-    def execution_config(self):
-        return self.settings.get("execution_config", {})
+    _environments_manager = None
+    _execution_manager_class = None
 
     @property
     def scheduler(self):
-        return self.settings.get("scheduler")
+        if not self._scheduler:
+            self._scheduler = self.settings.get("scheduler")
+
+        return self._scheduler
 
     @property
-    def environment_manager(self):
-        if self._environment_manager is None:
-            config = self.settings.get("execution_config")
-            self._environment_manager = config.environments_manager_class()
-        return self._environment_manager
+    def environments_manager(self):
+        if self._environments_manager is None:
+            self._environments_manager = self.settings.get("environments_manager")
 
-    @property
-    def execution_manager_class(self):
-        return self.execution_config.execution_manager_class
+        return self._environments_manager
 
 
 def compute_sort_model(query_argument):
@@ -93,10 +87,20 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def post(self):
         payload = self.get_json_body()
-        job_definition_id = await ensure_async(
-            self.scheduler.create_job_definition(CreateJobDefinition(**payload))
-        )
-        self.finish(json.dumps(dict(job_definition_id=job_definition_id)))
+        try:
+            job_definition_id = await ensure_async(
+                self.scheduler.create_job_definition(CreateJobDefinition(**payload))
+            )
+        except InputUriError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(
+                500, "Unexpected error occurred during creation of Job."
+            ) from e
+        else:
+            self.finish(json.dumps(dict(job_definition_id=job_definition_id)))
 
     @tornado.web.authenticated
     async def patch(self, job_definition_id):
@@ -112,22 +116,6 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         await ensure_async(self.scheduler.delete_job_definition(job_definition_id))
         self.set_status(204)
         self.finish()
-
-
-def compute_sort_model(query_argument):
-    sort_by = []
-    PATTERN = re.compile("^(asc|desc)?\\(?([^\\)]+)\\)?", re.IGNORECASE)
-    for query in query_argument:
-        m = re.match(PATTERN, query)
-        sort_dir, name = m.groups()
-        sort_by.append(
-            SortField(
-                name=name,
-                direction=SortDirection(sort_dir.lower()) if sort_dir else SortDirection.asc,
-            )
-        )
-
-    return sort_by
 
 
 class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
@@ -160,13 +148,13 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         try:
             job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload)))
         except InputUriError as e:
-            self.log.error(e)
+            self.log.exception(e)
             raise tornado.web.HTTPError(500, str(e)) from e
         except IdempotencyTokenError as e:
-            self.log.error(e)
+            self.log.exception(e)
             raise tornado.web.HTTPError(409, str(e)) from e
         except Exception as e:
-            self.log.error(e)
+            self.log.exception(e)
             raise tornado.web.HTTPError(
                 500, "Unexpected error occurred during creation of Job."
             ) from e
@@ -226,30 +214,28 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
 
 class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
-    _environment_manager = None
-
-    @property
-    def environment_manager(self):
-        if self._environment_manager is None:
-            config = self.settings.get("execution_config")
-            self._environment_manager = config.environments_manager_class()
-        return self._environment_manager
-
     async def get(self):
-        """Returns names of available runtime environments"""
-
+        """Returns names of available runtime environments and output formats mappings"""
         try:
-            environments = await ensure_async(self.environment_manager.list_environments())
+            environments = await ensure_async(self.environments_manager.list_environments())
+            output_formats = await ensure_async(self.environments_manager.output_formats_mapping())
         except EnvironmentRetrievalError as e:
             raise tornado.web.HTTPError(500, str(e))
 
-        self.finish(json.dumps([environment.dict() for environment in environments]))
+        response = []
+        for environment in environments:
+            env = environment.dict()
+            formats = env["output_formats"]
+            env["output_formats"] = [{"name": f, "label": output_formats[f]} for f in formats]
+            response.append(env)
+
+        self.finish(json.dumps(response))
 
 
 class FeaturesHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     def get(self):
-        cls = self.execution_manager_class
+        cls = self.scheduler.execution_manager_class
         self.finish(json.dumps(cls.supported_features(cls)))
 
 
@@ -258,9 +244,29 @@ class ConfigHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     def get(self):
         self.finish(
             dict(
-                supported_features=self.execution_manager_class.supported_features(
-                    self.execution_manager_class
+                supported_features=self.scheduler.execution_manager_class.supported_features(
+                    self.scheduler.execution_manager_class
                 ),
-                manage_environments_command=self.environment_manager.manage_environments_command(),
+                manage_environments_command=self.environments_manager.manage_environments_command(),
             )
         )
+
+
+class OutputsDownloadHandler(ExtensionHandlerMixin, APIHandler):
+
+    _output_files_manager = None
+
+    @property
+    def output_files_manager(self):
+        if not self._output_files_manager:
+            self._output_files_manager = self.settings.get("output_files_manager", None)
+
+        return self._output_files_manager
+
+    @tornado.web.authenticated
+    async def get(self, job_id=None):
+        redownload = self.get_query_argument("redownload", False)
+        self.output_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
+
+        self.set_status(204)
+        self.finish()
