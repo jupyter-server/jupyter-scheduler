@@ -65,7 +65,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       <DeleteWithConfirmationButton
         handleDelete={handleDeleteJobDefinition}
         title={trans.__('Delete Job Definition')}
-        text={trans.__('Are you sure you want to delete this Job Definition?')}
+        text={trans.__('Are you sure that you want to delete this job definition?')}
       />
     </Stack>
   );
