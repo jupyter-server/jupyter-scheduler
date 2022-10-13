@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  createSemanticCommand,
   ILayoutRestorer,
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -31,7 +32,8 @@ import AdvancedOptions from './advanced-options';
 
 export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
-  export const runNotebook = 'scheduling:run-notebook';
+  export const createJobFileBrowser = 'scheduling:create-from-filebrowser';
+  export const createJobCurrentNotebook = 'scheduling:create-from-notebook';
   export const showNotebookJobs = 'scheduling:show-notebook-jobs';
   export const stopJob = 'scheduling:stop-job';
 }
@@ -186,7 +188,7 @@ async function activatePlugin(
     icon: eventNoteIcon
   });
 
-  commands.addCommand(CommandIDs.runNotebook, {
+  commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
       await showJobsPane('CreateJob');
 
@@ -214,6 +216,51 @@ async function activatePlugin(
     },
     label: trans.__('Create Notebook Job'),
     icon: calendarAddOnIcon
+  });
+
+  commands.addCommand(CommandIDs.createJobCurrentNotebook, {
+    ...createSemanticCommand(
+      app,
+      menu.codeRunners.run,
+      {
+        label: trans.__('Create Notebook Job'),
+        caption: trans.__('Create Notebook Job')
+      },
+      trans
+    ),
+
+    execute: async () => {
+      await showJobsPane('CreateJob');
+
+      const model = jobsPanel?.model;
+      if (!model) {
+        return;
+      }
+
+      const widget = tracker.currentWidget;
+      const filePath = getSelectedFilePath(widget) ?? '';
+      const fileName = getSelectedFileName(widget) ?? '';
+
+      // Update the job form inside the notebook jobs widget
+      const newModel: ICreateJobModel = {
+        inputFile: filePath,
+        jobName: fileName,
+        outputPath: '',
+        environment: '',
+        createType: 'Job',
+        scheduleInterval: 'weekday',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+
+      model.createJobModel = newModel;
+    },
+    label: trans.__('Create Notebook Job'),
+    icon: calendarAddOnIcon
+
+
+
+    icon: args => (args.toolbar ? runIcon : undefined)
+
   });
 
   commands.addCommand(CommandIDs.stopJob, {

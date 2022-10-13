@@ -3,14 +3,15 @@
   "title": "Notebook Scheduling",
   "description": "JupyterLab notebook scheduling settings.",
   "jupyter.lab.menus": {
+    "Notebook": [
+      {
+        "command": "scheduling:create-from-notebook",
+        "rank": 36
+      }
+    ],
     "context": [
       {
-        "command": "scheduling:schedule-notebook",
-        "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
-        "rank": 3.8
-      },
-      {
-        "command": "scheduling:run-notebook",
+        "command": "scheduling:create-from-filebrowser",
         "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
         "rank": 3.9
       }
