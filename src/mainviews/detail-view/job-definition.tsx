@@ -1,9 +1,15 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView, ListJobsView } from '../../model';
+import {
+  IJobDefinitionModel,
+  JobsView,
+  ListJobsView,
+  ICreateJobModel
+} from '../../model';
 import { useTranslator } from '../../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
 import cronstrue from 'cronstrue';
+import { ListJobsTable } from '../list-jobs';
 
 import {
   Button,
@@ -13,12 +19,16 @@ import {
   TextFieldProps
 } from '@mui/material';
 import { DeleteWithConfirmationButton } from '../../components/delete-with-confirmation-button';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 export interface IJobDefinitionProps {
+  app: JupyterFrontEnd;
   model: IJobDefinitionModel;
   refresh: () => void;
   setJobsView: (view: JobsView) => void;
   setListJobsView: (view: ListJobsView) => void;
+  showJobDetail: (jobId: string) => void;
+  showCreateJob: (state: ICreateJobModel) => void;
 }
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
@@ -141,7 +151,15 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const JobsList = (
     <Card>
       <CardContent>
-        <Stack spacing={4}> List of jobs will go here </Stack>
+        <Stack spacing={3}>
+          <ListJobsTable
+            app={props.app}
+            showCreateJob={props.showCreateJob}
+            showJobDetail={props.showJobDetail}
+            jobDefinitionId={props.model.definitionId}
+            height={300}
+          />
+        </Stack>
       </CardContent>
     </Card>
   );

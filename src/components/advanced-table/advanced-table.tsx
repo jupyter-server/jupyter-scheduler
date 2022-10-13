@@ -48,6 +48,13 @@ type AdvancedTableProps<
   columns: AdvancedTableColumn[];
   emptyRowMessage: string;
   rowFilter?: (row: R) => boolean;
+  /**
+   * Height of the table. If set to 'auto', this table automatically expands to
+   * fit the remaining height of the page when wrapped in a flex container with
+   * its height equal to the height of the page. Otherwise the max-height is
+   * manually set to whatever value is provided. Defaults to 'auto'.
+   */
+  height?: 'auto' | string | number;
 };
 
 /**
@@ -143,9 +150,12 @@ export function AdvancedTable<
     setMaxPage(newPage);
   };
 
-  // outer div expands to fill rest of screen
+  const height = props.height ?? 'auto';
+
   return (
-    <div style={{ flex: 1, height: 0 }}>
+    <div
+      style={height === 'auto' ? { flex: 1, height: 0 } : { maxHeight: height }}
+    >
       <TableContainer
         component={Paper}
         sx={{
