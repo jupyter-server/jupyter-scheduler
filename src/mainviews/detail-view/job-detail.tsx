@@ -105,7 +105,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       <DeleteWithConfirmationButton
         handleDelete={handleDeleteJob}
         title={trans.__('Delete Job')}
-        text={trans.__('Are you sure you want to delete this Job?')}
+        text={trans.__('Are you sure that you want to delete this job?')}
       />
     </Stack>
   );
