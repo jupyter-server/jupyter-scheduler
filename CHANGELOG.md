@@ -2,6 +2,33 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.4.2
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.4.1...335027a125e34c394a4e9be4adcbba94677caafe))
+
+### Bugs fixed
+
+- Fixes error when job definition is deleted. [#137](https://github.com/jupyter-server/jupyter-scheduler/pull/137) ([@3coins](https://github.com/3coins))
+
+### Other merged PRs
+
+- Populates runtimeEnvironmentParameters on rerun from list, detail [#149](https://github.com/jupyter-server/jupyter-scheduler/pull/149) ([@jweill-aws](https://github.com/jweill-aws))
+- Job descriptions list actions: pause/resume/delete [#141](https://github.com/jupyter-server/jupyter-scheduler/pull/141) ([@jweill-aws](https://github.com/jweill-aws))
+- Display model.active as 'Status' : 'Active'/'Paused' [#140](https://github.com/jupyter-server/jupyter-scheduler/pull/140) ([@andrii-i](https://github.com/andrii-i))
+- Adds friendly schedule, "paused" columns for job description in list [#138](https://github.com/jupyter-server/jupyter-scheduler/pull/138) ([@jweill-aws](https://github.com/jweill-aws))
+- Add Card with placeholder text for Jobs List to Job Definition Details [#136](https://github.com/jupyter-server/jupyter-scheduler/pull/136) ([@andrii-i](https://github.com/andrii-i))
+- Sets schedule based on new schedule interval [#132](https://github.com/jupyter-server/jupyter-scheduler/pull/132) ([@jweill-aws](https://github.com/jweill-aws))
+- Made update apis consistent with REST APIs [#131](https://github.com/jupyter-server/jupyter-scheduler/pull/131) ([@3coins](https://github.com/3coins))
+- Show create job errors in banner above job detail  [#124](https://github.com/jupyter-server/jupyter-scheduler/pull/124) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-10-12&to=2022-10-13&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-10-12..2022-10-13&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-10-12..2022-10-13&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-10-12..2022-10-13&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-10-12..2022-10-13&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.4.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.4.0...0d13061a96a4a9865ac8b535573e7f2eba6f0d0d))
@@ -22,8 +49,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-10-08&to=2022-10-12&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-10-08..2022-10-12&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-10-08..2022-10-12&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-10-08..2022-10-12&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-10-08..2022-10-12&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-10-08..2022-10-12&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.3.0
 
