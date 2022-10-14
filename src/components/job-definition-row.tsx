@@ -5,7 +5,6 @@ import cronstrue from 'cronstrue';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
-import CloseIcon from '@mui/icons-material/Close';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { IconButton } from '@mui/material';
@@ -16,6 +15,7 @@ import TableCell from '@mui/material/TableCell';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { TranslationBundle } from '@jupyterlab/translation';
+import { DeleteWithConfirmationIcon } from './delete-with-confirmation-icon';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -82,23 +82,6 @@ function ResumeButton(props: {
   );
 }
 
-function DeleteButton(props: {
-  jobDef: Scheduler.IDescribeJobDefinition;
-  clickHandler: () => void;
-}): JSX.Element | null {
-  const trans = useTranslator('jupyterlab');
-
-  const buttonTitle = props.jobDef.name
-    ? trans.__('Delete "%1"', props.jobDef.name)
-    : trans.__('Delete job definition');
-
-  return (
-    <IconButton onClick={props.clickHandler} title={buttonTitle}>
-      <CloseIcon fontSize="small" />
-    </IconButton>
-  );
-}
-
 export function buildJobDefinitionRow(
   jobDef: Scheduler.IDescribeJobDefinition,
   app: JupyterFrontEnd,
@@ -134,8 +117,8 @@ export function buildJobDefinitionRow(
           forceReload();
         }}
       />
-      <DeleteButton
-        jobDef={jobDef}
+      <DeleteWithConfirmationIcon
+        name={jobDef.name}
         clickHandler={async () => {
           await ss.deleteJobDefinition(jobDef.job_definition_id);
 

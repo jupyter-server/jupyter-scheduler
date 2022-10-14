@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
-import CloseIcon from '@mui/icons-material/Close';
 import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
 
@@ -12,12 +11,11 @@ import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { outputFormatsForEnvironment } from './output-format-picker';
-import { Box, Button } from '@mui/material';
-
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
+import { DeleteWithConfirmationIcon } from './delete-with-confirmation-icon';
 
 function get_file_from_path(path: string): string {
   return PathExt.basename(path);
@@ -40,41 +38,6 @@ function StopButton(props: {
         <StopIcon fontSize="small" />
       </IconButton>
     </div>
-  );
-}
-
-export function DeleteButton(props: {
-  job: Scheduler.IDescribeJob;
-  clickHandler: () => void;
-}): JSX.Element | null {
-  const [clicked, setClicked] = useState(false);
-
-  const trans = useTranslator('jupyterlab');
-
-  const buttonTitle = props.job.name
-    ? trans.__('Delete "%1"', props.job.name)
-    : trans.__('Delete job');
-
-  return (
-    <Box sx={{ width: '5em' }}>
-      {clicked ? (
-        <Button
-          variant="contained"
-          color="error"
-          title={buttonTitle}
-          onClick={props.clickHandler}
-          onBlur={_ => setClicked(false)}
-          style={{ visibility: clicked ? 'visible' : 'hidden' }}
-          autoFocus
-        >
-          {'Delete'}
-        </Button>
-      ) : (
-        <IconButton title={buttonTitle} onClick={_ => setClicked(true)}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      )}
-    </Box>
   );
 }
 
@@ -217,8 +180,8 @@ export function buildJobRow(
         environmentList={environmentList}
         showCreateJob={showCreateJob}
       />
-      <DeleteButton
-        job={job}
+      <DeleteWithConfirmationIcon
+        name={job.name}
         clickHandler={() => {
           // optimistic delete for now, no verification on whether the delete
           // succeeded
