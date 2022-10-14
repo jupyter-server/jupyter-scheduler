@@ -94,7 +94,7 @@ export class SchedulerService {
         body: JSON.stringify(definition)
       });
     } catch (e: any) {
-      console.error(e);
+      return Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
   }
