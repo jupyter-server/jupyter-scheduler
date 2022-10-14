@@ -15,7 +15,7 @@ import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, ListJobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
-import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
 
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
@@ -735,12 +735,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               id="panel-header"
             >
               <FormLabel component="legend">
-                {anyAdvancedErrors && (
-                  <WarningIcon color="warning" aria-label="warning">
-                    {trans.__('There is an error in the advanced options')}
-                  </WarningIcon>
-                )}
-                {trans.__('Additional options')}
+                <Cluster>
+                  {anyAdvancedErrors && (
+                    <ErrorIcon color="error" aria-label="error">
+                      {trans.__('There is an error in the advanced options')}
+                    </ErrorIcon>
+                  )}
+                  {trans.__('Additional options')}
+                </Cluster>
               </FormLabel>
             </AccordionSummary>
             <AccordionDetails id={`${formPrefix}create-panel-content`}>
