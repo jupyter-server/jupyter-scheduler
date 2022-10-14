@@ -28,6 +28,7 @@ interface IListJobsTableProps {
   showJobDetail: (jobId: string) => void;
   jobDefinitionId?: string;
   height?: 'auto' | string | number;
+  pageSize?: number;
 }
 
 export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
@@ -163,6 +164,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
         emptyRowMessage={emptyRowMessage}
         rowFilter={rowFilter}
         height={props.height}
+        pageSize={props.pageSize}
       />
     </>
   );

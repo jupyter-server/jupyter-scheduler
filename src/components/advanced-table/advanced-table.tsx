@@ -48,6 +48,7 @@ type AdvancedTableProps<
   columns: AdvancedTableColumn[];
   emptyRowMessage: string;
   rowFilter?: (row: R) => boolean;
+  pageSize?: number;
   /**
    * Height of the table. If set to 'auto', this table automatically expands to
    * fit the remaining height of the page when wrapped in a flex container with
@@ -74,6 +75,8 @@ export function AdvancedTable<
   const [loading, setLoading] = useState<boolean>(true);
   const theme = useTheme();
 
+  const pageSize = props.pageSize ?? PAGE_SIZE;
+
   const fetchInitialRows = async () => {
     // reset pagination state
     setPage(0);
@@ -82,7 +85,7 @@ export function AdvancedTable<
     setLoading(true);
     const payload = await props.request({
       ...props.query,
-      max_items: PAGE_SIZE
+      max_items: pageSize
     });
     setLoading(false);
 
@@ -112,7 +115,7 @@ export function AdvancedTable<
     setLoading(true);
     const payload = await props.request({
       ...props.query,
-      max_items: PAGE_SIZE,
+      max_items: pageSize,
       next_token: nextToken
     });
     setLoading(false);
@@ -134,7 +137,7 @@ export function AdvancedTable<
   }
 
   const renderedRows: JSX.Element[] = (rows || [])
-    .slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+    .slice(page * pageSize, (page + 1) * pageSize)
     .filter(row => (props.rowFilter ? props.rowFilter(row) : true))
     .map(row => props.renderRow(row));
 
@@ -185,8 +188,8 @@ export function AdvancedTable<
           nextIconButtonProps={{
             disabled: page === maxPage && !nextToken
           }}
-          rowsPerPage={PAGE_SIZE}
-          rowsPerPageOptions={[PAGE_SIZE]}
+          rowsPerPage={pageSize}
+          rowsPerPageOptions={[pageSize]}
         />
       </TableContainer>
     </div>
