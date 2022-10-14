@@ -27,6 +27,8 @@ export interface ICreateJobModel extends PartialJSONObject {
   environment: string;
   // A "job" runs now; a "job definition" runs on a schedule
   createType: 'Job' | 'JobDefinition';
+  // Errors from creation
+  createError?: string;
   runtimeEnvironmentParameters?: { [key: string]: number | string | boolean };
   parameters?: IJobParameter[];
   // List of values for output formats; labels are specified by the environment
