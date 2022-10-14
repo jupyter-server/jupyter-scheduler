@@ -157,7 +157,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
             showCreateJob={props.showCreateJob}
             showJobDetail={props.showJobDetail}
             jobDefinitionId={props.model.definitionId}
-            pageSize={3}
+            pageSize={5}
           />
         </Stack>
       </CardContent>
