@@ -89,24 +89,3 @@
 .jp-notebook-job-parameter {
   margin: 0;
 }
-
-.jp-notebook-job-navigation {
-  margin: 16px 8px 0;
-  padding: 0;
-  text-align: start;
-  border-block-end: 1px solid var(--jp-layout-color4);
-}
-
-.jp-notebook-job-navigation-tab {
-  display: inline-block;
-  padding: 5px 20px;
-}
-
-.jp-notebook-job-navigation-tab:hover {
-  background-color: var(--jp-layout-color2);
-  border-block-end: 2px solid var(--jp-layout-color2);
-}
-
-.jp-notebook-job-navigation-tab.active {
-  border-block-end: 2px solid var(--jp-brand-color1);
-}
