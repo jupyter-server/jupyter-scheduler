@@ -11,6 +11,7 @@ import {
 } from '@jupyterlab/apputils';
 import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { Contents } from '@jupyterlab/services';
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { ITranslator } from '@jupyterlab/translation';
@@ -31,7 +32,8 @@ import AdvancedOptions from './advanced-options';
 
 export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
-  export const runNotebook = 'scheduling:run-notebook';
+  export const createJobFileBrowser = 'scheduling:create-from-filebrowser';
+  export const createJobCurrentNotebook = 'scheduling:create-from-notebook';
   export const showNotebookJobs = 'scheduling:show-notebook-jobs';
   export const stopJob = 'scheduling:stop-job';
 }
@@ -46,6 +48,7 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
   id: '@jupyterlab/scheduler:plugin',
   requires: [
     IFileBrowserFactory,
+    INotebookTracker,
     ITranslator,
     ILayoutRestorer,
     Scheduler.IAdvancedOptions
@@ -112,6 +115,7 @@ async function getNotebookJobsListingModel(): Promise<NotebookJobsListingModel> 
 async function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
+  notebookTracker: INotebookTracker,
   translator: ITranslator,
   restorer: ILayoutRestorer,
   advancedOptions: Scheduler.IAdvancedOptions,
@@ -125,7 +129,7 @@ async function activatePlugin(
 
   const { commands } = app;
   const trans = translator.load('jupyterlab');
-  const { tracker } = browserFactory;
+  const fileBrowserTracker = browserFactory.tracker;
   const api = new SchedulerService({});
   const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
@@ -186,7 +190,22 @@ async function activatePlugin(
     icon: eventNoteIcon
   });
 
-  commands.addCommand(CommandIDs.runNotebook, {
+  const createNewModel: (p: string, n: string) => ICreateJobModel = (
+    filePath: string,
+    fileName: string
+  ) => {
+    return {
+      inputFile: filePath,
+      jobName: fileName,
+      outputPath: '',
+      environment: '',
+      createType: 'Job',
+      scheduleInterval: 'weekday',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+  };
+
+  commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
       await showJobsPane('CreateJob');
 
@@ -195,24 +214,36 @@ async function activatePlugin(
         return;
       }
 
-      const widget = tracker.currentWidget;
+      const widget = fileBrowserTracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
       const fileName = getSelectedFileName(widget) ?? '';
 
       // Update the job form inside the notebook jobs widget
-      const newModel: ICreateJobModel = {
-        inputFile: filePath,
-        jobName: fileName,
-        outputPath: '',
-        environment: '',
-        createType: 'Job',
-        scheduleInterval: 'weekday',
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      };
-
-      model.createJobModel = newModel;
+      model.createJobModel = createNewModel(filePath, fileName);
     },
     label: trans.__('Create Notebook Job'),
+    icon: calendarAddOnIcon
+  });
+
+  commands.addCommand(CommandIDs.createJobCurrentNotebook, {
+    execute: async () => {
+      await showJobsPane('CreateJob');
+
+      const model = jobsPanel?.model;
+      if (!model) {
+        return;
+      }
+
+      // Get the current notebook's name and path
+      const contentsModel =
+        notebookTracker.currentWidget?.context?.contentsModel;
+      const filePath = contentsModel?.path ?? '';
+      const fileName = contentsModel?.name ?? '';
+
+      // Update the job form inside the notebook jobs widget
+      model.createJobModel = createNewModel(filePath, fileName);
+    },
+    label: trans.__('Create a notebook job'),
     icon: calendarAddOnIcon
   });
 
