@@ -20,17 +20,25 @@ import {
 } from '../components/advanced-table';
 
 interface IListJobsTableProps {
-  startToken?: string;
   app: JupyterFrontEnd;
   // Function that results in the create job form being made visible
   // with job details prepopulated.
   showCreateJob: (state: ICreateJobModel) => void;
   // function that shows job detail view
-  showDetailView: (jobId: string) => void;
+  showJobDetail: (jobId: string) => void;
+  jobDefinitionId?: string;
+  height?: 'auto' | string | number;
+  pageSize?: number;
 }
 
-function ListJobsTable(props: IListJobsTableProps): JSX.Element {
-  const [jobsQuery, setJobsQuery] = useState<Scheduler.IListJobsQuery>({});
+export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
+  const [jobsQuery, setJobsQuery] = useState<Scheduler.IListJobsQuery>(
+    props.jobDefinitionId
+      ? {
+          job_definition_id: props.jobDefinitionId
+        }
+      : {}
+  );
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJob['job_id']>
   >(new Set());
@@ -58,7 +66,11 @@ function ListJobsTable(props: IListJobsTableProps): JSX.Element {
 
   const reloadButton = (
     <Cluster justifyContent="flex-end">
-      <Button variant="contained" size="small" onClick={() => setJobsQuery({})}>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={() => setJobsQuery(query => ({ ...query }))}
+      >
         {trans.__('Reload')}
       </Button>
     </Cluster>
@@ -125,7 +137,7 @@ function ListJobsTable(props: IListJobsTableProps): JSX.Element {
       props.showCreateJob,
       deleteRow,
       translateStatus,
-      props.showDetailView
+      props.showJobDetail
     );
 
   const rowFilter = (job: Scheduler.IDescribeJob) =>
@@ -151,6 +163,8 @@ function ListJobsTable(props: IListJobsTableProps): JSX.Element {
         columns={columns}
         emptyRowMessage={emptyRowMessage}
         rowFilter={rowFilter}
+        height={props.height}
+        pageSize={props.pageSize}
       />
     </>
   );
@@ -209,7 +223,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
       <Button
         variant="contained"
         size="small"
-        onClick={() => setJobDefsQuery({})}
+        onClick={() => setJobDefsQuery(query => ({ ...query }))}
       >
         {trans.__('Reload')}
       </Button>
@@ -295,7 +309,7 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
             <ListJobsTable
               app={props.app}
               showCreateJob={props.showCreateJob}
-              showDetailView={props.showJobDetail}
+              showJobDetail={props.showJobDetail}
             />
           </>
         )}
