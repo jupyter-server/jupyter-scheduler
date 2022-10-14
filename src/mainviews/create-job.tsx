@@ -15,6 +15,8 @@ import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, ListJobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
+import WarningIcon from '@mui/icons-material/Warning';
+
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
@@ -71,6 +73,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // If an error message is "truthy" (i.e., not null or ''), we should display the
   // input in an error state and block form submission.
   const [errors, setErrors] = useState<SchedulerTokens.ErrorsType>({});
+  // Errors for the advanced options
+  const [advancedOptionsErrors, setAdvancedOptionsErrors] =
+    useState<SchedulerTokens.ErrorsType>({});
 
   const api = useMemo(() => new SchedulerService({}), []);
 
@@ -84,7 +89,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   }, []);
 
   // If any error message is "truthy" (not null or empty), the form should not be submitted.
-  const anyErrors = Object.keys(errors).some(key => !!errors[key]);
+  const anyAdvancedErrors = Object.keys(advancedOptionsErrors).some(
+    key => !!advancedOptionsErrors[key]
+  );
+  const anyErrors =
+    Object.keys(errors).some(key => !!errors[key]) || anyAdvancedErrors;
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
@@ -726,6 +735,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               id="panel-header"
             >
               <FormLabel component="legend">
+                {anyAdvancedErrors && (
+                  <WarningIcon color="warning" aria-label="warning">
+                    {trans.__('There is an error in the advanced options')}
+                  </WarningIcon>
+                )}
                 {trans.__('Additional options')}
               </FormLabel>
             </AccordionSummary>
@@ -734,8 +748,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 jobsView={'CreateJob'}
                 model={props.model}
                 handleModelChange={props.handleModelChange}
-                errors={errors}
-                handleErrorsChange={setErrors}
+                errors={advancedOptionsErrors}
+                handleErrorsChange={setAdvancedOptionsErrors}
               />
             </AccordionDetails>
           </Accordion>
