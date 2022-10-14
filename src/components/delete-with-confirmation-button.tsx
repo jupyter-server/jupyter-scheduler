@@ -36,11 +36,18 @@ export const DeleteWithConfirmationButton = (props: {
           </DialogContent>
         )}
         <DialogActions>
-          <Button variant="outlined" onClick={handleClose}>
+          <Button
+            variant="contained"
+            //hex of var(--md-grey-600)
+            sx={{ backgroundColor: '#757575' }}
+            onClick={handleClose}
+            autoFocus
+          >
             {trans.__('Cancel')}
           </Button>
           <Button
-            variant="outlined"
+            variant="contained"
+            color="error"
             onClick={_ => {
               handleClose();
               props.handleDelete();
