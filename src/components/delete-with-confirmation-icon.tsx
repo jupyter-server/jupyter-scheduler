@@ -16,7 +16,7 @@ export function DeleteWithConfirmationIcon(props: {
     : trans.__('Delete job');
 
   return (
-    <Box sx={{ width: '5em' }}>
+    <Box sx={{ width: '6em' }}>
       {clicked ? (
         <Button
           variant="contained"
