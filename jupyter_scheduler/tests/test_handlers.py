@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from tornado.httpclient import HTTPClientError
 
+from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError
 from jupyter_scheduler.handlers import compute_sort_model
 from jupyter_scheduler.models import (
     CountJobsQuery,
@@ -45,14 +46,64 @@ from jupyter_scheduler.tests.utils import expected_http_error
         ),
     ],
 )
-async def test_post_scheduled_jobs(jp_fetch, job_id, payload):
-    with patch("jupyter_scheduler.orm.uuid4") as mock_uuid:
-        mock_uuid.return_value = job_id
+async def test_post_jobs(jp_fetch, job_id, payload):
+    with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
+        mock_create_job.return_value = job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
         assert body["job_id"] == job_id
+
+
+async def test_post_jobs_for_invalid_input_uri(jp_fetch):
+    payload = {
+        "name": "job_a",
+        "input_uri": "notebook_a.ipynb",
+        "output_prefix": "outputs",
+        "runtime_environment_name": "env_a",
+        "idempotency_token": "a",
+    }
+    input_path = payload["input_uri"]
+    with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
+        mock_create_job.side_effect = InputUriError(input_path)
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
+
+        assert expected_http_error(e, 500, f"Input path '{input_path}' does not exist.")
+
+
+async def test_post_jobs_for_idempotency_token_error(jp_fetch):
+    payload = {
+        "name": "job_a",
+        "input_uri": "notebook_a.ipynb",
+        "output_prefix": "outputs",
+        "runtime_environment_name": "env_a",
+        "idempotency_token": "a",
+    }
+    idempotency_token = payload["idempotency_token"]
+    with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
+        mock_create_job.side_effect = IdempotencyTokenError(idempotency_token)
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
+        assert expected_http_error(
+            e, 409, f"Job with Idempotency Token '{idempotency_token}' already exists."
+        )
+
+
+async def test_post_jobs_for_unexpected_error(jp_fetch):
+    payload = {
+        "name": "job_a",
+        "input_uri": "notebook_a.ipynb",
+        "output_prefix": "outputs",
+        "runtime_environment_name": "env_a",
+        "idempotency_token": "a",
+    }
+    with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
+        mock_create_job.side_effect = Exception("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
+        assert expected_http_error(e, 500, "Unexpected error occurred during creation of Job.")
 
 
 async def test_get_jobs_for_single_job(jp_fetch):
@@ -179,11 +230,12 @@ async def test_patch_jobs_for_invalid_status(jp_fetch):
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         body = {"status": "IN_PROGRESS"}
         await jp_fetch("scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body))
-        assert expected_http_error(
-            e,
-            500,
-            "Invalid value for field 'status'. Jobs can only be updated to status 'STOPPED' after creation.",
-        )
+
+    assert expected_http_error(
+        e,
+        500,
+        "Invalid value for field 'status'. Jobs can only be updated to status 'STOPPED' after creation.",
+    )
 
 
 async def test_patch_jobs(jp_fetch):
