@@ -9,6 +9,7 @@ from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.environments import EnvironmentRetrievalError
+from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -156,9 +157,21 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def post(self):
         payload = self.get_json_body()
-        job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload)))
-
-        self.finish(json.dumps(dict(job_id=job_id)))
+        try:
+            job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload)))
+        except InputUriError as e:
+            self.log.error(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        except IdempotencyTokenError as e:
+            self.log.error(e)
+            raise tornado.web.HTTPError(409, str(e)) from e
+        except Exception as e:
+            self.log.error(e)
+            raise tornado.web.HTTPError(
+                500, "Unexpected error occurred during creation of Job."
+            ) from e
+        else:
+            self.finish(json.dumps(dict(job_id=job_id)))
 
     @tornado.web.authenticated
     async def patch(self, job_id):

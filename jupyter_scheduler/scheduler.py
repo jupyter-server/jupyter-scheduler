@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from multiprocessing import Process
 
@@ -6,6 +7,7 @@ from jupyter_core.paths import jupyter_data_dir
 from sqlalchemy import and_, asc, desc, func
 
 from jupyter_scheduler.config import ExecutionConfig
+from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError
 from jupyter_scheduler.models import (
     CountJobsQuery,
     CreateJob,
@@ -25,6 +27,7 @@ from jupyter_scheduler.orm import Job, JobDefinition, create_session
 from jupyter_scheduler.utils import (
     compute_next_run_time,
     create_output_filename,
+    resolve_path,
     timestamp_to_int,
 )
 
@@ -129,6 +132,10 @@ class BaseScheduler(ABC):
         """Resumes future jobs for a job definition"""
         pass
 
+    def local_path_exists(self, path: str):
+        """Returns true if path relatve to Jupyter Lab root directory exists."""
+        return os.path.exists(resolve_path(path, self.config.root_dir))
+
 
 class Scheduler(BaseScheduler):
 
@@ -153,7 +160,9 @@ class Scheduler(BaseScheduler):
 
     def create_job(self, model: CreateJob) -> str:
         with self.db_session() as session:
-            job = None
+            if not self.local_path_exists(model.input_uri):
+                raise InputUriError(model.input_uri)
+
             if model.idempotency_token:
                 job = (
                     session.query(Job)
@@ -161,7 +170,7 @@ class Scheduler(BaseScheduler):
                     .first()
                 )
             if job:
-                return job.job_id
+                raise IdempotencyTokenError(model.idempotency_token)
 
             if not model.output_formats:
                 model.output_formats = ["ipynb"]
