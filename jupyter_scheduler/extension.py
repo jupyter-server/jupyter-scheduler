@@ -22,8 +22,8 @@ from .handlers import (
 )
 from .task_runner import TaskRunner
 
-JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+-\w+-\w+-\w+-\w+)"
-JOB_ID_REGEX = r"(?P<job_id>\w+-\w+-\w+-\w+-\w+)"
+JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+(?:-\w+)+)"
+JOB_ID_REGEX = r"(?P<job_id>\w+(?:-\w+)+)"
 
 
 class SchedulerApp(ExtensionApp):
