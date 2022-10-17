@@ -181,7 +181,7 @@ export class JobsModel extends VDomModel {
   }
 
   fromJson(data: IJobsModel): void {
-    this.jobsView = data.jobsView ?? 'List';
+    this.jobsView = data.jobsView ?? 'ListJobs';
     this.createJobModel = data.createJobModel ?? emptyCreateJobModel();
     this.listJobsModel = data.listJobsModel ?? emptyListJobsModel();
     this.jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
