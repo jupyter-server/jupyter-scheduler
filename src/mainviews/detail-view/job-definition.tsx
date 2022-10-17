@@ -18,7 +18,7 @@ import {
   Stack,
   TextFieldProps
 } from '@mui/material';
-import { DeleteWithConfirmationButton } from '../../components/delete-with-confirmation-button';
+import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
 export interface IJobDefinitionProps {
@@ -72,7 +72,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {trans.__('Resume')}
         </Button>
       )}
-      <DeleteWithConfirmationButton
+      <ConfirmDeleteButton
         handleDelete={handleDeleteJobDefinition}
         title={trans.__('Delete Job Definition')}
         text={trans.__(

@@ -10,7 +10,7 @@ import {
 import { useTranslator } from '../../hooks';
 import { SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
-import { DeleteWithConfirmationButton } from '../../components/delete-with-confirmation-button';
+import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
 import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
@@ -102,7 +102,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       <Button variant="outlined" onClick={handleRerunJob}>
         {trans.__('Rerun Job')}
       </Button>
-      <DeleteWithConfirmationButton
+      <ConfirmDeleteButton
         handleDelete={handleDeleteJob}
         title={trans.__('Delete Job')}
         text={trans.__('Are you sure that you want to delete this job?')}

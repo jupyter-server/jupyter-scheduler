@@ -3,7 +3,6 @@ import React from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
 
-import CloseIcon from '@mui/icons-material/Close';
 import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
 
@@ -11,13 +10,12 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-
+import { outputFormatsForEnvironment } from './output-format-picker';
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
-
-import { outputFormatsForEnvironment } from './output-format-picker';
+import { ConfirmDeleteIcon } from './confirm-delete-icon';
 
 function get_file_from_path(path: string): string {
   return PathExt.basename(path);
@@ -40,22 +38,6 @@ function StopButton(props: {
         <StopIcon fontSize="small" />
       </IconButton>
     </div>
-  );
-}
-
-function DeleteButton(props: {
-  job: Scheduler.IDescribeJob;
-  clickHandler: () => void;
-}): JSX.Element | null {
-  const trans = useTranslator('jupyterlab');
-  const buttonTitle = props.job.name
-    ? trans.__('Delete "%1"', props.job.name)
-    : trans.__('Delete job');
-
-  return (
-    <IconButton onClick={props.clickHandler} title={buttonTitle}>
-      <CloseIcon fontSize="small" />
-    </IconButton>
   );
 }
 
@@ -193,8 +175,13 @@ export function buildJobRow(
           })
         }
       />
-      <DeleteButton
+      <RefillButton
         job={job}
+        environmentList={environmentList}
+        showCreateJob={showCreateJob}
+      />
+      <ConfirmDeleteIcon
+        name={job.name}
         clickHandler={() => {
           // optimistic delete for now, no verification on whether the delete
           // succeeded
@@ -204,18 +191,13 @@ export function buildJobRow(
           deleteRow(job.job_id);
         }}
       />
-      <RefillButton
-        job={job}
-        environmentList={environmentList}
-        showCreateJob={showCreateJob}
-      />
     </Stack>
   ];
 
   return (
-    <TableRow>
+    <TableRow key={job.job_id}>
       {cellContents.map((cellContent, idx) => (
-        <TableCell key={idx}>{cellContent}</TableCell>
+        <TableCell key={`${job.job_id}-${idx}`}>{cellContent}</TableCell>
       ))}
     </TableRow>
   );

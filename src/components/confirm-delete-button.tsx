@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useTranslator } from '../hooks';
 
-export const DeleteWithConfirmationButton = (props: {
+export const ConfirmDeleteButton = (props: {
   handleDelete: () => Promise<void>;
   title: string;
   text?: string;
