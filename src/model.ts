@@ -1,69 +1,12 @@
 import { Signal } from '@lumino/signaling';
+import { PartialJSONObject } from '@lumino/coreutils';
 import { Scheduler } from './handler';
 import { VDomModel } from '@jupyterlab/apputils';
 
-export class NotebookJobsListingModel implements INotebookJobsListingModel {
-  private _scheduled_jobs: Scheduler.IDescribeJob[];
-  readonly scheduledJobsChanged: Signal<any, any>;
-  readonly inProgressJobCountChanged: Signal<any, number>;
-  public inProgressJobCount: number;
+/**
+ * Top-level models
+ */
 
-  constructor(scheduled_jobs: Scheduler.IDescribeJob[], next_token?: string) {
-    const inProgressJobs = scheduled_jobs
-      ? scheduled_jobs.filter(job => job.status === 'IN_PROGRESS')
-      : [];
-    this.inProgressJobCount = inProgressJobs.length;
-
-    this._scheduled_jobs = scheduled_jobs;
-    this.scheduledJobsChanged = new Signal(this);
-    this.inProgressJobCountChanged = new Signal(this);
-  }
-
-  updateJobs(jobs: Scheduler.IDescribeJob[]): void {
-    let jobsChanged = false;
-
-    if (jobs.length !== this._scheduled_jobs.length) {
-      jobsChanged = true;
-    }
-    if (!jobsChanged) {
-      for (let i = 0; i < jobs.length; i++) {
-        const job = jobs[i];
-        const modelJob = this._scheduled_jobs[i];
-        if (job.status !== modelJob.status) {
-          jobsChanged = true;
-          break;
-        }
-      }
-    }
-    if (jobsChanged) {
-      this._scheduled_jobs = jobs;
-      this.scheduledJobsChanged.emit(jobs);
-    }
-  }
-
-  updatejobCount(jobCount: number): void {
-    if (jobCount !== this.inProgressJobCount) {
-      this.inProgressJobCount = jobCount;
-      this.inProgressJobCountChanged.emit(jobCount);
-    }
-  }
-}
-
-export interface INotebookJobsWithToken {
-  jobs: Scheduler.IDescribeJob[];
-  next_token?: string;
-  total_count: number;
-}
-
-export interface INotebookJobsListingModel {
-  inProgressJobCount: number;
-  inProgressJobCountChanged: Signal<any, number>;
-  scheduledJobsChanged: Signal<any, INotebookJobsWithToken>;
-}
-
-// Revised models
-
-// TODO: make these values enums
 export type JobsView = 'CreateJob' | 'ListJobs' | 'JobDetail';
 export type ListJobsView = 'Job' | 'JobDefinition';
 
@@ -77,7 +20,7 @@ export interface IOutputFormat {
   readonly label: string;
 }
 
-export interface ICreateJobModel {
+export interface ICreateJobModel extends PartialJSONObject {
   jobName: string;
   inputFile: string;
   outputPath: string;
@@ -110,14 +53,149 @@ export interface ICreateJobModel {
   scheduleWeekDay?: string;
 }
 
-export interface IListJobsModel {
+export function emptyCreateJobModel(): ICreateJobModel {
+  return {
+    jobName: '',
+    inputFile: '',
+    outputPath: '',
+    environment: '',
+    createType: 'Job',
+    scheduleInterval: 'weekday',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  };
+}
+
+export interface IListJobsModel extends PartialJSONObject {
   listJobsView: ListJobsView;
 }
 
-export interface IDetailViewModel {
-  detailType: 'Job' | 'JobDefinition';
+export function emptyListJobsModel(): IListJobsModel {
+  return {
+    listJobsView: 'Job'
+  };
+}
+
+export interface IDetailViewModel extends PartialJSONObject {
+  detailType: ListJobsView;
   id: string;
 }
+
+export function emptyDetailViewModel(): IDetailViewModel {
+  return {
+    detailType: 'Job',
+    id: ''
+  };
+}
+
+export interface IJobsModel extends PartialJSONObject {
+  jobsView: JobsView;
+  createJobModel?: ICreateJobModel;
+  listJobsModel?: IListJobsModel;
+  jobDetailModel?: IDetailViewModel;
+}
+
+export function emptyJobsModel(): IJobsModel {
+  return {
+    jobsView: 'CreateJob'
+  };
+}
+
+export class JobsModel extends VDomModel {
+  private _jobsView: JobsView = 'ListJobs';
+  private _createJobModel: ICreateJobModel;
+  private _listJobsModel: IListJobsModel;
+  private _jobDetailModel: IDetailViewModel;
+  /**
+   * Callback that gets invoked whenever a model is updated. This should be used
+   * to call `ReactWidget.renderDOM()` to synchronously update the VDOM rather
+   * than triggering an async VDOM update via Lumino. See #34.
+   */
+  private _onModelUpdate?: () => unknown;
+  private _jobCount: number;
+
+  constructor(options: IJobsModelOptions) {
+    super();
+    this._jobsView = 'ListJobs';
+    this._createJobModel = emptyCreateJobModel();
+    this._listJobsModel = emptyListJobsModel();
+    this._jobDetailModel = emptyDetailViewModel();
+    this._onModelUpdate = options.onModelUpdate;
+    this._jobCount = 0;
+  }
+
+  get jobsView(): JobsView {
+    return this._jobsView;
+  }
+
+  set jobsView(view: JobsView) {
+    this._jobsView = view;
+    this.stateChanged.emit(void 0);
+  }
+
+  get createJobModel(): ICreateJobModel {
+    return this._createJobModel;
+  }
+
+  set createJobModel(model: ICreateJobModel) {
+    this._createJobModel = model;
+    this._onModelUpdate?.();
+    this.stateChanged.emit(void 0);
+  }
+
+  get listJobsModel(): IListJobsModel {
+    return this._listJobsModel;
+  }
+
+  set listJobsModel(model: IListJobsModel) {
+    this._listJobsModel = model;
+    this._onModelUpdate?.();
+    this.stateChanged.emit(void 0);
+  }
+
+  get jobDetailModel(): IDetailViewModel {
+    return this._jobDetailModel;
+  }
+
+  set jobDetailModel(model: IDetailViewModel) {
+    this._jobDetailModel = model;
+    this._onModelUpdate?.();
+    this.stateChanged.emit(void 0);
+  }
+
+  get jobCount(): number {
+    return this._jobCount;
+  }
+
+  set jobCount(count: number) {
+    this._jobCount = count;
+  }
+
+  toJson(): IJobsModel {
+    const data = {
+      jobsView: this.jobsView,
+      createJobModel: this.createJobModel,
+      listJobsModel: this.listJobsModel,
+      jobDetailModel: this.jobDetailModel
+    };
+    return data;
+  }
+
+  fromJson(data: IJobsModel): void {
+    this.jobsView = data.jobsView ?? 'List';
+    this.createJobModel = data.createJobModel ?? emptyCreateJobModel();
+    this.listJobsModel = data.listJobsModel ?? emptyListJobsModel();
+    this.jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
+  }
+}
+
+export interface IJobsModelOptions {
+  onModelUpdate?: () => unknown;
+}
+
+/**
+ * Describe and Detail models
+ */
+
 export interface IJobDetailModel extends ICreateJobModel {
   jobId: string;
   status?: Scheduler.Status;
@@ -213,98 +291,65 @@ export function convertDescribeDefinitiontoDefinition(
   };
 }
 
-export class JobsModel extends VDomModel {
-  private _jobsView: JobsView = 'ListJobs';
-  private _createJobModel: ICreateJobModel;
-  private _listJobsModel: IListJobsModel;
-  private _jobDetailModel: IDetailViewModel;
-  /**
-   * Callback that gets invoked whenever a model is updated. This should be used
-   * to call `ReactWidget.renderDOM()` to synchronously update the VDOM rather
-   * than triggering an async VDOM update via Lumino. See #34.
-   */
-  private _onModelUpdate?: () => unknown;
-  private _jobCount: number;
+/**
+ * Notebook listing models
+ */
 
-  constructor(options: IJobsModelOptions) {
-    super();
-    this._jobsView = options.jobsView || 'ListJobs';
-    this._createJobModel = options.createJobModel || Private.emptyCreateModel();
-    this._listJobsModel = options.listJobsModel || { listJobsView: 'Job' };
-    this._jobDetailModel = options.jobDetailModel || {
-      detailType: 'Job',
-      id: ''
-    };
-    this._onModelUpdate = options.onModelUpdate;
-    this._jobCount = 0;
+export interface INotebookJobsListingModel {
+  inProgressJobCount: number;
+  inProgressJobCountChanged: Signal<any, number>;
+  scheduledJobsChanged: Signal<any, INotebookJobsWithToken>;
+}
+
+export class NotebookJobsListingModel implements INotebookJobsListingModel {
+  private _scheduled_jobs: Scheduler.IDescribeJob[];
+  readonly scheduledJobsChanged: Signal<any, any>;
+  readonly inProgressJobCountChanged: Signal<any, number>;
+  public inProgressJobCount: number;
+
+  constructor(scheduled_jobs: Scheduler.IDescribeJob[], next_token?: string) {
+    const inProgressJobs = scheduled_jobs
+      ? scheduled_jobs.filter(job => job.status === 'IN_PROGRESS')
+      : [];
+    this.inProgressJobCount = inProgressJobs.length;
+
+    this._scheduled_jobs = scheduled_jobs;
+    this.scheduledJobsChanged = new Signal(this);
+    this.inProgressJobCountChanged = new Signal(this);
   }
 
-  get jobsView(): JobsView {
-    return this._jobsView;
+  updateJobs(jobs: Scheduler.IDescribeJob[]): void {
+    let jobsChanged = false;
+
+    if (jobs.length !== this._scheduled_jobs.length) {
+      jobsChanged = true;
+    }
+    if (!jobsChanged) {
+      for (let i = 0; i < jobs.length; i++) {
+        const job = jobs[i];
+        const modelJob = this._scheduled_jobs[i];
+        if (job.status !== modelJob.status) {
+          jobsChanged = true;
+          break;
+        }
+      }
+    }
+    if (jobsChanged) {
+      this._scheduled_jobs = jobs;
+      this.scheduledJobsChanged.emit(jobs);
+    }
   }
 
-  set jobsView(view: JobsView) {
-    this._jobsView = view;
-    this.stateChanged.emit(void 0);
-  }
-
-  get createJobModel(): ICreateJobModel {
-    return this._createJobModel;
-  }
-
-  set createJobModel(model: ICreateJobModel) {
-    this._createJobModel = model;
-    this._onModelUpdate?.();
-    this.stateChanged.emit(void 0);
-  }
-
-  get listJobsModel(): IListJobsModel {
-    return this._listJobsModel;
-  }
-
-  set listJobsModel(model: IListJobsModel) {
-    this._listJobsModel = model;
-    this._onModelUpdate?.();
-    this.stateChanged.emit(void 0);
-  }
-
-  get jobDetailModel(): IDetailViewModel {
-    return this._jobDetailModel;
-  }
-
-  set jobDetailModel(model: IDetailViewModel) {
-    this._jobDetailModel = model;
-    this._onModelUpdate?.();
-    this.stateChanged.emit(void 0);
-  }
-
-  get jobCount(): number {
-    return this._jobCount;
-  }
-
-  set jobCount(count: number) {
-    this._jobCount = count;
+  updatejobCount(jobCount: number): void {
+    if (jobCount !== this.inProgressJobCount) {
+      this.inProgressJobCount = jobCount;
+      this.inProgressJobCountChanged.emit(jobCount);
+    }
   }
 }
 
-export interface IJobsModelOptions {
-  jobsView?: JobsView;
-  createJobModel?: ICreateJobModel;
-  listJobsModel?: IListJobsModel;
-  jobDetailModel?: IDetailViewModel;
-  onModelUpdate?: () => unknown;
-}
-
-namespace Private {
-  export function emptyCreateModel(): ICreateJobModel {
-    return {
-      jobName: '',
-      inputFile: '',
-      outputPath: '',
-      environment: '',
-      createType: 'Job',
-      scheduleInterval: 'weekday',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
-  }
+export interface INotebookJobsWithToken {
+  jobs: Scheduler.IDescribeJob[];
+  next_token?: string;
+  total_count: number;
 }

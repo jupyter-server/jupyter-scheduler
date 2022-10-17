@@ -20,7 +20,12 @@ import { Poll } from '@lumino/polling';
 import { RunningJobsIndicator } from './components/running-jobs-indicator';
 
 import { SchedulerService } from './handler';
-import { JobsView, ICreateJobModel, NotebookJobsListingModel } from './model';
+import {
+  ICreateJobModel,
+  NotebookJobsListingModel,
+  IJobsModel,
+  emptyCreateJobModel
+} from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import {
   calendarAddOnIcon,
@@ -136,22 +141,14 @@ async function activatePlugin(
   });
   restorer.restore(widgetTracker, {
     command: CommandIDs.showNotebookJobs,
+    args: widget => widget.content.model.toJson(),
     name: () => 'jupyterlab-scheduler'
-  });
-
-  commands.addCommand(CommandIDs.deleteJob, {
-    execute: async args => {
-      const id = args['id'] as string;
-      await api.deleteJob(id);
-    },
-    // TODO: Use args to name command dynamically
-    label: trans.__('Delete Job')
   });
 
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
   let jobsPanel: NotebookJobsPanel | undefined;
 
-  const showJobsPane = async (view: JobsView) => {
+  const showJobsPanel = async (data: IJobsModel) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
       // Create new jobs panel widget
       jobsPanel = new NotebookJobsPanel({
@@ -163,7 +160,6 @@ async function activatePlugin(
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
         content: jobsPanel
       });
-      mainAreaWidget.content.model.jobsView = view;
       mainAreaWidget.id = NotebookJobsPanelId;
       mainAreaWidget.title.icon = calendarMonthIcon;
       mainAreaWidget.title.label = trans.__('Notebook Jobs');
@@ -173,41 +169,33 @@ async function activatePlugin(
     if (!widgetTracker.has(mainAreaWidget)) {
       // Track the state of the widget for later restoration
       widgetTracker.add(mainAreaWidget);
+      mainAreaWidget.content.model.stateChanged.connect(() => {
+        void widgetTracker.save(
+          mainAreaWidget as MainAreaWidget<NotebookJobsPanel>
+        );
+      });
     }
 
     if (!mainAreaWidget.isAttached) {
       app.shell.add(mainAreaWidget, 'main');
     }
 
-    mainAreaWidget.content.model.jobsView = view;
+    mainAreaWidget.content.model.fromJson(data);
     mainAreaWidget.content.update();
     app.shell.activateById(mainAreaWidget.id);
   };
 
+  // Commands
+
   commands.addCommand(CommandIDs.showNotebookJobs, {
-    execute: async () => showJobsPane('ListJobs'),
+    execute: async args => showJobsPanel(args as IJobsModel),
     label: trans.__('Notebook Jobs'),
     icon: eventNoteIcon
   });
 
-  const createNewModel: (p: string, n: string) => ICreateJobModel = (
-    filePath: string,
-    fileName: string
-  ) => {
-    return {
-      inputFile: filePath,
-      jobName: fileName,
-      outputPath: '',
-      environment: '',
-      createType: 'Job',
-      scheduleInterval: 'weekday',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
-  };
-
   commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
-      await showJobsPane('CreateJob');
+      await showJobsPanel({ jobsView: 'CreateJob' });
 
       const model = jobsPanel?.model;
       if (!model) {
@@ -219,7 +207,10 @@ async function activatePlugin(
       const fileName = getSelectedFileName(widget) ?? '';
 
       // Update the job form inside the notebook jobs widget
-      model.createJobModel = createNewModel(filePath, fileName);
+      const newCreateModel = emptyCreateJobModel();
+      newCreateModel.inputFile = filePath;
+      newCreateModel.jobName = fileName;
+      model.createJobModel = newCreateModel;
     },
     label: trans.__('Create Notebook Job'),
     icon: calendarAddOnIcon
@@ -227,7 +218,7 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
     execute: async () => {
-      await showJobsPane('CreateJob');
+      await showJobsPanel({ jobsView: 'CreateJob' });
 
       const model = jobsPanel?.model;
       if (!model) {
@@ -241,10 +232,22 @@ async function activatePlugin(
       const fileName = contentsModel?.name ?? '';
 
       // Update the job form inside the notebook jobs widget
-      model.createJobModel = createNewModel(filePath, fileName);
+      const newCreateModel = emptyCreateJobModel();
+      newCreateModel.inputFile = filePath;
+      newCreateModel.jobName = fileName;
+      model.createJobModel = newCreateModel;
     },
     label: trans.__('Create a notebook job'),
     icon: calendarAddOnIcon
+  });
+
+  commands.addCommand(CommandIDs.deleteJob, {
+    execute: async args => {
+      const id = args['id'] as string;
+      await api.deleteJob(id);
+    },
+    // TODO: Use args to name command dynamically
+    label: trans.__('Delete Job')
   });
 
   commands.addCommand(CommandIDs.stopJob, {
@@ -266,7 +269,7 @@ async function activatePlugin(
     align: 'middle',
     item: ReactWidget.create(
       <RunningJobsIndicator
-        onClick={async () => showJobsPane('ListJobs')}
+        onClick={async () => showJobsPanel({ jobsView: 'ListJobs' })}
         model={scheduledJobsListingModel}
       />
     )
