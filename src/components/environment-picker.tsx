@@ -32,20 +32,39 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
   return (
     <FormControl>
       <InputLabel id={labelId}>{props.label}</InputLabel>
-      <Select
-        labelId={labelId}
-        label={props.label}
-        name={props.name}
-        id={props.id}
-        onChange={props.onChange}
-        value={props.initialValue}
-      >
-        {props.environmentList.map((env, idx) => (
-          <MenuItem value={env.label} title={env.description} key={idx}>
-            {env.name}
+      {props.environmentList.length === 1 ? (
+        <Select
+          labelId={labelId}
+          label={props.label}
+          name={props.name}
+          id={props.id}
+          onChange={props.onChange}
+          value={props.environmentList[0]?.label}
+        >
+          <MenuItem
+            value={props.environmentList[0]?.label}
+            title={props.environmentList[0]?.description}
+            selected
+          >
+            {props.environmentList[0]?.name}
           </MenuItem>
-        ))}
-      </Select>
+        </Select>
+      ) : (
+        <Select
+          labelId={labelId}
+          label={props.label}
+          name={props.name}
+          id={props.id}
+          onChange={props.onChange}
+          value={props.initialValue}
+        >
+          {props.environmentList.map((env, idx) => (
+            <MenuItem value={env.label} title={env.description} key={idx}>
+              {env.name}
+            </MenuItem>
+          ))}
+        </Select>
+      )}
     </FormControl>
   );
 }
