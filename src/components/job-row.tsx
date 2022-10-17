@@ -195,9 +195,9 @@ export function buildJobRow(
   ];
 
   return (
-    <TableRow>
+    <TableRow key={job.job_id}>
       {cellContents.map((cellContent, idx) => (
-        <TableCell key={idx}>{cellContent}</TableCell>
+        <TableCell key={`${job.job_id}-${idx}`}>{cellContent}</TableCell>
       ))}
     </TableRow>
   );
