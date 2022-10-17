@@ -21,7 +21,6 @@ import { RunningJobsIndicator } from './components/running-jobs-indicator';
 
 import { SchedulerService } from './handler';
 import {
-  ICreateJobModel,
   NotebookJobsListingModel,
   IJobsModel,
   emptyCreateJobModel
