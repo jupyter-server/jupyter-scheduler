@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTranslator } from '../hooks';
 import CloseIcon from '@mui/icons-material/Close';
 
-export function DeleteWithConfirmationIcon(props: {
+export function ConfirmDeleteIcon(props: {
   name: string | undefined;
   clickHandler: () => void;
 }): JSX.Element | null {

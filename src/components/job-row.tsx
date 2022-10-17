@@ -15,7 +15,7 @@ import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
-import { DeleteWithConfirmationIcon } from './delete-with-confirmation-icon';
+import { ConfirmDeleteIcon } from './confirm-delete-icon';
 
 function get_file_from_path(path: string): string {
   return PathExt.basename(path);
@@ -180,7 +180,7 @@ export function buildJobRow(
         environmentList={environmentList}
         showCreateJob={showCreateJob}
       />
-      <DeleteWithConfirmationIcon
+      <ConfirmDeleteIcon
         name={job.name}
         clickHandler={() => {
           // optimistic delete for now, no verification on whether the delete
