@@ -181,10 +181,14 @@ export class JobsModel extends VDomModel {
   }
 
   fromJson(data: IJobsModel): void {
-    this.jobsView = data.jobsView ?? 'ListJobs';
-    this.createJobModel = data.createJobModel ?? emptyCreateJobModel();
-    this.listJobsModel = data.listJobsModel ?? emptyListJobsModel();
-    this.jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
+    this._jobsView = data.jobsView ?? 'ListJobs';
+    this._createJobModel = data.createJobModel ?? emptyCreateJobModel();
+    this._listJobsModel = data.listJobsModel ?? emptyListJobsModel();
+    this._jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
+
+    // emit state changed signal
+    this._onModelUpdate?.();
+    this.stateChanged.emit(void 0);
   }
 }
 
