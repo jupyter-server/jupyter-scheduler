@@ -129,9 +129,11 @@ export function buildJobDefinitionRow(
   ];
 
   return (
-    <TableRow>
+    <TableRow key={jobDef.job_definition_id}>
       {cellContents.map((cellContent, idx) => (
-        <TableCell key={idx}>{cellContent}</TableCell>
+        <TableCell key={`${jobDef.job_definition_id}-${idx}`}>
+          {cellContent}
+        </TableCell>
       ))}
     </TableRow>
   );
