@@ -700,7 +700,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const cantSubmit = trans.__('One or more of the fields has an error.');
   const createError: string | undefined = props.model.createError;
-  console.log('createError is ' + createError);
 
   return (
     <Box sx={{ p: 4 }}>
