@@ -1,14 +1,13 @@
 from typing import Dict, List
 
-from jupyter_scheduler.config import ExecutionConfig
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.executors import ExecutionManager
-from jupyter_scheduler.models import JobFeature, OutputFormat, RuntimeEnvironment
-from jupyter_scheduler.scheduler import BaseScheduler
+from jupyter_scheduler.models import JobFeature, RuntimeEnvironment, UpdateJobDefinition
+from jupyter_scheduler.task_runner import BaseTaskRunner
 
 
 class MockExecutionManager(ExecutionManager):
-    def __init__(self, job_id: str, config: ExecutionConfig = {}):
+    def __init__(self, job_id: str, staging_paths: Dict[str, str], root_dir: str, db_url: str):
         pass
 
     def execute(self):
@@ -28,7 +27,7 @@ class MockExecutionManager(ExecutionManager):
 class MockEnvironmentManager(EnvironmentManager):
     def list_environments(self) -> List[RuntimeEnvironment]:
         file_extensions = ["ipynb"]
-        output_formats = [OutputFormat(name="ipynb", label="Notebook")]
+        output_formats = ["ipynb", "html"]
         return [
             RuntimeEnvironment(
                 name="env_a",
@@ -48,3 +47,29 @@ class MockEnvironmentManager(EnvironmentManager):
 
     def manage_environments_command(self) -> str:
         return "command_a"
+
+    def output_formats_mapping(self) -> Dict[str, str]:
+        return {"ipynb": "Notebook", "html": "HTML"}
+
+
+class MockTaskRunner(BaseTaskRunner):
+    def __init__(self, config=None, **kwargs):
+        super().__init__(config=config)
+
+    async def start(self):
+        pass
+
+    def add_job_definition(self, job_definition_id: str):
+        pass
+
+    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
+        pass
+
+    def delete_job_definition(self, job_definition_id: str):
+        pass
+
+    def pause_jobs(self, job_definition_id: str):
+        pass
+
+    def resume_jobs(self, job_definition_id: str):
+        pass

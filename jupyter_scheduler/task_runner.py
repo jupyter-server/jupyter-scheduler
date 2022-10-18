@@ -4,9 +4,12 @@ from dataclasses import dataclass
 from heapq import heappop, heappush
 from typing import List, Optional
 
+import traitlets
+from jupyter_server.transutils import _i18n
 from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker
+from traitlets.config import LoggingConfigurable
 
 from jupyter_scheduler.models import CreateJob, UpdateJob, UpdateJobDefinition
 from jupyter_scheduler.orm import JobDefinition, declarative_base
@@ -127,49 +130,56 @@ class Cache:
             session.commit()
 
 
-class BaseTaskRunner(ABC):
+class BaseTaskRunner(LoggingConfigurable):
     """Base task runner, this class's start method is called
     at the start of jupyter server, and is responsible for
     polling for the job definitions and creating new jobs
     based on the schedule/timezone in the job definition.
     """
 
-    @abstractmethod
+    def __init__(self, config=None, **kwargs):
+        super().__init__(config=config)
+
+    poll_interval = traitlets.Integer(
+        default_value=10,
+        config=True,
+        help=_i18n("The interval in seconds that the task runner polls for scheduled jobs to run."),
+    )
+
     async def start(self):
         """Async method that is called by extension at server start"""
-        pass
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def add_job_definition(self, job_definition_id: str):
-        """This handles addition of new job definitions"""
-        pass
+        """This should handle adding data for new
+        job definition to the PriorityQueue and Cache."""
+        raise NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
-        """This handles update to job definitions"""
-        pass
+        """This should handles updates to job definitions"""
+        NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def delete_job_definition(self, job_definition_id: str):
         """Handles deletion of job definitions"""
-        pass
+        NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def pause_jobs(self, job_definition_id: str):
         """Handles pausing a job definition"""
-        pass
+        NotImplementedError("must be implemented by subclass")
 
-    @abstractmethod
     def resume_jobs(self, job_definition_id: str):
         """Handles resuming of a job definition"""
-        pass
+        NotImplementedError("must be implemented by subclass")
 
 
 class TaskRunner(BaseTaskRunner):
-    """Default task runner"""
+    """Default task runner that maintains a job definition cache and a
+    priority queue, and polls the queue every `poll_interval` seconds
+    for new jobs to create.
+    """
 
-    def __init__(self, scheduler, run_interval: int) -> None:
-        self.run_interval = run_interval
+    def __init__(self, scheduler, config=None) -> None:
+        super().__init__(config=config)
         self.scheduler = scheduler
         self.db_session = scheduler.db_session
         self.cache = Cache()
@@ -297,7 +307,7 @@ class TaskRunner(BaseTaskRunner):
             if time_diff < 0:
                 break
             # if run time is in the past might be in previous run
-            elif time_diff >= (self.run_interval * 1000):
+            elif time_diff >= (self.poll_interval * 1000):
                 break
             else:
                 self.create_job(task.job_definition_id)
@@ -316,4 +326,4 @@ class TaskRunner(BaseTaskRunner):
         self.populate_cache()
         while True:
             self.process_queue()
-            await asyncio.sleep(self.run_interval)
+            await asyncio.sleep(self.poll_interval)

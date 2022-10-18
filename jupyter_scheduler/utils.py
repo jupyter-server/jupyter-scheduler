@@ -27,12 +27,11 @@ def timestamp_to_int(timestamp: str) -> int:
     return int(dt.timestamp())
 
 
-def create_output_filename(input_uri: str) -> str:
-    """Creates output filename from input_uri"""
+def create_output_filename(input_uri: str, create_time: int, output_format: str) -> str:
+    """Creates output filename from input_uri, create_time and output_format"""
 
     filename = os.path.basename(input_uri)
-    file_extension = pathlib.Path(input_uri).suffix
-    output_filename = f"{os.path.splitext(filename)[0]}-{datetime.now().strftime('%Y%m%d_%I%M%S_%p')}{file_extension}"
+    output_filename = f"{os.path.splitext(filename)[0]}-{datetime.fromtimestamp(create_time/1e3).strftime('%Y%m%d_%I%M%S_%p')}.{output_format}"
 
     return output_filename
 

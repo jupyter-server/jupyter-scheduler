@@ -211,6 +211,8 @@ export interface IJobDetailModel extends ICreateJobModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
+  outputs: {[key: string]: string}[];
+  downloaded: boolean;
 }
 
 export interface IJobDefinitionModel extends ICreateJobModel {
@@ -241,12 +243,23 @@ export function convertDescribeJobtoJobDetail(
   // Convert parameters
   const jobParameters = convertParameters(describeJob.parameters ?? {});
 
+  const convertOutputsToJson = (outputs: Scheduler.IOutput[]) => {
+    return outputs.map((output) => {
+      return {
+        "display_name": output.display_name,
+        "output_format": output.output_format,
+        "output_path": output.output_path || ''
+      }
+    });
+  }
+
   return {
     createType: 'Job',
     jobId: describeJob.job_id,
     jobName: describeJob.name ?? '',
     inputFile: describeJob.input_uri,
-    outputPath: describeJob.output_uri,
+    outputPath: describeJob.output_prefix,
+    outputs: convertOutputsToJson(describeJob.outputs),
     outputPrefix: describeJob.output_prefix,
     environment: describeJob.runtime_environment_name,
     runtimeEnvironmentParameters: describeJob.runtime_environment_parameters,
@@ -261,7 +274,8 @@ export function convertDescribeJobtoJobDetail(
     updateTime: describeJob.update_time,
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
-    scheduleInterval: 'weekday'
+    scheduleInterval: 'weekday',
+    downloaded: describeJob.downloaded
   };
 }
 

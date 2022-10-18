@@ -1,5 +1,4 @@
 import json
-from contextlib import nullcontext
 from unittest.mock import patch
 
 import pytest
@@ -114,7 +113,13 @@ async def test_get_jobs_for_single_job(jp_fetch):
             output_prefix="output_a",
             runtime_environment_name="environment_a",
             job_id=job_id,
-            output_uri="output_a/input_a_12345",
+            outputs=[
+                {
+                    "display_name": "Notebook",
+                    "output_format": "ipynb",
+                    "output_path": "output_a/input_a_12345",
+                }
+            ],
             url="url_a",
             create_time=1664305872620,
             update_time=1664305872620,
@@ -126,7 +131,7 @@ async def test_get_jobs_for_single_job(jp_fetch):
         body = json.loads(response.body)
         assert body["job_id"] == job_id
         assert body["input_uri"]
-        assert body["output_uri"]
+        assert body["outputs"]
 
 
 @pytest.mark.parametrize(
@@ -142,7 +147,13 @@ async def test_get_jobs_for_single_job(jp_fetch):
                         "output_prefix": "output_a",
                         "runtime_environment_name": "environment_a",
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
-                        "output_uri": "output_a/input_a_12345",
+                        "outputs": [
+                            {
+                                "display_name": "Notebook",
+                                "output_format": "ipynb",
+                                "output_path": "output_a/input_a_12345",
+                            }
+                        ],
                         "url": "url_a",
                         "create_time": 1664305872620,
                         "update_time": 1664305872620,
@@ -183,7 +194,13 @@ async def test_get_jobs_for_single_job(jp_fetch):
                         "output_prefix": "output_a",
                         "runtime_environment_name": "environment_a",
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
-                        "output_uri": "output_a/input_a_12345",
+                        "outputs": [
+                            {
+                                "display_name": "Notebook",
+                                "output_format": "ipynb",
+                                "output_path": "output_a/input_a_12345",
+                            }
+                        ],
                         "url": "url_a",
                         "create_time": 1664305872620,
                         "update_time": 1664305872620,
@@ -210,7 +227,7 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
         assert actual_job["output_prefix"] == expected_job["output_prefix"]
         assert actual_job["runtime_environment_name"] == expected_job["runtime_environment_name"]
         assert actual_job["job_id"] == expected_job["job_id"]
-        assert actual_job["output_uri"] == expected_job["output_uri"]
+        assert actual_job["outputs"] == expected_job["outputs"]
         assert actual_job["url"] == expected_job["url"]
 
 
@@ -260,13 +277,11 @@ async def test_patch_jobs_for_stop_job(jp_fetch):
         assert response.code == 204
 
 
-# TODO: Enable after fixing patch api
-@pytest.mark.skip
 async def test_patch_jobs_for_name_update(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         response = await jp_fetch(
-            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps({"name": "New job name"})
+            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
         )
 
         mock_stop_job.assert_called_once_with(job_id)

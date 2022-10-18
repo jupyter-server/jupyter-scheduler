@@ -3,11 +3,11 @@ import traceback
 from abc import ABC, abstractmethod
 from typing import Dict
 
+import fsspec
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
-from jupyter_scheduler.config import ExecutionConfig
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
@@ -26,10 +26,11 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, config: ExecutionConfig = {}):
+    def __init__(self, job_id: str, staging_paths: Dict[str, str], root_dir: str, db_url: str):
         self.job_id = job_id
-        self.root_dir = config.root_dir
-        self.config = config
+        self.staging_paths = staging_paths
+        self.root_dir = root_dir
+        self.db_url = db_url
 
     @property
     def model(self):
@@ -42,7 +43,7 @@ class ExecutionManager(ABC):
     @property
     def db_session(self):
         if self._db_session is None:
-            self._db_session = create_session(self.config.db_url)
+            self._db_session = create_session(self.db_url)
 
         return self._db_session
 
@@ -114,10 +115,6 @@ class DefaultExecutionManager(ExecutionManager):
     def execute(self):
         job = self.model
 
-        output_dir = os.path.dirname(resolve_path(job.output_uri, self.root_dir))
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
         with open(resolve_path(job.input_uri, self.root_dir)) as f:
             nb = nbformat.read(f, as_version=4)
 
@@ -129,21 +126,13 @@ class DefaultExecutionManager(ExecutionManager):
             store_widget_state=True,
         )
 
-        ep.preprocess(
-            nb, {"metadata": {"path": os.path.dirname(resolve_path(job.output_uri, self.root_dir))}}
-        )
+        ep.preprocess(nb)
 
-        if job.output_formats:
-            filepath = resolve_path(job.output_uri, self.root_dir)
-            base_filepath = os.path.splitext(filepath)[-2]
-            for output_format in job.output_formats:
-                cls = nbconvert.get_exporter(output_format)
-                output, resources = cls().from_notebook_node(nb)
-                with open(f"{base_filepath}.{output_format}", "w", encoding="utf-8") as f:
-                    f.write(output)
-        else:
-            with open(resolve_path(job.output_uri, self.root_dir), "w", encoding="utf-8") as f:
-                nbformat.write(nb, f)
+        for output_format in job.output_formats:
+            cls = nbconvert.get_exporter(output_format)
+            output, resources = cls().from_notebook_node(nb)
+            with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
+                f.write(output)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {

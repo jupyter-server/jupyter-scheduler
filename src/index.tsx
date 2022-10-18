@@ -40,6 +40,7 @@ export namespace CommandIDs {
   export const createJobCurrentNotebook = 'scheduling:create-from-notebook';
   export const showNotebookJobs = 'scheduling:show-notebook-jobs';
   export const stopJob = 'scheduling:stop-job';
+  export const downloadOutputs = 'scheduling:download-outputs';
 }
 
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
@@ -256,6 +257,14 @@ async function activatePlugin(
     },
     // TODO: Use args to name command dynamically
     label: trans.__('Stop Job')
+  });
+
+  commands.addCommand(CommandIDs.downloadOutputs, {
+    execute: async args => {
+      const id = args['id'] as string;
+      const redownload = args['redownload'] as boolean;
+      await api.downloadOutputs(id, redownload);
+    }
   });
 
   // validate presence of status bar

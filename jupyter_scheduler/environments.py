@@ -2,9 +2,9 @@ import json
 import os
 import subprocess
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Dict, List
 
-from jupyter_scheduler.models import OutputFormat, RuntimeEnvironment
+from jupyter_scheduler.models import RuntimeEnvironment
 
 
 class EnvironmentManager(ABC):
@@ -14,6 +14,14 @@ class EnvironmentManager(ABC):
 
     @abstractmethod
     def manage_environments_command(self) -> str:
+        pass
+
+    @abstractmethod
+    def output_formats_mapping(self) -> Dict[str, str]:
+        """Dictionary of all output formats with human readable names
+        supported by this environment manager. This should include all
+        supported output formats, not just by individual environments.
+        """
         pass
 
 
@@ -36,11 +44,8 @@ class CondaEnvironmentManager(EnvironmentManager):
                     name=name,
                     label=name,
                     description=f"Conda environment: {name}",
-                    file_extensions=["ipynb", "py"],
-                    output_formats=[
-                        OutputFormat(name="ipynb", label="Notebook"),
-                        OutputFormat(name="html", label="HTML"),
-                    ],
+                    file_extensions=["ipynb"],
+                    output_formats=["ipynb", "html"],
                     metadata={"path": env},
                 )
             )
@@ -49,6 +54,9 @@ class CondaEnvironmentManager(EnvironmentManager):
 
     def manage_environments_command(self) -> str:
         return ""
+
+    def output_formats_mapping(self) -> Dict[str, str]:
+        return {"ipynb": "Notebook", "html": "HTML"}
 
 
 class StaticEnvironmentManager(EnvironmentManager):
@@ -62,13 +70,17 @@ class StaticEnvironmentManager(EnvironmentManager):
                 name=name,
                 label=name,
                 description=f"Virtual environment: {name}",
-                file_extensions=["ipynb", "py"],
+                file_extensions=["ipynb"],
                 metadata={"path": path},
+                output_formats=["ipynb", "html"],
             )
         ]
 
     def manage_environments_command(self) -> str:
         return ""
+
+    def output_formats_mapping(self) -> Dict[str, str]:
+        return {"ipynb": "Notebook", "html": "HTML"}
 
 
 class EnvironmentRetrievalError(Exception):

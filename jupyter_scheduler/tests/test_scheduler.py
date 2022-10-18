@@ -1,5 +1,7 @@
 """Tests for scheduler"""
 
+from unittest.mock import patch
+
 import pytest
 
 from jupyter_scheduler.models import (
@@ -13,14 +15,16 @@ from jupyter_scheduler.orm import JobDefinition
 
 
 def test_create_job_definition(jp_scheduler):
-    job_definition_id = jp_scheduler.create_job_definition(
-        CreateJobDefinition(
-            input_uri="helloworld.ipynb",
-            output_prefix="helloworld",
-            runtime_environment_name="default",
-            name="hello world",
+    with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
+        mock_file_exists.return_value = True
+        job_definition_id = jp_scheduler.create_job_definition(
+            CreateJobDefinition(
+                input_uri="helloworld.ipynb",
+                output_prefix="helloworld",
+                runtime_environment_name="default",
+                name="hello world",
+            )
         )
-    )
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
@@ -144,7 +148,8 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
 
 def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_3["job_definition_id"]
-    jp_scheduler.resume_jobs(job_definition_id)
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+        jp_scheduler.resume_jobs(job_definition_id)
 
     with jp_scheduler_db() as session:
         active = (
@@ -160,10 +165,11 @@ def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_
     job_definition_id = job_definition_1["job_definition_id"]
     schedule = "*/5 * * * *"
     timezone = "America/New_York"
-    update = UpdateJobDefinition(
-        job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
-    )
-    jp_scheduler.update_job_definition(job_definition_id, update)
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+        update = UpdateJobDefinition(
+            job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
+        )
+        jp_scheduler.update_job_definition(job_definition_id, update)
 
     with jp_scheduler_db() as session:
         definition = session.get(JobDefinition, job_definition_id)

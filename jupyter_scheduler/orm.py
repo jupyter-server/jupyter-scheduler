@@ -8,11 +8,7 @@ from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 
 from jupyter_scheduler.models import EmailNotifications, Status
-from jupyter_scheduler.utils import (
-    compute_next_run_time,
-    create_output_filename,
-    get_utc_timestamp,
-)
+from jupyter_scheduler.utils import create_output_filename, get_utc_timestamp
 
 Base = declarative_base()
 
@@ -111,7 +107,6 @@ class Job(CommonColumns, Base):
     __tablename__ = "jobs"
     job_id = Column(String(36), primary_key=True, default=generate_uuid)
     job_definition_id = Column(String(36))
-    output_uri = Column(String(256), default=output_uri)
     status = Column(String(64), default=Status.STOPPED)
     status_message = Column(String(1024))
     start_time = Column(Integer)
