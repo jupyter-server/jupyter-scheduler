@@ -103,20 +103,17 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const parameterValueIdx = parameterValueMatch(target.name);
     const newParams = props.model.parameters || [];
 
-    let newModel = { ...props.model, createError: undefined };
     if (parameterNameIdx !== null) {
       newParams[parameterNameIdx].name = target.value;
-      newModel.parameters = newParams;
+      props.handleModelChange({ ...props.model, parameters: newParams });
     } else if (parameterValueIdx !== null) {
       newParams[parameterValueIdx].value = target.value;
-      newModel.parameters = newParams;
+      props.handleModelChange({ ...props.model, parameters: newParams });
     } else {
       const value = target.type === 'checkbox' ? target.checked : target.value;
       const name = target.name;
-      newModel = { ...newModel, [name]: value };
+      props.handleModelChange({ ...props.model, [name]: value });
     }
-
-    props.handleModelChange(newModel);
   };
 
   const validateSchedule = (schedule: string) => {
@@ -145,27 +142,24 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleTimezoneChange = (value: string | null) => {
     props.handleModelChange({
       ...props.model,
-      timezone: value ?? '',
-      createError: undefined
+      timezone: value ?? ''
     });
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target;
 
-    const newModel = { ...props.model, createError: undefined };
-
     // if setting the environment, default the compute type to its first value (if any are presnt)
     if (target.name === 'environment') {
       const envObj = environmentList.find(env => env.name === target.value);
       props.handleModelChange({
-        ...newModel,
+        ...props.model,
         environment: target.value,
         computeType: envObj?.compute_types?.[0]
       });
     } else {
       // otherwise, just set the model
-      props.handleModelChange({ ...newModel, [target.name]: target.value });
+      props.handleModelChange({ ...props.model, [target.name]: target.value });
     }
   };
 
@@ -177,8 +171,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     if (outputFormatsList === null) {
       return; // No data about output formats; give up
     }
-
-    const newModel = { ...props.model, createError: undefined };
 
     const formatName = event.target.value;
     const isChecked = event.target.checked;
@@ -195,7 +187,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const newFormat = outputFormatsList.find(of => of.name === formatName);
       if (newFormat) {
         props.handleModelChange({
-          ...newModel,
+          ...props.model,
           outputFormats: [...oldOutputFormats, newFormat.name]
         });
       }
@@ -203,7 +195,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // Go from checked to unchecked
     else if (!isChecked && wasChecked) {
       props.handleModelChange({
-        ...newModel,
+        ...props.model,
         outputFormats: oldOutputFormats.filter(of => of !== formatName)
       });
     }
@@ -285,8 +277,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       schedule: schedule,
       scheduleTimeInput: value,
       scheduleHour: hours,
-      scheduleMinute: minutes,
-      createError: undefined
+      scheduleMinute: minutes
     });
   };
 
@@ -334,8 +325,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ...props.model,
       schedule: schedule,
       scheduleMinuteInput: value,
-      scheduleHourMinute: minutes,
-      createError: undefined
+      scheduleHourMinute: minutes
     });
   };
 
@@ -388,8 +378,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ...props.model,
       schedule: schedule,
       scheduleMonthDayInput: value,
-      scheduleMonthDay: monthDay,
-      createError: undefined
+      scheduleMonthDay: monthDay
     });
   };
 
@@ -406,8 +395,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     props.handleModelChange({
       ...props.model,
       schedule: schedule,
-      scheduleWeekDay: value,
-      createError: undefined
+      scheduleWeekDay: value
     });
   };
 
@@ -504,8 +492,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ...props.model,
       schedule: schedule,
       scheduleInterval: event.target.value,
-      scheduleWeekDay: dayOfWeek,
-      createError: undefined
+      scheduleWeekDay: dayOfWeek
     });
   };
 
@@ -532,11 +519,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       }
     }
 
-    props.handleModelChange({
-      ...props.model,
-      createError: undefined,
-      [name]: value
-    });
+    props.handleModelChange({ ...props.model, [name]: value });
   };
 
   const submitForm = async (event: React.MouseEvent) => {
@@ -677,11 +660,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         errors[`parameter-${paramIdx}-name`];
     }
 
-    props.handleModelChange({
-      ...props.model,
-      createError: undefined,
-      parameters: newParams
-    });
+    props.handleModelChange({ ...props.model, parameters: newParams });
     setErrors(newErrors);
   };
 
@@ -689,11 +668,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const newParams = props.model.parameters || [];
     newParams.push({ name: '', value: '' });
 
-    props.handleModelChange({
-      ...props.model,
-      createError: undefined,
-      parameters: newParams
-    });
+    props.handleModelChange({ ...props.model, parameters: newParams });
   };
 
   const formPrefix = 'jp-create-job-';
