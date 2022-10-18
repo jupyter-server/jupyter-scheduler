@@ -42,7 +42,6 @@ export interface IJobDetailProps {
   setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
-  outputFormatsStrings?: string[];
 }
 
 export const timestampLocalize = (time: number | ''): string => {

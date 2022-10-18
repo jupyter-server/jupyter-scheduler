@@ -141,7 +141,6 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
               setListJobsView={props.setListJobsView}
               // Extension point: optional additional component
               advancedOptions={props.advancedOptions}
-              outputFormatsStrings={outputFormatStrings ?? []}
             />
           )}
           {props.model.detailType === 'JobDefinition' && jobDefinitionModel && (
