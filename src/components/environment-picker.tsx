@@ -5,7 +5,8 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent
+  SelectChangeEvent,
+  TextField
 } from '@mui/material';
 
 import { Scheduler } from '../handler';
@@ -17,7 +18,7 @@ export type EnvironmentPickerProps = {
   id: string;
   onChange: (event: SelectChangeEvent<string>) => void;
   environmentList: Scheduler.IRuntimeEnvironment[];
-  initialValue: string;
+  value: string;
 };
 
 export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
@@ -29,42 +30,31 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
 
   const labelId = `${props.id}-label`;
 
-  return (
+  return props.environmentList.length === 1 ? (
+    <TextField
+      label={props.label}
+      variant="outlined"
+      value={props.value}
+      name={props.name}
+      InputProps={{ readOnly: true }}
+    />
+  ) : (
     <FormControl>
       <InputLabel id={labelId}>{props.label}</InputLabel>
-      {props.environmentList.length === 1 ? (
-        <Select
-          labelId={labelId}
-          label={props.label}
-          name={props.name}
-          id={props.id}
-          onChange={props.onChange}
-          value={props.environmentList[0]?.label}
-        >
-          <MenuItem
-            value={props.environmentList[0]?.label}
-            title={props.environmentList[0]?.description}
-            selected
-          >
-            {props.environmentList[0]?.name}
+      <Select
+        labelId={labelId}
+        label={props.label}
+        name={props.name}
+        id={props.id}
+        onChange={props.onChange}
+        value={props.value}
+      >
+        {props.environmentList.map((env, idx) => (
+          <MenuItem value={env.label} title={env.description} key={idx}>
+            {env.name}
           </MenuItem>
-        </Select>
-      ) : (
-        <Select
-          labelId={labelId}
-          label={props.label}
-          name={props.name}
-          id={props.id}
-          onChange={props.onChange}
-          value={props.initialValue}
-        >
-          {props.environmentList.map((env, idx) => (
-            <MenuItem value={env.label} title={env.description} key={idx}>
-              {env.name}
-            </MenuItem>
-          ))}
-        </Select>
-      )}
+        ))}
+      </Select>
     </FormControl>
   );
 }

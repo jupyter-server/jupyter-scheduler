@@ -79,11 +79,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     useState<SchedulerTokens.ErrorsType>({});
 
   const api = useMemo(() => new SchedulerService({}), []);
-
+  console.log(props.model);
   // Retrieve the environment list once.
   useEffect(() => {
     const setList = async () => {
-      setEnvironmentList(await api.getRuntimeEnvironments());
+      const envList = await api.getRuntimeEnvironments();
+      setEnvironmentList(envList);
+      if (envList.length === 1) {
+        props.handleModelChange({
+          ...props.model,
+          environment: envList[0].name
+        });
+      }
     };
 
     setList();
@@ -716,7 +723,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}environment`}
             onChange={handleSelectChange}
             environmentList={environmentList}
-            initialValue={props.model.environment}
+            value={props.model.environment}
           />
           <OutputFormatPicker
             label={trans.__('Output formats')}
