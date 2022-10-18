@@ -10,11 +10,13 @@ import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
 import cronstrue from 'cronstrue';
 import { ListJobsTable } from '../list-jobs';
+import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import {
   Button,
   Card,
   CardContent,
+  FormLabel,
   Stack,
   TextFieldProps
 } from '@mui/material';
@@ -29,6 +31,7 @@ export interface IJobDefinitionProps {
   setListJobsView: (view: ListJobsView) => void;
   showJobDetail: (jobId: string) => void;
   showCreateJob: (state: ICreateJobModel) => void;
+  advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
@@ -148,6 +151,29 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     </Card>
   );
 
+  const AdvancedOptions = (
+    <Card>
+      <CardContent>
+        <Stack component="form" spacing={4}>
+          <FormLabel component="legend">
+            {trans.__('Advanced Options')}
+          </FormLabel>
+          <props.advancedOptions
+            jobsView={'JobDetail'}
+            model={props.model}
+            handleModelChange={(_: any) => {
+              return;
+            }}
+            errors={{}}
+            handleErrorsChange={(_: any) => {
+              return;
+            }}
+          />
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
   const JobsList = (
     <Card>
       <CardContent>
@@ -169,6 +195,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       {DefinitionButtonBar}
       {JobDefinition}
       {JobsList}
+      {AdvancedOptions}
     </>
   );
 }

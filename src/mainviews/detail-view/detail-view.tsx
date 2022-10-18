@@ -148,6 +148,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
               refresh={fetchJobDefinitionModel}
               showCreateJob={props.showCreateJob}
               showJobDetail={props.showJobDetail}
+              // Extension point: optional additional component
+              advancedOptions={props.advancedOptions}
             />
           )}
           {!jobModel && !jobDefinitionModel && (

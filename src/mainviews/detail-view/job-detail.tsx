@@ -287,11 +287,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           <props.advancedOptions
             jobsView={'JobDetail'}
             model={props.model}
-            handleModelChange={model => {
+            handleModelChange={(_: any) => {
               return;
             }}
             errors={{}}
-            handleErrorsChange={errors => {
+            handleErrorsChange={(_: any) => {
               return;
             }}
           />
