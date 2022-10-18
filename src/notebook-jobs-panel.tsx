@@ -77,6 +77,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
         <TranslatorContext.Provider value={this._translator}>
           {this.model.jobsView === 'CreateJob' && (
             <CreateJob
+              key={this.model.createJobModel.key}
               model={this.model.createJobModel}
               handleModelChange={newModel =>
                 (this.model.createJobModel = newModel)

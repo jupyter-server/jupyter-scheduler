@@ -79,7 +79,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     useState<SchedulerTokens.ErrorsType>({});
 
   const api = useMemo(() => new SchedulerService({}), []);
-  console.log(props.model);
+
   // Retrieve the environment list once.
   useEffect(() => {
     const setList = async () => {
