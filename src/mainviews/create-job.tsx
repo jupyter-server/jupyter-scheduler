@@ -17,6 +17,7 @@ import { Scheduler as SchedulerTokens } from '../tokens';
 
 import ErrorIcon from '@mui/icons-material/Error';
 
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Stack from '@mui/system/Stack';
@@ -139,7 +140,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   // Takes only a string as input
   const handleTimezoneChange = (value: string | null) => {
-    props.handleModelChange({ ...props.model, timezone: value ?? '' });
+    props.handleModelChange({
+      ...props.model,
+      timezone: value ?? ''
+    });
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
@@ -576,10 +580,17 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
-    api.createJob(jobOptions).then(response => {
-      // Switch to the list view with "Job List" active
-      props.showListView('Job');
-    });
+    props.handleModelChange({ ...props.model, createError: undefined });
+
+    api
+      .createJob(jobOptions)
+      .then(response => {
+        // Switch to the list view with "Job List" active
+        props.showListView('Job');
+      })
+      .catch((error: string) => {
+        props.handleModelChange({ ...props.model, createError: error });
+      });
   };
 
   const submitCreateJobDefinitionRequest = async (event: React.MouseEvent) => {
@@ -609,10 +620,17 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
-    api.createJobDefinition(jobDefinitionOptions).then(response => {
-      // Switch to the list view with "Job Definition List" active
-      props.showListView('JobDefinition');
-    });
+    props.handleModelChange({ ...props.model, createError: undefined });
+
+    api
+      .createJobDefinition(jobDefinitionOptions)
+      .then(response => {
+        // Switch to the list view with "Job Definition List" active
+        props.showListView('JobDefinition');
+      })
+      .catch((error: string) => {
+        props.handleModelChange({ ...props.model, createError: error });
+      });
   };
 
   const removeParameter = (idx: number) => {
@@ -656,12 +674,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const formPrefix = 'jp-create-job-';
 
   const cantSubmit = trans.__('One or more of the fields has an error.');
+  const createError: string | undefined = props.model.createError;
 
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
         <Stack spacing={4}>
           <Heading level={1}>Create Job</Heading>
+          {createError && <Alert severity="error">{createError}</Alert>}
           <TextField
             label={trans.__('Job name')}
             variant="outlined"

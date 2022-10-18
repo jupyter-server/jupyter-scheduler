@@ -94,7 +94,7 @@ export class SchedulerService {
         body: JSON.stringify(definition)
       });
     } catch (e: any) {
-      console.error(e);
+      return Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
   }
@@ -179,7 +179,7 @@ export class SchedulerService {
         body: JSON.stringify(model)
       });
     } catch (e) {
-      console.error(e);
+      return Promise.reject(e);
     }
     return data as Scheduler.ICreateJobResponse;
   }
@@ -303,9 +303,10 @@ export namespace SchedulerService {
 }
 
 export namespace Scheduler {
-
-  export type RuntimeEnvironmentParameters = { [key: string]: number | string | boolean}
-  export type Parameters = { [key: string]: number | string | boolean}
+  export type RuntimeEnvironmentParameters = {
+    [key: string]: number | string | boolean;
+  };
+  export type Parameters = { [key: string]: number | string | boolean };
 
   export interface ICreateJobDefinition {
     input_uri: string;
@@ -323,20 +324,20 @@ export namespace Scheduler {
   }
 
   export interface IUpdateJobDefinition {
-    input_uri?: string
-    output_prefix?: string
-    runtime_environment_name?: string
-    runtime_environment_parameters?: RuntimeEnvironmentParameters
-    output_formats?: string[]
-    parameters?: Parameters
+    input_uri?: string;
+    output_prefix?: string;
+    runtime_environment_name?: string;
+    runtime_environment_parameters?: RuntimeEnvironmentParameters;
+    output_formats?: string[];
+    parameters?: Parameters;
     tags?: string[];
     name?: string;
     output_filename_template?: string;
     compute_type?: string;
     schedule?: string;
     timezone?: string;
-    url?: string
-    active?: boolean
+    url?: string;
+    active?: boolean;
   }
 
   export interface IDescribeJobDefinition extends ICreateJobDefinition {
@@ -437,9 +438,9 @@ export namespace Scheduler {
   }
 
   export interface IUpdateJob {
-    status?: Status
-    name?: string
-    compute_type?: string
+    status?: Status;
+    name?: string;
+    compute_type?: string;
   }
 
   export interface IRuntimeEnvironment {
