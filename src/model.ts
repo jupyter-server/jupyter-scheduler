@@ -21,6 +21,10 @@ export interface IOutputFormat {
 }
 
 export interface ICreateJobModel extends PartialJSONObject {
+  /**
+   * Key of the CreateJob component. When changed, this forces a re-mount.
+   */
+  key?: number;
   jobName: string;
   inputFile: string;
   outputPath: string;
@@ -57,6 +61,7 @@ export interface ICreateJobModel extends PartialJSONObject {
 
 export function emptyCreateJobModel(): ICreateJobModel {
   return {
+    key: Math.random(),
     jobName: '',
     inputFile: '',
     outputPath: '',
@@ -211,7 +216,7 @@ export interface IJobDetailModel extends ICreateJobModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  outputs: {[key: string]: string}[];
+  outputs: { [key: string]: string }[];
   downloaded: boolean;
 }
 
@@ -244,14 +249,14 @@ export function convertDescribeJobtoJobDetail(
   const jobParameters = convertParameters(describeJob.parameters ?? {});
 
   const convertOutputsToJson = (outputs: Scheduler.IOutput[]) => {
-    return outputs.map((output) => {
+    return outputs.map(output => {
       return {
-        "display_name": output.display_name,
-        "output_format": output.output_format,
-        "output_path": output.output_path || ''
-      }
+        display_name: output.display_name,
+        output_format: output.output_format,
+        output_path: output.output_path || ''
+      };
     });
-  }
+  };
 
   return {
     createType: 'Job',

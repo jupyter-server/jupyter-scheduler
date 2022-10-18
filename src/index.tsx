@@ -195,13 +195,6 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
-      await showJobsPanel({ jobsView: 'CreateJob' });
-
-      const model = jobsPanel?.model;
-      if (!model) {
-        return;
-      }
-
       const widget = fileBrowserTracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
       const fileName = getSelectedFileName(widget) ?? '';
@@ -210,7 +203,11 @@ async function activatePlugin(
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
       newCreateModel.jobName = fileName;
-      model.createJobModel = newCreateModel;
+
+      await showJobsPanel({
+        jobsView: 'CreateJob',
+        createJobModel: newCreateModel
+      });
     },
     label: trans.__('Create Notebook Job'),
     icon: calendarAddOnIcon
@@ -218,13 +215,6 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
     execute: async () => {
-      await showJobsPanel({ jobsView: 'CreateJob' });
-
-      const model = jobsPanel?.model;
-      if (!model) {
-        return;
-      }
-
       // Get the current notebook's name and path
       const contentsModel =
         notebookTracker.currentWidget?.context?.contentsModel;
@@ -235,7 +225,11 @@ async function activatePlugin(
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
       newCreateModel.jobName = fileName;
-      model.createJobModel = newCreateModel;
+
+      await showJobsPanel({
+        jobsView: 'CreateJob',
+        createJobModel: newCreateModel
+      });
     },
     label: trans.__('Create a notebook job'),
     icon: calendarAddOnIcon

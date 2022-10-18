@@ -5,7 +5,8 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent
+  SelectChangeEvent,
+  TextField
 } from '@mui/material';
 
 import { Scheduler } from '../handler';
@@ -17,7 +18,7 @@ export type EnvironmentPickerProps = {
   id: string;
   onChange: (event: SelectChangeEvent<string>) => void;
   environmentList: Scheduler.IRuntimeEnvironment[];
-  initialValue: string;
+  value: string;
 };
 
 export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
@@ -29,7 +30,15 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
 
   const labelId = `${props.id}-label`;
 
-  return (
+  return props.environmentList.length === 1 ? (
+    <TextField
+      label={props.label}
+      variant="outlined"
+      value={props.value}
+      name={props.name}
+      InputProps={{ readOnly: true }}
+    />
+  ) : (
     <FormControl>
       <InputLabel id={labelId}>{props.label}</InputLabel>
       <Select
@@ -38,7 +47,7 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
         name={props.name}
         id={props.id}
         onChange={props.onChange}
-        value={props.initialValue}
+        value={props.value}
       >
         {props.environmentList.map((env, idx) => (
           <MenuItem value={env.label} title={env.description} key={idx}>
