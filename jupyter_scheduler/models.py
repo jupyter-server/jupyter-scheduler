@@ -123,7 +123,7 @@ class DescribeJob(CreateJob):
     end_time: Optional[int] = None
     status: Status = Status.CREATED
     status_message: Optional[str] = None
-    downloaded: Optional[bool] = False
+    downloaded: bool = False
 
     class Config:
         orm_mode = True

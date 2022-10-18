@@ -55,7 +55,7 @@ class BaseScheduler(LoggingConfigurable):
 
     @default("staging_path")
     def _default_staging_path(self):
-        return jupyter_data_dir()
+        return os.path.join(jupyter_data_dir(), "scheduler_staging_area")
 
     execution_manager_class = TType(
         allow_none=True,
@@ -172,10 +172,9 @@ class BaseScheduler(LoggingConfigurable):
         exists : bool
             Whether the file exists.
         """
-        path = path.strip("/")
-        try:
-            os_path = self._get_os_path(path)
-        except ValueError:
+        root = os.path.abspath(self.root_dir)
+        os_path = to_os_path(path, root)
+        if not (os.path.abspath(os_path) + os.path.sep).startswith(root):
             return False
         else:
             return os.path.isfile(os_path)
@@ -201,29 +200,6 @@ class BaseScheduler(LoggingConfigurable):
 
         model.outputs = outputs
         model.downloaded = all(output.output_path for output in outputs)
-
-    def _get_os_path(self, path):
-        """Given an API path, return its file system path.
-
-        Parameters
-        ----------
-        path : string
-            The relative API path to the named file.
-
-        Returns
-        -------
-        path : string
-            Native, absolute OS path to for a file.
-
-        Raises
-        ------
-        ValueError: if path is outside root
-        """
-        root = os.path.abspath(self.root_dir)
-        os_path = to_os_path(path, root)
-        if not (os.path.abspath(os_path) + os.path.sep).startswith(root):
-            raise ValueError(f"{path} is outside root contents directory")
-        return os_path
 
 
 class Scheduler(BaseScheduler):

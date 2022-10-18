@@ -1,4 +1,3 @@
-import inspect
 import json
 import re
 
@@ -43,6 +42,13 @@ class JobHandlersMixin:
             self._environments_manager = self.settings.get("environments_manager")
 
         return self._environments_manager
+
+    @property
+    def execution_manager_class(self):
+        if not self._execution_manager_class:
+            self._execution_manager_class = self.scheduler.execution_manager_class
+
+        return self._execution_manager_class
 
 
 def compute_sort_model(query_argument):
@@ -235,7 +241,7 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
 class FeaturesHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     def get(self):
-        cls = self.scheduler.execution_manager_class
+        cls = self.execution_manager_class
         self.finish(json.dumps(cls.supported_features(cls)))
 
 
@@ -244,8 +250,8 @@ class ConfigHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     def get(self):
         self.finish(
             dict(
-                supported_features=self.scheduler.execution_manager_class.supported_features(
-                    self.scheduler.execution_manager_class
+                supported_features=self.execution_manager_class.supported_features(
+                    self.execution_manager_class
                 ),
                 manage_environments_command=self.environments_manager.manage_environments_command(),
             )
@@ -264,7 +270,7 @@ class OutputsDownloadHandler(ExtensionHandlerMixin, APIHandler):
         return self._output_files_manager
 
     @tornado.web.authenticated
-    async def get(self, job_id=None):
+    async def get(self, job_id):
         redownload = self.get_query_argument("redownload", False)
         self.output_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
 

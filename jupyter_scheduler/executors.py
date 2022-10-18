@@ -126,8 +126,6 @@ class DefaultExecutionManager(ExecutionManager):
             store_widget_state=True,
         )
 
-        output_dir = os.path.dirname(self.staging_paths[self.model.output_formats[0]])
-
         ep.preprocess(nb)
 
         for output_format in job.output_formats:

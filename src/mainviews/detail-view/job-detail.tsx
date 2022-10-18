@@ -193,7 +193,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     );
   }
 
-  const converJsonToOutput = (output: {[key: string]: string}) => {
+  const convertJsonToOutput = (output: {[key: string]: string}) => {
       return {
         display_name: output['display_name'],
         output_format: output['output_format'],
@@ -225,7 +225,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               {props.model.outputs.map(
                 output =>
                   output['output_path'] && (
-                    <OutputFile output={converJsonToOutput(output)} app={props.app} />
+                    <OutputFile output={convertJsonToOutput(output)} app={props.app} />
                   )
               )}
             </>

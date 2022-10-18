@@ -1,11 +1,9 @@
 import os
 from multiprocessing import Process
-from typing import Dict, List, Optional, Type
+from typing import List, Optional, Type
 
 import fsspec
 
-from jupyter_scheduler.models import DescribeJob
-from jupyter_scheduler.orm import Job
 from jupyter_scheduler.scheduler import BaseScheduler
 from jupyter_scheduler.utils import resolve_path
 
