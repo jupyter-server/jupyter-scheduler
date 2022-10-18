@@ -710,14 +710,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             }}
           />
           <TextField
-            label={trans.__('Output path')}
+            label={trans.__('Output directory')}
             variant="outlined"
             onChange={handleInputChange}
             value={props.model.outputPath}
             id={`${formPrefix}outputPath`}
             name="outputPath"
             helperText={trans.__(
-              'Relative path where output files are written'
+              'Path to directory in which output files will be written. ' +
+                'Path must be relative to the server root.'
             )}
           />
           <EnvironmentPicker

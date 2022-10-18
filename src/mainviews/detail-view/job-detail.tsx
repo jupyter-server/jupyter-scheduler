@@ -143,7 +143,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       },
       {
         value: props.model.outputPath,
-        label: trans.__('Output path')
+        label: trans.__('Output directory')
       }
     ],
     [

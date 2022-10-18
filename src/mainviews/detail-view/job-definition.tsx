@@ -94,7 +94,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       },
       {
         value: props.model.outputPath,
-        label: trans.__('Output path')
+        label: trans.__('Output directory')
       }
     ],
     [
