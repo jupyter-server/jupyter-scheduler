@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { PathExt } from '@jupyterlab/coreutils';
@@ -145,12 +145,35 @@ function OutputFiles(props: {
   );
 }
 
-const downloadOutputs = async (jobId: string, app: JupyterFrontEnd) => {
-  await app.commands.execute(CommandIDs.downloadOutputs, {
-    id: jobId,
-    redownload: false
-  });
+type DownloadOutputsButtonProps = {
+  app: JupyterFrontEnd;
+  job: Scheduler.IDescribeJob;
+  reload: () => void;
 };
+
+function DownloadOutputsButton(props: DownloadOutputsButtonProps) {
+  const [downloading, setDownloading] = useState(false);
+
+  return (
+    <IconButton
+      aria-label="download"
+      title="Download Output Files"
+      disabled={downloading}
+      onClick={async () => {
+        setDownloading(true);
+        await props.app.commands.execute(CommandIDs.downloadOutputs, {
+          id: props.job.job_id,
+          redownload: false
+        });
+        await new Promise(res => setTimeout(res, 500));
+        setDownloading(false);
+        props.reload();
+      }}
+    >
+      <DownloadIcon />
+    </IconButton>
+  );
+}
 
 export function buildJobRow(
   job: Scheduler.IDescribeJob,
@@ -159,22 +182,15 @@ export function buildJobRow(
   showCreateJob: (newModel: ICreateJobModel) => void,
   deleteRow: (id: Scheduler.IDescribeJob['job_id']) => void,
   translateStatus: (status: Scheduler.Status) => string,
-  showDetailView: (jobId: string) => void
+  showDetailView: (jobId: string) => void,
+  reload: () => void
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
     <a onClick={() => showDetailView(job.job_id)}>{job.name}</a>,
     get_file_from_path(job.input_uri),
     <>
       {!job.downloaded && job.status === 'COMPLETED' && (
-        <IconButton
-          aria-label="download"
-          title="Download Output Files"
-          onClick={async () => {
-            await downloadOutputs(job.job_id, app);
-          }}
-        >
-          <DownloadIcon />
-        </IconButton>
+        <DownloadOutputsButton app={app} job={job} reload={reload} />
       )}
       <OutputFiles
         job={job}

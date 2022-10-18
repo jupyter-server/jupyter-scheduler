@@ -64,13 +64,13 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     setDeletedRows(deletedRows => new Set([...deletedRows, id]));
   }, []);
 
+  const reload = useCallback(() => {
+    setJobsQuery(query => ({ ...query }));
+  }, []);
+
   const reloadButton = (
     <Cluster justifyContent="flex-end">
-      <Button
-        variant="contained"
-        size="small"
-        onClick={() => setJobsQuery(query => ({ ...query }))}
-      >
+      <Button variant="contained" size="small" onClick={reload}>
         {trans.__('Reload')}
       </Button>
     </Cluster>
@@ -137,7 +137,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
       props.showCreateJob,
       deleteRow,
       translateStatus,
-      props.showJobDetail
+      props.showJobDetail,
+      reload
     );
 
   const rowFilter = (job: Scheduler.IDescribeJob) =>

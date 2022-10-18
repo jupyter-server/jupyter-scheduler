@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
@@ -36,7 +36,7 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
-  handleModelChange: () => void;
+  handleModelChange: () => Promise<void>;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setJobsView: (view: JobsView) => void;
   setListJobsView: (view: ListJobsView) => void;
@@ -59,6 +59,7 @@ export const timestampLocalize = (time: number | ''): string => {
 
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
+  const [downloading, setDownloading] = useState(false);
 
   const ss = new SchedulerService({});
 
@@ -94,16 +95,24 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   };
 
   const downloadOutputs = async () => {
+    setDownloading(true);
     await props.app.commands.execute(CommandIDs.downloadOutputs, {
       id: props.model.jobId,
       redownload: false
     });
+    await new Promise(res => setTimeout(res, 500));
+    await props.handleModelChange();
+    setDownloading(false);
   };
 
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
       {props.model.downloaded === false && props.model.status === 'COMPLETED' && (
-        <Button variant="outlined" onClick={downloadOutputs}>
+        <Button
+          variant="outlined"
+          onClick={downloadOutputs}
+          disabled={downloading}
+        >
           {trans.__('Download Output Files')}
         </Button>
       )}
@@ -193,13 +202,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     );
   }
 
-  const convertJsonToOutput = (output: {[key: string]: string}) => {
-      return {
-        display_name: output['display_name'],
-        output_format: output['output_format'],
-        output_path: output['output_path'] || null
-      } as Scheduler.IOutput
-  }
+  const convertJsonToOutput = (output: { [key: string]: string }) => {
+    return {
+      display_name: output['display_name'],
+      output_format: output['output_format'],
+      output_path: output['output_path'] || null
+    } as Scheduler.IOutput;
+  };
 
   const CoreOptions = (
     <Card>
@@ -225,7 +234,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               {props.model.outputs.map(
                 output =>
                   output['output_path'] && (
-                    <OutputFile output={convertJsonToOutput(output)} app={props.app} />
+                    <OutputFile
+                      output={convertJsonToOutput(output)}
+                      app={props.app}
+                    />
                   )
               )}
             </>
