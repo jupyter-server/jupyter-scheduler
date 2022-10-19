@@ -145,14 +145,6 @@ class BaseScheduler(LoggingConfigurable):
         """Returns list of all job definitions filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def pause_jobs(self, job_definition_id: str):
-        """Pauses all future jobs for a job definition"""
-        raise NotImplementedError("must be implemented by subclass")
-
-    def resume_jobs(self, job_definition_id: str):
-        """Resumes future jobs for a job definition"""
-        raise NotImplementedError("must be implemented by subclass")
-
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
         """Returns full staging paths for all job outputs"""
         raise NotImplementedError("must be implemented by subclass")
@@ -476,38 +468,6 @@ class Scheduler(BaseScheduler):
         )
 
         return list_response
-
-    def pause_jobs(self, job_definition_id: str):
-        schedule = None
-        with self.db_session() as session:
-            job_definition = (
-                session.query(JobDefinition)
-                .filter(JobDefinition.job_definition_id == job_definition_id)
-                .one()
-            )
-            job_definition.active = False
-            session.commit()
-
-            schedule = job_definition.schedule
-
-        if self.task_runner and schedule:
-            self.task_runner.pause_jobs(job_definition_id)
-
-    def resume_jobs(self, job_definition_id: str):
-        schedule = None
-        with self.db_session() as session:
-            job_definition = (
-                session.query(JobDefinition)
-                .filter(JobDefinition.job_definition_id == job_definition_id)
-                .one()
-            )
-            job_definition.active = True
-            session.commit()
-
-            schedule = job_definition.schedule
-
-        if self.task_runner and schedule:
-            self.task_runner.resume_jobs(job_definition_id)
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
         model = self.get_job(job_id)

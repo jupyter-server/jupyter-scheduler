@@ -134,7 +134,8 @@ def test_get_job_definition(jp_scheduler, load_job_definitions):
 
 def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_2["job_definition_id"]
-    jp_scheduler.pause_jobs(job_definition_id)
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+        jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=False))
 
     with jp_scheduler_db() as session:
         active = (
@@ -149,7 +150,7 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
 def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_3["job_definition_id"]
     with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
-        jp_scheduler.resume_jobs(job_definition_id)
+        jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=True))
 
     with jp_scheduler_db() as session:
         active = (
