@@ -1,5 +1,10 @@
 import { Token } from '@lumino/coreutils';
-import { ICreateJobModel, IJobDetailModel, JobsView } from './model';
+import {
+  ICreateJobModel,
+  IJobDefinitionModel,
+  IJobDetailModel,
+  JobsView
+} from './model';
 
 export namespace Scheduler {
   export type EnvironmentParameterValue = string | number | boolean;
@@ -8,7 +13,7 @@ export namespace Scheduler {
 
   export interface IAdvancedOptionsProps {
     jobsView: JobsView;
-    model: ICreateJobModel | IJobDetailModel;
+    model: ICreateJobModel | IJobDetailModel | IJobDefinitionModel;
     handleModelChange: (model: ICreateJobModel) => void;
     errors: ErrorsType;
     handleErrorsChange: (errors: ErrorsType) => void;

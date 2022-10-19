@@ -42,7 +42,6 @@ export interface IJobDetailProps {
   setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
-  outputFormatsStrings?: string[];
 }
 
 export const timestampLocalize = (time: number | ''): string => {
@@ -288,11 +287,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           <props.advancedOptions
             jobsView={'JobDetail'}
             model={props.model}
-            handleModelChange={model => {
+            handleModelChange={(_: any) => {
               return;
             }}
             errors={{}}
-            handleErrorsChange={errors => {
+            handleErrorsChange={(_: any) => {
               return;
             }}
           />
