@@ -242,6 +242,7 @@ class TaskRunner(BaseTaskRunner):
         schedule = model.schedule or cache.schedule
         timezone = model.timezone or cache.timezone
         active = model.active if model.active is not None else cache.active
+        cached_next_run_time = cache.next_run_time
         next_run_time = self.compute_next_run_time(schedule, timezone)
 
         self.cache.update(
@@ -251,28 +252,13 @@ class TaskRunner(BaseTaskRunner):
             ),
         )
 
-        if cache.next_run_time != next_run_time and active:
+        if cached_next_run_time != next_run_time and active:
             self.queue.push(
                 JobDefinitionTask(job_definition_id=job_definition_id, next_run_time=next_run_time)
             )
 
     def delete_job_definition(self, job_definition_id: str):
         self.cache.delete(job_definition_id)
-
-    def pause_jobs(self, job_definition_id: str):
-        self.cache.update(job_definition_id, UpdateJobDefinitionCache(active=False))
-
-    def resume_jobs(self, job_definition_id: str):
-        definition = self.cache.get(job_definition_id)
-        next_run_time = self.compute_next_run_time(definition.schedule, definition.timezone)
-        self.cache.update(
-            job_definition_id, UpdateJobDefinitionCache(active=True, next_run_time=next_run_time)
-        )
-        self.queue.push(
-            JobDefinitionTask(
-                job_definition_id=definition.job_definition_id, next_run_time=next_run_time
-            )
-        )
 
     def create_job(self, job_definition_id: str):
         definition = self.scheduler.get_job_definition(job_definition_id)
