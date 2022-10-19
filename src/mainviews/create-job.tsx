@@ -595,8 +595,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         // Switch to the list view with "Job List" active
         props.showListView('Job');
       })
-      .catch((error: string) => {
-        props.handleModelChange({ ...props.model, createError: error });
+      .catch((error: Error) => {
+        props.handleModelChange({ ...props.model, createError: error.message });
       });
   };
 
