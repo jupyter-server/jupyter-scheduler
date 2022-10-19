@@ -113,7 +113,7 @@ function getDirectoryFromPath(path: string | null): string | null {
 
   // Remove the final portion of the path, the filename.
   const directories = path.split('/');
-  directories.splice(-1, 1);
+  directories.pop();
   return directories.join('/');
 }
 
