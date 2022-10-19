@@ -87,6 +87,16 @@ function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   return firstItem;
 }
 
+// Get only the file name, with no parent directories, of the currently selected file.
+function getSelectedFileName(widget: FileBrowser | null): string | null {
+  const selectedItem = getSelectedItem(widget);
+  if (selectedItem === null) {
+    return null;
+  }
+  return selectedItem.name;
+}
+
+// Get the file name, with all parent directories, of the currently selected file.
 function getSelectedFilePath(widget: FileBrowser | null): string | null {
   const selectedItem = getSelectedItem(widget);
   if (selectedItem === null) {
@@ -95,12 +105,16 @@ function getSelectedFilePath(widget: FileBrowser | null): string | null {
   return selectedItem.path;
 }
 
-function getSelectedFileName(widget: FileBrowser | null): string | null {
-  const selectedItem = getSelectedItem(widget);
-  if (selectedItem === null) {
+// Get the containing directory of the file at a particular path.
+function getDirectoryFromPath(path: string | null): string | null {
+  if (path === null) {
     return null;
   }
-  return selectedItem.name;
+
+  // Remove the final portion of the path, the filename.
+  const directories = path.split('/');
+  directories.splice(-1, 1);
+  return directories.join('/');
 }
 
 let scheduledJobsListingModel: NotebookJobsListingModel | null = null;
@@ -197,12 +211,12 @@ async function activatePlugin(
     execute: async () => {
       const widget = fileBrowserTracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
-      const fileName = getSelectedFileName(widget) ?? '';
 
       // Update the job form inside the notebook jobs widget
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
-      newCreateModel.jobName = fileName;
+      newCreateModel.jobName = getSelectedFileName(widget) ?? '';
+      newCreateModel.outputPath = getDirectoryFromPath(filePath) ?? '';
 
       await showJobsPanel({
         jobsView: 'CreateJob',
@@ -225,6 +239,7 @@ async function activatePlugin(
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
       newCreateModel.jobName = fileName;
+      newCreateModel.outputPath = getDirectoryFromPath(filePath) ?? '';
 
       await showJobsPanel({
         jobsView: 'CreateJob',

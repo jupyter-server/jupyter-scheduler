@@ -242,9 +242,13 @@ export class SchedulerService {
 
   async downloadOutputs(jobId: string, redownload = false): Promise<void> {
     try {
-      await requestAPI(this.serverSettings, `jobs/${jobId}/download_outputs?redownload=${redownload}`, {
-        method: 'GET'
-      });
+      await requestAPI(
+        this.serverSettings,
+        `jobs/${jobId}/download_outputs?redownload=${redownload}`,
+        {
+          method: 'GET'
+        }
+      );
     } catch (e) {
       console.error(e);
     }
