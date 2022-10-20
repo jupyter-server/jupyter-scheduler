@@ -36,7 +36,9 @@ dependencies = [
     "croniter",
     "pytz",
     "fsspec",
-    "s3fs"
+    "s3fs",
+    "psutil",
+    ""
 ]
 
 [project.optional-dependencies]
