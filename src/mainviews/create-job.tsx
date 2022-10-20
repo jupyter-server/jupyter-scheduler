@@ -686,6 +686,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const cantSubmit = trans.__('One or more of the fields has an error.');
   const createError: string | undefined = props.model.createError;
 
+  const homeAdornment = (
+    <InputAdornment position="start">
+      <HomeIcon fontSize="small" /> /
+    </InputAdornment>
+  );
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -709,7 +715,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             helperText={errors['inputFile'] ?? ''}
             name="inputFile"
             InputProps={{
-              readOnly: true
+              readOnly: true,
+              startAdornment: homeAdornment
             }}
           />
           <TextField
@@ -724,11 +731,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 'Path must be relative to the server root.'
             )}
             InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <HomeIcon fontSize="small" /> /
-                </InputAdornment>
-              )
+              startAdornment: homeAdornment
             }}
           />
           <EnvironmentPicker
