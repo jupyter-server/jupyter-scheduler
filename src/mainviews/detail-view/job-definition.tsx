@@ -48,6 +48,23 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     props.refresh();
   };
 
+  const editJobDefinition = async () => {
+    const initialState: ICreateJobModel = {
+      jobName: props.model.jobName,
+      inputFile: props.model.inputFile,
+      outputPath: props.model.outputPrefix ?? '',
+      environment: props.model.environment,
+      runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
+      parameters: props.model.parameters,
+      outputFormats: props.model.outputFormats,
+      createType: 'JobDefinition',
+      scheduleInterval: 'weekday',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+
+    props.showCreateJob(initialState);
+  };
+
   let cronString;
   try {
     if (props.model.schedule !== undefined) {
@@ -68,6 +85,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {trans.__('Resume')}
         </Button>
       )}
+      <Button variant="outlined" onClick={editJobDefinition}>
+        {trans.__('Edit')}
+      </Button>
       <ConfirmDeleteButton
         handleDelete={handleDeleteJobDefinition}
         title={trans.__('Delete Job Definition')}
