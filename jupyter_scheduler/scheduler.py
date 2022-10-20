@@ -4,7 +4,6 @@ from typing import Dict, Type
 
 import psutil
 from jupyter_core.paths import jupyter_data_dir
-from jupyter_server.traittypes import TypeFromClasses
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
 from sqlalchemy import and_, asc, desc, func
@@ -72,12 +71,9 @@ class BaseScheduler(LoggingConfigurable):
         help=_i18n("Environment manager instance"),
     )
 
-    def __init__(
-        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
-    ):
-        super().__init__(config=config, **kwargs)
-        self.root_dir = root_dir
-        self.environments_manager = environments_manager
+    file_id_manager = Instance(
+        klass="jupyter_server_fileid.manager.FileIdManager", help=_i18n("File ID manager instance.")
+    )
 
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
@@ -233,6 +229,41 @@ class Scheduler(BaseScheduler):
 
         return self._db_session
 
+    def _index_input_uri(self, input_uri: str) -> int:
+        """Indexes the file at input_uri with the File ID manager and returns
+        its file ID."""
+        abs_input_uri = os.path.join(self.root_dir, input_uri)
+        return self.file_id_manager.index(abs_input_uri)
+
+    def build_describe_job(self, job_record, sync=True) -> DescribeJob:
+        """Builds a DescribeJob model given the Job record.
+
+        Notes
+        -----
+        If this method is being called multiple times in serial, then the kwarg
+        `sync=False` should be specified and `self.file_id_manager.sync_all()`
+        should be called once immediately beforehand for performance."""
+        job_record.input_uri = (
+            self.file_id_manager.get_path(job_record.input_file_id, sync=sync) or "UNKNOWN"
+        )
+        model = DescribeJob.from_orm(job_record)
+        self.add_outputs(model)
+
+        return model
+
+    def build_describe_job_definition(self, job_def_record, sync=True) -> DescribeJobDefinition:
+        """Builds a DescribeJobDefinition model given a Job definition record.
+
+        Notes
+        -----
+        If this method is being called multiple times in serial, then the kwarg
+        `sync=False` should be specified and `self.file_id_manager.sync_all()`
+        should be called once immediately beforehand for performance."""
+        job_def_record.input_uri = (
+            self.file_id_manager.get_path(job_def_record.input_file_id, sync=sync) or "UNKNOWN"
+        )
+        return DescribeJobDefinition.from_orm(job_def_record)
+
     def create_job(self, model: CreateJob) -> str:
         with self.db_session() as session:
             if not self.file_exists(model.input_uri):
@@ -250,7 +281,12 @@ class Scheduler(BaseScheduler):
             if not model.output_formats:
                 model.output_formats = ["ipynb"]
 
-            job = Job(**model.dict(exclude_none=True))
+            input_file_id = self._index_input_uri(model.input_uri)
+
+            job = Job(
+                **model.dict(exclude={"input_uri"}, exclude_none=True),
+                input_file_id=input_file_id,
+            )
             session.add(job)
             session.commit()
 
@@ -262,6 +298,7 @@ class Scheduler(BaseScheduler):
                     staging_paths=staging_paths,
                     root_dir=self.root_dir,
                     db_url=self.db_url,
+                    file_id_manager=self.file_id_manager,
                 ).process
             )
             p.start()
@@ -309,9 +346,9 @@ class Scheduler(BaseScheduler):
             next_token = None
 
         jobs_list = []
+        self.file_id_manager.sync_all()
         for job in jobs:
-            model = DescribeJob.from_orm(job)
-            self.add_outputs(model=model)
+            model = self.build_describe_job(job, sync=False)
             jobs_list.append(model)
 
         list_jobs_response = ListJobsResponse(
@@ -332,9 +369,9 @@ class Scheduler(BaseScheduler):
     def get_job(self, job_id: str) -> DescribeJob:
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
+            job_record.input_uri = self.file_id_manager.get_path(job_record.input_file_id)
 
-        model = DescribeJob.from_orm(job_record)
-        self.add_outputs(model=model)
+        model = self.build_describe_job(job_record)
 
         return model
 
@@ -350,7 +387,7 @@ class Scheduler(BaseScheduler):
     def stop_job(self, job_id):
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
-            job = DescribeJob.from_orm(job_record)
+            job = self.build_describe_job(job_record)
             process_id = job_record.pid
             if process_id and job.status == Status.IN_PROGRESS:
                 session.query(Job).filter(Job.job_id == job_id).update({"status": Status.STOPPING})
@@ -372,7 +409,11 @@ class Scheduler(BaseScheduler):
             if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
 
-            job_definition = JobDefinition(**model.dict(exclude_none=True))
+            input_file_id = self._index_input_uri(model.input_uri)
+
+            job_definition = JobDefinition(
+                **model.dict(exclude={"input_uri"}, exclude_none=True), input_file_id=input_file_id
+            )
             session.add(job_definition)
             session.commit()
 
@@ -427,7 +468,7 @@ class Scheduler(BaseScheduler):
                 .one()
             )
 
-        return DescribeJobDefinition.from_orm(job_definition)
+        return self.build_describe_job_definition(job_definition)
 
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         with self.db_session() as session:
@@ -459,9 +500,11 @@ class Scheduler(BaseScheduler):
         if next_token >= total:
             next_token = None
 
+        self.file_id_manager.sync_all()
         list_response = ListJobDefinitionsResponse(
             job_definitions=[
-                DescribeJobDefinition.from_orm(definition) for definition in definitions or []
+                self.build_describe_job_definition(definition, sync=False)
+                for definition in definitions or []
             ],
             next_token=next_token,
             total_count=total,

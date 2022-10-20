@@ -119,3 +119,6 @@ dmypy.json
 
 # vs code
 .vscode
+
+# seed script output files
+dev/outputs

@@ -137,8 +137,8 @@ class BaseTaskRunner(LoggingConfigurable):
     based on the schedule/timezone in the job definition.
     """
 
-    def __init__(self, config=None, **kwargs):
-        super().__init__(config=config)
+    def __init__(self, config=None, *args, **kwargs):
+        super().__init__(config=config, *args, **kwargs)
 
     poll_interval = traitlets.Integer(
         default_value=10,

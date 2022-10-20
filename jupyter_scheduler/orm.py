@@ -1,5 +1,4 @@
 import json
-import os
 from sqlite3 import OperationalError
 from uuid import uuid4
 
@@ -8,7 +7,7 @@ from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 
 from jupyter_scheduler.models import EmailNotifications, Status
-from jupyter_scheduler.utils import create_output_filename, get_utc_timestamp
+from jupyter_scheduler.utils import get_utc_timestamp
 
 Base = declarative_base()
 
@@ -25,21 +24,6 @@ def generate_jobs_url(context) -> str:
 def generate_job_definitions_url(context) -> str:
     job_definition_id = context.get_current_parameters()["job_definition_id"]
     return f"/job_definitions/{job_definition_id}"
-
-
-def output_uri(context) -> str:
-    input_uri = context.get_current_parameters()["input_uri"]
-    output_prefix = context.get_current_parameters()["output_prefix"]
-    output_formats = context.get_current_parameters()["output_formats"]
-
-    if not output_formats or "ipynb" in output_formats:
-        output_filename = create_output_filename(input_uri)
-    else:
-        output_filename = create_output_filename(
-            os.path.splitext(input_uri)[-2] + "." + output_formats[0]
-        )
-
-    return os.path.join(output_prefix, output_filename)
 
 
 class JsonType(types.TypeDecorator):
@@ -87,7 +71,7 @@ class CommonColumns:
     runtime_environment_name = Column(String(256), nullable=False)
     runtime_environment_parameters = Column(JsonType(1024))
     compute_type = Column(String(256), nullable=True)
-    input_uri = Column(String(256), nullable=False)
+    input_file_id = Column(Integer, nullable=False)
     output_prefix = Column(String(256))
     output_formats = Column(JsonType(512))
     name = Column(String(256))

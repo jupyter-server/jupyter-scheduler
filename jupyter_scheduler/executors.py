@@ -26,17 +26,27 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, staging_paths: Dict[str, str], root_dir: str, db_url: str):
+    def __init__(
+        self,
+        job_id: str,
+        staging_paths: Dict[str, str],
+        root_dir: str,
+        db_url: str,
+        file_id_manager=None,
+    ):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
+        self.file_id_manager = file_id_manager
 
     @property
     def model(self):
+        """DescribeJob model for the managed job."""
         if self._model is None:
             with self.db_session() as session:
                 job = session.query(Job).filter(Job.job_id == self.job_id).first()
+                job.input_uri = self.file_id_manager.get_path(job.input_file_id)
                 self._model = DescribeJob.from_orm(job)
         return self._model
 

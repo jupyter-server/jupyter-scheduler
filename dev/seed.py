@@ -1,14 +1,31 @@
 import json
 import os
 import random
+import shutil
 import subprocess
-import zoneinfo
-from uuid import uuid4
+from pathlib import Path
 
 import click
+import pytz
+from jupyter_server_fileid.manager import FileIdManager
 
-from jupyter_scheduler.orm import Job, JobDefinition, create_session, create_tables
+from jupyter_scheduler.environments import CondaEnvironmentManager
+from jupyter_scheduler.models import CreateJob, CreateJobDefinition
+from jupyter_scheduler.orm import create_tables
+from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.utils import get_utc_timestamp
+
+root_dir = str(Path(__file__).parent.absolute())
+# must be specified relative to root_dir
+TEMPLATE_PATHS = [
+    os.path.join("templates", "1.ipynb"),
+    os.path.join("templates", "2.ipynb"),
+    os.path.join("templates", "3.ipynb"),
+]
+
+
+def pick_random_template():
+    return str(random.choice(TEMPLATE_PATHS))
 
 
 def get_db_path():
@@ -19,29 +36,32 @@ def get_db_path():
     return os.path.join(data[0], "scheduler.sqlite")
 
 
-def create_random_job_def(index: int):
-    name = random.choice(
-        [
-            "definition alpha",
-            "definition beta",
-            "super schedule",
-            "cool definition",
-            "lame definition",
-        ]
+def create_random_job_def(index: int) -> CreateJobDefinition:
+    name = (
+        random.choice(
+            [
+                "definition alpha",
+                "definition beta",
+                "super schedule",
+                "cool definition",
+                "lame definition",
+            ]
+        )
+        + " "
+        + str(index)
     )
-    job_definition_id = str(uuid4())
-    input_uri = "".join(name.split()) + ".ipynb"
-    output_prefix = ""
-    timezone = random.choice(list(zoneinfo.available_timezones()))
+
+    input_uri = pick_random_template()
+    output_prefix = os.path.join("dev", "outputs", name)
+    timezone = random.choice(pytz.all_timezones)
     # random schedules can be generated via https://crontab.guru/
     schedule = random.choice(
         ["0 0,12 1 */2 *", "0 4 8-14 * *", "0 0 1,15 * 3", "5 0 * 8 *", "15 14 1 * *"]
     )
     active = random.choice([True, False])
 
-    return JobDefinition(
-        name=f"{name} {index}",
-        job_definition_id=job_definition_id,
+    return CreateJobDefinition(
+        name=name,
         input_uri=input_uri,
         output_prefix=output_prefix,
         timezone=timezone,
@@ -51,21 +71,25 @@ def create_random_job_def(index: int):
     )
 
 
-def create_random_job(index: int, job_def_id: str):
+def create_random_job(index: int, job_def_id: str) -> CreateJob:
     status = random.choice(["CREATED", "QUEUED", "COMPLETED", "FAILED", "IN_PROGRESS", "STOPPED"])
-    name = random.choice(
-        [
-            "hello world",
-            "lorem ipsum",
-            "job a",
-            "job b",
-            "long running job",
-            "fast job",
-            "random job",
-        ]
+    name = (
+        random.choice(
+            [
+                "hello world",
+                "lorem ipsum",
+                "job a",
+                "job b",
+                "long running job",
+                "fast job",
+                "random job",
+            ]
+        )
+        + " "
+        + str(index)
     )
-    input_uri = "".join(name.split()) + ".ipynb"
-    output_prefix = ""
+    input_uri = pick_random_template()
+    output_prefix = os.path.join("dev", "outputs", name)
     start_time = None
     status_message = None
     end_time = None
@@ -79,8 +103,8 @@ def create_random_job(index: int, job_def_id: str):
     if status == "COMPLETED":
         end_time = get_utc_timestamp()
 
-    return Job(
-        name=f"{name} {index}",
+    return CreateJob(
+        name=name,
         job_definition_id=job_def_id,
         input_uri=input_uri,
         output_prefix=output_prefix,
@@ -99,20 +123,30 @@ def load_data(jobs_count: int, job_defs_count: int, db_path: str):
         os.remove(db_path)
 
     create_tables(db_url, drop_tables=True)
-    db_session = create_session(db_url)
 
-    with db_session() as session:
-        job_def_ids = []
+    file_id_manager = FileIdManager(root_dir=root_dir)
+    scheduler = Scheduler(
+        db_url=db_url,
+        root_dir=root_dir,
+        environments_manager=CondaEnvironmentManager(),
+        task_runner_class=None,
+        file_id_manager=file_id_manager,
+    )
+    job_def_ids = []
 
-        for index in range(1, job_defs_count + 1):
-            job_def = create_random_job_def(index)
-            session.add(job_def)
-            job_def_ids.append(job_def.job_definition_id)
+    # clear existing output files
+    try:
+        shutil.rmtree(os.path.join(root_dir, "outputs"))
+    except:
+        pass
+    os.mkdir(os.path.join(root_dir, "outputs"))
 
-        for index in range(1, jobs_count + 1):
-            session.add(create_random_job(index, random.choice(job_def_ids)))
+    for index in range(1, job_defs_count + 1):
+        job_def_id = scheduler.create_job_definition(create_random_job_def(index))
+        job_def_ids.append(job_def_id)
 
-        session.commit()
+    for index in range(1, jobs_count + 1):
+        scheduler.create_job(create_random_job(index, random.choice(job_def_ids)))
 
     click.echo(
         f"\nCreated {jobs_count} jobs and {job_defs_count} job definitions in the scheduler database"

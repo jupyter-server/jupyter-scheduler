@@ -2,6 +2,7 @@ import asyncio
 
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.extension.manager import ExtensionManager
 from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
@@ -58,6 +59,35 @@ class SchedulerApp(ExtensionApp):
         help=_i18n("The scheduler class to use."),
     )
 
+    def _link_jupyter_server_extension(self, serverapp):
+        super()._link_jupyter_server_extension(serverapp)
+
+        # override extension loader to always load jupyter_server_fileid before
+        # loading this extension
+        def load_all_extensions(self):
+            extension_names = self.extensions.keys()
+            # avoid clobbering notebook_shim hack
+            # https://github.com/jupyter/notebook_shim/blob/9768be63e28bae3b4185cae35342deab380e1e05/notebook_shim/nbserver.py#L74-L94
+            extension_names = sorted(
+                extension_names,
+                key=(
+                    lambda name: "A"
+                    if name == "notebook_shim"
+                    else "B"
+                    if name == "jupyter_server_fileid"
+                    else name
+                ),
+            )
+            for name in extension_names:
+                self.load_extension(name)
+
+        # bind self to extension_manager and then override extension loading method
+        # https://stackoverflow.com/a/46757134/12548458
+        extension_manager = serverapp.extension_manager
+        extension_manager.load_all_extensions = load_all_extensions.__get__(
+            extension_manager, ExtensionManager
+        )
+
     def initialize_settings(self):
         super().initialize_settings()
 
@@ -70,6 +100,7 @@ class SchedulerApp(ExtensionApp):
             environments_manager=environments_manager,
             db_url=self.db_url,
             config=self.config,
+            file_id_manager=self.settings["file_id_manager"],
         )
 
         output_files_manager = OutputFilesManager(scheduler=scheduler)
