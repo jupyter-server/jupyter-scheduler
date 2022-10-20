@@ -43,13 +43,14 @@ class BaseScheduler(LoggingConfigurable):
     """
 
     staging_path = Unicode(
+        config=True,
         help=_i18n(
             """Full path to staging location, where output
         files will be stored after job execution completes. This
         could be a local or remote path including cloud storage.
         Default value is jupyter data directory.
         """
-        )
+        ),
     )
 
     @default("staging_path")
