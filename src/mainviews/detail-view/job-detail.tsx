@@ -29,6 +29,8 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
     FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
   />
 );
+
+import { ReadonlyTextField } from '../../components/readonly-text-field';
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
@@ -159,7 +161,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {coreOptionsFields.map(propsRow => (
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {propsRow.map(textProp => (
-                <TextFieldStyled
+                <ReadonlyTextField
                   {...textProp}
                   style={{
                     flexGrow: 1
@@ -197,14 +199,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {props.model.parameters &&
             props.model.parameters.map((parameter, idx) => (
               <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
-                <TextFieldStyled
+                <ReadonlyTextField
                   label={trans.__('Parameter name')}
                   value={parameter.name}
                   style={{
                     flexGrow: 1
                   }}
                 />
-                <TextFieldStyled
+                <ReadonlyTextField
                   label={trans.__('Parameter value')}
                   value={parameter.value}
                   style={{

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { IJobDefinitionModel, JobsView, ICreateJobModel } from '../../model';
 import { useTranslator } from '../../hooks';
-import { TextFieldStyled, timestampLocalize } from './job-detail';
+import { timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
 import cronstrue from 'cronstrue';
 import { ListJobsTable } from '../list-jobs';
@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import { ReadonlyTextField } from '../../components/readonly-text-field';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -150,7 +151,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {jobDefinitionFields.map(propsRow => (
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {propsRow.map(textProp => (
-                <TextFieldStyled
+                <ReadonlyTextField
                   {...textProp}
                   style={{
                     flexGrow: 1
