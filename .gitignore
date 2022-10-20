@@ -120,5 +120,5 @@ dmypy.json
 # vs code
 .vscode
 
-# seed script output files
-dev/outputs
+# directory reserved for local development
+dev

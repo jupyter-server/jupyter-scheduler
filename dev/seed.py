@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import random
@@ -52,7 +53,7 @@ def create_random_job_def(index: int) -> CreateJobDefinition:
     )
 
     input_uri = pick_random_template()
-    output_prefix = os.path.join("dev", "outputs", name)
+    output_prefix = os.path.join("outputs", name)
     timezone = random.choice(pytz.all_timezones)
     # random schedules can be generated via https://crontab.guru/
     schedule = random.choice(
@@ -89,7 +90,7 @@ def create_random_job(index: int, job_def_id: str) -> CreateJob:
         + str(index)
     )
     input_uri = pick_random_template()
-    output_prefix = os.path.join("dev", "outputs", name)
+    output_prefix = os.path.join("outputs", name)
     start_time = None
     status_message = None
     end_time = None
@@ -116,7 +117,7 @@ def create_random_job(index: int, job_def_id: str) -> CreateJob:
     )
 
 
-def load_data(jobs_count: int, job_defs_count: int, db_path: str):
+async def load_data(jobs_count: int, job_defs_count: int, db_path: str):
     db_url = f"sqlite:///{db_path}"
 
     if os.path.exists(db_path):
@@ -147,6 +148,9 @@ def load_data(jobs_count: int, job_defs_count: int, db_path: str):
 
     for index in range(1, jobs_count + 1):
         scheduler.create_job(create_random_job(index, random.choice(job_def_ids)))
+        # spawning too many kernels too quickly causes runtime error
+        # https://github.com/jupyter/jupyter_client/issues/487
+        await asyncio.sleep(0.1)
 
     click.echo(
         f"\nCreated {jobs_count} jobs and {job_defs_count} job definitions in the scheduler database"
@@ -157,7 +161,7 @@ def load_data(jobs_count: int, job_defs_count: int, db_path: str):
 
 
 @click.command(
-    help="Inserts random jobs in the scheduler database. Note, that this command will drop the tables and re-create."
+    help="Drops the database and inserts random jobs and job definitions into the scheduler database. Intended to be run from `dev` directory."
 )
 
 # set to unique numbers by default to help test pagination with partially empty pages.
@@ -173,7 +177,7 @@ def load_data(jobs_count: int, job_defs_count: int, db_path: str):
     help="DB file path, default is scheduler db path",
 )
 def main(jobs_count, job_defs_count, db_path) -> None:
-    load_data(jobs_count, job_defs_count, db_path)
+    asyncio.run(load_data(jobs_count, job_defs_count, db_path))
 
 
 if __name__ == "__main__":
