@@ -37,8 +37,7 @@ dependencies = [
     "pytz",
     "fsspec",
     "s3fs",
-    "psutil",
-    ""
+    "psutil"
 ]
 
 [project.optional-dependencies]
