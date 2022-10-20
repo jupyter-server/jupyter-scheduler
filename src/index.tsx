@@ -114,7 +114,8 @@ function getDirectoryFromPath(path: string | null): string | null {
   // Remove the final portion of the path, the filename.
   const directories = path.split('/');
   directories.pop();
-  return directories.join('/');
+  // Include a trailing slash only if there is at least one subdirectory.
+  return directories.join('/') + (directories.length > 0 ? '/' : '');
 }
 
 let scheduledJobsListingModel: NotebookJobsListingModel | null = null;
