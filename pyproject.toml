@@ -30,7 +30,7 @@ classifiers = [
 dependencies = [
     # match dependency in jupyter_server_fileid
     "jupyter_server>=1.15, <3",
-    "jupyter_server_fileid~=0.3.2",
+    "jupyter_server_fileid~=0.4.2",
     "traitlets",
     "nbconvert",
     "pydantic",
