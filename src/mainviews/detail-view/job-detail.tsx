@@ -31,7 +31,7 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
   <TextField
     {...props}
     variant="outlined"
-    InputProps={{ ...(props.InputProps ?? {}), readOnly: true }}
+    InputProps={{ ...props.InputProps, readOnly: true }}
     FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
   />
 );
