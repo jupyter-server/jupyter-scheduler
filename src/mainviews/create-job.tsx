@@ -30,8 +30,7 @@ import {
   TextField
 } from '@mui/material';
 
-import Box from '@mui/system/Box';
-import Stack from '@mui/system/Stack';
+import { Box, Stack } from '@mui/system';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
