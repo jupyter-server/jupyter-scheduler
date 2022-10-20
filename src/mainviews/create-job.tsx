@@ -17,18 +17,20 @@ import { Scheduler as SchedulerTokens } from '../tokens';
 
 import ErrorIcon from '@mui/icons-material/Error';
 
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Box from '@mui/system/Box';
-import Stack from '@mui/system/Stack';
-import TextField from '@mui/material/TextField';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
+  Button,
   FormLabel,
-  SelectChangeEvent
+  InputAdornment,
+  SelectChangeEvent,
+  TextField
 } from '@mui/material';
+
+import Box from '@mui/system/Box';
+import Stack from '@mui/system/Stack';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
@@ -720,6 +722,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               'Path to directory in which output files will be written. ' +
                 'Path must be relative to the server root.'
             )}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">🏠/</InputAdornment>
+              )
+            }}
           />
           <EnvironmentPicker
             label={trans.__('Environment')}
