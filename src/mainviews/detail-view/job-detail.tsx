@@ -12,14 +12,16 @@ import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
-import Button from '@mui/material/Button';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
+import HomeIcon from '@mui/icons-material/Home';
 import {
   Alert,
+  Button,
   Card,
   CardContent,
   FormLabel,
+  InputAdornment,
+  Link,
+  Stack,
   TextField,
   TextFieldProps
 } from '@mui/material';
@@ -29,7 +31,7 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
   <TextField
     {...props}
     variant="outlined"
-    InputProps={{ readOnly: true }}
+    InputProps={{ ...(props.InputProps ?? {}), readOnly: true }}
     FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
   />
 );
@@ -131,6 +133,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
+  const homeAdornment = (
+    <InputAdornment position="start">
+      <HomeIcon fontSize="small" /> /
+    </InputAdornment>
+  );
+
   const coreOptionsFields: TextFieldProps[][] = [
     [
       { value: props.model.jobName, label: trans.__('Job name') },
@@ -139,11 +147,17 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     [
       {
         value: props.model.inputFile,
-        label: trans.__('Input file')
+        label: trans.__('Input file'),
+        InputProps: {
+          startAdornment: homeAdornment
+        }
       },
       {
         value: props.model.outputPath,
-        label: trans.__('Output directory')
+        label: trans.__('Output directory'),
+        InputProps: {
+          startAdornment: homeAdornment
+        }
       }
     ],
     [
