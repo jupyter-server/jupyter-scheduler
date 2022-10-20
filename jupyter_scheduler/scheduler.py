@@ -4,7 +4,6 @@ from typing import Dict, Type
 
 import psutil
 from jupyter_core.paths import jupyter_data_dir
-from jupyter_server.traittypes import TypeFromClasses
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
 from sqlalchemy import and_, asc, desc, func
@@ -146,7 +145,35 @@ class BaseScheduler(LoggingConfigurable):
         raise NotImplementedError("must be implemented by subclass")
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
-        """Returns full staging paths for all job outputs"""
+        """Returns full staging paths for all job outputs
+
+        Notes
+        -----
+        Any path supported by `fsspec https://filesystem-spec.readthedocs.io/en/latest/index.html`_
+        is a valid return value. For staging outputs that
+        are stored as tar or compressed tar archives, this
+        should specify the path for the tar/compress file
+        for all formats.
+
+        Examples
+        --------
+        >>> self.get_staging_paths(1)
+        {'ipynb': '/outputs/helloworld.ipynb', 'html': '/outputs/helloworld.html'}
+
+        For outputs that are archived as tar or compressed tar
+        >>> self.get_staging_paths(2)
+        {'ipynb': '/outputs/helloworld.tar.gz', 'html': '/outputs/helloworld.tar.gz'}
+
+        Parameters
+        ----------
+        job_id : str
+            Unique identifier for the job
+
+        Returns
+        -------
+        Dictionary with keys as output format and values
+        as full path to the output file in staging location.
+        """
         raise NotImplementedError("must be implemented by subclass")
 
     def file_exists(self, path: str):
@@ -470,12 +497,14 @@ class Scheduler(BaseScheduler):
         return list_response
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
-        model = self.get_job(job_id)
+        model = None
+        with self.db_session() as session:
+            model = session.get(Job, job_id)
+
         staging_paths = {}
-        for output in model.outputs:
-            filename = create_output_filename(
-                model.input_uri, model.create_time, output.output_format
-            )
-            staging_paths[output.output_format] = os.path.join(self.staging_path, job_id, filename)
+        if model:
+            for output_format in model.output_formats:
+                filename = create_output_filename(model.input_uri, model.create_time, output_format)
+                staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
 
         return staging_paths
