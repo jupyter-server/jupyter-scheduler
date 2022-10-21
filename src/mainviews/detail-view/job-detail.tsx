@@ -135,7 +135,8 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const homeAdornment = (
     <InputAdornment position="start">
-      <FolderIcon fontSize="small" />&nbsp;&nbsp;/
+      <FolderIcon fontSize="small" />
+      &nbsp;&nbsp;/
     </InputAdornment>
   );
 

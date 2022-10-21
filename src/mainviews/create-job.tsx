@@ -687,7 +687,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const homeAdornment = (
     <InputAdornment position="start">
-      <FolderIcon fontSize="small" />&nbsp;&nbsp;/
+      <FolderIcon fontSize="small" />
+      &nbsp;&nbsp;/
     </InputAdornment>
   );
 
@@ -726,8 +727,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}outputPath`}
             name="outputPath"
             helperText={trans.__(
-              'Path to directory in which output files will be written. ' +
-                'Path must be relative to the server root.'
+              'Path, relative to the server root, where output files will be written'
             )}
             InputProps={{
               startAdornment: homeAdornment
