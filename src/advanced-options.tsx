@@ -5,10 +5,11 @@ import { FormLabel, Stack, TextField } from '@mui/material';
 import { Cluster } from './components/cluster';
 import { AddButton, DeleteButton } from './components/icon-buttons';
 import { useTranslator } from './hooks';
-import { Scheduler } from './tokens';
+import { ICreateJobModel, IJobDetailModel } from './model';
+import { Scheduler as SchedulerTokens } from './tokens';
 
 const AdvancedOptions = (
-  props: Scheduler.IAdvancedOptionsProps
+  props: SchedulerTokens.IAdvancedOptionsProps
 ): JSX.Element => {
   const formPrefix = 'jp-create-job-advanced-';
 
@@ -16,7 +17,8 @@ const AdvancedOptions = (
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) =>
     props.handleModelChange({
-      ...props.model,
+      // Only the create-job model can change, not the detail model
+      ...(props.model as ICreateJobModel),
       [e.target.name]: e.target.value
     });
 
@@ -24,6 +26,8 @@ const AdvancedOptions = (
     if (props.jobsView !== 'CreateJob') {
       return; // Read-only mode
     }
+
+    const createModel = props.model as ICreateJobModel;
 
     const { name, value } = event.target;
     const tagIdxMatch = name.match(/^tag-(\d+)$/);
@@ -35,18 +39,20 @@ const AdvancedOptions = (
     const newTags = props.model.tags ?? [];
     newTags[parseInt(tagIdxMatch[1])] = value;
 
-    props.handleModelChange({ ...props.model, tags: newTags });
+    props.handleModelChange({ ...createModel, tags: newTags });
   };
 
   const addTag = () => {
     const newTags = [...(props.model.tags ?? []), ''];
-    props.handleModelChange({ ...props.model, tags: newTags });
+    const createModel = props.model as ICreateJobModel;
+    props.handleModelChange({ ...createModel, tags: newTags });
   };
 
   const deleteTag = (idx: number) => {
     const newTags = props.model.tags ?? [];
     newTags.splice(idx, 1);
-    props.handleModelChange({ ...props.model, tags: newTags });
+    const createModel = props.model as ICreateJobModel;
+    props.handleModelChange({ ...createModel, tags: newTags });
   };
 
   const tags = props.model.tags ?? [];
@@ -120,19 +126,32 @@ const AdvancedOptions = (
     props.jobsView === 'CreateJob' ? createTags() : showTags();
 
   // The idempotency token is only used for jobs, not for job definitions
+  const idemTokenLabel = trans.__('Idempotency token');
+  const idemTokenName = 'idempotencyToken';
+  const idemTokenId = `${formPrefix}${idemTokenName}`;
   return (
     <Stack spacing={4}>
-      {props.model.createType === 'Job' && (
+      {props.jobsView === 'JobDetail' && 'idempotencyToken' in props.model && (
         <TextField
-          label={trans.__('Idempotency token')}
+          label={idemTokenLabel}
           variant="outlined"
-          onChange={handleInputChange}
-          value={props.model.idempotencyToken}
+          value={(props.model as IJobDetailModel).idempotencyToken}
           id={`${formPrefix}idempotencyToken`}
-          name="idempotencyToken"
-          InputProps={{ readOnly: props.jobsView !== 'CreateJob' }}
+          name={idemTokenName}
+          InputProps={{ readOnly: true }}
         />
       )}
+      {props.jobsView === 'CreateJob' &&
+        (props.model as ICreateJobModel).createType === 'Job' && (
+          <TextField
+            label={idemTokenLabel}
+            variant="outlined"
+            onChange={handleInputChange}
+            value={(props.model as ICreateJobModel).idempotencyToken}
+            id={idemTokenId}
+            name={idemTokenName}
+          />
+        )}
       <FormLabel component="legend">{trans.__('Tags')}</FormLabel>
       {tagsDisplay}
     </Stack>

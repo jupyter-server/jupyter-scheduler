@@ -208,7 +208,20 @@ export interface IJobsModelOptions {
  * Describe and Detail models
  */
 
-export interface IJobDetailModel extends ICreateJobModel {
+export interface IJobDetailModel {
+  jobName: string;
+  inputFile: string;
+  outputPath: string;
+  environment: string;
+  // Errors from creation
+  createError?: string;
+  runtimeEnvironmentParameters?: { [key: string]: number | string | boolean };
+  parameters?: IJobParameter[];
+  // List of values for output formats; labels are specified by the environment
+  outputFormats?: string[];
+  computeType?: string;
+  idempotencyToken?: string;
+  tags?: string[];
   jobId: string;
   status?: Scheduler.Status;
   statusMessage?: string;
@@ -221,7 +234,22 @@ export interface IJobDetailModel extends ICreateJobModel {
   downloaded: boolean;
 }
 
-export interface IJobDefinitionModel extends ICreateJobModel {
+export interface IJobDefinitionModel {
+  inputFile: string;
+  outputPath: string;
+  environment: string;
+  // Errors from creation
+  createError?: string;
+  runtimeEnvironmentParameters?: { [key: string]: number | string | boolean };
+  parameters?: IJobParameter[];
+  // List of values for output formats; labels are specified by the environment
+  outputFormats?: string[];
+  computeType?: string;
+  tags?: string[];
+  // String for schedule in cron format
+  schedule?: string;
+  // String for timezone in tz database format
+  timezone?: string;
   definitionId: string;
   name?: string;
   active?: boolean;
@@ -294,9 +322,7 @@ export function convertDescribeDefinitiontoDefinition(
 
   return {
     name: describeDefinition.name ?? '',
-    jobName: '',
     inputFile: describeDefinition.input_uri,
-    createType: 'JobDefinition',
     definitionId: describeDefinition.job_definition_id,
     outputPath: describeDefinition.output_filename_template ?? '',
     outputPrefix: describeDefinition.output_prefix,
@@ -311,8 +337,7 @@ export function convertDescribeDefinitiontoDefinition(
     createTime: describeDefinition.create_time,
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
-    timezone: describeDefinition.timezone,
-    scheduleInterval: 'custom'
+    timezone: describeDefinition.timezone
   };
 }
 
