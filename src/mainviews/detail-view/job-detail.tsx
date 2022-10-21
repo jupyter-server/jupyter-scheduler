@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
+  emptyCreateJobModel,
   ICreateJobModel,
   IJobDetailModel,
   JobsView,
@@ -66,16 +67,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const handleRerunJob = () => {
     const initialState: ICreateJobModel = {
+      ...emptyCreateJobModel(),
       jobName: props.model.jobName,
       inputFile: props.model.inputFile,
       outputPath: props.model.outputPrefix ?? '',
       environment: props.model.environment,
       runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
       parameters: props.model.parameters,
-      outputFormats: props.model.outputFormats,
-      createType: 'Job',
-      scheduleInterval: 'weekday',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      outputFormats: props.model.outputFormats
     };
 
     props.setCreateJobModel(initialState);
