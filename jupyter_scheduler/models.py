@@ -171,10 +171,6 @@ class UpdateJob(BaseModel):
     compute_type: Optional[str] = None
 
 
-class DeleteJob(BaseModel):
-    job_id: str
-
-
 class CreateJobDefinition(BaseModel):
     input_uri: str
     output_prefix: str
