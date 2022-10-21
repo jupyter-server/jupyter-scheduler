@@ -426,9 +426,13 @@ class Scheduler(BaseScheduler):
 
     def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         with self.db_session() as session:
+            update_kwargs = model.dict(exclude={"input_uri"}, exclude_none=True)
+            if model.input_uri:
+                update_kwargs["input_file_id"] = self.file_id_manager.index(model.input_uri)
+
             session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == job_definition_id
-            ).update(model.dict(exclude_none=True))
+            ).update(update_kwargs)
             session.commit()
 
             schedule = (

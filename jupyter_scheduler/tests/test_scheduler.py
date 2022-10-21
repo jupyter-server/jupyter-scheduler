@@ -198,14 +198,21 @@ def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db, job_de
 
 
 def test_update_job_definition(
-    jp_scheduler, load_job_definitions, jp_scheduler_db, job_definition_1
+    jp_scheduler, load_job_definitions, jp_scheduler_db, job_definition_1, fs_helpers
 ):
     job_definition_id = job_definition_1["job_definition_id"]
+    new_input_uri = "new.ipynb"
+    fs_helpers.touch(new_input_uri)
+    new_input_file_id = jp_scheduler.file_id_manager.index(new_input_uri)
     schedule = "*/5 * * * *"
     timezone = "America/New_York"
+
     with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
         update = UpdateJobDefinition(
-            job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
+            job_definition_id=job_definition_id,
+            schedule=schedule,
+            timezone=timezone,
+            input_uri=new_input_uri,
         )
         jp_scheduler.update_job_definition(job_definition_id, update)
 
@@ -213,6 +220,7 @@ def test_update_job_definition(
         definition = session.get(JobDefinition, job_definition_id)
         assert schedule == definition.schedule
         assert timezone == definition.timezone
+        assert new_input_file_id == definition.input_file_id
 
 
 def test_delete_job_definition(
