@@ -4,6 +4,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
   ICreateJobModel,
   IJobDetailModel,
+  InitialScheduleOptions,
   JobsView,
   ListJobsView
 } from '../../model';
@@ -74,8 +75,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       parameters: props.model.parameters,
       outputFormats: props.model.outputFormats,
       createType: 'Job',
-      scheduleInterval: 'weekday',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      ...InitialScheduleOptions
     };
 
     props.setCreateJobModel(initialState);

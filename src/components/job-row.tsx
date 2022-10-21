@@ -11,7 +11,11 @@ import Stack from '@mui/material/Stack';
 import { outputFormatsForEnvironment } from './output-format-picker';
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
-import { IJobParameter, ICreateJobModel } from '../model';
+import {
+  IJobParameter,
+  ICreateJobModel,
+  InitialScheduleOptions
+} from '../model';
 import { CommandIDs } from '..';
 import { ConfirmDeleteIcon } from './confirm-delete-icon';
 import TableRow from '@mui/material/TableRow';
@@ -74,8 +78,7 @@ function RefillButton(props: {
       runtimeEnvironmentParameters: props.job.runtime_environment_parameters,
       parameters: jobParameters,
       createType: 'Job',
-      scheduleInterval: 'weekday',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      ...InitialScheduleOptions
     };
 
     // Convert the list of output formats, if any, into a list for the initial state
