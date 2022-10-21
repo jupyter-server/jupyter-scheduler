@@ -16,19 +16,21 @@ import { ICreateJobModel, IJobParameter, ListJobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import ErrorIcon from '@mui/icons-material/Error';
+import FolderIcon from '@mui/icons-material/Folder';
 
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Box from '@mui/system/Box';
-import Stack from '@mui/system/Stack';
-import TextField from '@mui/material/TextField';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
+  Button,
   FormLabel,
-  SelectChangeEvent
+  InputAdornment,
+  SelectChangeEvent,
+  TextField
 } from '@mui/material';
+
+import { Box, Stack } from '@mui/system';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
@@ -683,6 +685,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const cantSubmit = trans.__('One or more of the fields has an error.');
   const createError: string | undefined = props.model.createError;
 
+  const homeAdornment = (
+    <InputAdornment position="start">
+      <FolderIcon fontSize="small" />
+      &nbsp;&nbsp;/
+    </InputAdornment>
+  );
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -706,16 +715,23 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             helperText={errors['inputFile'] ?? ''}
             name="inputFile"
             InputProps={{
-              readOnly: true
+              readOnly: true,
+              startAdornment: homeAdornment
             }}
           />
           <TextField
-            label={trans.__('Output path')}
+            label={trans.__('Output directory')}
             variant="outlined"
             onChange={handleInputChange}
             value={props.model.outputPath}
             id={`${formPrefix}outputPath`}
             name="outputPath"
+            helperText={trans.__(
+              'Path, relative to the server root, where output files will be written'
+            )}
+            InputProps={{
+              startAdornment: homeAdornment
+            }}
           />
           <EnvironmentPicker
             label={trans.__('Environment')}
