@@ -47,8 +47,9 @@ class Downloader:
         self.root_dir = root_dir
         self.redownload = redownload
 
-    def download_tar(self, read_mode: str = "r"):
-        input_filepath = next(iter(self.staging_paths.values()))
+    def download_tar(self, archive_format: str = "tar"):
+        input_filepath = self.staging_paths[archive_format]
+        read_mode = "r:gz" if archive_format == "tar.gz" else "tar"
         with fsspec.open(input_filepath) as f:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
 
@@ -56,24 +57,20 @@ class Downloader:
                 if not os.path.exists(output_dir):
                     os.makedirs(output_dir)
 
-                filenames = tar.getnames()
-                for filename in filenames:
-                    fileformat = os.path.splitext(filename)[-1][1:]
-                    output_filepath = os.path.join(output_dir, filename)
-                    if fileformat in self.output_formats and (
-                        self.redownload or not os.path.exists(output_filepath)
-                    ):
-                        tar.extract(member=filename, path=output_dir)
+                for output_format in self.output_formats:
+                    filepath = self.staging_paths[output_format]
+                    output_filepath = os.path.join(output_dir, filepath)
+                    if not os.path.exists(output_filepath) or self.redownload:
+                        tar.extract(member=filepath, path=output_dir)
 
     def download(self):
         if not self.staging_paths:
             return
 
-        first_filepath = next(iter(self.staging_paths.values()))
-        if first_filepath.endswith("tar"):
+        if "tar" in self.staging_paths:
             self.download_tar()
-        elif first_filepath.endswith("tar.gz"):
-            self.download_tar("r:gz")
+        elif "tar.gz" in self.staging_paths:
+            self.download_tar("tar.gz")
         else:
             for output_format in self.output_formats:
                 output_dir = resolve_path(self.output_prefix, self.root_dir)

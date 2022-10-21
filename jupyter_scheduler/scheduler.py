@@ -153,17 +153,28 @@ class BaseScheduler(LoggingConfigurable):
         Any path supported by `fsspec https://filesystem-spec.readthedocs.io/en/latest/index.html`_
         is a valid return value. For staging outputs that
         are stored as tar or compressed tar archives, this
-        should specify the path for the tar/compress file
-        for all formats.
+        should specify the first entry with a key as `tar`
+        or `tar.gz` and value as path to the archive file;
+        the values for the actual format files will be just
+        the path to them in the archive, in most cases just
+        the filename.
+
 
         Examples
         --------
         >>> self.get_staging_paths(1)
-        {'ipynb': '/outputs/helloworld.ipynb', 'html': '/outputs/helloworld.html'}
+        {
+            'ipynb': '/outputs/helloworld.ipynb',
+            'html': '/outputs/helloworld.html'
+        }
 
         For outputs that are archived as tar or compressed tar
         >>> self.get_staging_paths(2)
-        {'ipynb': '/outputs/helloworld.tar.gz', 'html': '/outputs/helloworld.tar.gz'}
+        {
+            'tar.gz': '/outputs/helloworld.tar.gz',
+            'ipynb': 'helloworld.ipynb',
+            'html': 'helloworld.html'
+        }
 
         Parameters
         ----------
@@ -507,5 +518,32 @@ class Scheduler(BaseScheduler):
             for output_format in model.output_formats:
                 filename = create_output_filename(model.input_uri, model.create_time, output_format)
                 staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
+
+        return staging_paths
+
+
+class ArchiveDownloadingScheduler(Scheduler):
+    """Scheduler that adds archive path to staging paths.
+
+    Notes
+    -----
+    Should be used in tandem with :class:`~jupyter_scheduler.executors.ArchiveExportingExecutingManager`
+    during jupyter server start.
+    """
+
+    def get_staging_paths(self, job_id: str) -> Dict[str, str]:
+        model = None
+        with self.db_session() as session:
+            model = session.get(Job, job_id)
+
+        staging_paths = {}
+        if model:
+            for output_format in model.output_formats:
+                filename = create_output_filename(model.input_uri, model.create_time, output_format)
+                staging_paths[output_format] = os.path.join(filename)
+
+            output_format = "tar.gz"
+            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
 
         return staging_paths
