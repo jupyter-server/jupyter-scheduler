@@ -1,3 +1,4 @@
+from logging import NOTSET
 import os
 from multiprocessing import Process
 from typing import Dict, Type
@@ -210,6 +211,23 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.isfile(os_path)
 
+    def get_output_filenames(self, model: DescribeJob) -> Dict[str, str]:
+        """Returns dictionary mapping output formats to
+        the output filenames in the JupyterLab workspace.
+
+        Notes
+        -----
+        This should be called by both `add_outputs` and
+        `OutputFilesManager` to ensure that output files
+        are written to the expected filepaths.
+        """
+
+        filenames = {}
+        for output_format in model.output_formats:
+            filenames[output_format] = create_output_filename(model.input_uri, model.create_time, output_format)
+
+        return filenames
+    
     def add_outputs(self, model: DescribeJob):
         """Adds outputs to the model, ensures output
         files are present in the local workspace. These
@@ -218,8 +236,9 @@ class BaseScheduler(LoggingConfigurable):
         """
         mapping = self.environments_manager.output_formats_mapping()
         outputs = []
+        output_filenames = self.get_output_filenames(model)
         for output_format in model.output_formats:
-            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            filename = output_filenames[output_format]
             output_path = os.path.join(model.output_prefix, filename)
             outputs.append(
                 Output(
