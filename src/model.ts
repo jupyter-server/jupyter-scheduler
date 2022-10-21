@@ -59,12 +59,6 @@ export interface ICreateJobModel extends PartialJSONObject {
   scheduleWeekDay?: string;
 }
 
-export const InitialScheduleOptions = {
-  scheduleInterval: 'weekday',
-  schedule: '0 0 * * MON-FRI',
-  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-};
-
 export function emptyCreateJobModel(): ICreateJobModel {
   return {
     key: Math.random(),
@@ -73,7 +67,9 @@ export function emptyCreateJobModel(): ICreateJobModel {
     outputPath: '',
     environment: '',
     createType: 'Job',
-    ...InitialScheduleOptions
+    scheduleInterval: 'weekday',
+    schedule: '0 0 * * MON-FRI',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
   };
 }
 
@@ -264,7 +260,7 @@ export function convertDescribeJobtoJobDetail(
   };
 
   return {
-    createType: 'Job',
+    ...emptyCreateJobModel(),
     jobId: describeJob.job_id,
     jobName: describeJob.name ?? '',
     inputFile: describeJob.input_uri,
@@ -284,8 +280,7 @@ export function convertDescribeJobtoJobDetail(
     updateTime: describeJob.update_time,
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
-    downloaded: describeJob.downloaded,
-    ...InitialScheduleOptions
+    downloaded: describeJob.downloaded
   };
 }
 

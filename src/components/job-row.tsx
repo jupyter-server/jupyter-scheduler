@@ -7,19 +7,15 @@ import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
 import ReplayIcon from '@mui/icons-material/Replay';
 import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
+import { Stack, TableCell, TableRow } from '@mui/material';
+
+import { ConfirmDeleteIcon } from './confirm-delete-icon';
 import { outputFormatsForEnvironment } from './output-format-picker';
+
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
-import {
-  IJobParameter,
-  ICreateJobModel,
-  InitialScheduleOptions
-} from '../model';
+import { IJobParameter, ICreateJobModel, emptyCreateJobModel } from '../model';
 import { CommandIDs } from '..';
-import { ConfirmDeleteIcon } from './confirm-delete-icon';
-import TableRow from '@mui/material/TableRow';
-import { TableCell } from '@mui/material';
 
 function get_file_from_path(path: string): string {
   return PathExt.basename(path);
@@ -71,14 +67,13 @@ function RefillButton(props: {
 
   const clickHandler = (): void => {
     const newModel: ICreateJobModel = {
+      ...emptyCreateJobModel(),
       inputFile: props.job.input_uri,
       jobName: props.job.name ?? '',
       outputPath: props.job.output_prefix,
       environment: props.job.runtime_environment_name,
       runtimeEnvironmentParameters: props.job.runtime_environment_parameters,
-      parameters: jobParameters,
-      createType: 'Job',
-      ...InitialScheduleOptions
+      parameters: jobParameters
     };
 
     // Convert the list of output formats, if any, into a list for the initial state
