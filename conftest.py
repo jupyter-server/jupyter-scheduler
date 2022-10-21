@@ -50,9 +50,6 @@ def jp_scheduler_db():
 @pytest.fixture
 def jp_scheduler(jp_root_dir, fid_manager):
     # root_dir should be identical to fid_manager.root_dir
-    fid_manager.log.error(fid_manager.root_dir)
-    parent = Path(fid_manager.root_dir).parent
-    fid_manager.log.error(os.path.exists(parent))
     return Scheduler(
         db_url=DB_URL,
         root_dir=str(jp_root_dir),
