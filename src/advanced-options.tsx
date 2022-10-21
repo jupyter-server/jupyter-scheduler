@@ -6,10 +6,10 @@ import { Cluster } from './components/cluster';
 import { AddButton, DeleteButton } from './components/icon-buttons';
 import { useTranslator } from './hooks';
 import { ICreateJobModel, IJobDetailModel } from './model';
-import { Scheduler as SchedulerTokens } from './tokens';
+import { Scheduler } from './tokens';
 
 const AdvancedOptions = (
-  props: SchedulerTokens.IAdvancedOptionsProps
+  props: Scheduler.IAdvancedOptionsProps
 ): JSX.Element => {
   const formPrefix = 'jp-create-job-advanced-';
 
