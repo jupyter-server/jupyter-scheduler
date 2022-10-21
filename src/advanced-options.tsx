@@ -27,8 +27,6 @@ const AdvancedOptions = (
       return; // Read-only mode
     }
 
-    const createModel = props.model as ICreateJobModel;
-
     const { name, value } = event.target;
     const tagIdxMatch = name.match(/^tag-(\d+)$/);
 
@@ -39,20 +37,27 @@ const AdvancedOptions = (
     const newTags = props.model.tags ?? [];
     newTags[parseInt(tagIdxMatch[1])] = value;
 
-    props.handleModelChange({ ...createModel, tags: newTags });
+    props.handleModelChange({
+      ...(props.model as ICreateJobModel),
+      tags: newTags
+    });
   };
 
   const addTag = () => {
     const newTags = [...(props.model.tags ?? []), ''];
-    const createModel = props.model as ICreateJobModel;
-    props.handleModelChange({ ...createModel, tags: newTags });
+    props.handleModelChange({
+      ...(props.model as ICreateJobModel),
+      tags: newTags
+    });
   };
 
   const deleteTag = (idx: number) => {
     const newTags = props.model.tags ?? [];
     newTags.splice(idx, 1);
-    const createModel = props.model as ICreateJobModel;
-    props.handleModelChange({ ...createModel, tags: newTags });
+    props.handleModelChange({
+      ...(props.model as ICreateJobModel),
+      tags: newTags
+    });
   };
 
   const tags = props.model.tags ?? [];
