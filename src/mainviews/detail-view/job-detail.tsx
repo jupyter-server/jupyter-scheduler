@@ -12,7 +12,7 @@ import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
-import HomeIcon from '@mui/icons-material/Home';
+import FolderIcon from '@mui/icons-material/Folder';
 import {
   Alert,
   Button,
@@ -135,7 +135,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const homeAdornment = (
     <InputAdornment position="start">
-      <HomeIcon fontSize="small" /> /
+      <FolderIcon fontSize="small" />&nbsp;&nbsp;/
     </InputAdornment>
   );
 

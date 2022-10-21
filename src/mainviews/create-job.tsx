@@ -16,7 +16,7 @@ import { ICreateJobModel, IJobParameter, ListJobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import ErrorIcon from '@mui/icons-material/Error';
-import HomeIcon from '@mui/icons-material/Home';
+import FolderIcon from '@mui/icons-material/Folder';
 
 import {
   Accordion,
@@ -687,7 +687,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const homeAdornment = (
     <InputAdornment position="start">
-      <HomeIcon fontSize="small" /> /
+      <FolderIcon fontSize="small" />&nbsp;&nbsp;/
     </InputAdornment>
   );
 
