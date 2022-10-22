@@ -1,5 +1,5 @@
-from logging import NOTSET
 import os
+from logging import NOTSET
 from multiprocessing import Process
 from typing import Dict, Optional, Type
 
@@ -104,7 +104,7 @@ class BaseScheduler(LoggingConfigurable):
 
     def get_job(self, job_id: str, outputs: Optional[bool] = True) -> DescribeJob:
         """Returns job record for a single job.
-        
+
         Parameters
         ----------
         job_id : str
@@ -113,7 +113,7 @@ class BaseScheduler(LoggingConfigurable):
         outputs : bool, optional
             If True, checks for outputs in local path
             and populates the outputs property. When
-            False, `add_outputs` should not be called. 
+            False, `add_outputs` should not be called.
         """
         raise NotImplementedError("must be implemented by subclass")
 
@@ -128,7 +128,7 @@ class BaseScheduler(LoggingConfigurable):
         API with status update to STOPPED, which will
         call the stop_job method.
         """
-        
+
         raise NotImplementedError("must be implemented by subclass")
 
     def create_job_definition(self, model: CreateJobDefinition) -> str:
@@ -236,10 +236,12 @@ class BaseScheduler(LoggingConfigurable):
 
         filenames = {}
         for output_format in model.output_formats:
-            filenames[output_format] = create_output_filename(model.input_uri, model.create_time, output_format)
+            filenames[output_format] = create_output_filename(
+                model.input_uri, model.create_time, output_format
+            )
 
         return filenames
-    
+
     def add_outputs(self, model: DescribeJob):
         """Adds outputs to the model, ensures output
         files are present in the local workspace. These
@@ -560,7 +562,7 @@ class ArchivingScheduler(Scheduler):
     execution_manager_class = TType(
         klass="jupyter_scheduler.executors.ExecutionManager",
         default_value="jupyter_scheduler.executors.ArchivingExecutionManager",
-        config=True
+        config=True,
     )
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
@@ -571,7 +573,7 @@ class ArchivingScheduler(Scheduler):
         staging_paths = {}
         if not model:
             return staging_paths
-        
+
         for output_format in model.output_formats:
             filename = create_output_filename(model.input_uri, model.create_time, output_format)
             staging_paths[output_format] = filename

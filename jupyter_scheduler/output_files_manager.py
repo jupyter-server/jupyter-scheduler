@@ -64,7 +64,6 @@ class Downloader:
             if not os.path.exists(output_filepath) or self.redownload:
                 yield input_filepath, output_filepath
 
-
     def download_tar(self, archive_format: str = "tar"):
         archive_filepath = self.staging_paths[archive_format]
         read_mode = "r:gz" if archive_format == "tar.gz" else "tar"
@@ -73,9 +72,8 @@ class Downloader:
                 filepaths = self.generate_filepaths()
                 for input_filepath, output_filepath in filepaths:
                     input_file = tar.extractfile(member=input_filepath)
-                    with fsspec.open(output_filepath, mode='wb') as output_file:
+                    with fsspec.open(output_filepath, mode="wb") as output_file:
                         output_file.write(input_file.read())
-
 
     def download(self):
         if not self.staging_paths:
