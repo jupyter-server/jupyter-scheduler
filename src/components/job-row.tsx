@@ -73,6 +73,7 @@ function RefillButton(props: {
       outputPath: props.job.output_prefix,
       environment: props.job.runtime_environment_name,
       runtimeEnvironmentParameters: props.job.runtime_environment_parameters,
+      computeType: props.job.compute_type,
       parameters: jobParameters
     };
 
