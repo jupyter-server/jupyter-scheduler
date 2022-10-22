@@ -157,7 +157,7 @@ class DefaultExecutionManager(ExecutionManager):
         }
 
 
-class ArchiveExportingExecutionManager(DefaultExecutionManager):
+class ArchivingExecutionManager(DefaultExecutionManager):
     """Execution manager that archives the output
     files to a compressed tar file.
 

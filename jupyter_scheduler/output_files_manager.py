@@ -18,7 +18,7 @@ class OutputFilesManager:
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         staging_paths = await ensure_async(self.scheduler.get_staging_paths(job_id))
-        job = await ensure_async(self.scheduler.get_job(job_id))
+        job = await ensure_async(self.scheduler.get_job(job_id, False))
         output_filenames = self.scheduler.get_output_filenames(job)
 
         p = Process(
@@ -62,7 +62,7 @@ class Downloader:
             output_filename = self.output_filenames[output_format]
             output_filepath = os.path.join(output_dir, output_filename)
             if not os.path.exists(output_filepath) or self.redownload:
-                yield input_filepath, output_filepath, output_dir
+                yield input_filepath, output_filepath
 
 
     def download_tar(self, archive_format: str = "tar"):
@@ -71,8 +71,11 @@ class Downloader:
         with fsspec.open(archive_filepath) as f:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
                 filepaths = self.generate_filepaths()
-                for input_filepath, output_filepath, output_dir in filepaths:
-                    tar.extract(member=input_filepath, path=output_dir)
+                for input_filepath, output_filepath in filepaths:
+                    input_file = tar.extractfile(member=input_filepath)
+                    with fsspec.open(output_filepath, mode='wb') as output_file:
+                        output_file.write(input_file.read())
+
 
     def download(self):
         if not self.staging_paths:
@@ -84,7 +87,7 @@ class Downloader:
             self.download_tar("tar.gz")
         else:
             filepaths = self.generate_filepaths()
-            for input_filepath, output_filepath, output_dir in filepaths:
+            for input_filepath, output_filepath in filepaths:
                 with fsspec.open(input_filepath) as input_file:
                     with fsspec.open(output_filepath, mode="wb") as output_file:
                         output_file.write(input_file.read())

@@ -1,7 +1,7 @@
 from logging import NOTSET
 import os
 from multiprocessing import Process
-from typing import Dict, Type
+from typing import Dict, Optional, Type
 
 import psutil
 from jupyter_core.paths import jupyter_data_dir
@@ -102,21 +102,33 @@ class BaseScheduler(LoggingConfigurable):
         """Returns number of jobs filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def get_job(self, job_id: str) -> DescribeJob:
-        """Returns job record for a single job"""
+    def get_job(self, job_id: str, outputs: Optional[bool] = True) -> DescribeJob:
+        """Returns job record for a single job.
+        
+        Parameters
+        ----------
+        job_id : str
+            Unique identifier for the job
+
+        outputs : bool, optional
+            If True, checks for outputs in local path
+            and populates the outputs property. When
+            False, `add_outputs` should not be called. 
+        """
         raise NotImplementedError("must be implemented by subclass")
 
     def delete_job(self, job_id: str):
         """Deletes the job record, stops the job if running"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def stop_job(self, job_id: str):
+    def stop_job(self, job_id: str, outputs: Optional[bool] = True):
         """Stops the job, this is not analogous
         to the REST API that will be called to
         stop the job. Front end will call the PUT
         API with status update to STOPPED, which will
         call the stop_job method.
         """
+        
         raise NotImplementedError("must be implemented by subclass")
 
     def create_job_definition(self, model: CreateJobDefinition) -> str:
@@ -387,12 +399,13 @@ class Scheduler(BaseScheduler):
             )
             return count if count else 0
 
-    def get_job(self, job_id: str) -> DescribeJob:
+    def get_job(self, job_id: str, outputs: Optional[bool] = True) -> DescribeJob:
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
 
         model = DescribeJob.from_orm(job_record)
-        self.add_outputs(model=model)
+        if outputs:
+            self.add_outputs(model=model)
 
         return model
 
@@ -528,27 +541,27 @@ class Scheduler(BaseScheduler):
         return list_response
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
-        model = None
-        with self.db_session() as session:
-            model = session.get(Job, job_id)
+        model = self.get_job(job_id, outputs=False)
 
         staging_paths = {}
-        if model:
-            for output_format in model.output_formats:
-                filename = create_output_filename(model.input_uri, model.create_time, output_format)
-                staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
+        if not model:
+            return staging_paths
+
+        for output_format in model.output_formats:
+            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
 
         return staging_paths
 
 
-class ArchiveDownloadingScheduler(Scheduler):
-    """Scheduler that adds archive path to staging paths.
+class ArchivingScheduler(Scheduler):
+    """Scheduler that adds archive path to staging paths."""
 
-    Notes
-    -----
-    Should be used in tandem with :class:`~jupyter_scheduler.executors.ArchiveExportingExecutingManager`
-    during jupyter server start.
-    """
+    execution_manager_class = TType(
+        klass="jupyter_scheduler.executors.ExecutionManager",
+        default_value="jupyter_scheduler.executors.ArchivingExecutionManager",
+        config=True
+    )
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
         model = None
@@ -556,13 +569,15 @@ class ArchiveDownloadingScheduler(Scheduler):
             model = session.get(Job, job_id)
 
         staging_paths = {}
-        if model:
-            for output_format in model.output_formats:
-                filename = create_output_filename(model.input_uri, model.create_time, output_format)
-                staging_paths[output_format] = os.path.join(filename)
-
-            output_format = "tar.gz"
+        if not model:
+            return staging_paths
+        
+        for output_format in model.output_formats:
             filename = create_output_filename(model.input_uri, model.create_time, output_format)
-            staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
+            staging_paths[output_format] = filename
+
+        output_format = "tar.gz"
+        filename = create_output_filename(model.input_uri, model.create_time, output_format)
+        staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
 
         return staging_paths
