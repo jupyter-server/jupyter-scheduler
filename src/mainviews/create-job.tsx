@@ -834,21 +834,27 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleErrorsChange={setErrors}
           />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button variant="outlined" onClick={e => props.showListView('Job')}>
-              {trans.__('Cancel')}
-            </Button>
             {props.model.createInProgress || (
-              <Button
-                variant="contained"
-                onClick={(e: React.MouseEvent) => {
-                  submitForm(e);
-                  return false;
-                }}
-                disabled={anyErrors}
-                title={anyErrors ? cantSubmit : ''}
-              >
-                {trans.__('Create')}
-              </Button>
+              <>
+                <Button
+                  variant="outlined"
+                  onClick={e => props.showListView('Job')}
+                >
+                  {trans.__('Cancel')}
+                </Button>
+
+                <Button
+                  variant="contained"
+                  onClick={(e: React.MouseEvent) => {
+                    submitForm(e);
+                    return false;
+                  }}
+                  disabled={anyErrors}
+                  title={anyErrors ? cantSubmit : ''}
+                >
+                  {trans.__('Create')}
+                </Button>
+              </>
             )}
             {props.model.createInProgress && <CircularProgress size="30px" />}
           </Cluster>
