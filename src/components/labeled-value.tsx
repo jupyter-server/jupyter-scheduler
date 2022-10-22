@@ -25,7 +25,7 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
       }}
     >
       <span style={{ fontSize: '0.8em' }}>{label}</span>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div
           style={{
             display: 'flex',
