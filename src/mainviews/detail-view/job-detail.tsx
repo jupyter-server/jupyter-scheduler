@@ -15,6 +15,7 @@ import {
   Card,
   CardContent,
   FormLabel,
+  Link,
   Stack,
   TextField,
   TextFieldProps
@@ -30,7 +31,10 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
   />
 );
 
-import { ReadonlyTextField } from '../../components/readonly-text-field';
+import {
+  ILabeledValueProps,
+  LabeledValue
+} from '../../components/labeled-value';
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
@@ -106,7 +110,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
-  const coreOptionsFields: TextFieldProps[][] = [
+  const coreOptionsFields: ILabeledValueProps[][] = [
     [
       { value: props.model.jobName, label: trans.__('Job name') },
       { value: props.model.jobId, label: trans.__('Job ID') }
@@ -161,10 +165,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {coreOptionsFields.map(propsRow => (
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {propsRow.map(textProp => (
-                <ReadonlyTextField
+                <LabeledValue
                   {...textProp}
                   style={{
-                    flexGrow: 1
+                    flexGrow: 1,
+                    flexBasis: '49%',
+                    maxWidth: '50%'
                   }}
                 />
               ))}
@@ -199,18 +205,22 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {props.model.parameters &&
             props.model.parameters.map((parameter, idx) => (
               <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
-                <ReadonlyTextField
+                <LabeledValue
                   label={trans.__('Parameter name')}
                   value={parameter.name}
                   style={{
-                    flexGrow: 1
+                    flexGrow: 1,
+                    flexBasis: '49%',
+                    maxWidth: '50%'
                   }}
                 />
-                <ReadonlyTextField
+                <LabeledValue
                   label={trans.__('Parameter value')}
                   value={parameter.value}
                   style={{
-                    flexGrow: 1
+                    flexGrow: 1,
+                    flexBasis: '49%',
+                    maxWidth: '50%'
                   }}
                 />
               </Stack>
