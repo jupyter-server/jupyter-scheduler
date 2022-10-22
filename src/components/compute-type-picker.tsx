@@ -37,6 +37,13 @@ export function ComputeTypePicker(
         id={props.id}
         onChange={props.onChange}
         value={props.value}
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              maxHeight: '20em'
+            }
+          }
+        }}
       >
         {computeTypes.map((ct, idx) => (
           <MenuItem value={ct} key={idx}>
