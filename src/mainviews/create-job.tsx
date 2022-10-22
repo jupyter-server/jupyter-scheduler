@@ -639,7 +639,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
-    props.handleModelChange({ ...props.model, createError: undefined });
+    props.handleModelChange({
+      ...props.model,
+      createError: undefined,
+      createInProgress: true
+    });
 
     api
       .createJobDefinition(jobDefinitionOptions)
@@ -648,7 +652,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         props.showListView('JobDefinition');
       })
       .catch((error: string) => {
-        props.handleModelChange({ ...props.model, createError: error });
+        props.handleModelChange({
+          ...props.model,
+          createError: error,
+          createInProgress: false
+        });
       });
   };
 
