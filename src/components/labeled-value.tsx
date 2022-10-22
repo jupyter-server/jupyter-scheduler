@@ -25,15 +25,21 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
       }}
     >
       <span style={{ fontSize: '0.8em' }}>{label}</span>
-      <div
-        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
-      >
-        {InputProps?.startAdornment}
-        <span>{value ? value : !InputProps?.startAdornment && '\u2014'}</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center'
+          }}
+        >
+          {InputProps?.startAdornment}
+          <span>{value ? value : !InputProps?.startAdornment && '\u2014'}</span>
+        </div>
+        <span style={{ fontSize: '0.8em', maxWidth: 'fit-content' }}>
+          {helperText}
+        </span>
       </div>
-      {helperText}
-      {/* {...props}
-    FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }} */}
     </div>
   );
 };
