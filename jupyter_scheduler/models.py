@@ -1,7 +1,8 @@
 from enum import Enum
+import os
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 Tags = List[str]
 ParameterValues = Union[int, str, float, bool]
@@ -65,14 +66,13 @@ Examples of other formats:
 "{{name}}-{{timestamp}}"
 "{{runtime_environment_name}}_{{filename}}_{{job_id}}"
 """
-OUTPUT_FILENAME_TEMPLATE = "{{filename}}-{{timestamp}}"
+OUTPUT_FILENAME_TEMPLATE = "{{input_filename}}-{{create_time}}"
 
 
 class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
-
     input_uri: str
-    output_prefix: str
+    input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
@@ -83,6 +83,13 @@ class CreateJob(BaseModel):
     name: Optional[str] = None
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+
+    @root_validator
+    def compute_input_filename(cls, values) -> Dict:
+        if not values['input_filename'] and values['input_uri']:
+            values['input_filename'] = os.path.basename(values['input_uri'])
+
+        return values
 
 
 class Output(BaseModel):
@@ -113,7 +120,18 @@ class Output(BaseModel):
     output_path: Optional[str] = None
 
 
-class DescribeJob(CreateJob):
+class DescribeJob(BaseModel):
+    input_filename: str = None
+    runtime_environment_name: str
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
+    idempotency_token: Optional[str] = None
+    job_definition_id: Optional[str] = None
+    parameters: Optional[Dict[str, ParameterValues]] = None
+    tags: Optional[Tags] = None
+    name: Optional[str] = None
+    output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
+    compute_type: Optional[str] = None
     job_id: str
     outputs: List[Output] = []
     url: str
