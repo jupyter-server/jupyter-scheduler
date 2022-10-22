@@ -567,7 +567,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
-    if (props.model.createButtonDisabled || anyErrors) {
+    if (anyErrors) {
       console.error(
         'User attempted to submit a createJob request; button should have been disabled'
       );
