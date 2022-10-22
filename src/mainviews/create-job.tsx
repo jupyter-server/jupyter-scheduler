@@ -158,7 +158,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target;
 
-    // if setting the environment, default the compute type to its first value (if any are presnt)
+    // if setting the environment, default the compute type to its first value (if any are present)
     if (target.name === 'environment') {
       const envObj = environmentList.find(env => env.name === target.value);
       props.handleModelChange({
