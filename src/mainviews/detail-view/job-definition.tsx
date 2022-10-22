@@ -7,17 +7,14 @@ import cronstrue from 'cronstrue';
 import { ListJobsTable } from '../list-jobs';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  FormLabel,
-  Stack,
-  TextFieldProps
-} from '@mui/material';
+import { Button, Card, CardContent, FormLabel, Stack } from '@mui/material';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ReadonlyTextField } from '../../components/readonly-text-field';
+import {
+  ILabeledValueProps,
+  LabeledValue
+} from '../../components/labeled-value';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -99,7 +96,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     </Stack>
   );
 
-  const jobDefinitionFields: TextFieldProps[][] = [
+  const jobDefinitionFields: ILabeledValueProps[][] = [
     [{ value: props.model.name, label: trans.__('Name') }],
     [
       {
@@ -145,6 +142,27 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   ];
 
   const JobDefinition = (
+    <Card>
+      <CardContent>
+        <Stack spacing={4}>
+          {jobDefinitionFields.map(propsRow => (
+            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {propsRow.map(textProp => (
+                <LabeledValue
+                  {...textProp}
+                  style={{
+                    flex: '1 1 49%'
+                  }}
+                />
+              ))}
+            </Stack>
+          ))}
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+
+  const JobDefinitionOld = (
     <Card>
       <CardContent>
         <Stack spacing={4}>
@@ -208,6 +226,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     <>
       {DefinitionButtonBar}
       {JobDefinition}
+      {JobDefinitionOld}
       {JobsList}
       {AdvancedOptions}
     </>

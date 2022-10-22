@@ -1,17 +1,18 @@
 import React from 'react';
 
 export interface ILabeledValueProps {
-  label?: string;
+  label: string;
   value?: string | number | boolean;
   style?: React.CSSProperties;
   InputProps?: {
     startAdornment: JSX.Element;
   };
+  helperText?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
-  const { label, value, style, InputProps } = props;
+  const { label, value, style, helperText, InputProps } = props;
 
   return (
     <div
@@ -30,6 +31,7 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
         {InputProps?.startAdornment}
         <span>{value ? value : !InputProps?.startAdornment && '\u2014'}</span>
       </div>
+      {helperText}
       {/* {...props}
     FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }} */}
     </div>
