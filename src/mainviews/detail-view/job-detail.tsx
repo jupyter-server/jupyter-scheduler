@@ -168,9 +168,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                 <LabeledValue
                   {...textProp}
                   style={{
-                    flexGrow: 1,
-                    flexBasis: '49%',
-                    maxWidth: '50%'
+                    flex: '1 1 49%'
                   }}
                 />
               ))}
@@ -209,18 +207,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                   label={trans.__('Parameter name')}
                   value={parameter.name}
                   style={{
-                    flexGrow: 1,
-                    flexBasis: '49%',
-                    maxWidth: '50%'
+                    flex: '1 1 49%'
                   }}
                 />
                 <LabeledValue
                   label={trans.__('Parameter value')}
                   value={parameter.value}
                   style={{
-                    flexGrow: 1,
-                    flexBasis: '49%',
-                    maxWidth: '50%'
+                    flex: '1 1 49%'
                   }}
                 />
               </Stack>
