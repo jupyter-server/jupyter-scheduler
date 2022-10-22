@@ -24,6 +24,7 @@ import {
   AccordionSummary,
   Alert,
   Button,
+  CircularProgress,
   FormLabel,
   InputAdornment,
   SelectChangeEvent,
@@ -566,7 +567,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
-    if (anyErrors) {
+    if (props.model.createButtonDisabled || anyErrors) {
       console.error(
         'User attempted to submit a createJob request; button should have been disabled'
       );
@@ -590,7 +591,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
-    props.handleModelChange({ ...props.model, createError: undefined });
+    props.handleModelChange({
+      ...props.model,
+      createError: undefined,
+      createInProgress: true
+    });
 
     api
       .createJob(jobOptions)
@@ -599,7 +604,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         props.showListView('Job');
       })
       .catch((error: Error) => {
-        props.handleModelChange({ ...props.model, createError: error.message });
+        props.handleModelChange({
+          ...props.model,
+          createError: error.message,
+          createInProgress: false
+        });
       });
   };
 
@@ -820,17 +829,20 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             <Button variant="outlined" onClick={e => props.showListView('Job')}>
               {trans.__('Cancel')}
             </Button>
-            <Button
-              variant="contained"
-              onClick={(e: React.MouseEvent) => {
-                submitForm(e);
-                return false;
-              }}
-              disabled={anyErrors}
-              title={anyErrors ? cantSubmit : ''}
-            >
-              {trans.__('Create')}
-            </Button>
+            {props.model.createInProgress || (
+              <Button
+                variant="contained"
+                onClick={(e: React.MouseEvent) => {
+                  submitForm(e);
+                  return false;
+                }}
+                disabled={anyErrors}
+                title={anyErrors ? cantSubmit : ''}
+              >
+                {trans.__('Create')}
+              </Button>
+            )}
+            {props.model.createInProgress && <CircularProgress size="30px" />}
           </Cluster>
         </Stack>
       </form>

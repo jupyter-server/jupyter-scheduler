@@ -57,6 +57,8 @@ export interface ICreateJobModel extends PartialJSONObject {
   scheduleMonthDayInput?: string;
   scheduleMonthDay?: number;
   scheduleWeekDay?: string;
+  // Is the create button disabled due to a submission in progress?
+  createInProgress?: boolean;
 }
 
 export function emptyCreateJobModel(): ICreateJobModel {
