@@ -1,30 +1,17 @@
-import React from 'react';
 import {
   ILayoutRestorer,
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import {
-  MainAreaWidget,
-  ReactWidget,
-  WidgetTracker
-} from '@jupyterlab/apputils';
+import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
 import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Contents } from '@jupyterlab/services';
-import { IStatusBar } from '@jupyterlab/statusbar';
 import { ITranslator } from '@jupyterlab/translation';
 
-import { Poll } from '@lumino/polling';
-import { RunningJobsIndicator } from './components/running-jobs-indicator';
-
 import { SchedulerService } from './handler';
-import {
-  NotebookJobsListingModel,
-  IJobsModel,
-  emptyCreateJobModel
-} from './model';
+import { IJobsModel, emptyCreateJobModel } from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import {
   calendarAddOnIcon,
@@ -58,7 +45,7 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     ILayoutRestorer,
     Scheduler.IAdvancedOptions
   ],
-  optional: [IStatusBar, ILauncher],
+  optional: [ILauncher],
   autoStart: true,
   activate: activatePlugin
 };
@@ -118,20 +105,6 @@ function getDirectoryFromPath(path: string | null): string | null {
   return directories.join('/') + (directories.length > 0 ? '/' : '');
 }
 
-let scheduledJobsListingModel: NotebookJobsListingModel | null = null;
-
-async function getNotebookJobsListingModel(): Promise<NotebookJobsListingModel> {
-  if (scheduledJobsListingModel) {
-    return scheduledJobsListingModel;
-  }
-
-  const api = new SchedulerService({});
-
-  const jobsResponse = await api.getJobs({});
-  scheduledJobsListingModel = new NotebookJobsListingModel(jobsResponse.jobs);
-  return scheduledJobsListingModel;
-}
-
 async function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
@@ -139,14 +112,8 @@ async function activatePlugin(
   translator: ITranslator,
   restorer: ILayoutRestorer,
   advancedOptions: Scheduler.IAdvancedOptions,
-  statusBar: IStatusBar | null,
   launcher: ILauncher | null
 ): Promise<void> {
-  // first, validate presence of dependencies
-  if (!statusBar) {
-    return;
-  }
-
   const { commands } = app;
   const trans = translator.load('jupyterlab');
   const fileBrowserTracker = browserFactory.tracker;
@@ -276,36 +243,6 @@ async function activatePlugin(
       await api.downloadOutputs(id, redownload);
     }
   });
-
-  // validate presence of status bar
-  if (!statusBar) {
-    return;
-  }
-
-  const scheduledJobsListingModel = await getNotebookJobsListingModel();
-  statusBar.registerStatusItem('jupyterlab-scheduler:status', {
-    align: 'middle',
-    item: ReactWidget.create(
-      <RunningJobsIndicator
-        onClick={async () => showJobsPanel({ jobsView: 'ListJobs' })}
-        model={scheduledJobsListingModel}
-      />
-    )
-  });
-
-  const statusPoll = new Poll({
-    factory: async () => {
-      const model = jobsPanel?.model;
-      if (!model) {
-        return;
-      }
-
-      const jobCount = await api.getjobCount('IN_PROGRESS');
-      model.jobCount = jobCount;
-    },
-    frequency: { interval: 1000, backoff: false }
-  });
-  statusPoll.start();
 
   // Add to launcher
   if (launcher) {
