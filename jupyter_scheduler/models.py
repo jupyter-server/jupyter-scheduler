@@ -195,7 +195,7 @@ class DeleteJob(BaseModel):
 
 class CreateJobDefinition(BaseModel):
     input_uri: str
-    output_prefix: str
+    input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
@@ -207,8 +207,26 @@ class CreateJobDefinition(BaseModel):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
 
+    @root_validator
+    def compute_input_filename(cls, values) -> Dict:
+        if not values['input_filename'] and values['input_uri']:
+            values['input_filename'] = os.path.basename(values['input_uri'])
 
-class DescribeJobDefinition(CreateJobDefinition):
+        return values
+
+
+class DescribeJobDefinition(BaseModel):
+    input_filename: str = None
+    runtime_environment_name: str
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
+    parameters: Optional[Dict[str, ParameterValues]] = None
+    tags: Optional[Tags] = None
+    name: Optional[str] = None
+    output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
+    compute_type: Optional[str] = None
+    schedule: Optional[str] = None
+    timezone: Optional[str] = None
     job_definition_id: str
     create_time: int
     update_time: int

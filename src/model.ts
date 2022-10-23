@@ -27,7 +27,6 @@ export interface ICreateJobModel extends PartialJSONObject {
   key?: number;
   jobName: string;
   inputFile: string;
-  outputPath: string;
   environment: string;
   // A "job" runs now; a "job definition" runs on a schedule
   createType: 'Job' | 'JobDefinition';
@@ -213,7 +212,6 @@ export interface IJobsModelOptions {
 export interface IJobDetailModel {
   jobName: string;
   inputFile: string;
-  outputPath: string;
   environment: string;
   // Errors from creation
   createError?: string;
@@ -293,10 +291,8 @@ export function convertDescribeJobtoJobDetail(
     ...emptyCreateJobModel(),
     jobId: describeJob.job_id,
     jobName: describeJob.name ?? '',
-    inputFile: describeJob.input_uri,
-    outputPath: describeJob.output_prefix,
+    inputFile: describeJob.input_filename,
     outputs: convertOutputsToJson(describeJob.outputs),
-    outputPrefix: describeJob.output_prefix,
     environment: describeJob.runtime_environment_name,
     runtimeEnvironmentParameters: describeJob.runtime_environment_parameters,
     parameters: jobParameters,
@@ -324,10 +320,9 @@ export function convertDescribeDefinitiontoDefinition(
 
   return {
     name: describeDefinition.name ?? '',
-    inputFile: describeDefinition.input_uri,
+    inputFile: describeDefinition.input_filename,
     definitionId: describeDefinition.job_definition_id,
     outputPath: describeDefinition.output_filename_template ?? '',
-    outputPrefix: describeDefinition.output_prefix,
     environment: describeDefinition.runtime_environment_name,
     runtimeEnvironmentParameters:
       describeDefinition.runtime_environment_parameters,

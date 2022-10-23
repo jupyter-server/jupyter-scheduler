@@ -1,5 +1,4 @@
 import asyncio
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from typing import List, Optional
@@ -11,7 +10,7 @@ from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config import LoggingConfigurable
 
-from jupyter_scheduler.models import CreateJob, UpdateJob, UpdateJobDefinition
+from jupyter_scheduler.models import CreateJob, UpdateJobDefinition
 from jupyter_scheduler.orm import JobDefinition, declarative_base
 from jupyter_scheduler.utils import (
     compute_next_run_time,

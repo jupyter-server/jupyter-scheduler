@@ -578,7 +578,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const jobOptions: Scheduler.ICreateJob = {
       name: props.model.jobName,
       input_uri: props.model.inputFile,
-      output_prefix: props.model.outputPath,
       runtime_environment_name: props.model.environment,
       output_formats: props.model.outputFormats,
       compute_type: props.model.computeType,
@@ -623,7 +622,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const jobDefinitionOptions: Scheduler.ICreateJobDefinition = {
       name: props.model.jobName,
       input_uri: props.model.inputFile,
-      output_prefix: props.model.outputPath,
       runtime_environment_name: props.model.environment,
       compute_type: props.model.computeType,
       output_formats: props.model.outputFormats,
@@ -734,20 +732,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             name="inputFile"
             InputProps={{
               readOnly: true,
-              startAdornment: homeAdornment
-            }}
-          />
-          <TextField
-            label={trans.__('Output directory')}
-            variant="outlined"
-            onChange={handleInputChange}
-            value={props.model.outputPath}
-            id={`${formPrefix}outputPath`}
-            name="outputPath"
-            helperText={trans.__(
-              'Path, relative to the server root, where output files will be written'
-            )}
-            InputProps={{
               startAdornment: homeAdornment
             }}
           />

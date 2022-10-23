@@ -261,7 +261,7 @@ class BaseScheduler(LoggingConfigurable):
         mapping = self.environments_manager.output_formats_mapping()
         outputs = []
         output_filenames = self.get_output_filenames(model)
-        output_dir = self.get_local_output_path(model)
+        output_dir = os.path.relpath(self.get_local_output_path(model), self.root_dir)
         for output_format in model.output_formats:
             filename = output_filenames[output_format]
             output_path = os.path.join(output_dir, filename)
@@ -269,7 +269,7 @@ class BaseScheduler(LoggingConfigurable):
                 Output(
                     display_name=mapping[output_format],
                     output_format=output_format,
-                    output_path=output_path if os.path.exists(output_path) else None,
+                    output_path=output_path if self.file_exists(output_path) else None,
                 )
             )
 

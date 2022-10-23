@@ -108,8 +108,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
       name: trans.__('Job name')
     },
     {
-      sortField: 'input_uri',
-      name: trans.__('Input file')
+      sortField: 'input_filename',
+      name: trans.__('Input filename')
     },
     {
       sortField: null, // Output prefix is not visible in UI
@@ -198,8 +198,8 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
       name: trans.__('Job definition name')
     },
     {
-      sortField: 'input_uri',
-      name: trans.__('Input file')
+      sortField: 'input_filename',
+      name: trans.__('Input filename')
     },
     {
       sortField: 'create_time',

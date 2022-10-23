@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { PathExt } from '@jupyterlab/coreutils';
 
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
@@ -16,10 +15,6 @@ import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { IJobParameter, ICreateJobModel, emptyCreateJobModel } from '../model';
 import { CommandIDs } from '..';
-
-function get_file_from_path(path: string): string {
-  return PathExt.basename(path);
-}
 
 function StopButton(props: {
   job: Scheduler.IDescribeJob;
@@ -70,7 +65,6 @@ function RefillButton(props: {
       ...emptyCreateJobModel(),
       inputFile: props.job.input_uri,
       jobName: props.job.name ?? '',
-      outputPath: props.job.output_prefix,
       environment: props.job.runtime_environment_name,
       runtimeEnvironmentParameters: props.job.runtime_environment_parameters,
       computeType: props.job.compute_type,
@@ -186,7 +180,7 @@ export function buildJobRow(
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
     <a onClick={() => showDetailView(job.job_id)}>{job.name}</a>,
-    get_file_from_path(job.input_uri),
+    job.input_filename,
     <>
       {!job.downloaded && job.status === 'COMPLETED' && (
         <DownloadOutputsButton app={app} job={job} reload={reload} />
