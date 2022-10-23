@@ -4,16 +4,14 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
-import ReplayIcon from '@mui/icons-material/Replay';
 import IconButton from '@mui/material/IconButton';
 import { Stack, TableCell, TableRow } from '@mui/material';
 
 import { ConfirmDeleteIcon } from './confirm-delete-icon';
-import { outputFormatsForEnvironment } from './output-format-picker';
 
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
-import { IJobParameter, ICreateJobModel, emptyCreateJobModel } from '../model';
+import { ICreateJobModel } from '../model';
 import { CommandIDs } from '..';
 
 function StopButton(props: {
@@ -36,64 +34,6 @@ function StopButton(props: {
   );
 }
 
-function RefillButton(props: {
-  job: Scheduler.IDescribeJob;
-  environmentList: Scheduler.IRuntimeEnvironment[];
-  showCreateJob: (newModel: ICreateJobModel) => void;
-}): JSX.Element | null {
-  const trans = useTranslator('jupyterlab');
-  const buttonTitle = props.job.name
-    ? trans.__('Rerun "%1" …', props.job.name)
-    : trans.__('Rerun job …');
-
-  // Retrieve the key from the parameters list or return a parameter with a null value
-  function getParam(key: string) {
-    return {
-      name: key,
-      value: props.job.parameters?.[key]
-    };
-  }
-
-  // Convert the hash of parameters to an array.
-  const jobParameters: IJobParameter[] | undefined =
-    props.job.parameters !== undefined
-      ? Object.keys(props.job.parameters).map(key => getParam(key))
-      : undefined;
-
-  const clickHandler = (): void => {
-    const newModel: ICreateJobModel = {
-      ...emptyCreateJobModel(),
-      inputFile: props.job.input_uri,
-      jobName: props.job.name ?? '',
-      environment: props.job.runtime_environment_name,
-      runtimeEnvironmentParameters: props.job.runtime_environment_parameters,
-      computeType: props.job.compute_type,
-      parameters: jobParameters
-    };
-
-    // Convert the list of output formats, if any, into a list for the initial state
-    const jobOutputFormats = props.job.output_formats;
-    const outputFormats = outputFormatsForEnvironment(
-      props.environmentList,
-      props.job.runtime_environment_name
-    );
-    if (jobOutputFormats && outputFormats) {
-      newModel.outputFormats = outputFormats
-        .filter(of => jobOutputFormats.some(jof => of.name === jof))
-        .map(of => of.name);
-    }
-
-    // Switch the view to the form.
-    props.showCreateJob(newModel);
-  };
-
-  return (
-    <IconButton onClick={clickHandler} title={buttonTitle}>
-      <ReplayIcon fontSize="small" />
-    </IconButton>
-  );
-}
-
 function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
   const create_date: Date | null = props.job.create_time
     ? new Date(props.job.create_time)
@@ -105,7 +45,7 @@ function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
   return <>{create_display_date}</>;
 }
 
-function OutputFiles(props: {
+function JobFiles(props: {
   job: Scheduler.IDescribeJob;
   openOnClick: (e: any, output_uri: string) => void;
 }): JSX.Element | null {
@@ -117,15 +57,15 @@ function OutputFiles(props: {
 
   return (
     <>
-      {props.job.outputs.map(
-        ({ output_format, display_name, output_path = null }) => {
+      {props.job.job_files.map(
+        ({ file_format, display_name, file_path = null }) => {
           return (
-            output_path && (
+            file_path && (
               <a
-                key={output_format}
-                href={`/lab/tree/${output_path}`}
-                title={trans.__('Open "%1"', output_path)}
-                onClick={e => props.openOnClick(e, output_path)}
+                key={file_format}
+                href={`/lab/tree/${file_path}`}
+                title={trans.__('Open "%1"', file_path)}
+                onClick={e => props.openOnClick(e, file_path)}
                 style={{ paddingRight: '1em' }}
               >
                 {display_name}
@@ -138,13 +78,13 @@ function OutputFiles(props: {
   );
 }
 
-type DownloadOutputsButtonProps = {
+type DownloadFilesButtonProps = {
   app: JupyterFrontEnd;
   job: Scheduler.IDescribeJob;
   reload: () => void;
 };
 
-function DownloadOutputsButton(props: DownloadOutputsButtonProps) {
+function DownloadFilesButton(props: DownloadFilesButtonProps) {
   const [downloading, setDownloading] = useState(false);
 
   return (
@@ -154,7 +94,7 @@ function DownloadOutputsButton(props: DownloadOutputsButtonProps) {
       disabled={downloading}
       onClick={async () => {
         setDownloading(true);
-        await props.app.commands.execute(CommandIDs.downloadOutputs, {
+        await props.app.commands.execute(CommandIDs.downloadFiles, {
           id: props.job.job_id,
           redownload: false
         });
@@ -183,9 +123,9 @@ export function buildJobRow(
     job.input_filename,
     <>
       {!job.downloaded && job.status === 'COMPLETED' && (
-        <DownloadOutputsButton app={app} job={job} reload={reload} />
+        <DownloadFilesButton app={app} job={job} reload={reload} />
       )}
-      <OutputFiles
+      <JobFiles
         job={job}
         openOnClick={(e: Event, output_uri: string) => {
           e.preventDefault();
@@ -203,11 +143,6 @@ export function buildJobRow(
             id: job.job_id
           })
         }
-      />
-      <RefillButton
-        job={job}
-        environmentList={environmentList}
-        showCreateJob={showCreateJob}
       />
       <ConfirmDeleteIcon
         name={job.name}

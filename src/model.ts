@@ -230,7 +230,7 @@ export interface IJobDetailModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  outputs: { [key: string]: string }[];
+  job_files: { [key: string]: string }[];
   downloaded: boolean;
 }
 
@@ -277,12 +277,12 @@ export function convertDescribeJobtoJobDetail(
   // Convert parameters
   const jobParameters = convertParameters(describeJob.parameters ?? {});
 
-  const convertOutputsToJson = (outputs: Scheduler.IOutput[]) => {
-    return outputs.map(output => {
+  const convertJobFilesToJson = (files: Scheduler.IJobFile[]) => {
+    return files.map(file => {
       return {
-        display_name: output.display_name,
-        output_format: output.output_format,
-        output_path: output.output_path || ''
+        display_name: file.display_name,
+        file_format: file.file_format,
+        file_path: file.file_path || ''
       };
     });
   };
@@ -292,7 +292,7 @@ export function convertDescribeJobtoJobDetail(
     jobId: describeJob.job_id,
     jobName: describeJob.name ?? '',
     inputFile: describeJob.input_filename,
-    outputs: convertOutputsToJson(describeJob.outputs),
+    job_files: convertJobFilesToJson(describeJob.job_files),
     environment: describeJob.runtime_environment_name,
     runtimeEnvironmentParameters: describeJob.runtime_environment_parameters,
     parameters: jobParameters,

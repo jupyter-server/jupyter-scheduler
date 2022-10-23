@@ -10,7 +10,7 @@ from jupyter_scheduler.scheduler import BaseScheduler
 from jupyter_scheduler.utils import resolve_path
 
 
-class OutputFilesManager:
+class JobFilesManager:
     scheduler = None
 
     def __init__(self, scheduler: Type[BaseScheduler]):
@@ -19,7 +19,7 @@ class OutputFilesManager:
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         job = await ensure_async(self.scheduler.get_job(job_id, False))
         staging_paths = await ensure_async(self.scheduler.get_staging_paths(job))
-        output_filenames = self.scheduler.get_output_filenames(job)
+        output_filenames = self.scheduler.get_job_filenames(job)
         output_dir = self.scheduler.get_local_output_path(job)
 
         p = Process(

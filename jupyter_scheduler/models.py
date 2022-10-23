@@ -91,33 +91,33 @@ class CreateJob(BaseModel):
 
         return values
 
-
-class Output(BaseModel):
+class JobFile(BaseModel):
     """This model is used to describe the display value,
-    output format, and the filepath for a single job output file.
+    output format, and the filepath for a single job file.
+    This will include both input file used to execute the
+    job and the outputs generated.
 
     Attributes
     ----------
     display_name : str
         Human readable display value for use in UI
 
-    output_format : str
+    file_format : str
         System encoded value of output format, this value
         should match the output_format value passed into
         the `CreateJob` or `CreateJobDefinition`models by
         the `create_job` and `create_job_definition` APIs
         respectively
 
-    output_path : str
+    file_path : str
         Output file path relative to the server root dir.
         This should always specify the local path within
         the JupyterLab workspace.
-
     """
 
     display_name: str
-    output_format: str
-    output_path: Optional[str] = None
+    file_format: str
+    file_path: Optional[str] = None
 
 
 class DescribeJob(BaseModel):
@@ -133,7 +133,7 @@ class DescribeJob(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     job_id: str
-    outputs: List[Output] = []
+    job_files: List[JobFile] = []
     url: str
     create_time: int
     update_time: int

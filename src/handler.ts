@@ -240,11 +240,11 @@ export class SchedulerService {
     }
   }
 
-  async downloadOutputs(jobId: string, redownload = false): Promise<void> {
+  async downloadFiles(jobId: string, redownload = false): Promise<void> {
     try {
       await requestAPI(
         this.serverSettings,
-        `jobs/${jobId}/download_outputs?redownload=${redownload}`,
+        `jobs/${jobId}/download_files?redownload=${redownload}`,
         {
           method: 'GET'
         }
@@ -398,13 +398,13 @@ export namespace Scheduler {
     | 'STOPPING'
     | 'STOPPED';
 
-  export interface IOutput {
+  export interface IJobFile {
     display_name: string;
-    output_format: string;
-    output_path?: string;
+    file_format: string;
+    file_path?: string;
   }
 
-  export interface IDescribeJob extends ICreateJob {
+  export interface IDescribeJob {
     input_filename: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
@@ -422,7 +422,7 @@ export namespace Scheduler {
     output_formats?: string[];
     compute_type?: string;
     job_id: string;
-    outputs: IOutput[];
+    job_files: IJobFile[];
     url: string;
     status: Status;
     status_message: string;

@@ -258,21 +258,21 @@ class ConfigHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         )
 
 
-class OutputsDownloadHandler(ExtensionHandlerMixin, APIHandler):
+class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
 
-    _output_files_manager = None
+    _job_files_manager = None
 
     @property
-    def output_files_manager(self):
-        if not self._output_files_manager:
-            self._output_files_manager = self.settings.get("output_files_manager", None)
+    def job_files_manager(self):
+        if not self._job_files_manager:
+            self._job_files_manager = self.settings.get("job_files_manager", None)
 
-        return self._output_files_manager
+        return self._job_files_manager
 
     @tornado.web.authenticated
     async def get(self, job_id):
         redownload = self.get_query_argument("redownload", False)
-        await self.output_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
+        await self.job_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
 
         self.set_status(204)
         self.finish()
