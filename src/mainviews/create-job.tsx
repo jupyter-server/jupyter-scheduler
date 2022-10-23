@@ -90,7 +90,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       if (envList.length === 1) {
         props.handleModelChange({
           ...props.model,
-          environment: envList[0].name
+          environment: envList[0].name,
+          computeType: envList[0].compute_types?.[0]
         });
       }
     };
