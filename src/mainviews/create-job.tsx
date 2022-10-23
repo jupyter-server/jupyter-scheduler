@@ -856,7 +856,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 </Button>
               </>
             )}
-            {props.model.createInProgress && <CircularProgress size="30px" />}
+            {props.model.createInProgress && (
+              <>
+                {props.model.createType === 'Job'
+                  ? trans.__('Creating job …')
+                  : trans.__('Creating job definition …')}
+                <CircularProgress size="30px" />
+              </>
+            )}
           </Cluster>
         </Stack>
       </form>
