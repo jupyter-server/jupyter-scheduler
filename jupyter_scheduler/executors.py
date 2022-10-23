@@ -1,4 +1,6 @@
+import io
 import os
+import tarfile
 import traceback
 from abc import ABC, abstractmethod
 from typing import Dict
@@ -6,7 +8,7 @@ from typing import Dict
 import fsspec
 import nbconvert
 import nbformat
-from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
@@ -126,13 +128,16 @@ class DefaultExecutionManager(ExecutionManager):
             store_widget_state=True,
         )
 
-        ep.preprocess(nb)
-
-        for output_format in job.output_formats:
-            cls = nbconvert.get_exporter(output_format)
-            output, resources = cls().from_notebook_node(nb)
-            with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
-                f.write(output)
+        try:
+            ep.preprocess(nb)
+        except CellExecutionError as e:
+            pass
+        finally:
+            for output_format in job.output_formats:
+                cls = nbconvert.get_exporter(output_format)
+                output, resources = cls().from_notebook_node(nb)
+                with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
+                    f.write(output)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
@@ -150,3 +155,48 @@ class DefaultExecutionManager(ExecutionManager):
             JobFeature.stop_job: True,
             JobFeature.delete_job: True,
         }
+
+
+class ArchivingExecutionManager(DefaultExecutionManager):
+    """Execution manager that archives the output
+    files to a compressed tar file.
+
+    Notes
+    -----
+    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchiveDownloadingScheduler`
+    as the `scheduler_class` during jupyter server start.
+    """
+
+    def execute(self):
+        job = self.model
+
+        with open(resolve_path(job.input_uri, self.root_dir)) as f:
+            nb = nbformat.read(f, as_version=4)
+
+        if job.parameters:
+            nb = add_parameters(nb, job.parameters)
+
+        ep = ExecutePreprocessor(
+            kernel_name=nb.metadata.kernelspec["name"],
+            store_widget_state=True,
+        )
+
+        try:
+            ep.preprocess(nb)
+        except CellExecutionError as e:
+            pass
+        finally:
+            fh = io.BytesIO()
+            with tarfile.open(fileobj=fh, mode="w:gz") as tar:
+                for output_format in job.output_formats:
+                    cls = nbconvert.get_exporter(output_format)
+                    output, resources = cls().from_notebook_node(nb)
+                    data = bytes(output, "utf-8")
+                    source_f = io.BytesIO(initial_bytes=data)
+                    info = tarfile.TarInfo(self.staging_paths[output_format])
+                    info.size = len(data)
+                    tar.addfile(info, source_f)
+
+            archive_filepath = self.staging_paths["tar.gz"]
+            with fsspec.open(archive_filepath, "wb") as f:
+                f.write(fh.getvalue())

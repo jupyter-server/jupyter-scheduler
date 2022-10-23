@@ -1,10 +1,10 @@
 import os
+from logging import NOTSET
 from multiprocessing import Process
-from typing import Dict, Type
+from typing import Dict, Optional, Type
 
 import psutil
 from jupyter_core.paths import jupyter_data_dir
-from jupyter_server.traittypes import TypeFromClasses
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
 from sqlalchemy import and_, asc, desc, func
@@ -44,13 +44,14 @@ class BaseScheduler(LoggingConfigurable):
     """
 
     staging_path = Unicode(
+        config=True,
         help=_i18n(
             """Full path to staging location, where output
         files will be stored after job execution completes. This
         could be a local or remote path including cloud storage.
         Default value is jupyter data directory.
         """
-        )
+        ),
     )
 
     @default("staging_path")
@@ -101,21 +102,33 @@ class BaseScheduler(LoggingConfigurable):
         """Returns number of jobs filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def get_job(self, job_id: str) -> DescribeJob:
-        """Returns job record for a single job"""
+    def get_job(self, job_id: str, outputs: Optional[bool] = True) -> DescribeJob:
+        """Returns job record for a single job.
+
+        Parameters
+        ----------
+        job_id : str
+            Unique identifier for the job
+
+        outputs : bool, optional
+            If True, checks for outputs in local path
+            and populates the outputs property. When
+            False, `add_outputs` should not be called.
+        """
         raise NotImplementedError("must be implemented by subclass")
 
     def delete_job(self, job_id: str):
         """Deletes the job record, stops the job if running"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def stop_job(self, job_id: str):
+    def stop_job(self, job_id: str, outputs: Optional[bool] = True):
         """Stops the job, this is not analogous
         to the REST API that will be called to
         stop the job. Front end will call the PUT
         API with status update to STOPPED, which will
         call the stop_job method.
         """
+
         raise NotImplementedError("must be implemented by subclass")
 
     def create_job_definition(self, model: CreateJobDefinition) -> str:
@@ -146,7 +159,46 @@ class BaseScheduler(LoggingConfigurable):
         raise NotImplementedError("must be implemented by subclass")
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
-        """Returns full staging paths for all job outputs"""
+        """Returns full staging paths for all job outputs
+
+        Notes
+        -----
+        Any path supported by `fsspec https://filesystem-spec.readthedocs.io/en/latest/index.html`_
+        is a valid return value. For staging outputs that
+        are stored as tar or compressed tar archives, this
+        should specify the first entry with a key as `tar`
+        or `tar.gz` and value as path to the archive file;
+        the values for the actual format files will be just
+        the path to them in the archive, in most cases just
+        the filename.
+
+
+        Examples
+        --------
+        >>> self.get_staging_paths(1)
+        {
+            'ipynb': '/outputs/helloworld.ipynb',
+            'html': '/outputs/helloworld.html'
+        }
+
+        For outputs that are archived as tar or compressed tar
+        >>> self.get_staging_paths(2)
+        {
+            'tar.gz': '/outputs/helloworld.tar.gz',
+            'ipynb': 'helloworld.ipynb',
+            'html': 'helloworld.html'
+        }
+
+        Parameters
+        ----------
+        job_id : str
+            Unique identifier for the job
+
+        Returns
+        -------
+        Dictionary with keys as output format and values
+        as full path to the output file in staging location.
+        """
         raise NotImplementedError("must be implemented by subclass")
 
     def file_exists(self, path: str):
@@ -171,6 +223,25 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.isfile(os_path)
 
+    def get_output_filenames(self, model: DescribeJob) -> Dict[str, str]:
+        """Returns dictionary mapping output formats to
+        the output filenames in the JupyterLab workspace.
+
+        Notes
+        -----
+        This should be called by both `add_outputs` and
+        `OutputFilesManager` to ensure that output files
+        are written to the expected filepaths.
+        """
+
+        filenames = {}
+        for output_format in model.output_formats:
+            filenames[output_format] = create_output_filename(
+                model.input_uri, model.create_time, output_format
+            )
+
+        return filenames
+
     def add_outputs(self, model: DescribeJob):
         """Adds outputs to the model, ensures output
         files are present in the local workspace. These
@@ -179,8 +250,9 @@ class BaseScheduler(LoggingConfigurable):
         """
         mapping = self.environments_manager.output_formats_mapping()
         outputs = []
+        output_filenames = self.get_output_filenames(model)
         for output_format in model.output_formats:
-            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            filename = output_filenames[output_format]
             output_path = os.path.join(model.output_prefix, filename)
             outputs.append(
                 Output(
@@ -329,12 +401,13 @@ class Scheduler(BaseScheduler):
             )
             return count if count else 0
 
-    def get_job(self, job_id: str) -> DescribeJob:
+    def get_job(self, job_id: str, outputs: Optional[bool] = True) -> DescribeJob:
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
 
         model = DescribeJob.from_orm(job_record)
-        self.add_outputs(model=model)
+        if outputs:
+            self.add_outputs(model=model)
 
         return model
 
@@ -470,12 +543,43 @@ class Scheduler(BaseScheduler):
         return list_response
 
     def get_staging_paths(self, job_id: str) -> Dict[str, str]:
-        model = self.get_job(job_id)
+        model = self.get_job(job_id, outputs=False)
+
         staging_paths = {}
-        for output in model.outputs:
-            filename = create_output_filename(
-                model.input_uri, model.create_time, output.output_format
-            )
-            staging_paths[output.output_format] = os.path.join(self.staging_path, job_id, filename)
+        if not model:
+            return staging_paths
+
+        for output_format in model.output_formats:
+            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
+
+        return staging_paths
+
+
+class ArchivingScheduler(Scheduler):
+    """Scheduler that adds archive path to staging paths."""
+
+    execution_manager_class = TType(
+        klass="jupyter_scheduler.executors.ExecutionManager",
+        default_value="jupyter_scheduler.executors.ArchivingExecutionManager",
+        config=True,
+    )
+
+    def get_staging_paths(self, job_id: str) -> Dict[str, str]:
+        model = None
+        with self.db_session() as session:
+            model = session.get(Job, job_id)
+
+        staging_paths = {}
+        if not model:
+            return staging_paths
+
+        for output_format in model.output_formats:
+            filename = create_output_filename(model.input_uri, model.create_time, output_format)
+            staging_paths[output_format] = filename
+
+        output_format = "tar.gz"
+        filename = create_output_filename(model.input_uri, model.create_time, output_format)
+        staging_paths[output_format] = os.path.join(self.staging_path, job_id, filename)
 
         return staging_paths

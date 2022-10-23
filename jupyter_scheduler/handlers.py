@@ -272,7 +272,7 @@ class OutputsDownloadHandler(ExtensionHandlerMixin, APIHandler):
     @tornado.web.authenticated
     async def get(self, job_id):
         redownload = self.get_query_argument("redownload", False)
-        self.output_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
+        await self.output_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
 
         self.set_status(204)
         self.finish()
