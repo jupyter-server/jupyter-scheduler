@@ -24,7 +24,7 @@ class RuntimeEnvironment(BaseModel):
     output_formats: List[str]  # Supported output formats
     metadata: Optional[Dict[str, str]]  # Optional metadata
     compute_types: Optional[List[str]]
-    default_compute_type: Optional[str] # Should be a member of the compute_types list
+    default_compute_type: Optional[str]  # Should be a member of the compute_types list
 
     def __str__(self):
         return self.json()
