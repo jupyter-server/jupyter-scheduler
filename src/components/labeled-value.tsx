@@ -10,7 +10,6 @@ export interface ILabeledValueProps {
   helperText?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
   const { label, value, style, helperText, InputProps } = props;
 
