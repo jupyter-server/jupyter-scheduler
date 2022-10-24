@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import {
-  emptyCreateJobModel,
-  ICreateJobModel,
-  IJobDetailModel,
-  JobsView,
-  ListJobsView
-} from '../../model';
+import { IJobDetailModel, JobsView, ListJobsView } from '../../model';
 import { useTranslator } from '../../hooks';
 import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
@@ -40,7 +34,6 @@ export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
   handleModelChange: () => Promise<void>;
-  setCreateJobModel: (createModel: ICreateJobModel) => void;
   setJobsView: (view: JobsView) => void;
   setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
@@ -64,23 +57,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   const [downloading, setDownloading] = useState(false);
 
   const ss = new SchedulerService({});
-
-  const handleRerunJob = () => {
-    const initialState: ICreateJobModel = {
-      ...emptyCreateJobModel(),
-      jobName: props.model.jobName,
-      inputFile: props.model.inputFile,
-      outputPath: props.model.outputPrefix ?? '',
-      environment: props.model.environment,
-      computeType: props.model.computeType,
-      runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
-      parameters: props.model.parameters,
-      outputFormats: props.model.outputFormats
-    };
-
-    props.setCreateJobModel(initialState);
-    props.setJobsView('CreateJob');
-  };
 
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
@@ -122,9 +98,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {trans.__('Stop Job')}
         </Button>
       )}
-      <Button variant="outlined" onClick={handleRerunJob}>
-        {trans.__('Rerun Job')}
-      </Button>
       <ConfirmDeleteButton
         handleDelete={handleDeleteJob}
         title={trans.__('Delete Job')}
