@@ -132,11 +132,12 @@ class DefaultExecutionManager(ExecutionManager):
         except CellExecutionError as e:
             pass
         finally:
-            for output_format in job.output_formats:
-                cls = nbconvert.get_exporter(output_format)
-                output, resources = cls().from_notebook_node(nb)
-                with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
-                    f.write(output)
+            if job.output_formats:
+                for output_format in job.output_formats:
+                    cls = nbconvert.get_exporter(output_format)
+                    output, resources = cls().from_notebook_node(nb)
+                    with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
+                        f.write(output)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
