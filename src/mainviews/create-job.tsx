@@ -89,12 +89,22 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const envList = await api.getRuntimeEnvironments();
       setEnvironmentList(envList);
       if (envList.length === 1) {
+        // If no default compute type is specified, show the first one by default
+        let newComputeType = envList[0].compute_types?.[0];
+
+        // Validate that the default compute type is in fact in the list
+        if (
+          envList[0].default_compute_type &&
+          envList[0].compute_types &&
+          envList[0].default_compute_type in envList[0].compute_types
+        ) {
+          newComputeType = envList[0].default_compute_type;
+        }
+
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
-          // If no default compute type is specified, show the first one by default
-          computeType:
-            envList[0].default_compute_type || envList[0].compute_types?.[0]
+          computeType: newComputeType
         });
       }
     };
@@ -165,10 +175,20 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     // if setting the environment, default the compute type to its default value or its first value
     if (target.name === 'environment') {
       const envObj = environmentList.find(env => env.name === target.value);
+      // Validate that the default compute type is in fact in the list
+      let newComputeType = envObj?.compute_types?.[0];
+      if (
+        envObj &&
+        envObj.default_compute_type &&
+        envObj.compute_types &&
+        envObj.default_compute_type in envObj.compute_types
+      ) {
+        newComputeType = envObj.default_compute_type;
+      }
       props.handleModelChange({
         ...props.model,
         environment: target.value,
-        computeType: envObj?.default_compute_type || envObj?.compute_types?.[0]
+        computeType: newComputeType
       });
     } else {
       // otherwise, just set the model
