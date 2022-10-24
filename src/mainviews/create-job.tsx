@@ -24,6 +24,7 @@ import {
   AccordionSummary,
   Alert,
   Button,
+  CircularProgress,
   FormLabel,
   InputAdornment,
   SelectChangeEvent,
@@ -590,7 +591,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
-    props.handleModelChange({ ...props.model, createError: undefined });
+    props.handleModelChange({
+      ...props.model,
+      createError: undefined,
+      createInProgress: true
+    });
 
     api
       .createJob(jobOptions)
@@ -599,7 +604,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         props.showListView('Job');
       })
       .catch((error: Error) => {
-        props.handleModelChange({ ...props.model, createError: error.message });
+        props.handleModelChange({
+          ...props.model,
+          createError: error.message,
+          createInProgress: false
+        });
       });
   };
 
@@ -630,7 +639,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
-    props.handleModelChange({ ...props.model, createError: undefined });
+    props.handleModelChange({
+      ...props.model,
+      createError: undefined,
+      createInProgress: true
+    });
 
     api
       .createJobDefinition(jobDefinitionOptions)
@@ -639,7 +652,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         props.showListView('JobDefinition');
       })
       .catch((error: string) => {
-        props.handleModelChange({ ...props.model, createError: error });
+        props.handleModelChange({
+          ...props.model,
+          createError: error,
+          createInProgress: false
+        });
       });
   };
 
@@ -817,20 +834,36 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleErrorsChange={setErrors}
           />
           <Cluster gap={3} justifyContent="flex-end">
-            <Button variant="outlined" onClick={e => props.showListView('Job')}>
-              {trans.__('Cancel')}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={(e: React.MouseEvent) => {
-                submitForm(e);
-                return false;
-              }}
-              disabled={anyErrors}
-              title={anyErrors ? cantSubmit : ''}
-            >
-              {trans.__('Create')}
-            </Button>
+            {props.model.createInProgress || (
+              <>
+                <Button
+                  variant="outlined"
+                  onClick={e => props.showListView('Job')}
+                >
+                  {trans.__('Cancel')}
+                </Button>
+
+                <Button
+                  variant="contained"
+                  onClick={(e: React.MouseEvent) => {
+                    submitForm(e);
+                    return false;
+                  }}
+                  disabled={anyErrors}
+                  title={anyErrors ? cantSubmit : ''}
+                >
+                  {trans.__('Create')}
+                </Button>
+              </>
+            )}
+            {props.model.createInProgress && (
+              <>
+                {props.model.createType === 'Job'
+                  ? trans.__('Creating job …')
+                  : trans.__('Creating job definition …')}
+                <CircularProgress size="30px" />
+              </>
+            )}
           </Cluster>
         </Stack>
       </form>
