@@ -5,8 +5,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
-  TextField
+  SelectChangeEvent
 } from '@mui/material';
 
 import { Scheduler } from '../handler';
@@ -21,7 +20,9 @@ export type EnvironmentPickerProps = {
   value: string;
 };
 
-export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
+export function EnvironmentPicker(
+  props: EnvironmentPickerProps
+): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
 
   if (props.environmentList.length === 0) {
@@ -30,15 +31,12 @@ export function EnvironmentPicker(props: EnvironmentPickerProps): JSX.Element {
 
   const labelId = `${props.id}-label`;
 
-  return props.environmentList.length === 1 ? (
-    <TextField
-      label={props.label}
-      variant="outlined"
-      value={props.value}
-      name={props.name}
-      InputProps={{ readOnly: true }}
-    />
-  ) : (
+  // If exactly one environment is present, do not display an environment UI element.
+  if (props.environmentList.length === 1) {
+    return null;
+  }
+
+  return (
     <FormControl>
       <InputLabel id={labelId}>{props.label}</InputLabel>
       <Select
