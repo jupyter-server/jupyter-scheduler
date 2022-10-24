@@ -1,5 +1,6 @@
 """Tests for scheduler"""
 
+from unittest import mock
 from unittest.mock import patch
 
 import pytest
@@ -15,16 +16,17 @@ from jupyter_scheduler.orm import JobDefinition
 
 
 def test_create_job_definition(jp_scheduler):
-    with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
-        mock_file_exists.return_value = True
-        job_definition_id = jp_scheduler.create_job_definition(
-            CreateJobDefinition(
-                input_uri="helloworld.ipynb",
-                output_prefix="helloworld",
-                runtime_environment_name="default",
-                name="hello world",
+    with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
+        with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
+            mock_file_exists.return_value = True
+            job_definition_id = jp_scheduler.create_job_definition(
+                CreateJobDefinition(
+                    input_uri="helloworld.ipynb",
+                    runtime_environment_name="default",
+                    name="hello world",
+                    output_formats=['ipynb']
+                )
             )
-        )
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
@@ -32,8 +34,7 @@ def test_create_job_definition(jp_scheduler):
         definition = definitions[0]
         assert job_definition_id
         assert job_definition_id == definition.job_definition_id
-        assert "helloworld.ipynb" == definition.input_uri
-        assert "helloworld" == definition.output_prefix
+        assert "helloworld.ipynb" == definition.input_filename
         assert "default" == definition.runtime_environment_name
         assert "hello world" == definition.name
 
@@ -41,8 +42,7 @@ def test_create_job_definition(jp_scheduler):
 job_definition_1 = {
     "job_definition_id": "f4f8c8a9-f539-429a-b69e-b567f578646e",
     "name": "hello world 1",
-    "input_uri": "helloworld_1.ipynb",
-    "output_prefix": "helloworld_1",
+    "input_filename": "helloworld_1.ipynb",
     "runtime_environment_name": "environment-a",
     "schedule": "* * * * *",
     "timezone": "America/Los_Angeles",
@@ -54,8 +54,7 @@ job_definition_1 = {
 job_definition_2 = {
     "job_definition_id": "dfc63587-e635-44c8-a86b-7f9f196059dc",
     "name": "hello world 2",
-    "input_uri": "helloworld_2.ipynb",
-    "output_prefix": "helloworld_2",
+    "input_filename": "helloworld_2.ipynb",
     "runtime_environment_name": "environment-a",
     "schedule": "* * * * *",
     "timezone": "America/Los_Angeles",
@@ -68,8 +67,7 @@ job_definition_2 = {
 job_definition_3 = {
     "job_definition_id": "a4050609-c2ec-4737-959c-4b046ca6a889",
     "name": "hello world 3",
-    "input_uri": "helloworld_3.ipynb",
-    "output_prefix": "helloworld_3",
+    "input_filename": "helloworld_3.ipynb",
     "runtime_environment_name": "environment-a",
     "schedule": "* * * * *",
     "timezone": "America/Los_Angeles",
