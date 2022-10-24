@@ -237,8 +237,6 @@ class DescribeJobDefinition(BaseModel):
 
 
 class UpdateJobDefinition(BaseModel):
-    input_uri: Optional[str]
-    output_prefix: Optional[str]
     runtime_environment_name: Optional[str]
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None

@@ -90,7 +90,7 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
   return (
     <IconButton
       aria-label="download"
-      title="Download Output Files"
+      title="Download Job Files"
       disabled={downloading}
       onClick={async () => {
         setDownloading(true);

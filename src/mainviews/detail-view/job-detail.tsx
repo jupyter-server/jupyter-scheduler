@@ -12,14 +12,12 @@ import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
-import FolderIcon from '@mui/icons-material/Folder';
 import {
   Alert,
   Button,
   Card,
   CardContent,
   FormLabel,
-  InputAdornment,
   Link,
   Stack,
   TextField,
@@ -96,7 +94,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           onClick={downloadFiles}
           disabled={downloading}
         >
-          {trans.__('Download Output Files')}
+          {trans.__('Download Job Files')}
         </Button>
       )}
       {props.model.status === 'IN_PROGRESS' && (
@@ -112,13 +110,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
-  const homeAdornment = (
-    <InputAdornment position="start">
-      <FolderIcon fontSize="small" />
-      &nbsp;&nbsp;/
-    </InputAdornment>
-  );
-
   const coreOptionsFields: TextFieldProps[][] = [
     [
       { value: props.model.jobName, label: trans.__('Job name') },
@@ -127,10 +118,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     [
       {
         value: props.model.inputFile,
-        label: trans.__('Input filename'),
-        InputProps: {
-          startAdornment: homeAdornment
-        }
+        label: trans.__('Input filename')
       },
       {
         value: props.model.environment,

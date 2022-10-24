@@ -112,8 +112,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
       name: trans.__('Input filename')
     },
     {
-      sortField: null, // Output prefix is not visible in UI
-      name: trans.__('Output files')
+      sortField: null,
+      name: trans.__('Job files')
     },
     {
       sortField: 'create_time',
