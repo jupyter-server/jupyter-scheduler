@@ -92,7 +92,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
-          computeType: envList[0].compute_types?.[0]
+          // If no default compute type is specified, show the first one by default
+          computeType:
+            envList[0].default_compute_type || envList[0].compute_types?.[0]
         });
       }
     };
@@ -160,13 +162,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
     const target = event.target;
 
-    // if setting the environment, default the compute type to its first value (if any are present)
+    // if setting the environment, default the compute type to its default value or its first value
     if (target.name === 'environment') {
       const envObj = environmentList.find(env => env.name === target.value);
       props.handleModelChange({
         ...props.model,
         environment: target.value,
-        computeType: envObj?.compute_types?.[0]
+        computeType: envObj?.default_compute_type || envObj?.compute_types?.[0]
       });
     } else {
       // otherwise, just set the model
