@@ -101,10 +101,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           newComputeType = envList[0].default_compute_type;
         }
 
+        const outputFormats = outputFormatsForEnvironment(
+          envList,
+          envList[0].name
+        )?.map(format => format.name);
+
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
-          computeType: newComputeType
+          computeType: newComputeType,
+          outputFormats: outputFormats
         });
       }
     };
@@ -184,10 +190,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ) {
         newComputeType = envObj.default_compute_type;
       }
+      const newEnvOutputFormats = outputFormatsForEnvironment(
+        environmentList,
+        target.value
+      )?.map(format => format.name);
       props.handleModelChange({
         ...props.model,
         environment: target.value,
-        computeType: newComputeType
+        computeType: newComputeType,
+        outputFormats: newEnvOutputFormats
       });
     } else {
       // otherwise, just set the model
