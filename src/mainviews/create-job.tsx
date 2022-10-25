@@ -96,7 +96,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         if (
           envList[0].default_compute_type &&
           envList[0].compute_types &&
-          envList[0].compute_types.indexOf(envList[0].default_compute_type) >= 0
+          envList[0].compute_types.includes(envList[0].default_compute_type)
         ) {
           newComputeType = envList[0].default_compute_type;
         }
@@ -181,7 +181,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         envObj &&
         envObj.default_compute_type &&
         envObj.compute_types &&
-        envObj.compute_types.indexOf(envObj.default_compute_type) >= 0
+        envObj.compute_types.includes(envObj.default_compute_type)
       ) {
         newComputeType = envObj.default_compute_type;
       }
