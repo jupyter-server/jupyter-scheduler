@@ -175,8 +175,8 @@ export function AdvancedTable<
           return trans.__('%1–%2 of %3', from, loadedRows, loadedRows);
         } else {
           return (
-            trans.__('%1–%2 of %3', from, to, loadedRows) +
-            (nextToken === undefined ? '' : '+')
+            trans.__('%1–%2 of %3', from, to,
+              loadedRows + (nextToken === undefined ? '' : '+'))
           );
         }
       } else {
