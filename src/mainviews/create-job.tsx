@@ -178,10 +178,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       // Validate that the default compute type is in fact in the list
       let newComputeType = envObj?.compute_types?.[0];
       if (
-        envObj &&
-        envObj.default_compute_type &&
-        envObj.compute_types &&
-        envObj.compute_types.includes(envObj.default_compute_type)
+        envObj?.default_compute_type &&
+        envObj?.compute_types &&
+        envObj?.compute_types.includes(envObj?.default_compute_type)
       ) {
         newComputeType = envObj.default_compute_type;
       }
