@@ -1,8 +1,8 @@
 import os
 from multiprocessing import Process
 from typing import Dict, Optional, Type, Union
-import fsspec
 
+import fsspec
 import psutil
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
@@ -57,10 +57,12 @@ class BaseScheduler(LoggingConfigurable):
     output_directory = Unicode(
         default_value="jobs",
         config=True,
-        help=_i18n("""Local path to the directory where job files
+        help=_i18n(
+            """Local path to the directory where job files
         will be downloaded. This directory will host sub-directories
-        for each new job. 
-        """)
+        for each new job.
+        """
+        ),
     )
 
     @default("staging_path")
@@ -242,8 +244,8 @@ class BaseScheduler(LoggingConfigurable):
         Notes
         -----
         This should be called by both `add_job_files` and
-        `JobFilesManager` to ensure that job output and  
-        input files are written to the expected filepaths. 
+        `JobFilesManager` to ensure that job output and
+        input files are written to the expected filepaths.
         For input files, the key `input` is expected.
 
         Examples
@@ -259,9 +261,11 @@ class BaseScheduler(LoggingConfigurable):
 
         filenames = {}
         for output_format in model.output_formats:
-            filenames[output_format] = create_output_filename(model.input_filename, model.create_time, output_format)
+            filenames[output_format] = create_output_filename(
+                model.input_filename, model.create_time, output_format
+            )
 
-        filenames['input'] = model.input_filename
+        filenames["input"] = model.input_filename
 
         return filenames
 
@@ -282,19 +286,19 @@ class BaseScheduler(LoggingConfigurable):
                 JobFile(
                     display_name=mapping[output_format],
                     file_format=output_format,
-                    file_path=output_path if self.file_exists(output_path) else None
+                    file_path=output_path if self.file_exists(output_path) else None,
                 )
             )
 
         # Add input file
         filename = model.input_filename
-        format = 'input'
+        format = "input"
         output_path = os.path.join(output_dir, filename)
         job_files.append(
             JobFile(
                 display_name="Input",
                 file_format=format,
-                file_path=output_path if self.file_exists(output_path) else None
+                file_path=output_path if self.file_exists(output_path) else None,
             )
         )
 
@@ -304,7 +308,7 @@ class BaseScheduler(LoggingConfigurable):
     def get_local_output_path(self, model: DescribeJob) -> str:
         """Returns the local output directory path
         where all the job files will be downloaded
-        from the staging location. 
+        from the staging location.
         """
         output_dir_name = create_output_filename(model.input_filename, model.create_time)
         return os.path.join(self.root_dir, self.output_directory, output_dir_name)
@@ -353,13 +357,13 @@ class Scheduler(BaseScheduler):
         """Copies the input file to the staging directory"""
         input_filepath = os.path.join(self.root_dir, input_uri)
         with fsspec.open(input_filepath) as input_file:
-            with fsspec.open(copy_to_path, 'wb') as output_file:
+            with fsspec.open(copy_to_path, "wb") as output_file:
                 output_file.write(input_file.read())
 
     def create_job(self, model: CreateJob) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
-        
+
         with self.db_session() as session:
             if model.idempotency_token:
                 job = (
@@ -373,12 +377,12 @@ class Scheduler(BaseScheduler):
             if not model.output_formats:
                 model.output_formats = ["ipynb"]
 
-            job = Job(**model.dict(exclude_none=True, exclude={'input_uri'}))
+            job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
             session.add(job)
             session.commit()
 
             staging_paths = self.get_staging_paths(DescribeJob.from_orm(job))
-            self.copy_input_file(model.input_uri, staging_paths['input'])
+            self.copy_input_file(model.input_uri, staging_paths["input"])
 
             p = Process(
                 target=self.execution_manager_class(
@@ -497,14 +501,14 @@ class Scheduler(BaseScheduler):
             if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
 
-            job_definition = JobDefinition(**model.dict(exclude_none=True, exclude={'input_uri'}))
+            job_definition = JobDefinition(**model.dict(exclude_none=True, exclude={"input_uri"}))
             session.add(job_definition)
             session.commit()
 
             job_definition_id = job_definition.job_definition_id
 
             staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
-            self.copy_input_file(model.input_uri, staging_paths['input'])
+            self.copy_input_file(model.input_uri, staging_paths["input"])
 
         if self.task_runner and job_definition.schedule:
             self.task_runner.add_job_definition(job_definition_id)
@@ -605,10 +609,12 @@ class Scheduler(BaseScheduler):
         id = model.job_id if isinstance(model, DescribeJob) else model.job_definition_id
 
         for output_format in model.output_formats:
-            filename = create_output_filename(model.input_filename, model.create_time, output_format)
+            filename = create_output_filename(
+                model.input_filename, model.create_time, output_format
+            )
             staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
 
-        staging_paths['input'] = os.path.join(self.staging_path, id, model.input_filename)
+        staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
 
@@ -630,12 +636,14 @@ class ArchivingScheduler(Scheduler):
         id = model.job_id if isinstance(model, DescribeJob) else model.job_definition_id
 
         for output_format in model.output_formats:
-            filename = create_output_filename(model.input_filename, model.create_time, output_format)
+            filename = create_output_filename(
+                model.input_filename, model.create_time, output_format
+            )
             staging_paths[output_format] = filename
 
         output_format = "tar.gz"
         filename = create_output_filename(model.input_filename, model.create_time, output_format)
         staging_paths[output_format] = os.path.join(self.staging_path, model.job_id, filename)
-        staging_paths['input'] = os.path.join(self.staging_path, model.job_id, model.input_filename)
+        staging_paths["input"] = os.path.join(self.staging_path, model.job_id, model.input_filename)
 
         return staging_paths

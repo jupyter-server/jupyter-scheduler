@@ -262,7 +262,7 @@ class TaskRunner(BaseTaskRunner):
     def create_job(self, job_definition_id: str):
         definition = self.scheduler.get_job_definition(job_definition_id)
         if definition and definition.active:
-            input_uri = self.scheduler.get_staging_paths(definition)['input']
+            input_uri = self.scheduler.get_staging_paths(definition)["input"]
             self.scheduler.create_job(
                 CreateJob(
                     **definition.dict(exclude={"schedule", "timezone"}, exclude_none=True),

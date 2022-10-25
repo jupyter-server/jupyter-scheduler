@@ -55,7 +55,7 @@ class Downloader:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        output_formats = self.output_formats + ['input']
+        output_formats = self.output_formats + ["input"]
 
         for output_format in output_formats:
             input_filepath = self.staging_paths[output_format]

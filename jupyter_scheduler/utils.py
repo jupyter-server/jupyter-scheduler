@@ -26,14 +26,16 @@ def timestamp_to_int(timestamp: str) -> int:
     dt = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
     return int(dt.timestamp())
 
+
 def create_output_filename(input_filename: str, create_time: int, output_format: str = None) -> str:
     """Creates output filename from input_uri, create_time and output_format"""
     basefilename = os.path.splitext(input_filename)[0]
-    timestamp = datetime.fromtimestamp(create_time/1e3).strftime('%Y-%m-%d-%I-%M%-S-%p')
+    timestamp = datetime.fromtimestamp(create_time / 1e3).strftime("%Y-%m-%d-%I-%M%-S-%p")
     if output_format:
         return f"{basefilename}-{timestamp}.{output_format}"
     else:
         return f"{basefilename}-{timestamp}"
+
 
 def find_cell_index_with_tag(nb: NotebookNode, tag: str) -> int:
     """Finds index of first cell tagged with ``tag``"""

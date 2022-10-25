@@ -5,16 +5,16 @@ from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
-from jupyter_scheduler.orm import create_tables
 from jupyter_scheduler.job_files_manager import JobFilesManager
+from jupyter_scheduler.orm import create_tables
 
 from .handlers import (
     BatchJobHandler,
     ConfigHandler,
+    FilesDownloadHandler,
     JobDefinitionHandler,
     JobHandler,
     JobsCountHandler,
-    FilesDownloadHandler,
     RuntimeEnvironmentsHandler,
 )
 

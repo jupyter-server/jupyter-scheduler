@@ -1,5 +1,5 @@
-from enum import Enum
 import os
+from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, root_validator
@@ -71,6 +71,7 @@ OUTPUT_FILENAME_TEMPLATE = "{{input_filename}}-{{create_time}}"
 
 class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
+
     input_uri: str
     input_filename: str = None
     runtime_environment_name: str
@@ -86,10 +87,11 @@ class CreateJob(BaseModel):
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
-        if not values['input_filename'] and values['input_uri']:
-            values['input_filename'] = os.path.basename(values['input_uri'])
+        if not values["input_filename"] and values["input_uri"]:
+            values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values
+
 
 class JobFile(BaseModel):
     """This model is used to describe the display value,
@@ -209,8 +211,8 @@ class CreateJobDefinition(BaseModel):
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
-        if not values['input_filename'] and values['input_uri']:
-            values['input_filename'] = os.path.basename(values['input_uri'])
+        if not values["input_filename"] and values["input_uri"]:
+            values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values
 

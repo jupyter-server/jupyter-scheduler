@@ -27,13 +27,7 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(
-        self, 
-        job_id: str, 
-        root_dir: str, 
-        db_url: str,
-        staging_paths: Dict[str, str] 
-    ):
+    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
@@ -122,7 +116,7 @@ class DefaultExecutionManager(ExecutionManager):
     def execute(self):
         job = self.model
 
-        with open(self.staging_paths['input']) as f:
+        with open(self.staging_paths["input"]) as f:
             nb = nbformat.read(f, as_version=4)
 
         if job.parameters:
@@ -175,7 +169,7 @@ class ArchivingExecutionManager(DefaultExecutionManager):
     def execute(self):
         job = self.model
 
-        with open(self.staging_paths['input']) as f:
+        with open(self.staging_paths["input"]) as f:
             nb = nbformat.read(f, as_version=4)
 
         if job.parameters:
@@ -193,10 +187,10 @@ class ArchivingExecutionManager(DefaultExecutionManager):
         finally:
             fh = io.BytesIO()
             with tarfile.open(fileobj=fh, mode="w:gz") as tar:
-                output_formats = job.output_formats + ['input']
+                output_formats = job.output_formats + ["input"]
                 for output_format in output_formats:
-                    if output_format == 'input':
-                        with open(self.staging_paths['input']) as f:
+                    if output_format == "input":
+                        with open(self.staging_paths["input"]) as f:
                             output = f.read()
                     else:
                         cls = nbconvert.get_exporter(output_format)
@@ -206,8 +200,6 @@ class ArchivingExecutionManager(DefaultExecutionManager):
                     info = tarfile.TarInfo(self.staging_paths[output_format])
                     info.size = len(data)
                     tar.addfile(info, source_f)
-
-
 
             archive_filepath = self.staging_paths["tar.gz"]
             with fsspec.open(archive_filepath, "wb") as f:

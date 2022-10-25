@@ -24,7 +24,7 @@ def test_create_job_definition(jp_scheduler):
                     input_uri="helloworld.ipynb",
                     runtime_environment_name="default",
                     name="hello world",
-                    output_formats=['ipynb']
+                    output_formats=["ipynb"],
                 )
             )
 
