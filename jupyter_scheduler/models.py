@@ -1,7 +1,8 @@
+import os
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 Tags = List[str]
 ParameterValues = Union[int, str, float, bool]
@@ -65,14 +66,14 @@ Examples of other formats:
 "{{name}}-{{timestamp}}"
 "{{runtime_environment_name}}_{{filename}}_{{job_id}}"
 """
-OUTPUT_FILENAME_TEMPLATE = "{{filename}}-{{timestamp}}"
+OUTPUT_FILENAME_TEMPLATE = "{{input_filename}}-{{create_time}}"
 
 
 class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
 
     input_uri: str
-    output_prefix: str
+    input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
@@ -84,38 +85,57 @@ class CreateJob(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
 
+    @root_validator
+    def compute_input_filename(cls, values) -> Dict:
+        if not values["input_filename"] and values["input_uri"]:
+            values["input_filename"] = os.path.basename(values["input_uri"])
 
-class Output(BaseModel):
+        return values
+
+
+class JobFile(BaseModel):
     """This model is used to describe the display value,
-    output format, and the filepath for a single job output file.
+    output format, and the filepath for a single job file.
+    This will include both input file used to execute the
+    job and the outputs generated.
 
     Attributes
     ----------
     display_name : str
         Human readable display value for use in UI
 
-    output_format : str
+    file_format : str
         System encoded value of output format, this value
         should match the output_format value passed into
         the `CreateJob` or `CreateJobDefinition`models by
         the `create_job` and `create_job_definition` APIs
         respectively
 
-    output_path : str
+    file_path : str
         Output file path relative to the server root dir.
         This should always specify the local path within
         the JupyterLab workspace.
-
     """
 
     display_name: str
-    output_format: str
-    output_path: Optional[str] = None
+    file_format: str
+    file_path: Optional[str] = None
 
 
-class DescribeJob(CreateJob):
+class DescribeJob(BaseModel):
+    input_filename: str = None
+    runtime_environment_name: str
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
+    idempotency_token: Optional[str] = None
+    job_definition_id: Optional[str] = None
+    parameters: Optional[Dict[str, ParameterValues]] = None
+    tags: Optional[Tags] = None
+    name: Optional[str] = None
+    output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
+    compute_type: Optional[str] = None
     job_id: str
-    outputs: List[Output] = []
+    job_files: List[JobFile] = []
     url: str
     create_time: int
     update_time: int
@@ -177,7 +197,7 @@ class DeleteJob(BaseModel):
 
 class CreateJobDefinition(BaseModel):
     input_uri: str
-    output_prefix: str
+    input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
@@ -189,8 +209,26 @@ class CreateJobDefinition(BaseModel):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
 
+    @root_validator
+    def compute_input_filename(cls, values) -> Dict:
+        if not values["input_filename"] and values["input_uri"]:
+            values["input_filename"] = os.path.basename(values["input_uri"])
 
-class DescribeJobDefinition(CreateJobDefinition):
+        return values
+
+
+class DescribeJobDefinition(BaseModel):
+    input_filename: str = None
+    runtime_environment_name: str
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    output_formats: Optional[List[str]] = None
+    parameters: Optional[Dict[str, ParameterValues]] = None
+    tags: Optional[Tags] = None
+    name: Optional[str] = None
+    output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
+    compute_type: Optional[str] = None
+    schedule: Optional[str] = None
+    timezone: Optional[str] = None
     job_definition_id: str
     create_time: int
     update_time: int
@@ -201,8 +239,6 @@ class DescribeJobDefinition(CreateJobDefinition):
 
 
 class UpdateJobDefinition(BaseModel):
-    input_uri: Optional[str]
-    output_prefix: Optional[str]
     runtime_environment_name: Optional[str]
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None

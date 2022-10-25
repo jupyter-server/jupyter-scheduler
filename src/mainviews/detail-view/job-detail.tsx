@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
-  emptyCreateJobModel,
   ICreateJobModel,
   IJobDetailModel,
   JobsView,
@@ -13,14 +12,12 @@ import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
-import FolderIcon from '@mui/icons-material/Folder';
 import {
   Alert,
   Button,
   Card,
   CardContent,
   FormLabel,
-  InputAdornment,
   Link,
   Stack,
   TextField,
@@ -65,23 +62,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ss = new SchedulerService({});
 
-  const handleRerunJob = () => {
-    const initialState: ICreateJobModel = {
-      ...emptyCreateJobModel(),
-      jobName: props.model.jobName,
-      inputFile: props.model.inputFile,
-      outputPath: props.model.outputPrefix ?? '',
-      environment: props.model.environment,
-      computeType: props.model.computeType,
-      runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
-      parameters: props.model.parameters,
-      outputFormats: props.model.outputFormats
-    };
-
-    props.setCreateJobModel(initialState);
-    props.setJobsView('CreateJob');
-  };
-
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
     props.setJobsView('ListJobs');
@@ -95,9 +75,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     props.handleModelChange();
   };
 
-  const downloadOutputs = async () => {
+  const downloadFiles = async () => {
     setDownloading(true);
-    await props.app.commands.execute(CommandIDs.downloadOutputs, {
+    await props.app.commands.execute(CommandIDs.downloadFiles, {
       id: props.model.jobId,
       redownload: false
     });
@@ -111,10 +91,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {props.model.downloaded === false && props.model.status === 'COMPLETED' && (
         <Button
           variant="outlined"
-          onClick={downloadOutputs}
+          onClick={downloadFiles}
           disabled={downloading}
         >
-          {trans.__('Download Output Files')}
+          {trans.__('Download Job Files')}
         </Button>
       )}
       {props.model.status === 'IN_PROGRESS' && (
@@ -122,22 +102,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {trans.__('Stop Job')}
         </Button>
       )}
-      <Button variant="outlined" onClick={handleRerunJob}>
-        {trans.__('Rerun Job')}
-      </Button>
       <ConfirmDeleteButton
         handleDelete={handleDeleteJob}
         title={trans.__('Delete Job')}
         text={trans.__('Are you sure that you want to delete this job?')}
       />
     </Stack>
-  );
-
-  const homeAdornment = (
-    <InputAdornment position="start">
-      <FolderIcon fontSize="small" />
-      &nbsp;&nbsp;/
-    </InputAdornment>
   );
 
   const coreOptionsFields: TextFieldProps[][] = [
@@ -148,41 +118,31 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     [
       {
         value: props.model.inputFile,
-        label: trans.__('Input file'),
-        InputProps: {
-          startAdornment: homeAdornment
-        }
+        label: trans.__('Input filename')
       },
-      {
-        value: props.model.outputPath,
-        label: trans.__('Output directory'),
-        InputProps: {
-          startAdornment: homeAdornment
-        }
-      }
-    ],
-    [
       {
         value: props.model.environment,
         label: trans.__('Environment')
-      },
-      { value: props.model.status ?? '', label: trans.__('Status') }
+      }
     ],
     [
+      { value: props.model.status ?? '', label: trans.__('Status') },
       {
         value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
-      },
-      {
-        value: timestampLocalize(props.model.updateTime ?? ''),
-        label: trans.__('Updated at')
       }
     ],
     [
       {
+        value: timestampLocalize(props.model.updateTime ?? ''),
+        label: trans.__('Updated at')
+      },
+      {
         value: timestampLocalize(props.model.startTime ?? ''),
         label: trans.__('Start time')
-      },
+      }
+    ],
+    [
       {
         value: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
@@ -190,15 +150,15 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ]
   ];
 
-  function OutputFile(props: {
-    output: Scheduler.IOutput;
+  function JobFile(props: {
+    jobFile: Scheduler.IJobFile;
     app: JupyterFrontEnd;
   }) {
     return (
       <Link
-        key={props.output.output_format}
-        href={`/lab/tree/${props.output.output_path}`}
-        title={trans.__('Open "%1"', props.output.output_path)}
+        key={props.jobFile.file_format}
+        href={`/lab/tree/${props.jobFile.file_path}`}
+        title={trans.__('Open "%1"', props.jobFile.file_path)}
         onClick={(
           e:
             | React.MouseEvent<HTMLSpanElement, MouseEvent>
@@ -206,22 +166,22 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         ) => {
           e.preventDefault();
           props.app.commands.execute('docmanager:open', {
-            path: props.output.output_path
+            path: props.jobFile.file_path
           });
         }}
         style={{ paddingRight: '1em' }}
       >
-        {props.output.display_name}
+        {props.jobFile.display_name}
       </Link>
     );
   }
 
-  const convertJsonToOutput = (output: { [key: string]: string }) => {
+  const convertJsonToJobFile = (jobFile: { [key: string]: string }) => {
     return {
-      display_name: output['display_name'],
-      output_format: output['output_format'],
-      output_path: output['output_path'] || null
-    } as Scheduler.IOutput;
+      display_name: jobFile['display_name'],
+      file_format: jobFile['file_format'],
+      file_path: jobFile['file_path'] || null
+    } as Scheduler.IJobFile;
   };
 
   const CoreOptions = (
@@ -243,13 +203,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {props.model.status === 'COMPLETED' && (
             <>
               <FormLabel component="legend">
-                {trans.__('Output files')}
+                {trans.__('Job files')}
               </FormLabel>
-              {props.model.outputs.map(
-                output =>
-                  output['output_path'] && (
-                    <OutputFile
-                      output={convertJsonToOutput(output)}
+              {props.model.job_files.map(
+                jobFile =>
+                jobFile['file_path'] && (
+                    <JobFile
+                      jobFile={convertJsonToJobFile(jobFile)}
                       app={props.app}
                     />
                   )

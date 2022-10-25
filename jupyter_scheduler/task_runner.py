@@ -1,5 +1,4 @@
 import asyncio
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from typing import List, Optional
@@ -11,7 +10,7 @@ from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config import LoggingConfigurable
 
-from jupyter_scheduler.models import CreateJob, UpdateJob, UpdateJobDefinition
+from jupyter_scheduler.models import CreateJob, UpdateJobDefinition
 from jupyter_scheduler.orm import JobDefinition, declarative_base
 from jupyter_scheduler.utils import (
     compute_next_run_time,
@@ -263,8 +262,12 @@ class TaskRunner(BaseTaskRunner):
     def create_job(self, job_definition_id: str):
         definition = self.scheduler.get_job_definition(job_definition_id)
         if definition and definition.active:
+            input_uri = self.scheduler.get_staging_paths(definition)["input"]
             self.scheduler.create_job(
-                CreateJob(**definition.dict(exclude={"schedule", "timezone"}, exclude_none=True))
+                CreateJob(
+                    **definition.dict(exclude={"schedule", "timezone"}, exclude_none=True),
+                    input_uri=input_uri
+                )
             )
 
     def compute_time_diff(self, queue_run_time: int, timezone: str):

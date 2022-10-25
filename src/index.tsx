@@ -27,7 +27,7 @@ export namespace CommandIDs {
   export const createJobCurrentNotebook = 'scheduling:create-from-notebook';
   export const showNotebookJobs = 'scheduling:show-notebook-jobs';
   export const stopJob = 'scheduling:stop-job';
-  export const downloadOutputs = 'scheduling:download-outputs';
+  export const downloadFiles = 'scheduling:download-files';
 }
 
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
@@ -236,11 +236,11 @@ async function activatePlugin(
     label: trans.__('Stop Job')
   });
 
-  commands.addCommand(CommandIDs.downloadOutputs, {
+  commands.addCommand(CommandIDs.downloadFiles, {
     execute: async args => {
       const id = args['id'] as string;
       const redownload = args['redownload'] as boolean;
-      await api.downloadOutputs(id, redownload);
+      await api.downloadFiles(id, redownload);
     }
   });
 

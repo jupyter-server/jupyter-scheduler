@@ -98,7 +98,7 @@ export function buildJobDefinitionRow(
     <a onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}>
       {jobDef.name}
     </a>,
-    PathExt.basename(jobDef.input_uri),
+    PathExt.basename(jobDef.input_filename),
     <CreatedAt job={jobDef} />,
     <ScheduleSummary schedule={jobDef.schedule} />,
     jobDef.active ? trans.__('Active') : trans.__('Paused'),

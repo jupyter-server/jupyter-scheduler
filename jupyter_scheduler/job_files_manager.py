@@ -10,24 +10,24 @@ from jupyter_scheduler.scheduler import BaseScheduler
 from jupyter_scheduler.utils import resolve_path
 
 
-class OutputFilesManager:
+class JobFilesManager:
     scheduler = None
 
     def __init__(self, scheduler: Type[BaseScheduler]):
         self.scheduler = scheduler
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
-        staging_paths = await ensure_async(self.scheduler.get_staging_paths(job_id))
         job = await ensure_async(self.scheduler.get_job(job_id, False))
-        output_filenames = self.scheduler.get_output_filenames(job)
+        staging_paths = await ensure_async(self.scheduler.get_staging_paths(job))
+        output_filenames = self.scheduler.get_job_filenames(job)
+        output_dir = self.scheduler.get_local_output_path(job)
 
         p = Process(
             target=Downloader(
                 output_formats=job.output_formats,
-                output_prefix=job.output_prefix,
                 output_filenames=output_filenames,
                 staging_paths=staging_paths,
-                root_dir=self.scheduler.root_dir,
+                output_dir=output_dir,
                 redownload=redownload,
             ).download
         )
@@ -38,26 +38,26 @@ class Downloader:
     def __init__(
         self,
         output_formats: List[str],
-        output_prefix: str,
         output_filenames: Dict[str, str],
         staging_paths: Dict[str, str],
-        root_dir: str,
+        output_dir: str,
         redownload: bool,
     ):
         self.output_formats = output_formats
-        self.output_prefix = output_prefix
         self.output_filenames = output_filenames
         self.staging_paths = staging_paths
-        self.root_dir = root_dir
+        self.output_dir = output_dir
         self.redownload = redownload
 
     def generate_filepaths(self):
         """A generator that produces filepaths"""
-        output_dir = resolve_path(self.output_prefix, self.root_dir)
+        output_dir = self.output_dir
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        for output_format in self.output_formats:
+        output_formats = self.output_formats + ["input"]
+
+        for output_format in output_formats:
             input_filepath = self.staging_paths[output_format]
             output_filename = self.output_filenames[output_format]
             output_filepath = os.path.join(output_dir, output_filename)

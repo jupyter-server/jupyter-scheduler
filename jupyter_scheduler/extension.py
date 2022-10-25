@@ -5,16 +5,16 @@ from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
+from jupyter_scheduler.job_files_manager import JobFilesManager
 from jupyter_scheduler.orm import create_tables
-from jupyter_scheduler.output_files_manager import OutputFilesManager
 
 from .handlers import (
     BatchJobHandler,
     ConfigHandler,
+    FilesDownloadHandler,
     JobDefinitionHandler,
     JobHandler,
     JobsCountHandler,
-    OutputsDownloadHandler,
     RuntimeEnvironmentsHandler,
 )
 
@@ -28,7 +28,7 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/jobs", JobHandler),
         (r"scheduler/jobs/count", JobsCountHandler),
         (r"scheduler/jobs/%s" % JOB_ID_REGEX, JobHandler),
-        (r"scheduler/jobs/%s/download_outputs" % JOB_ID_REGEX, OutputsDownloadHandler),
+        (r"scheduler/jobs/%s/download_files" % JOB_ID_REGEX, FilesDownloadHandler),
         (r"scheduler/batch/jobs", BatchJobHandler),
         (r"scheduler/job_definitions", JobDefinitionHandler),
         (r"scheduler/job_definitions/%s" % JOB_DEFINITION_ID_REGEX, JobDefinitionHandler),
@@ -72,12 +72,12 @@ class SchedulerApp(ExtensionApp):
             config=self.config,
         )
 
-        output_files_manager = OutputFilesManager(scheduler=scheduler)
+        job_files_manager = JobFilesManager(scheduler=scheduler)
 
         self.settings.update(
             environments_manager=environments_manager,
             scheduler=scheduler,
-            output_files_manager=output_files_manager,
+            job_files_manager=job_files_manager,
         )
 
         if scheduler.task_runner:

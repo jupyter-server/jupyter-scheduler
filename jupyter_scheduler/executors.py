@@ -1,5 +1,4 @@
 import io
-import os
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
@@ -28,7 +27,7 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, staging_paths: Dict[str, str], root_dir: str, db_url: str):
+    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
@@ -117,7 +116,7 @@ class DefaultExecutionManager(ExecutionManager):
     def execute(self):
         job = self.model
 
-        with open(resolve_path(job.input_uri, self.root_dir)) as f:
+        with open(self.staging_paths["input"]) as f:
             nb = nbformat.read(f, as_version=4)
 
         if job.parameters:
@@ -170,7 +169,7 @@ class ArchivingExecutionManager(DefaultExecutionManager):
     def execute(self):
         job = self.model
 
-        with open(resolve_path(job.input_uri, self.root_dir)) as f:
+        with open(self.staging_paths["input"]) as f:
             nb = nbformat.read(f, as_version=4)
 
         if job.parameters:
@@ -188,9 +187,14 @@ class ArchivingExecutionManager(DefaultExecutionManager):
         finally:
             fh = io.BytesIO()
             with tarfile.open(fileobj=fh, mode="w:gz") as tar:
-                for output_format in job.output_formats:
-                    cls = nbconvert.get_exporter(output_format)
-                    output, resources = cls().from_notebook_node(nb)
+                output_formats = job.output_formats + ["input"]
+                for output_format in output_formats:
+                    if output_format == "input":
+                        with open(self.staging_paths["input"]) as f:
+                            output = f.read()
+                    else:
+                        cls = nbconvert.get_exporter(output_format)
+                        output, resources = cls().from_notebook_node(nb)
                     data = bytes(output, "utf-8")
                     source_f = io.BytesIO(initial_bytes=data)
                     info = tarfile.TarInfo(self.staging_paths[output_format])

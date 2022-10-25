@@ -109,15 +109,15 @@ async def test_get_jobs_for_single_job(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_get_job:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         mock_get_job.return_value = DescribeJob(
-            input_uri="input_a",
+            input_filename="input_a",
             output_prefix="output_a",
             runtime_environment_name="environment_a",
             job_id=job_id,
-            outputs=[
+            job_files=[
                 {
                     "display_name": "Notebook",
-                    "output_format": "ipynb",
-                    "output_path": "output_a/input_a_12345",
+                    "file_format": "ipynb",
+                    "file_path": "output_a/input_a_12345",
                 }
             ],
             url="url_a",
@@ -130,8 +130,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
         assert response.code == 200
         body = json.loads(response.body)
         assert body["job_id"] == job_id
-        assert body["input_uri"]
-        assert body["outputs"]
+        assert body["input_filename"]
+        assert body["job_files"]
 
 
 @pytest.mark.parametrize(
@@ -143,15 +143,14 @@ async def test_get_jobs_for_single_job(jp_fetch):
             {
                 "jobs": [
                     {
-                        "input_uri": "input_a",
-                        "output_prefix": "output_a",
+                        "input_filename": "input_a",
                         "runtime_environment_name": "environment_a",
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
-                        "outputs": [
+                        "job_files": [
                             {
                                 "display_name": "Notebook",
-                                "output_format": "ipynb",
-                                "output_path": "output_a/input_a_12345",
+                                "file_format": "ipynb",
+                                "file_path": "output_a/input_a_12345",
                             }
                         ],
                         "url": "url_a",
@@ -190,15 +189,14 @@ async def test_get_jobs_for_single_job(jp_fetch):
             {
                 "jobs": [
                     {
-                        "input_uri": "input_a",
-                        "output_prefix": "output_a",
+                        "input_filename": "input_a",
                         "runtime_environment_name": "environment_a",
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
-                        "outputs": [
+                        "job_files": [
                             {
                                 "display_name": "Notebook",
-                                "output_format": "ipynb",
-                                "output_path": "output_a/input_a_12345",
+                                "file_format": "ipynb",
+                                "file_path": "output_a/input_a_12345",
                             }
                         ],
                         "url": "url_a",
@@ -223,11 +221,10 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
         actual_job = json.loads(response.body)
         actual_job = actual_job["jobs"][0]
         expected_job = jobs_list["jobs"][0]
-        assert actual_job["input_uri"] == expected_job["input_uri"]
-        assert actual_job["output_prefix"] == expected_job["output_prefix"]
+        assert actual_job["input_filename"] == expected_job["input_filename"]
         assert actual_job["runtime_environment_name"] == expected_job["runtime_environment_name"]
         assert actual_job["job_id"] == expected_job["job_id"]
-        assert actual_job["outputs"] == expected_job["outputs"]
+        assert actual_job["job_files"] == expected_job["job_files"]
         assert actual_job["url"] == expected_job["url"]
 
 

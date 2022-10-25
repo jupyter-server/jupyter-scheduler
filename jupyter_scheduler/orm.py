@@ -27,21 +27,6 @@ def generate_job_definitions_url(context) -> str:
     return f"/job_definitions/{job_definition_id}"
 
 
-def output_uri(context) -> str:
-    input_uri = context.get_current_parameters()["input_uri"]
-    output_prefix = context.get_current_parameters()["output_prefix"]
-    output_formats = context.get_current_parameters()["output_formats"]
-
-    if not output_formats or "ipynb" in output_formats:
-        output_filename = create_output_filename(input_uri)
-    else:
-        output_filename = create_output_filename(
-            os.path.splitext(input_uri)[-2] + "." + output_formats[0]
-        )
-
-    return os.path.join(output_prefix, output_filename)
-
-
 class JsonType(types.TypeDecorator):
     impl = String
 
@@ -87,8 +72,7 @@ class CommonColumns:
     runtime_environment_name = Column(String(256), nullable=False)
     runtime_environment_parameters = Column(JsonType(1024))
     compute_type = Column(String(256), nullable=True)
-    input_uri = Column(String(256), nullable=False)
-    output_prefix = Column(String(256))
+    input_filename = Column(String(256), nullable=False)
     output_formats = Column(JsonType(512))
     name = Column(String(256))
     tags = Column(JsonType(1024))

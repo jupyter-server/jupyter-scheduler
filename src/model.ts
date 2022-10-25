@@ -27,7 +27,6 @@ export interface ICreateJobModel extends PartialJSONObject {
   key?: number;
   jobName: string;
   inputFile: string;
-  outputPath: string;
   environment: string;
   // A "job" runs now; a "job definition" runs on a schedule
   createType: 'Job' | 'JobDefinition';
@@ -213,7 +212,6 @@ export interface IJobsModelOptions {
 export interface IJobDetailModel {
   jobName: string;
   inputFile: string;
-  outputPath: string;
   environment: string;
   // Errors from creation
   createError?: string;
@@ -232,7 +230,7 @@ export interface IJobDetailModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  outputs: { [key: string]: string }[];
+  job_files: { [key: string]: string }[];
   downloaded: boolean;
 }
 
@@ -279,12 +277,12 @@ export function convertDescribeJobtoJobDetail(
   // Convert parameters
   const jobParameters = convertParameters(describeJob.parameters ?? {});
 
-  const convertOutputsToJson = (outputs: Scheduler.IOutput[]) => {
-    return outputs.map(output => {
+  const convertJobFilesToJson = (files: Scheduler.IJobFile[]) => {
+    return files.map(file => {
       return {
-        display_name: output.display_name,
-        output_format: output.output_format,
-        output_path: output.output_path || ''
+        display_name: file.display_name,
+        file_format: file.file_format,
+        file_path: file.file_path || ''
       };
     });
   };
@@ -293,10 +291,8 @@ export function convertDescribeJobtoJobDetail(
     ...emptyCreateJobModel(),
     jobId: describeJob.job_id,
     jobName: describeJob.name ?? '',
-    inputFile: describeJob.input_uri,
-    outputPath: describeJob.output_prefix,
-    outputs: convertOutputsToJson(describeJob.outputs),
-    outputPrefix: describeJob.output_prefix,
+    inputFile: describeJob.input_filename,
+    job_files: convertJobFilesToJson(describeJob.job_files),
     environment: describeJob.runtime_environment_name,
     runtimeEnvironmentParameters: describeJob.runtime_environment_parameters,
     parameters: jobParameters,
@@ -324,10 +320,9 @@ export function convertDescribeDefinitiontoDefinition(
 
   return {
     name: describeDefinition.name ?? '',
-    inputFile: describeDefinition.input_uri,
+    inputFile: describeDefinition.input_filename,
     definitionId: describeDefinition.job_definition_id,
     outputPath: describeDefinition.output_filename_template ?? '',
-    outputPrefix: describeDefinition.output_prefix,
     environment: describeDefinition.runtime_environment_name,
     runtimeEnvironmentParameters:
       describeDefinition.runtime_environment_parameters,

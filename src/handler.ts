@@ -240,11 +240,11 @@ export class SchedulerService {
     }
   }
 
-  async downloadOutputs(jobId: string, redownload = false): Promise<void> {
+  async downloadFiles(jobId: string, redownload = false): Promise<void> {
     try {
       await requestAPI(
         this.serverSettings,
-        `jobs/${jobId}/download_outputs?redownload=${redownload}`,
+        `jobs/${jobId}/download_files?redownload=${redownload}`,
         {
           method: 'GET'
         }
@@ -318,7 +318,6 @@ export namespace Scheduler {
 
   export interface ICreateJobDefinition {
     input_uri: string;
-    output_prefix: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
     output_formats?: string[];
@@ -332,8 +331,6 @@ export namespace Scheduler {
   }
 
   export interface IUpdateJobDefinition {
-    input_uri?: string;
-    output_prefix?: string;
     runtime_environment_name?: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
     output_formats?: string[];
@@ -348,7 +345,18 @@ export namespace Scheduler {
     active?: boolean;
   }
 
-  export interface IDescribeJobDefinition extends ICreateJobDefinition {
+  export interface IDescribeJobDefinition {
+    input_filename: string;
+    runtime_environment_name: string;
+    runtime_environment_parameters?: RuntimeEnvironmentParameters;
+    output_formats?: string[];
+    parameters?: Parameters;
+    tags?: string[];
+    name?: string;
+    output_filename_template?: string;
+    compute_type?: string;
+    schedule?: string;
+    timezone?: string;
     job_definition_id: string;
     create_time: number;
     update_time: number;
@@ -364,7 +372,6 @@ export namespace Scheduler {
 
   export interface ICreateJob {
     input_uri: string;
-    output_prefix: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
     idempotency_token?: string;
@@ -391,15 +398,31 @@ export namespace Scheduler {
     | 'STOPPING'
     | 'STOPPED';
 
-  export interface IOutput {
+  export interface IJobFile {
     display_name: string;
-    output_format: string;
-    output_path?: string;
+    file_format: string;
+    file_path?: string;
   }
 
-  export interface IDescribeJob extends ICreateJob {
+  export interface IDescribeJob {
+    input_filename: string;
+    runtime_environment_name: string;
+    runtime_environment_parameters?: RuntimeEnvironmentParameters;
+    idempotency_token?: string;
+    job_definition_id?: string;
+    parameters?: Parameters;
+    tags?: string[];
+    name?: string;
+    email_notifications?: IEmailNotifications;
+    timeout_seconds?: number;
+    max_retries?: number;
+    min_retry_interval_millis?: number;
+    retry_on_timeout?: boolean;
+    output_filename_template?: string;
+    output_formats?: string[];
+    compute_type?: string;
     job_id: string;
-    outputs: IOutput[];
+    job_files: IJobFile[];
     url: string;
     status: Status;
     status_message: string;
@@ -454,8 +477,6 @@ export namespace Scheduler {
 
   export interface IUpdateJob {
     status?: Status;
-    name?: string;
-    compute_type?: string;
   }
 
   export interface IRuntimeEnvironment {
