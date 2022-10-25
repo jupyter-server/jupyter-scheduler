@@ -11,6 +11,7 @@ import Paper from '@mui/material/Paper';
 
 import { Scheduler } from '../../handler';
 import { AdvancedTableHeader } from './advanced-table-header';
+import { useTranslator } from '../../hooks';
 
 const PAGE_SIZE = 25;
 
@@ -75,6 +76,7 @@ export function AdvancedTable<
   const [page, setPage] = useState<number>(0);
   const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const trans = useTranslator('jupyterlab');
   const theme = useTheme();
 
   const pageSize = props.pageSize ?? PAGE_SIZE;
@@ -168,20 +170,20 @@ export function AdvancedTable<
         const loadedRows = rows?.length ?? 0;
         if (onLastPage) {
           // for some reason `to` is set incorrectly on the last page in
-          // server-side pagination, so we need a custom template literal for
-          // this case.
-          return `${from}-${loadedRows} of ${loadedRows}`;
+          // server-side pagination, so we need to build the string differently
+          // in this case.
+          return trans.__('%1–%2 of %3', from, loadedRows, loadedRows);
         } else {
           return (
-            `${from}-${to} of ${loadedRows}` +
+            trans.__('%1–%2 of %3', from, to, loadedRows) +
             (nextToken === undefined ? '' : '+')
           );
         }
       } else {
-        return `${from}-${to} of ${count}`;
+        return trans.__('%1–%2 of %3', from, to, count);
       }
     },
-    [rows, onLastPage]
+    [rows, onLastPage, trans]
   );
 
   return (
