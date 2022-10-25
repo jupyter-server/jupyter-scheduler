@@ -68,9 +68,6 @@ function parameterValueMatch(elementName: string): number | null {
 export function CreateJob(props: ICreateJobProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  // eslint-disable-next-line no-debugger
-  debugger;
-
   // Cache environment list.
   const [environmentList, setEnvironmentList] = useState<
     Scheduler.IRuntimeEnvironment[]
