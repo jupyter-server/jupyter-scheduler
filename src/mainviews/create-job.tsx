@@ -105,18 +105,26 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           newComputeType = envList[0].default_compute_type;
         }
 
+        const outputFormats = outputFormatsForEnvironment(
+          envList,
+          envList[0].name
+        )?.map(format => format.name);
+
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
-          computeType: newComputeType
+          computeType: newComputeType,
+          outputFormats: outputFormats
         });
         environment = envList[0].name;
-      }
-      const outputFormats = outputFormatsForEnvironment(envList, environment);
-      if (outputFormats) {
+      } else {
+        const outputFormats = outputFormatsForEnvironment(
+          envList,
+          environment
+        )?.map(format => format.name);
         props.handleModelChange({
           ...props.model,
-          outputFormats: outputFormats.map(format => format.name)
+          outputFormats: outputFormats
         });
       }
     };
