@@ -88,7 +88,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const setList = async () => {
       const envList = await api.getRuntimeEnvironments();
       setEnvironmentList(envList);
-      let environment = props.model.environment;
       if (envList.length === 1) {
         // If no default compute type is specified, show the first one by default
         let newComputeType = envList[0].compute_types?.[0];
@@ -111,16 +110,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           ...props.model,
           environment: envList[0].name,
           computeType: newComputeType,
-          outputFormats: outputFormats
-        });
-        environment = envList[0].name;
-      } else {
-        const outputFormats = outputFormatsForEnvironment(
-          envList,
-          environment
-        )?.map(format => format.name);
-        props.handleModelChange({
-          ...props.model,
           outputFormats: outputFormats
         });
       }
