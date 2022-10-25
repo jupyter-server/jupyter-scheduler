@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { useTheme } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
 import TableBody from '@mui/material/TableBody';
-import TablePagination from '@mui/material/TablePagination';
+import TablePagination, {
+  LabelDisplayedRowsArgs
+} from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 
 import { Scheduler } from '../../handler';
@@ -20,7 +22,7 @@ export type AdvancedTableColumn = {
 type AdvancedTablePayload =
   | {
       next_token?: string;
-      total_count: number;
+      total_count?: number;
     }
   | undefined;
 
@@ -69,7 +71,7 @@ export function AdvancedTable<
 >(props: AdvancedTableProps<P, Q, R>): JSX.Element {
   const [rows, setRows] = useState<R[]>();
   const [nextToken, setNextToken] = useState<string>();
-  const [totalCount, setTotalCount] = useState<number>(0);
+  const [totalCount, setTotalCount] = useState<number>();
   const [page, setPage] = useState<number>(0);
   const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -153,7 +155,34 @@ export function AdvancedTable<
     setMaxPage(newPage);
   };
 
+  const onLastPage = page === maxPage && nextToken === undefined;
+
   const height = props.height ?? 'auto';
+
+  /**
+   * Renders the label to the left of the pagination buttons.
+   */
+  const labelDisplayedRows = useCallback(
+    ({ from, to, count }: LabelDisplayedRowsArgs) => {
+      if (count === -1) {
+        const loadedRows = rows?.length ?? 0;
+        if (onLastPage) {
+          // for some reason `to` is set incorrectly on the last page in
+          // server-side pagination, so we need a custom template literal for
+          // this case.
+          return `${from}-${loadedRows} of ${loadedRows}`;
+        } else {
+          return (
+            `${from}-${to} of ${loadedRows}` +
+            (nextToken === undefined ? '' : '+')
+          );
+        }
+      } else {
+        return `${from}-${to} of ${count}`;
+      }
+    },
+    [rows, onLastPage]
+  );
 
   return (
     <div
@@ -182,11 +211,12 @@ export function AdvancedTable<
             backgroundColor: theme.palette.background.paper,
             borderTop: `1px solid ${theme.palette.divider}`
           }}
-          count={totalCount}
+          count={totalCount ?? -1}
+          labelDisplayedRows={labelDisplayedRows}
           page={page}
           onPageChange={handlePageChange}
           nextIconButtonProps={{
-            disabled: page === maxPage && !nextToken
+            disabled: onLastPage
           }}
           rowsPerPage={pageSize}
           rowsPerPageOptions={[pageSize]}
