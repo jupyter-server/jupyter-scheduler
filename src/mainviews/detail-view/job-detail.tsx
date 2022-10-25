@@ -202,12 +202,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           ))}
           {props.model.status === 'COMPLETED' && (
             <>
-              <FormLabel component="legend">
-                {trans.__('Job files')}
-              </FormLabel>
+              <FormLabel component="legend">{trans.__('Job files')}</FormLabel>
               {props.model.job_files.map(
                 jobFile =>
-                jobFile['file_path'] && (
+                  jobFile['file_path'] && (
                     <JobFile
                       jobFile={convertJsonToJobFile(jobFile)}
                       app={props.app}
