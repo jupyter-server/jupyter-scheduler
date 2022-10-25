@@ -375,7 +375,7 @@ class Scheduler(BaseScheduler):
                     raise IdempotencyTokenError(model.idempotency_token)
 
             if not model.output_formats:
-                model.output_formats = ["ipynb"]
+                model.output_formats = []
 
             job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
             session.add(job)
