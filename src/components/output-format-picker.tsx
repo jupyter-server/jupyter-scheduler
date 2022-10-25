@@ -51,7 +51,7 @@ export function OutputFormatPicker(
             key={idx}
             control={
               <Checkbox
-                defaultChecked={props.value.some(sof => of.name === sof)}
+                checked={props.value.some(sof => of.name === sof)}
                 id={`${props.id}-${of.name}`}
                 value={of.name}
                 onChange={props.onChange}
