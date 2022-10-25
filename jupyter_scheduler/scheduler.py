@@ -288,6 +288,7 @@ class BaseScheduler(LoggingConfigurable):
                     file_format=output_format,
                     file_path=output_path if self.file_exists(output_path) else None,
                 )
+            )
 
         # Add input file
         filename = model.input_filename
@@ -373,8 +374,8 @@ class Scheduler(BaseScheduler):
                 if job:
                     raise IdempotencyTokenError(model.idempotency_token)
 
-            # if not model.output_formats:
-            #     model.output_formats = ["ipynb"]
+            if not model.output_formats:
+                model.output_formats = ["ipynb"]
 
             job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
             session.add(job)
