@@ -487,6 +487,7 @@ export namespace Scheduler {
     output_formats: IOutputFormat[];
     metadata: { [key: string]: string };
     compute_types: string[] | null;
+    default_compute_type: string | null;
   }
 
   export interface IOutputFormat {
