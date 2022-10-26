@@ -26,10 +26,12 @@ def timestamp_to_int(timestamp: str) -> int:
     dt = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
     return int(dt.timestamp())
 
+
 def create_output_directory(input_filename: str, job_id: str) -> str:
     """Creates output directory from input_filename and job_id"""
     basefilename = os.path.splitext(input_filename)[0]
     return f"{basefilename}-{job_id}"
+
 
 def create_output_filename(input_filename: str, create_time: int, output_format: str = None) -> str:
     """Creates output filename from input_filename, create_time and output_format"""
