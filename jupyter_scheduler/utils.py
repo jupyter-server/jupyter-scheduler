@@ -36,7 +36,7 @@ def create_output_directory(input_filename: str, job_id: str) -> str:
 def create_output_filename(input_filename: str, create_time: int, output_format: str = None) -> str:
     """Creates output filename from input_filename, create_time and output_format"""
     basefilename = os.path.splitext(input_filename)[0]
-    timestamp = datetime.fromtimestamp(create_time / 1e3).strftime("%Y-%m-%d-%I-%M%-S-%p")
+    timestamp = datetime.fromtimestamp(create_time / 1e3).strftime("%Y-%m-%d-%I-%M-%S-%p")
     if output_format:
         return f"{basefilename}-{timestamp}.{output_format}"
     else:
