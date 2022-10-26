@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
+
+import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
+import { JobFileLink } from '../../components/job-file-link';
+import { Scheduler, SchedulerService } from '../../handler';
+import { useTranslator } from '../../hooks';
 import {
   ICreateJobModel,
   IJobDetailModel,
   JobsView,
   ListJobsView
 } from '../../model';
-import { useTranslator } from '../../hooks';
-import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
-import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 
 import {
   Alert,
@@ -18,7 +20,6 @@ import {
   Card,
   CardContent,
   FormLabel,
-  Link,
   Stack,
   TextField,
   TextFieldProps
@@ -150,32 +151,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ]
   ];
 
-  function JobFile(props: {
-    jobFile: Scheduler.IJobFile;
-    app: JupyterFrontEnd;
-  }) {
-    return (
-      <Link
-        key={props.jobFile.file_format}
-        href={`/lab/tree/${props.jobFile.file_path}`}
-        title={trans.__('Open "%1"', props.jobFile.file_path)}
-        onClick={(
-          e:
-            | React.MouseEvent<HTMLSpanElement, MouseEvent>
-            | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-        ) => {
-          e.preventDefault();
-          props.app.commands.execute('docmanager:open', {
-            path: props.jobFile.file_path
-          });
-        }}
-        style={{ paddingRight: '1em' }}
-      >
-        {props.jobFile.display_name}
-      </Link>
-    );
-  }
-
   const convertJsonToJobFile = (jobFile: { [key: string]: string }) => {
     return {
       display_name: jobFile['display_name'],
@@ -206,7 +181,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               {props.model.job_files.map(
                 jobFile =>
                   jobFile['file_path'] && (
-                    <JobFile
+                    <JobFileLink
                       jobFile={convertJsonToJobFile(jobFile)}
                       app={props.app}
                     />
