@@ -8,7 +8,8 @@ import { VDomModel } from '@jupyterlab/apputils';
  */
 
 export enum JobsView {
-  CreateForm,
+  // assignment ensures any enum value is always truthy
+  CreateForm = 1,
   ListJobs,
   ListJobDefinitions,
   JobDetail,
