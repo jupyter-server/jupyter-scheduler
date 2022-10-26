@@ -460,7 +460,7 @@ export namespace Scheduler {
   export interface IListJobsResponse {
     jobs: IDescribeJob[];
     next_token?: string;
-    total_count: number;
+    total_count?: number;
   }
 
   export interface IListJobDefinitionsQuery {
@@ -472,7 +472,7 @@ export namespace Scheduler {
   export interface IListJobDefinitionsResponse {
     job_definitions: IDescribeJobDefinition[];
     next_token?: string;
-    total_count: number;
+    total_count?: number;
   }
 
   export interface IUpdateJob {
