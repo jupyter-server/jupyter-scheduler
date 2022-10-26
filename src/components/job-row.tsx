@@ -8,11 +8,12 @@ import IconButton from '@mui/material/IconButton';
 import { Stack, TableCell, TableRow } from '@mui/material';
 
 import { ConfirmDeleteIcon } from './confirm-delete-icon';
+import { JobFileLink } from './job-file-link';
 
+import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
-import { CommandIDs } from '..';
 
 function StopButton(props: {
   job: Scheduler.IDescribeJob;
@@ -47,33 +48,19 @@ function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
 
 function JobFiles(props: {
   job: Scheduler.IDescribeJob;
-  openOnClick: (e: any, output_uri: string) => void;
+  app: JupyterFrontEnd;
 }): JSX.Element | null {
   if (props.job.status !== 'COMPLETED') {
     return null;
   }
 
-  const trans = useTranslator('jupyterlab');
-
   return (
     <>
-      {props.job.job_files.map(
-        ({ file_format, display_name, file_path = null }) => {
-          return (
-            file_path && (
-              <a
-                key={file_format}
-                href={`/lab/tree/${file_path}`}
-                title={trans.__('Open "%1"', file_path)}
-                onClick={e => props.openOnClick(e, file_path)}
-                style={{ paddingRight: '1em' }}
-              >
-                {display_name}
-              </a>
-            )
-          );
-        }
-      )}
+      {props.job.job_files.map(jobFile => {
+        return (
+          jobFile.file_path && <JobFileLink jobFile={jobFile} app={props.app} />
+        );
+      })}
     </>
   );
 }
@@ -125,13 +112,7 @@ export function buildJobRow(
       {!job.downloaded && job.status === 'COMPLETED' && (
         <DownloadFilesButton app={app} job={job} reload={reload} />
       )}
-      <JobFiles
-        job={job}
-        openOnClick={(e: Event, output_uri: string) => {
-          e.preventDefault();
-          app.commands.execute('docmanager:open', { path: output_uri });
-        }}
-      />
+      <JobFiles job={job} app={app} />
     </>,
     <Timestamp job={job} />,
     translateStatus(job.status),
