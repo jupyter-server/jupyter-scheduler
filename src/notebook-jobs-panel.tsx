@@ -11,7 +11,7 @@ import { calendarMonthIcon } from './components/icons';
 import TranslatorContext from './context';
 import { CreateJob } from './mainviews/create-job';
 import { NotebookJobsList } from './mainviews/list-jobs';
-import { ICreateJobModel, JobsModel, ListJobsView } from './model';
+import { ICreateJobModel, JobsModel, JobsView } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
 import { DetailView } from './mainviews/detail-view';
@@ -49,33 +49,30 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
-  showListView(list: ListJobsView): void {
-    this.model.listJobsModel.listJobsView = list;
-    this.model.jobsView = 'ListJobs';
+  showListView(view: JobsView.ListJobs | JobsView.ListJobDefinitions): void {
+    this.model.jobsView = view;
   }
 
   showDetailView(jobId: string): void {
-    this.model.jobsView = 'JobDetail';
-    this.model.jobDetailModel.detailType = 'Job';
+    this.model.jobsView = JobsView.JobDetail;
     this.model.jobDetailModel.id = jobId;
   }
 
   showJobDefinitionDetail(jobDefId: string): void {
-    this.model.jobsView = 'JobDetail';
-    this.model.jobDetailModel.detailType = 'JobDefinition';
+    this.model.jobsView = JobsView.JobDefinitionDetail;
     this.model.jobDetailModel.id = jobDefId;
   }
 
   render(): JSX.Element {
     const showCreateJob = (newModel: ICreateJobModel) => {
       this.model.createJobModel = newModel;
-      this.model.jobsView = 'CreateJob';
+      this.model.jobsView = JobsView.CreateForm;
     };
 
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
-          {this.model.jobsView === 'CreateJob' && (
+          {this.model.jobsView === JobsView.CreateForm && (
             <CreateJob
               key={this.model.createJobModel.key}
               model={this.model.createJobModel}
@@ -86,29 +83,27 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               advancedOptions={this._advancedOptions}
             />
           )}
-          {this.model.jobsView === 'ListJobs' && (
+          {(this.model.jobsView === JobsView.ListJobs ||
+            this.model.jobsView === JobsView.ListJobDefinitions) && (
             <NotebookJobsList
               app={this._app}
-              model={this.model.listJobsModel}
-              handleModelChange={newModel =>
-                (this.model.listJobsModel = newModel)
-              }
+              listView={this.model.jobsView}
+              showListView={this.showListView.bind(this)}
               showCreateJob={showCreateJob}
               showJobDetail={this.showDetailView.bind(this)}
               showJobDefinitionDetail={this.showJobDefinitionDetail.bind(this)}
             />
           )}
-          {this.model.jobsView === 'JobDetail' && (
+          {(this.model.jobsView === JobsView.JobDetail ||
+            this.model.jobsView === JobsView.JobDefinitionDetail) && (
             <DetailView
               app={this._app}
               model={this.model.jobDetailModel}
               setCreateJobModel={newModel =>
                 (this.model.createJobModel = newModel)
               }
+              jobsView={this.model.jobsView}
               setJobsView={view => (this.model.jobsView = view)}
-              setListJobsView={view => {
-                this.model.listJobsModel.listJobsView = view;
-              }}
               showCreateJob={showCreateJob}
               showJobDetail={this.showDetailView.bind(this)}
               advancedOptions={this._advancedOptions}

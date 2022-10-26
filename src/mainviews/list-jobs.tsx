@@ -11,7 +11,7 @@ import { Heading } from '../components/heading';
 import { useTranslator } from '../hooks';
 import { buildJobRow } from '../components/job-row';
 import { buildJobDefinitionRow } from '../components/job-definition-row';
-import { ICreateJobModel, IListJobsModel, ListJobsView } from '../model';
+import { ICreateJobModel, JobsView } from '../model';
 import { Scheduler, SchedulerService } from '../handler';
 import { Cluster } from '../components/cluster';
 import {
@@ -271,8 +271,8 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
 
 export interface IListJobsProps {
   app: JupyterFrontEnd;
-  model: IListJobsModel;
-  handleModelChange: (model: IListJobsModel) => void;
+  listView: JobsView.ListJobs | JobsView.ListJobDefinitions;
+  showListView: (view: JobsView.ListJobs | JobsView.ListJobDefinitions) => void;
   showCreateJob: (newModel: ICreateJobModel) => void;
   showJobDetail: (jobId: string) => void;
   showJobDefinitionDetail: (jobDefId: string) => void;
@@ -287,24 +287,24 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
     [trans]
   );
 
-  const changeTab = (newTab: ListJobsView) => {
-    const newModel: IListJobsModel = props.model;
-    newModel.listJobsView = newTab;
-    props.handleModelChange(newModel);
-  };
-
   // Retrieve the initial jobs list
   return (
     <Box sx={{ p: 4 }} style={{ height: '100%', boxSizing: 'border-box' }}>
       <Stack spacing={3} style={{ height: '100%' }}>
         <Tabs
-          value={props.model.listJobsView}
-          onChange={(_, newTab) => changeTab(newTab)}
+          value={props.listView}
+          onChange={(
+            _,
+            newTab: JobsView.ListJobs | JobsView.ListJobDefinitions
+          ) => props.showListView(newTab)}
         >
-          <Tab label={jobsHeader} value="Job" />
-          <Tab label={jobDefinitionsHeader} value="JobDefinition" />
+          <Tab label={jobsHeader} value={JobsView.ListJobs} />
+          <Tab
+            label={jobDefinitionsHeader}
+            value={JobsView.ListJobDefinitions}
+          />
         </Tabs>
-        {props.model.listJobsView === 'Job' && (
+        {props.listView === JobsView.ListJobs && (
           <>
             <Heading level={1}>{jobsHeader}</Heading>
             <ListJobsTable
@@ -314,7 +314,7 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
             />
           </>
         )}
-        {props.model.listJobsView === 'JobDefinition' && (
+        {props.listView === JobsView.ListJobDefinitions && (
           <>
             <Heading level={1}>{jobDefinitionsHeader}</Heading>
             <ListJobDefinitionsTable
