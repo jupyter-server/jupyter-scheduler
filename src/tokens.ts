@@ -11,10 +11,12 @@ export namespace Scheduler {
 
   export type ErrorsType = { [key: string]: string };
 
+  type ModelType = ICreateJobModel | IJobDetailModel | IJobDefinitionModel;
+
   export interface IAdvancedOptionsProps {
     jobsView: JobsView;
-    model: ICreateJobModel | IJobDetailModel | IJobDefinitionModel;
-    handleModelChange: (model: ICreateJobModel) => void;
+    model: ModelType;
+    handleModelChange: (model: ModelType) => void;
     errors: ErrorsType;
     handleErrorsChange: (errors: ErrorsType) => void;
   }

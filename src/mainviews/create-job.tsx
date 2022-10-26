@@ -826,7 +826,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               <props.advancedOptions
                 jobsView={'CreateJob'}
                 model={props.model}
-                handleModelChange={props.handleModelChange}
+                handleModelChange={model =>
+                  props.handleModelChange(model as ICreateJobModel)
+                }
                 errors={advancedOptionsErrors}
                 handleErrorsChange={setAdvancedOptionsErrors}
               />
