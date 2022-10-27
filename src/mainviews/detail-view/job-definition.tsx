@@ -163,27 +163,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     </Card>
   );
 
-  const JobDefinitionOld = (
-    <Card>
-      <CardContent>
-        <Stack spacing={4}>
-          {jobDefinitionFields.map(propsRow => (
-            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-              {propsRow.map(textProp => (
-                <LabeledValue
-                  {...textProp}
-                  style={{
-                    flexGrow: 1
-                  }}
-                />
-              ))}
-            </Stack>
-          ))}
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-
   const AdvancedOptions = (
     <Card>
       <CardContent>
@@ -227,7 +206,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     <>
       {DefinitionButtonBar}
       {JobDefinition}
-      {JobDefinitionOld}
       {JobsList}
       {AdvancedOptions}
     </>
