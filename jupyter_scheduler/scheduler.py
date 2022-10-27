@@ -32,7 +32,7 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.orm import Job, JobDefinition, create_session
-from jupyter_scheduler.utils import create_output_filename
+from jupyter_scheduler.utils import create_output_directory, create_output_filename
 
 
 class BaseScheduler(LoggingConfigurable):
@@ -310,7 +310,7 @@ class BaseScheduler(LoggingConfigurable):
         where all the job files will be downloaded
         from the staging location.
         """
-        output_dir_name = create_output_filename(model.input_filename, model.create_time)
+        output_dir_name = create_output_directory(model.input_filename, model.job_id)
         return os.path.join(self.root_dir, self.output_directory, output_dir_name)
 
 
