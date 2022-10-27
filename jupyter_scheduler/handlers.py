@@ -7,7 +7,7 @@ from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.environments import EnvironmentRetrievalError
-from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError
+from jupyter_scheduler.exceptions import SchedulerError, IdempotencyTokenError, InputUriError
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -100,6 +100,9 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         except InputUriError as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(500, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
         except Exception as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(
@@ -159,6 +162,9 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         except IdempotencyTokenError as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(409, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
         except Exception as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(
