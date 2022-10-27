@@ -36,7 +36,6 @@ import { Box, Stack } from '@mui/system';
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
 import cronstrue from 'cronstrue';
-import { ReadonlyTextField } from '../components/readonly-text-field';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -764,7 +763,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}jobName`}
             name="jobName"
           />
-          <ReadonlyTextField
+          <TextField
             label={trans.__('Input file')}
             onChange={handleInputChange}
             value={props.model.inputFile}

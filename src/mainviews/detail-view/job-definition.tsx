@@ -10,7 +10,6 @@ import { Scheduler as SchedulerTokens } from '../../tokens';
 import { Button, Card, CardContent, FormLabel, Stack } from '@mui/material';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ReadonlyTextField } from '../../components/readonly-text-field';
 import {
   ILabeledValueProps,
   LabeledValue
@@ -171,7 +170,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {jobDefinitionFields.map(propsRow => (
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {propsRow.map(textProp => (
-                <ReadonlyTextField
+                <LabeledValue
                   {...textProp}
                   style={{
                     flexGrow: 1
