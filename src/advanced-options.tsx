@@ -7,7 +7,6 @@ import { AddButton, DeleteButton } from './components/icon-buttons';
 import { useTranslator } from './hooks';
 import { JobsView } from './model';
 import { Scheduler } from './tokens';
-import { ReadonlyTextField } from './components/readonly-text-field';
 
 const AdvancedOptions = (
   props: Scheduler.IAdvancedOptionsProps
@@ -125,11 +124,14 @@ const AdvancedOptions = (
     return (
       <Stack spacing={2}>
         {tags.map((tag, idx) => (
-          <ReadonlyTextField
+          <TextField
             label={trans.__('Tag %1', idx + 1)}
             id={`${formPrefix}tag-${idx}`}
             name={`tag-${idx}`}
             value={tag}
+            InputProps={{
+              readOnly: true
+            }}
           />
         ))}
       </Stack>
