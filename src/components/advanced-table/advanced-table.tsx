@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 
 import { useTheme } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -134,16 +134,14 @@ export function AdvancedTable<
     setTotalCount(payload.total_count);
   };
 
-  if (rows && !rows.length) {
-    return (
-      <p className={'jp-notebook-job-list-empty'}>{props.emptyRowMessage}</p>
-    );
-  }
-
-  const renderedRows: JSX.Element[] = (rows || [])
-    .slice(page * pageSize, (page + 1) * pageSize)
-    .filter(row => (props.rowFilter ? props.rowFilter(row) : true))
-    .map(row => props.renderRow(row));
+  const renderedRows: JSX.Element[] = useMemo(
+    () =>
+      (rows || [])
+        .slice(page * pageSize, (page + 1) * pageSize)
+        .filter(row => (props.rowFilter ? props.rowFilter(row) : true))
+        .map(row => props.renderRow(row)),
+    [rows, props.rowFilter, props.renderRow]
+  );
 
   const handlePageChange = async (e: unknown, newPage: number) => {
     // if newPage <= maxPage, no need to fetch more rows
@@ -187,6 +185,12 @@ export function AdvancedTable<
     },
     [rows, onLastPage, trans]
   );
+
+  if (rows && !rows.length) {
+    return (
+      <p className={'jp-notebook-job-list-empty'}>{props.emptyRowMessage}</p>
+    );
+  }
 
   return (
     <div
