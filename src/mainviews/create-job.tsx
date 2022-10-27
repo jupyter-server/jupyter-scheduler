@@ -12,7 +12,7 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
-import { ICreateJobModel, IJobParameter, ListJobsView } from '../model';
+import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
 import ErrorIcon from '@mui/icons-material/Error';
@@ -40,7 +40,9 @@ import cronstrue from 'cronstrue';
 export interface ICreateJobProps {
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
-  showListView: (list: ListJobsView) => unknown;
+  showListView: (
+    list: JobsView.ListJobs | JobsView.ListJobDefinitions
+  ) => unknown;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
@@ -632,7 +634,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       .createJob(jobOptions)
       .then(response => {
         // Switch to the list view with "Job List" active
-        props.showListView('Job');
+        props.showListView(JobsView.ListJobs);
       })
       .catch((error: Error) => {
         props.handleModelChange({
@@ -679,7 +681,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       .createJobDefinition(jobDefinitionOptions)
       .then(response => {
         // Switch to the list view with "Job Definition List" active
-        props.showListView('JobDefinition');
+        props.showListView(JobsView.ListJobDefinitions);
       })
       .catch((error: string) => {
         props.handleModelChange({
@@ -824,7 +826,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             </AccordionSummary>
             <AccordionDetails id={`${formPrefix}create-panel-content`}>
               <props.advancedOptions
-                jobsView={'CreateJob'}
+                jobsView={JobsView.CreateForm}
                 model={props.model}
                 handleModelChange={props.handleModelChange}
                 errors={advancedOptionsErrors}
@@ -854,7 +856,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               <>
                 <Button
                   variant="outlined"
-                  onClick={e => props.showListView('Job')}
+                  onClick={e => props.showListView(JobsView.ListJobs)}
                 >
                   {trans.__('Cancel')}
                 </Button>

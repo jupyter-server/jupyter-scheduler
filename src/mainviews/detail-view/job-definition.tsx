@@ -1,10 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-  IJobDefinitionModel,
-  JobsView,
-  ListJobsView,
-  ICreateJobModel
-} from '../../model';
+import { IJobDefinitionModel, JobsView, ICreateJobModel } from '../../model';
 import { useTranslator } from '../../hooks';
 import { TextFieldStyled, timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
@@ -28,7 +23,6 @@ export interface IJobDefinitionProps {
   model: IJobDefinitionModel;
   refresh: () => void;
   setJobsView: (view: JobsView) => void;
-  setListJobsView: (view: ListJobsView) => void;
   showJobDetail: (jobId: string) => void;
   showCreateJob: (state: ICreateJobModel) => void;
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
@@ -41,8 +35,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   const handleDeleteJobDefinition = async () => {
     await ss.deleteJobDefinition(props.model.definitionId ?? '');
-    props.setJobsView('ListJobs');
-    props.setListJobsView('JobDefinition');
+    props.setJobsView(JobsView.ListJobDefinitions);
   };
 
   const pauseJobDefinition = async () => {
@@ -159,7 +152,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
             {trans.__('Advanced Options')}
           </FormLabel>
           <props.advancedOptions
-            jobsView={'JobDetail'}
+            jobsView={JobsView.JobDefinitionDetail}
             model={props.model}
             handleModelChange={(_: any) => {
               return;

@@ -11,7 +11,7 @@ import { Contents } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
 
 import { SchedulerService } from './handler';
-import { IJobsModel, emptyCreateJobModel } from './model';
+import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import {
   calendarAddOnIcon,
@@ -187,7 +187,7 @@ async function activatePlugin(
       newCreateModel.outputPath = getDirectoryFromPath(filePath) ?? '';
 
       await showJobsPanel({
-        jobsView: 'CreateJob',
+        jobsView: JobsView.CreateForm,
         createJobModel: newCreateModel
       });
     },
@@ -210,7 +210,7 @@ async function activatePlugin(
       newCreateModel.outputPath = getDirectoryFromPath(filePath) ?? '';
 
       await showJobsPanel({
-        jobsView: 'CreateJob',
+        jobsView: JobsView.CreateForm,
         createJobModel: newCreateModel
       });
     },
@@ -257,4 +257,5 @@ const plugins: JupyterFrontEndPlugin<any>[] = [
   advancedOptions
 ];
 
+export { JobsView };
 export default plugins;

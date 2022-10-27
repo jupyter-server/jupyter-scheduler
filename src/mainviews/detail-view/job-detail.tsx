@@ -6,12 +6,7 @@ import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 import { JobFileLink } from '../../components/job-file-link';
 import { Scheduler, SchedulerService } from '../../handler';
 import { useTranslator } from '../../hooks';
-import {
-  ICreateJobModel,
-  IJobDetailModel,
-  JobsView,
-  ListJobsView
-} from '../../model';
+import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import {
@@ -40,7 +35,6 @@ export interface IJobDetailProps {
   handleModelChange: () => Promise<void>;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setJobsView: (view: JobsView) => void;
-  setListJobsView: (view: ListJobsView) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
@@ -65,8 +59,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
-    props.setJobsView('ListJobs');
-    props.setListJobsView('Job');
+    props.setJobsView(JobsView.ListJobs);
   };
 
   const handleStopJob = async () => {
@@ -233,7 +226,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             {trans.__('Advanced Options')}
           </FormLabel>
           <props.advancedOptions
-            jobsView={'JobDetail'}
+            jobsView={JobsView.JobDetail}
             model={props.model}
             handleModelChange={(_: any) => {
               return;

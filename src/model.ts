@@ -7,8 +7,14 @@ import { VDomModel } from '@jupyterlab/apputils';
  * Top-level models
  */
 
-export type JobsView = 'CreateJob' | 'ListJobs' | 'JobDetail';
-export type ListJobsView = 'Job' | 'JobDefinition';
+export enum JobsView {
+  // assignment ensures any enum value is always truthy
+  CreateForm = 1,
+  ListJobs,
+  ListJobDefinitions,
+  JobDetail,
+  JobDefinitionDetail
+}
 
 export type IJobParameter = {
   name: string;
@@ -74,24 +80,21 @@ export function emptyCreateJobModel(): ICreateJobModel {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IListJobsModel extends PartialJSONObject {
-  listJobsView: ListJobsView;
+  /* reserved */
 }
 
 export function emptyListJobsModel(): IListJobsModel {
-  return {
-    listJobsView: 'Job'
-  };
+  return {};
 }
 
 export interface IDetailViewModel extends PartialJSONObject {
-  detailType: ListJobsView;
   id: string;
 }
 
 export function emptyDetailViewModel(): IDetailViewModel {
   return {
-    detailType: 'Job',
     id: ''
   };
 }
@@ -103,14 +106,8 @@ export interface IJobsModel extends PartialJSONObject {
   jobDetailModel?: IDetailViewModel;
 }
 
-export function emptyJobsModel(): IJobsModel {
-  return {
-    jobsView: 'CreateJob'
-  };
-}
-
 export class JobsModel extends VDomModel {
-  private _jobsView: JobsView = 'ListJobs';
+  private _jobsView: JobsView = JobsView.ListJobs;
   private _createJobModel: ICreateJobModel;
   private _listJobsModel: IListJobsModel;
   private _jobDetailModel: IDetailViewModel;
@@ -124,7 +121,7 @@ export class JobsModel extends VDomModel {
 
   constructor(options: IJobsModelOptions) {
     super();
-    this._jobsView = 'ListJobs';
+    this._jobsView = JobsView.ListJobs;
     this._createJobModel = emptyCreateJobModel();
     this._listJobsModel = emptyListJobsModel();
     this._jobDetailModel = emptyDetailViewModel();
@@ -138,6 +135,7 @@ export class JobsModel extends VDomModel {
 
   set jobsView(view: JobsView) {
     this._jobsView = view;
+    this._onModelUpdate?.();
     this.stateChanged.emit(void 0);
   }
 
@@ -190,7 +188,7 @@ export class JobsModel extends VDomModel {
   }
 
   fromJson(data: IJobsModel): void {
-    this._jobsView = data.jobsView ?? 'ListJobs';
+    this._jobsView = data.jobsView ?? JobsView.ListJobs;
     this._createJobModel = data.createJobModel ?? emptyCreateJobModel();
     this._listJobsModel = data.listJobsModel ?? emptyListJobsModel();
     this._jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
