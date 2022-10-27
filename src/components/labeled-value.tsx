@@ -25,7 +25,7 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
         ...style
       }}
     >
-      <span style={{ fontSize: '0.8em' }}>{label}</span>
+      <span className="jp-jobs-LabeledValue-label">{label}</span>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div
           style={{
@@ -35,9 +35,14 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
           }}
         >
           {InputProps?.startAdornment}
-          <span>{value ? value : !InputProps?.startAdornment && '\u2014'}</span>
+          <span className="jp-jobs-LabeledValue-value">
+            {value ? value : !InputProps?.startAdornment && '\u2014'}
+          </span>
         </div>
-        <span style={{ fontSize: '0.8em', maxWidth: 'fit-content' }}>
+        <span
+          className="jp-jobs-LabeledValue-label"
+          style={{ maxWidth: 'fit-content' }}
+        >
           {helperText}
         </span>
       </div>
