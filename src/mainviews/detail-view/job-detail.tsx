@@ -59,7 +59,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
-    props.setJobsView(JobsView.JobDetail);
+    props.setJobsView(JobsView.ListJobs);
   };
 
   const handleStopJob = async () => {
