@@ -2,6 +2,7 @@ import React from 'react';
 
 export interface ILabeledValueProps {
   label: string;
+  id?: string;
   value?: string | number | boolean;
   style?: React.CSSProperties;
   InputProps?: {
@@ -15,6 +16,7 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
 
   return (
     <div
+      id={props.id}
       style={{
         display: 'flex',
         flexDirection: 'column',
