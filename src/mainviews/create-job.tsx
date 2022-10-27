@@ -75,6 +75,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     Scheduler.IRuntimeEnvironment[]
   >([]);
 
+  const [advancedOptionsExpanded, setAdvancedOptionsExpanded] =
+    useState<boolean>(false);
+
   // A mapping from input names to error messages.
   // If an error message is "truthy" (i.e., not null or ''), we should display the
   // input in an error state and block form submission.
@@ -568,6 +571,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const submitForm = async (event: React.MouseEvent) => {
+    // Collapse the "Advanced Options" section so that users can see
+    // errors at the top, if there are any.
+    setAdvancedOptionsExpanded(false);
+
     switch (props.model.createType) {
       case 'Job':
         return submitCreateJobRequest(event);
@@ -807,7 +814,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             errors={errors}
             handleErrorsChange={setErrors}
           />
-          <Accordion defaultExpanded={false}>
+          <Accordion
+            defaultExpanded={false}
+            expanded={advancedOptionsExpanded}
+            onChange={(_: React.SyntheticEvent, expanded: boolean) =>
+              setAdvancedOptionsExpanded(expanded)
+            }
+          >
             <AccordionSummary
               expandIcon={<caretDownIcon.react />}
               aria-controls="panel-content"
