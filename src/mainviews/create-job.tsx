@@ -828,7 +828,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               <props.advancedOptions
                 jobsView={JobsView.CreateForm}
                 model={props.model}
-                handleModelChange={model => props.handleModelChange(model)}
+                handleModelChange={props.handleModelChange}
                 errors={advancedOptionsErrors}
                 handleErrorsChange={setAdvancedOptionsErrors}
               />
