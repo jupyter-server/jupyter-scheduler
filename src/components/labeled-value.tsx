@@ -20,8 +20,6 @@ export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        padding: '0.3rem 0',
-        gap: '0.5rem',
         ...style
       }}
     >
