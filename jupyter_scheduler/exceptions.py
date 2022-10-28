@@ -2,7 +2,9 @@ class SchedulerError(Exception):
     """Generic class for catching all exceptions
     that are not defined here
     """
+
     pass
+
 
 class InputUriError(Exception):
     def __init__(self, input_uri: str):
@@ -18,4 +20,3 @@ class IdempotencyTokenError(Exception):
 
     def __str__(self):
         return f"Job with Idempotency Token '{self.idempotency_token}' already exists."
-

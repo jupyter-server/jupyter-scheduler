@@ -7,7 +7,11 @@ from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.environments import EnvironmentRetrievalError
-from jupyter_scheduler.exceptions import SchedulerError, IdempotencyTokenError, InputUriError
+from jupyter_scheduler.exceptions import (
+    IdempotencyTokenError,
+    InputUriError,
+    SchedulerError,
+)
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
