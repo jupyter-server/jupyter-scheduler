@@ -1,6 +1,6 @@
 import os
-from multiprocessing import Process
 import shutil
+from multiprocessing import Process
 from typing import Dict, Optional, Type, Union
 
 import fsspec
@@ -479,7 +479,6 @@ class Scheduler(BaseScheduler):
                 path = os.path.dirname(next(iter(staging_paths.values())))
                 if os.path.exists(path):
                     shutil.rmtree(path)
-
 
             session.query(Job).filter(Job.job_id == job_id).delete()
             session.commit()
