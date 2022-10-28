@@ -29,6 +29,11 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
     FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
   />
 );
+
+import {
+  ILabeledValueProps,
+  LabeledValue
+} from '../../components/labeled-value';
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel;
@@ -104,7 +109,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
-  const coreOptionsFields: TextFieldProps[][] = [
+  const coreOptionsFields: ILabeledValueProps[][] = [
     [
       { value: props.model.jobName, label: trans.__('Job name') },
       { value: props.model.jobId, label: trans.__('Job ID') }
@@ -159,10 +164,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {coreOptionsFields.map(propsRow => (
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {propsRow.map(textProp => (
-                <TextFieldStyled
+                <LabeledValue
                   {...textProp}
                   style={{
-                    flexGrow: 1
+                    flex: '1 1 49%'
                   }}
                 />
               ))}
@@ -197,18 +202,18 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           {props.model.parameters &&
             props.model.parameters.map((parameter, idx) => (
               <Stack key={idx} direction={'row'} gap={2} flexWrap={'wrap'}>
-                <TextFieldStyled
+                <LabeledValue
                   label={trans.__('Parameter name')}
                   value={parameter.name}
                   style={{
-                    flexGrow: 1
+                    flex: '1 1 49%'
                   }}
                 />
-                <TextFieldStyled
+                <LabeledValue
                   label={trans.__('Parameter value')}
                   value={parameter.value}
                   style={{
-                    flexGrow: 1
+                    flex: '1 1 49%'
                   }}
                 />
               </Stack>

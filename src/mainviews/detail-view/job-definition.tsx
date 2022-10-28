@@ -1,22 +1,19 @@
 import React, { useMemo } from 'react';
 import { IJobDefinitionModel, JobsView, ICreateJobModel } from '../../model';
 import { useTranslator } from '../../hooks';
-import { TextFieldStyled, timestampLocalize } from './job-detail';
+import { timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
 import cronstrue from 'cronstrue';
 import { ListJobsTable } from '../list-jobs';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  FormLabel,
-  Stack,
-  TextFieldProps
-} from '@mui/material';
+import { Button, Card, CardContent, FormLabel, Stack } from '@mui/material';
 import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
 import { JupyterFrontEnd } from '@jupyterlab/application';
+import {
+  ILabeledValueProps,
+  LabeledValue
+} from '../../components/labeled-value';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -78,7 +75,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     </Stack>
   );
 
-  const jobDefinitionFields: TextFieldProps[][] = [
+  const jobDefinitionFields: ILabeledValueProps[][] = [
     [{ value: props.model.name, label: trans.__('Name') }],
     [
       {
@@ -130,10 +127,10 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {jobDefinitionFields.map(propsRow => (
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {propsRow.map(textProp => (
-                <TextFieldStyled
+                <LabeledValue
                   {...textProp}
                   style={{
-                    flexGrow: 1
+                    flex: '1 1 49%'
                   }}
                 />
               ))}

@@ -11,6 +11,7 @@
 @import './heading.css';
 @import './cluster.css';
 @import './button.css';
+@import './labeled-value.css';
 
 .jp-notebook-jobs-panel {
   background: var(--jp-layout-color1);

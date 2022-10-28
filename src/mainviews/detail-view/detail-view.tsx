@@ -118,7 +118,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
   );
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ p: 4, maxWidth: '1000px' }}>
       <Stack spacing={4}>
         {BreadcrumbsStyled}
         <Heading level={1}>
