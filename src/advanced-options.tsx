@@ -146,7 +146,7 @@ const AdvancedOptions = (
   const idemTokenId = `${formPrefix}${idemTokenName}`;
   return (
     <Stack spacing={4}>
-      {props.jobsView === JobsView.JobDetail && (
+      {props.readonly && props.jobsView === JobsView.JobDetail && (
         <LabeledValue
           label={idemTokenLabel}
           value={props.model.idempotencyToken}
