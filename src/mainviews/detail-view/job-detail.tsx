@@ -240,6 +240,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             handleErrorsChange={(_: any) => {
               return;
             }}
+            readonly
           />
         </Stack>
       </CardContent>
