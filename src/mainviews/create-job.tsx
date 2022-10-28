@@ -765,6 +765,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           />
           <TextField
             label={trans.__('Input file')}
+            variant="outlined"
             onChange={handleInputChange}
             value={props.model.inputFile}
             id={`${formPrefix}inputFile`}
