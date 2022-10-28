@@ -30,17 +30,16 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
     const param = props.value[idx];
     // If the parameter is not defined (such as if it was just created) then treat it
     // as invalid.
-    // Also invalid: a parameter with no name and no value
-    const invalid =
-      param === undefined
-        ? true
-        : (param.name === '' && param.value !== '') ||
-          (param.name === '' && param.value === '');
+    const nameInvalid = param === undefined ? true : param.name === '';
+    const valueInvalid = param === undefined ? true : param.value === '';
 
     props.handleErrorsChange({
       ...props.errors,
-      [`parameter-${idx}-name`]: invalid
+      [`parameter-${idx}-name`]: nameInvalid
         ? trans.__('No name specified for this parameter.')
+        : '',
+      [`parameter-${idx}-value`]: valueInvalid
+        ? trans.__('No value specified for this parameter.')
         : ''
     });
   };
@@ -62,6 +61,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
       <InputLabel>{props.label}</InputLabel>
       {props.value.map((param, paramIdx) => {
         const nameHasError = !!props.errors[`parameter-${paramIdx}-name`];
+        const valueHasError = !!props.errors[`parameter-${paramIdx}-value`];
         return (
           <Cluster
             key={paramIdx}
@@ -88,6 +88,8 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               type="text"
               placeholder={trans.__('Value')}
               onBlur={e => checkParameterElement(e.target)}
+              error={valueHasError}
+              helperText={props.errors[`parameter-${paramIdx}-value`] ?? ''}
               onChange={props.onChange}
               FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
               style={{
