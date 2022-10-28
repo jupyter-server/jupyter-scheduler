@@ -1,5 +1,6 @@
 import os
 from multiprocessing import Process
+import shutil
 from typing import Dict, Optional, Type, Union
 
 import fsspec
@@ -472,6 +473,13 @@ class Scheduler(BaseScheduler):
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
             if Status(job_record.status) == Status.IN_PROGRESS:
                 self.stop_job(job_id)
+
+            staging_paths = self.get_staging_paths(DescribeJob.from_orm(job_record))
+            if staging_paths:
+                path = os.path.dirname(next(iter(staging_paths.values())))
+                if os.path.exists(path):
+                    shutil.rmtree(path)
+
 
             session.query(Job).filter(Job.job_id == job_id).delete()
             session.commit()
