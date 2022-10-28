@@ -26,7 +26,26 @@ export type ParametersPickerProps = {
 export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  const checkParameter = (
+  const checkParameterIndex = (idx: number) => {
+    const param = props.value[idx];
+    // If the parameter is not defined (such as if it was just created) then treat it
+    // as invalid.
+    // Also invalid: a parameter with no name and no value
+    const invalid =
+      param === undefined
+        ? true
+        : (param.name === '' && param.value !== '') ||
+          (param.name === '' && param.value === '');
+
+    props.handleErrorsChange({
+      ...props.errors,
+      [`parameter-${idx}-name`]: invalid
+        ? trans.__('No name specified for this parameter.')
+        : ''
+    });
+  };
+
+  const checkParameterElement = (
     e: EventTarget & (HTMLInputElement | HTMLTextAreaElement)
   ) => {
     const paramInputName = e.name;
@@ -35,17 +54,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
     if (!paramMatch || paramMatch.length < 2) {
       return; // Invalid parameter name; should not happen
     }
-    const paramIdx = parseInt(paramMatch[1]);
-
-    const param = props.value[paramIdx];
-    const invalid = param.name === '' && param.value !== '';
-
-    props.handleErrorsChange({
-      ...props.errors,
-      [`parameter-${paramIdx}-name`]: invalid
-        ? trans.__('No name specified for this parameter.')
-        : ''
-    });
+    checkParameterIndex(parseInt(paramMatch[1]));
   };
 
   return (
@@ -64,7 +73,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               value={param.name}
               type="text"
               placeholder={trans.__('Name')}
-              onBlur={e => checkParameter(e.target)}
+              onBlur={e => checkParameterElement(e.target)}
               error={nameHasError}
               helperText={props.errors[`parameter-${paramIdx}-name`] ?? ''}
               onChange={props.onChange}
@@ -78,7 +87,7 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
               value={param.value}
               type="text"
               placeholder={trans.__('Value')}
-              onBlur={e => checkParameter(e.target)}
+              onBlur={e => checkParameterElement(e.target)}
               onChange={props.onChange}
               FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
               style={{
@@ -97,7 +106,10 @@ export function ParametersPicker(props: ParametersPickerProps): JSX.Element {
       <Cluster justifyContent="flex-start">
         <AddButton
           onClick={(e: React.MouseEvent) => {
+            // Assume the parameter will be added at the end.
+            const newParamIdx = props.value.length;
             props.addParameter();
+            checkParameterIndex(newParamIdx);
             return false;
           }}
           title={trans.__('Add new parameter')}
