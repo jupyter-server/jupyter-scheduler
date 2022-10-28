@@ -9,6 +9,7 @@ export interface ILabeledValueProps {
     startAdornment: JSX.Element;
   };
   helperText?: string;
+  name?: string;
 }
 
 export const LabeledValue = (props: ILabeledValueProps): JSX.Element => {
