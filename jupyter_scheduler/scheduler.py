@@ -20,6 +20,7 @@ from jupyter_scheduler.models import (
     CountJobsQuery,
     CreateJob,
     CreateJobDefinition,
+    CreateJobFromDefinition,
     DescribeJob,
     DescribeJobDefinition,
     JobFile,
@@ -168,6 +169,10 @@ class BaseScheduler(LoggingConfigurable):
 
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         """Returns list of all job definitions filtered by query"""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+        """Creates a new job based on a job definition"""
         raise NotImplementedError("must be implemented by subclass")
 
     def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
@@ -607,6 +612,19 @@ class Scheduler(BaseScheduler):
         )
 
         return list_response
+
+    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+        job_id = None
+        definition = self.get_job_definition(job_definition_id)
+        if definition:
+            input_uri = self.get_staging_paths(definition)["input"]
+            attributes = definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
+            attributes = {**attributes, **model.dict(exclude_none=True), "input_uri": input_uri}
+            job_id = self.create_job(
+                CreateJob(**attributes)
+            )
+
+        return job_id
 
     def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
         staging_paths = {}

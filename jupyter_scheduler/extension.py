@@ -13,6 +13,7 @@ from .handlers import (
     ConfigHandler,
     FilesDownloadHandler,
     JobDefinitionHandler,
+    JobFromDefinitionHandler,
     JobHandler,
     JobsCountHandler,
     RuntimeEnvironmentsHandler,
@@ -32,6 +33,7 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/batch/jobs", BatchJobHandler),
         (r"scheduler/job_definitions", JobDefinitionHandler),
         (r"scheduler/job_definitions/%s" % JOB_DEFINITION_ID_REGEX, JobDefinitionHandler),
+        (r"scheduler/job_definitions/%s/jobs" % JOB_DEFINITION_ID_REGEX, JobFromDefinitionHandler),
         (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
         (r"scheduler/config", ConfigHandler),
     ]

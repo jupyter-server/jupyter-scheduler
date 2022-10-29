@@ -102,7 +102,7 @@ async def test_post_jobs_for_unexpected_error(jp_fetch):
         mock_create_job.side_effect = Exception("Unexpected error")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
-        assert expected_http_error(e, 500, "Unexpected error occurred during creation of Job.")
+        assert expected_http_error(e, 500, "Unexpected error occurred during creation of job.")
 
 
 async def test_get_jobs_for_single_job(jp_fetch):
