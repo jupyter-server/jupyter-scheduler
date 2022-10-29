@@ -158,7 +158,6 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
             handleErrorsChange={(_: any) => {
               return;
             }}
-            readonly
           />
         </Stack>
       </CardContent>
