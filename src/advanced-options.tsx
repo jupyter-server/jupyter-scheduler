@@ -7,6 +7,7 @@ import { AddButton, DeleteButton } from './components/icon-buttons';
 import { useTranslator } from './hooks';
 import { JobsView } from './model';
 import { Scheduler } from './tokens';
+import { LabeledValue } from './components/labeled-value';
 
 const AdvancedOptions = (
   props: Scheduler.IAdvancedOptionsProps
@@ -124,14 +125,11 @@ const AdvancedOptions = (
     return (
       <Stack spacing={2}>
         {tags.map((tag, idx) => (
-          <TextField
+          <LabeledValue
             label={trans.__('Tag %1', idx + 1)}
             id={`${formPrefix}tag-${idx}`}
             name={`tag-${idx}`}
             value={tag}
-            InputProps={{
-              readOnly: true
-            }}
           />
         ))}
       </Stack>
@@ -149,13 +147,11 @@ const AdvancedOptions = (
   return (
     <Stack spacing={4}>
       {props.jobsView === JobsView.JobDetail && (
-        <TextField
+        <LabeledValue
           label={idemTokenLabel}
-          variant="outlined"
           value={props.model.idempotencyToken}
           id={`${formPrefix}idempotencyToken`}
           name={idemTokenName}
-          InputProps={{ readOnly: true }}
         />
       )}
       {props.jobsView === JobsView.CreateForm &&
