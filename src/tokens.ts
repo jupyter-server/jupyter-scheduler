@@ -14,7 +14,6 @@ export namespace Scheduler {
   interface IAdvancedOptionsSharedProps {
     errors: ErrorsType;
     handleErrorsChange: (errors: ErrorsType) => void;
-    readonly?: boolean;
   }
 
   interface IAdvancedOptionsCreateProps extends IAdvancedOptionsSharedProps {
