@@ -79,6 +79,10 @@ export function getJupyterLabTheme(): Theme {
       }
     },
     palette: {
+      background: {
+        paper: getCSSVariable('--jp-layout-color1'),
+        default: getCSSVariable('--jp-layout-color1')
+      },
       mode: light === 'true' ? 'light' : 'dark',
       primary: {
         main: getCSSVariable('--jp-brand-color1'),
