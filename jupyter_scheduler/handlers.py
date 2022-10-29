@@ -18,6 +18,7 @@ from jupyter_scheduler.models import (
     CountJobsQuery,
     CreateJob,
     CreateJobDefinition,
+    CreateJobFromDefinition,
     ListJobDefinitionsQuery,
     ListJobsQuery,
     SortDirection,
@@ -110,7 +111,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         except Exception as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(
-                500, "Unexpected error occurred during creation of Job."
+                500, "Unexpected error occurred during creation of job."
             ) from e
         else:
             self.finish(json.dumps(dict(job_definition_id=job_definition_id)))
@@ -172,7 +173,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         except Exception as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(
-                500, "Unexpected error occurred during creation of Job."
+                500, "Unexpected error occurred during creation of job."
             ) from e
         else:
             self.finish(json.dumps(dict(job_id=job_id)))
@@ -204,6 +205,25 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
         self.set_status(204)
         self.finish()
+
+
+class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    @tornado.web.authenticated
+    async def post(self, job_definition_id: str):
+        payload = self.get_json_body()
+        try:
+            model = CreateJobFromDefinition(**payload)
+            job_id = await ensure_async(self.scheduler.create_job_from_definition(job_definition_id, model=model))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(
+                500, "Unexpected error occurred during creation of job."
+            ) from e
+        else:
+            self.finish(json.dumps(dict(job_id=job_id)))    
 
 
 class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
