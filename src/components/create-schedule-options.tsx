@@ -1,17 +1,11 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useMemo } from 'react';
 
-import {
-  FormControlLabel,
-  InputLabel,
-  Radio,
-  RadioGroup,
-  SelectChangeEvent
-} from '@mui/material';
+import { FormControlLabel, InputLabel, Radio, RadioGroup } from '@mui/material';
 import Stack from '@mui/system/Stack';
 
 import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
-import { ScheduleInputs } from './schedule-inputs';
+import { ScheduleInputs, ScheduleValidator } from './schedule-inputs';
 import { Scheduler } from '../tokens';
 
 export type CreateScheduleOptionsProps = {
@@ -20,19 +14,6 @@ export type CreateScheduleOptionsProps = {
   id: string;
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
-  handleScheduleIntervalChange: (event: SelectChangeEvent<string>) => void;
-  handleScheduleWeekDayChange: (event: SelectChangeEvent<string>) => void;
-  handleScheduleMonthDayChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleScheduleTimeChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleScheduleMinuteChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleCreateTypeChange: (
-    event: ChangeEvent<HTMLInputElement>,
-    value: string
-  ) => void;
-  schedule?: string;
-  handleScheduleChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  timezone?: string;
-  handleTimezoneChange: (newValue: string | null) => void;
   errors: Scheduler.ErrorsType;
   handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
 };
@@ -41,8 +22,38 @@ export function CreateScheduleOptions(
   props: CreateScheduleOptionsProps
 ): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
+  const validator = useMemo(() => new ScheduleValidator(trans), [trans]);
 
   const labelId = `${props.id}-label`;
+
+  const handleScheduleOptionsChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    value: string
+  ) => {
+    const name = event.target.name;
+
+    // When changing from JobDefinition to Job, remove errors,
+    // so that in case there's an error with the schedule,
+    // the form can still be submitted.
+    if (value === 'Job') {
+      // Change from 'JobDefinition'
+      props.handleErrorsChange({
+        ...props.errors,
+        schedule: ''
+      });
+    }
+    if (value === 'JobDefinition') {
+      // If the schedule is not populated, don't display an error for now.
+      if (props.model.schedule) {
+        props.handleErrorsChange({
+          ...props.errors,
+          schedule: validator.validateSchedule(props.model.schedule)
+        });
+      }
+    }
+
+    props.handleModelChange({ ...props.model, [name]: value });
+  };
 
   return (
     <Stack spacing={4}>
@@ -51,7 +62,7 @@ export function CreateScheduleOptions(
         aria-labelledby={labelId}
         name={props.name}
         value={props.model.createType}
-        onChange={props.handleCreateTypeChange}
+        onChange={handleScheduleOptionsChange}
       >
         <FormControlLabel
           value="Job"
@@ -69,13 +80,6 @@ export function CreateScheduleOptions(
           idPrefix={`${props.id}-definition-`}
           model={props.model}
           handleModelChange={props.handleModelChange}
-          handleScheduleIntervalChange={props.handleScheduleIntervalChange}
-          handleScheduleWeekDayChange={props.handleScheduleWeekDayChange}
-          handleScheduleMonthDayChange={props.handleScheduleMonthDayChange}
-          handleScheduleTimeChange={props.handleScheduleTimeChange}
-          handleScheduleMinuteChange={props.handleScheduleMinuteChange}
-          handleScheduleChange={props.handleScheduleChange}
-          handleTimezoneChange={props.handleTimezoneChange}
           errors={props.errors}
           handleErrorsChange={props.handleErrorsChange}
         />

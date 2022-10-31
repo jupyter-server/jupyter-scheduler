@@ -14,7 +14,8 @@ export enum JobsView {
   ListJobs,
   ListJobDefinitions,
   JobDetail,
-  JobDefinitionDetail
+  JobDefinitionDetail,
+  EditJobDefinition
 }
 
 export type IJobParameter = {
