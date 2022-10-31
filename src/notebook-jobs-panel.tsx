@@ -15,7 +15,7 @@ import { ICreateJobModel, JobsModel, JobsView } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
 import { DetailView } from './mainviews/detail-view';
-import { CreateJobFromJobDefinition } from './mainviews/create-job-from-job-definition';
+import { CreateJobFromDefinition } from './mainviews/create-job-from-definition';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -85,7 +85,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
             />
           )}
           {this.model.jobsView === JobsView.CreateFromJobDescriptionForm && (
-            <CreateJobFromJobDefinition
+            <CreateJobFromDefinition
               key={this.model.createJobModel.key}
               model={this.model.createJobModel}
               handleModelChange={newModel =>

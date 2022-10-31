@@ -14,7 +14,7 @@ import { Box, Stack } from '@mui/system';
 
 import { LabeledValue } from '../components/labeled-value';
 
-export interface ICreateJobFromJobDefinitionProps {
+export interface ICreateJobFromDefinitionProps {
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
   showListView: (
@@ -44,8 +44,8 @@ function parameterValueMatch(elementName: string): number | null {
   return parseInt(parameterValueMatch[1]);
 }
 
-export function CreateJobFromJobDefinition(
-  props: ICreateJobFromJobDefinitionProps
+export function CreateJobFromDefinition(
+  props: ICreateJobFromDefinitionProps
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
@@ -130,7 +130,7 @@ export function CreateJobFromJobDefinition(
     });
 
     api
-      .createJobFromJobDefinition(props.model.jobDefinitionId, parameters)
+      .createJobFromDefinition(props.model.jobDefinitionId, parameters)
       .then(response => {
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs);

@@ -184,7 +184,7 @@ export class SchedulerService {
     return data as Scheduler.ICreateJobResponse;
   }
 
-  async createJobFromJobDefinition(
+  async createJobFromDefinition(
     definition_id: string,
     parameters: { [key: string]: any }
   ): Promise<Scheduler.ICreateJobResponse> {
