@@ -140,7 +140,7 @@ export function AdvancedTable<
         .slice(page * pageSize, (page + 1) * pageSize)
         .filter(row => (props.rowFilter ? props.rowFilter(row) : true))
         .map(row => props.renderRow(row)),
-    [rows, props.rowFilter, props.renderRow]
+    [rows, props.rowFilter, props.renderRow, page, pageSize]
   );
 
   const handlePageChange = async (e: unknown, newPage: number) => {
