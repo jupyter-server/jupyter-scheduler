@@ -8,19 +8,9 @@ import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Alert,
-  Button,
-  CircularProgress,
-  FormLabel
-} from '@mui/material';
+import { Alert, Button, CircularProgress } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
-
-import { caretDownIcon } from '@jupyterlab/ui-components';
 
 import { LabeledValue } from '../components/labeled-value';
 
@@ -59,16 +49,10 @@ export function CreateJobFromJobDefinition(
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  const [advancedOptionsExpanded, setAdvancedOptionsExpanded] =
-    useState<boolean>(false);
-
   // A mapping from input names to error messages.
   // If an error message is "truthy" (i.e., not null or ''), we should display the
   // input in an error state and block form submission.
   const [errors, setErrors] = useState<SchedulerTokens.ErrorsType>({});
-  // Errors for the advanced options
-  const [advancedOptionsErrors, setAdvancedOptionsErrors] =
-    useState<SchedulerTokens.ErrorsType>({});
 
   const api = useMemo(() => new SchedulerService({}), []);
 
@@ -93,15 +77,6 @@ export function CreateJobFromJobDefinition(
       const name = target.name;
       props.handleModelChange({ ...props.model, [name]: value });
     }
-  };
-
-  const submitForm = async (event: React.MouseEvent) => {
-    // Collapse the "Advanced Options" section so that users can see
-    // errors at the top, if there are any.
-    setAdvancedOptionsExpanded(false);
-
-    // This form only supports creating a job, not a job definition.
-    return submitCreateJobRequest(event);
   };
 
   // Convert an array of parameters (as used for display) to an object
@@ -241,32 +216,6 @@ export function CreateJobFromJobDefinition(
             errors={errors}
             handleErrorsChange={setErrors}
           />
-          <Accordion
-            defaultExpanded={false}
-            expanded={advancedOptionsExpanded}
-            onChange={(_: React.SyntheticEvent, expanded: boolean) =>
-              setAdvancedOptionsExpanded(expanded)
-            }
-          >
-            <AccordionSummary
-              expandIcon={<caretDownIcon.react />}
-              aria-controls="panel-content"
-              id="panel-header"
-            >
-              <FormLabel component="legend">
-                {trans.__('Additional options')}
-              </FormLabel>
-            </AccordionSummary>
-            <AccordionDetails id={`${formPrefix}create-panel-content`}>
-              <props.advancedOptions
-                jobsView={JobsView.CreateForm}
-                model={props.model}
-                handleModelChange={props.handleModelChange}
-                errors={advancedOptionsErrors}
-                handleErrorsChange={setAdvancedOptionsErrors}
-              />
-            </AccordionDetails>
-          </Accordion>
           <Cluster gap={3} justifyContent="flex-end">
             {props.model.createInProgress || (
               <>
@@ -280,7 +229,7 @@ export function CreateJobFromJobDefinition(
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
-                    submitForm(e);
+                    submitCreateJobRequest(e);
                     return false;
                   }}
                   disabled={anyErrors}
