@@ -184,6 +184,26 @@ export class SchedulerService {
     return data as Scheduler.ICreateJobResponse;
   }
 
+  async createJobFromJobDefinition(
+    definition_id: string,
+    parameters: { [key: string]: any }
+  ): Promise<Scheduler.ICreateJobResponse> {
+    let data;
+    try {
+      data = await requestAPI(
+        this.serverSettings,
+        `job_definitions/${definition_id}/jobs`,
+        {
+          method: 'POST',
+          body: JSON.stringify(parameters)
+        }
+      );
+    } catch (e: any) {
+      return Promise.reject(e);
+    }
+    return data as Scheduler.ICreateJobResponse;
+  }
+
   async setJobStatus(job_id: string, status: Scheduler.Status): Promise<void> {
     try {
       await requestAPI(this.serverSettings, `jobs/${job_id}`, {

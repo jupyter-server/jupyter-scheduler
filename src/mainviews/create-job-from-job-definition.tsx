@@ -3,7 +3,7 @@ import React, { ChangeEvent, useMemo, useState } from 'react';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ParametersPicker } from '../components/parameters-picker';
-import { Scheduler, SchedulerService } from '../handler';
+import { SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
@@ -106,25 +106,21 @@ export function CreateJobFromJobDefinition(
   const submitCreateJobRequest = async (event: React.MouseEvent) => {
     if (anyErrors) {
       console.error(
-        'User attempted to submit a createJob request; button should have been disabled'
+        'User attempted to submit a submitCreateJobRequest request; button should have been disabled'
       );
       return;
     }
 
-    // Serialize parameters as an object.
-    const jobOptions: Scheduler.ICreateJob = {
-      name: props.model.jobName,
-      input_uri: props.model.inputFile,
-      runtime_environment_name: props.model.environment,
-      output_formats: props.model.outputFormats,
-      compute_type: props.model.computeType,
-      tags: props.model.tags,
-      runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
-      job_definition_id: props.model.jobDefinitionId
-    };
+    if (!props.model.jobDefinitionId) {
+      console.error(
+        'User did not provide a job definition ID to submitCreateJobRequest request'
+      );
+      return;
+    }
 
+    let parameters = {};
     if (props.model.parameters !== undefined) {
-      jobOptions.parameters = serializeParameters(props.model.parameters);
+      parameters = serializeParameters(props.model.parameters);
     }
 
     props.handleModelChange({
@@ -133,9 +129,8 @@ export function CreateJobFromJobDefinition(
       createInProgress: true
     });
 
-    // TODO: Call the "Create job from job definition ID" API
     api
-      .createJob(jobOptions)
+      .createJobFromJobDefinition(props.model.jobDefinitionId, parameters)
       .then(response => {
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs);
