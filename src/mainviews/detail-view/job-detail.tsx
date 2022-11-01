@@ -80,7 +80,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       id: props.model.jobId,
       redownload: false
     });
-    await new Promise(res => setTimeout(res, 500));
+    await new Promise(res => setTimeout(res, 5000));
     await props.handleModelChange();
     setDownloading(false);
   };

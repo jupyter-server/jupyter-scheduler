@@ -85,7 +85,7 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
           id: props.job.job_id,
           redownload: false
         });
-        await new Promise(res => setTimeout(res, 500));
+        await new Promise(res => setTimeout(res, 5000));
         setDownloading(false);
         props.reload();
       }}
