@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ConfirmDeleteIcon, ConfirmIcon } from './confirm-icons';
+import { ConfirmDeleteButton, ConfirmButton } from './confirm-buttons';
 import { JobFileLink } from './job-file-link';
 import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
@@ -24,9 +24,9 @@ function StopButton(props: {
     <div
       style={props.job.status !== 'IN_PROGRESS' ? { visibility: 'hidden' } : {}}
     >
-      <ConfirmIcon
+      <ConfirmButton
         name={buttonTitle}
-        clickHandler={props.clickHandler}
+        onConfirm={props.clickHandler}
         confirmationText={trans.__('Stop')}
         icon={<StopIcon fontSize="small" />}
         remainAfterConfirmation
@@ -118,7 +118,7 @@ export function buildJobRow(
     <Timestamp job={job} />,
     translateStatus(job.status),
     <Stack spacing={1} direction="row">
-      <ConfirmDeleteIcon
+      <ConfirmDeleteButton
         name={job.name}
         clickHandler={() => {
           // optimistic delete for now, no verification on whether the delete

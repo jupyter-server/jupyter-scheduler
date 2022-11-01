@@ -1,114 +1,72 @@
+import { Box, Button, Chip, IconButton, SvgIconTypeMap } from '@mui/material';
 import React, { useState } from 'react';
-
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Chip
-} from '@mui/material';
 import { useTranslator } from '../hooks';
+import CloseIcon from '@mui/icons-material/Close';
+import { OverridableComponent } from '@mui/material/OverridableComponent';
 
-export const ConfirmButton = (props: {
-  handleConfirm: () => Promise<void>;
-  title: string;
-  dialogText: string;
-  dialogConfirmText: string;
-  variant?: 'text' | 'contained' | 'outlined';
-  errorColor?: boolean;
-  pendingConfirmText?: string;
-}): JSX.Element => {
-  const [open, setOpen] = useState(false);
-  const [pendingConfirm, setPendingConfirm] = useState(false);
-
-  const trans = useTranslator('jupyterlab');
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+export function ConfirmButton(props: {
+  onConfirm: () => void;
+  confirmationText: string;
+  icon:
+    | JSX.Element
+    | (OverridableComponent<SvgIconTypeMap<unknown, 'svg'>> & {
+        muiName: string;
+      });
+  name?: string | undefined;
+  remainAfterConfirmation?: boolean;
+  remainText?: string;
+}): JSX.Element | null {
+  const [clicked, setClicked] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   return (
-    <>
-      {props.pendingConfirmText && pendingConfirm ? (
-        <Chip label={props.pendingConfirmText} />
-      ) : (
-        <Button
-          variant={props.variant ?? 'contained'}
-          color={props.errorColor ? 'error' : 'primary'}
-          onClick={_ => setOpen(true)}
-        >
-          {props.title}
-        </Button>
-      )}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{props.title}</DialogTitle>
-
-        <DialogContent>
-          <DialogContentText>{props.dialogText}</DialogContentText>
-        </DialogContent>
-
-        <DialogActions>
-          <Button
-            variant="contained"
-            //hex of var(--md-grey-600)
-            sx={{ backgroundColor: '#757575' }}
-            onClick={handleClose}
-            autoFocus
-          >
-            {trans.__('Cancel')}
-          </Button>
+    <Box sx={{ width: '6em' }}>
+      {clicked ? (
+        props.remainAfterConfirmation && confirmed ? (
+          <Chip label={props.remainText} />
+        ) : (
           <Button
             variant="contained"
             color="error"
-            onClick={async _ => {
-              handleClose();
-              setPendingConfirm(true);
-              await props.handleConfirm();
-              setPendingConfirm(false);
+            title={props.name}
+            onClick={_ => {
+              props.onConfirm();
+              if (props.remainAfterConfirmation) {
+                setConfirmed(true);
+              }
             }}
+            onBlur={_ => setClicked(false)}
+            style={{ visibility: clicked ? 'visible' : 'hidden' }}
+            autoFocus
           >
-            {props.dialogConfirmText}
+            {props.confirmationText}
           </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+        )
+      ) : (
+        <IconButton title={props.name} onClick={_ => setClicked(true)}>
+          {props.icon}
+        </IconButton>
+      )}
+    </Box>
   );
-};
+}
 
-export const ConfirmDeleteButton = (props: {
-  handleDelete: () => Promise<void>;
-  title: string;
-  dialogText: string;
-}): JSX.Element => {
+export function ConfirmDeleteButton(props: {
+  clickHandler: () => void;
+  name?: string;
+}): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
+
+  const buttonTitle = props.name
+    ? trans.__('Delete "%1"', props.name)
+    : trans.__('Delete job');
+
   return (
     <ConfirmButton
-      handleConfirm={props.handleDelete}
-      title={props.title}
-      dialogText={props.dialogText}
-      dialogConfirmText={trans.__('Delete')}
-      pendingConfirmText={trans.__('Deleting')}
-      errorColor
+      name={buttonTitle}
+      onConfirm={props.clickHandler}
+      confirmationText={trans.__('Delete')}
+      icon={<CloseIcon fontSize="small" />}
     />
   );
-};
-
-export const ConfirmStopButton = (props: {
-  handleStop: () => Promise<void>;
-  title: string;
-  dialogText: string;
-}): JSX.Element => {
-  const trans = useTranslator('jupyterlab');
-  return (
-    <ConfirmButton
-      handleConfirm={props.handleStop}
-      title={props.title}
-      dialogText={props.dialogText}
-      dialogConfirmText={trans.__('Stop')}
-      pendingConfirmText={trans.__('Stopping')}
-      variant="outlined"
-    />
-  );
-};
+}
