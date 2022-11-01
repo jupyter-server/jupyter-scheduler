@@ -1,7 +1,10 @@
+import { VDomModel } from '@jupyterlab/apputils';
+
 import { Signal } from '@lumino/signaling';
 import { PartialJSONObject } from '@lumino/coreutils';
+
 import { Scheduler } from './handler';
-import { VDomModel } from '@jupyterlab/apputils';
+import { MakeNameValid } from './util/job-name-validation';
 
 /**
  * Top-level models
@@ -331,7 +334,7 @@ export function convertDescribeJobtoJobDetail(
   return {
     ...emptyCreateJobModel(),
     jobId: describeJob.job_id,
-    jobName: describeJob.name ?? '',
+    jobName: MakeNameValid(describeJob.name ?? ''),
     inputFile: describeJob.input_filename,
     job_files: convertJobFilesToJson(describeJob.job_files),
     environment: describeJob.runtime_environment_name,
