@@ -6,7 +6,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  useTheme
 } from '@mui/material';
 import { useTranslator } from '../hooks';
 
@@ -22,6 +23,7 @@ export const ConfirmDialogButton = (props: {
   const [open, setOpen] = useState(false);
 
   const trans = useTranslator('jupyterlab');
+  const theme = useTheme();
 
   const handleClose = () => {
     setOpen(false);
@@ -44,8 +46,7 @@ export const ConfirmDialogButton = (props: {
         <DialogActions>
           <Button
             variant="contained"
-            //hex of var(--md-grey-600)
-            sx={{ backgroundColor: '#757575' }}
+            sx={{ backgroundColor: theme.palette.grey[600] }}
             onClick={handleClose}
             autoFocus
           >
