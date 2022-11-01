@@ -54,11 +54,6 @@ export function NameError(name: string, trans: TranslationBundle): string {
     );
   }
 
-  // Check for length.
-  if (name.length > maxLength) {
-    return trans.__('Name may not be longer than %1 characters', maxLength);
-  }
-
   // Check for incorrect characters
   if (invalidCharRegex.test(name)) {
     return trans.__(
@@ -66,5 +61,10 @@ export function NameError(name: string, trans: TranslationBundle): string {
     );
   }
 
-  return ''; // No other errors found
+  // Check for length.
+  if (name.length > maxLength) {
+    return trans.__('Name may not be longer than %1 characters', maxLength);
+  }
+
+  return 'Name is not valid'; // We shouldn't get here
 }
