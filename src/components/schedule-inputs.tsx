@@ -250,15 +250,12 @@ export function ScheduleInputs<M extends ModelWithScheduleFields>(
     let hours = props.model.scheduleHour;
     let minutes = props.model.scheduleMinute;
     let schedule = props.model.schedule;
+    // validation already handled in handleScheduleMonthDayChange
+    const monthDay = props.model.scheduleMonthDay;
 
     const timeError = validator.validateTime(value);
 
     if (!timeError) {
-      props.handleErrorsChange({
-        ...props.errors,
-        scheduleTime: ''
-      });
-
       // Parse the time (we expect that neither minutes nor hours will be undefined)
       [hours, minutes] = parseTime(value);
 
@@ -269,6 +266,9 @@ export function ScheduleInputs<M extends ModelWithScheduleFields>(
           break;
         case 'weekday':
           schedule = `${minutes} ${hours} * * MON-FRI`;
+          break;
+        case 'month':
+          schedule = `${minutes} ${hours} ${monthDay} * *`;
           break;
       }
     }
