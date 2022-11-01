@@ -7,7 +7,7 @@ import StopIcon from '@mui/icons-material/Stop';
 import IconButton from '@mui/material/IconButton';
 import { Stack, TableCell, TableRow } from '@mui/material';
 
-import { ConfirmDeleteIcon } from './confirm-delete-icon';
+import { ConfirmDeleteIcon } from './confirm-icons';
 import { JobFileLink } from './job-file-link';
 
 import { CommandIDs } from '..';
