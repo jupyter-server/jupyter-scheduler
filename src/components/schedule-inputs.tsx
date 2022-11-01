@@ -15,13 +15,13 @@ import {
 } from '@mui/material';
 
 import { useTranslator } from '../hooks';
-import { ICreateJobModel } from '../model';
+import { ModelWithScheduleFields } from '../model';
 import { Scheduler } from '../tokens';
 
-export type ScheduleInputsProps = {
+export type ScheduleInputsProps<M extends ModelWithScheduleFields> = {
   idPrefix: string;
-  model: ICreateJobModel;
-  handleModelChange: (model: ICreateJobModel) => void;
+  model: M;
+  handleModelChange: (model: M) => void;
   errors: Scheduler.ErrorsType;
   handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
 };
@@ -35,7 +35,9 @@ function formatTime(hours: number, minutes: number): string {
   );
 }
 
-export function ScheduleInputs(props: ScheduleInputsProps): JSX.Element | null {
+export function ScheduleInputs<M extends ModelWithScheduleFields>(
+  props: ScheduleInputsProps<M>
+): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const validator = useMemo(() => new ScheduleValidator(trans), [trans]);
 

@@ -274,6 +274,20 @@ export class SchedulerService {
     }
   }
 
+  async updateJobDefinition(
+    jobDefId: string,
+    model: Scheduler.IUpdateJobDefinition
+  ): Promise<void> {
+    try {
+      await requestAPI(this.serverSettings, `job_definitions/${jobDefId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(model)
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   /**
    * The server settings used to make API requests.
    */
@@ -351,17 +365,9 @@ export namespace Scheduler {
   }
 
   export interface IUpdateJobDefinition {
-    runtime_environment_name?: string;
-    runtime_environment_parameters?: RuntimeEnvironmentParameters;
-    output_formats?: string[];
-    parameters?: Parameters;
-    tags?: string[];
     name?: string;
-    output_filename_template?: string;
-    compute_type?: string;
     schedule?: string;
     timezone?: string;
-    url?: string;
     active?: boolean;
   }
 

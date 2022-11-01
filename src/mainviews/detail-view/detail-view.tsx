@@ -34,6 +34,7 @@ export interface IDetailViewProps {
   setJobsView: (view: JobsView) => void;
   showJobDetail: (jobId: string) => void;
   showCreateJob: (state: ICreateJobModel) => void;
+  editJobDefinition: (jobDefinition: IJobDefinitionModel) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 }
@@ -145,6 +146,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             refresh={fetchJobDefinitionModel}
             showCreateJob={props.showCreateJob}
             showJobDetail={props.showJobDetail}
+            editJobDefinition={props.editJobDefinition}
             // Extension point: optional additional component
             advancedOptions={props.advancedOptions}
           />
