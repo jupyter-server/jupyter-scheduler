@@ -1,10 +1,11 @@
 import os
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, root_validator
 
 Tags = List[str]
+EnvironmentParameterValues = Union[int, float, bool, str]
 
 EMAIL_RE = ""
 SCHEDULE_RE = ""
@@ -74,7 +75,7 @@ class CreateJob(BaseModel):
     input_uri: str
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, Any]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
@@ -124,7 +125,7 @@ class JobFile(BaseModel):
 class DescribeJob(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, Any]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
@@ -198,7 +199,7 @@ class CreateJobDefinition(BaseModel):
     input_uri: str
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, Any]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
@@ -219,7 +220,7 @@ class CreateJobDefinition(BaseModel):
 class DescribeJobDefinition(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, Any]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
@@ -239,7 +240,7 @@ class DescribeJobDefinition(BaseModel):
 
 class UpdateJobDefinition(BaseModel):
     runtime_environment_name: Optional[str]
-    runtime_environment_parameters: Optional[Dict[str, Any]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
