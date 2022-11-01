@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView, ICreateJobModel, emptyCreateJobModel } from '../../model';
+import {
+  IJobDefinitionModel,
+  JobsView,
+  ICreateJobModel,
+  emptyCreateJobModel
+} from '../../model';
 import { useTranslator } from '../../hooks';
 import { timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
@@ -22,6 +27,7 @@ export interface IJobDefinitionProps {
   setJobsView: (view: JobsView) => void;
   showJobDetail: (jobId: string) => void;
   showCreateJob: (state: ICreateJobModel) => void;
+  editJobDefinition: (jobDefinition: IJobDefinitionModel) => void;
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
 }
 
@@ -85,6 +91,12 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {trans.__('Resume')}
         </Button>
       )}
+      <Button
+        variant="outlined"
+        onClick={() => props.editJobDefinition(props.model)}
+      >
+        {trans.__('Edit Job Definition')}
+      </Button>
       <ConfirmDeleteButton
         handleDelete={handleDeleteJobDefinition}
         title={trans.__('Delete Job Definition')}

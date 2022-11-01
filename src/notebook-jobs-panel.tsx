@@ -11,11 +11,17 @@ import { calendarMonthIcon } from './components/icons';
 import TranslatorContext from './context';
 import { CreateJob } from './mainviews/create-job';
 import { NotebookJobsList } from './mainviews/list-jobs';
-import { ICreateJobModel, JobsModel, JobsView } from './model';
+import {
+  ICreateJobModel,
+  IJobDefinitionModel,
+  JobsModel,
+  JobsView
+} from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
 import { DetailView } from './mainviews/detail-view';
 import { CreateJobFromDefinition } from './mainviews/create-job-from-definition';
+import { EditJobDefinition } from './mainviews/edit-job-definition';
 
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
@@ -62,6 +68,17 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   showJobDefinitionDetail(jobDefId: string): void {
     this.model.jobsView = JobsView.JobDefinitionDetail;
     this.model.jobDetailModel.id = jobDefId;
+  }
+
+  editJobDefinition(jobDef: IJobDefinitionModel): void {
+    this.model.jobsView = JobsView.EditJobDefinition;
+    this.model.updateJobDefinitionModel = {
+      definitionId: jobDef.definitionId,
+      name: jobDef.name,
+      schedule: jobDef.schedule,
+      timezone: jobDef.timezone,
+      scheduleInterval: 'custom'
+    };
   }
 
   render(): JSX.Element {
@@ -118,7 +135,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               setJobsView={view => (this.model.jobsView = view)}
               showCreateJob={showCreateJob}
               showJobDetail={this.showDetailView.bind(this)}
+              editJobDefinition={this.editJobDefinition.bind(this)}
               advancedOptions={this._advancedOptions}
+            />
+          )}
+          {this.model.jobsView === JobsView.EditJobDefinition && (
+            <EditJobDefinition
+              model={this.model.updateJobDefinitionModel}
+              handleModelChange={newModel =>
+                (this.model.updateJobDefinitionModel = newModel)
+              }
+              showListView={this.showListView.bind(this)}
+              showJobDefinitionDetail={this.showJobDefinitionDetail.bind(this)}
             />
           )}
         </TranslatorContext.Provider>

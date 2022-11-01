@@ -14,7 +14,8 @@ export enum JobsView {
   ListJobs,
   ListJobDefinitions,
   JobDetail,
-  JobDefinitionDetail
+  JobDefinitionDetail,
+  EditJobDefinition
 }
 
 export type IJobParameter = {
@@ -27,7 +28,32 @@ export interface IOutputFormat {
   readonly label: string;
 }
 
-export interface ICreateJobModel extends PartialJSONObject {
+/**
+ * Extended by models which back UIs using the <ScheduleInputs /> component.
+ */
+export type ModelWithScheduleFields = {
+  // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
+  scheduleInterval: string;
+  // String for schedule in cron format
+  schedule?: string;
+  // String for timezone in tz database format
+  timezone?: string;
+  // "Easy scheduling" inputs
+  // Minute for an input that only accepts minutes (of the hour)
+  scheduleMinuteInput?: string;
+  scheduleHourMinute?: number;
+  // Hour and minute for time inputs
+  scheduleTimeInput?: string;
+  scheduleMinute?: number;
+  scheduleHour?: number;
+  scheduleMonthDayInput?: string;
+  scheduleMonthDay?: number;
+  scheduleWeekDay?: string;
+};
+
+export interface ICreateJobModel
+  extends ModelWithScheduleFields,
+    PartialJSONObject {
   /**
    * Key of the CreateJob component. When changed, this forces a re-mount.
    */
@@ -48,23 +74,6 @@ export interface ICreateJobModel extends PartialJSONObject {
   computeType?: string;
   idempotencyToken?: string;
   tags?: string[];
-  // String for schedule in cron format
-  schedule?: string;
-  // String for timezone in tz database format
-  timezone?: string;
-  // "Easy scheduling" inputs
-  // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
-  scheduleInterval: string;
-  // Minute for an input that only accepts minutes (of the hour)
-  scheduleMinuteInput?: string;
-  scheduleHourMinute?: number;
-  // Hour and minute for time inputs
-  scheduleTimeInput?: string;
-  scheduleMinute?: number;
-  scheduleHour?: number;
-  scheduleMonthDayInput?: string;
-  scheduleMonthDay?: number;
-  scheduleWeekDay?: string;
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
 }
@@ -80,6 +89,21 @@ export function emptyCreateJobModel(): ICreateJobModel {
     scheduleInterval: 'weekday',
     schedule: '0 0 * * MON-FRI',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  };
+}
+
+export interface IUpdateJobDefinitionModel
+  extends ModelWithScheduleFields,
+    PartialJSONObject {
+  definitionId: string;
+  name?: string;
+}
+
+export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
+  return {
+    definitionId: '',
+    schedule: '',
+    scheduleInterval: 'custom'
   };
 }
 
@@ -107,6 +131,7 @@ export interface IJobsModel extends PartialJSONObject {
   createJobModel?: ICreateJobModel;
   listJobsModel?: IListJobsModel;
   jobDetailModel?: IDetailViewModel;
+  updateJobDefinitionModel?: IUpdateJobDefinitionModel;
 }
 
 export class JobsModel extends VDomModel {
@@ -114,6 +139,7 @@ export class JobsModel extends VDomModel {
   private _createJobModel: ICreateJobModel;
   private _listJobsModel: IListJobsModel;
   private _jobDetailModel: IDetailViewModel;
+  private _updateJobDefinitionModel: IUpdateJobDefinitionModel;
   /**
    * Callback that gets invoked whenever a model is updated. This should be used
    * to call `ReactWidget.renderDOM()` to synchronously update the VDOM rather
@@ -128,6 +154,7 @@ export class JobsModel extends VDomModel {
     this._createJobModel = emptyCreateJobModel();
     this._listJobsModel = emptyListJobsModel();
     this._jobDetailModel = emptyDetailViewModel();
+    this._updateJobDefinitionModel = emptyUpdateJobDefinitionModel();
     this._onModelUpdate = options.onModelUpdate;
     this._jobCount = 0;
   }
@@ -172,6 +199,16 @@ export class JobsModel extends VDomModel {
     this.stateChanged.emit(void 0);
   }
 
+  get updateJobDefinitionModel(): IUpdateJobDefinitionModel {
+    return this._updateJobDefinitionModel;
+  }
+
+  set updateJobDefinitionModel(model: IUpdateJobDefinitionModel) {
+    this._updateJobDefinitionModel = model;
+    this._onModelUpdate?.();
+    this.stateChanged.emit(void 0);
+  }
+
   get jobCount(): number {
     return this._jobCount;
   }
@@ -185,7 +222,8 @@ export class JobsModel extends VDomModel {
       jobsView: this.jobsView,
       createJobModel: this.createJobModel,
       listJobsModel: this.listJobsModel,
-      jobDetailModel: this.jobDetailModel
+      jobDetailModel: this.jobDetailModel,
+      updateJobDefinitionModel: this.updateJobDefinitionModel
     };
     return data;
   }
@@ -195,6 +233,8 @@ export class JobsModel extends VDomModel {
     this._createJobModel = data.createJobModel ?? emptyCreateJobModel();
     this._listJobsModel = data.listJobsModel ?? emptyListJobsModel();
     this._jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
+    this._updateJobDefinitionModel =
+      data.updateJobDefinitionModel ?? emptyUpdateJobDefinitionModel();
 
     // emit state changed signal
     this._onModelUpdate?.();
