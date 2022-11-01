@@ -1,12 +1,10 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, root_validator
 
 Tags = List[str]
-ParameterValues = Union[int, str, float, bool]
-EnvironmentParameterValues = Union[int, str, float, bool]
 
 EMAIL_RE = ""
 SCHEDULE_RE = ""
@@ -76,11 +74,11 @@ class CreateJob(BaseModel):
     input_uri: str
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, Any]]
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
-    parameters: Optional[Dict[str, ParameterValues]] = None
+    parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -126,11 +124,11 @@ class JobFile(BaseModel):
 class DescribeJob(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, Any]]
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
-    parameters: Optional[Dict[str, ParameterValues]] = None
+    parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -200,9 +198,9 @@ class CreateJobDefinition(BaseModel):
     input_uri: str
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, Any]]
     output_formats: Optional[List[str]] = None
-    parameters: Optional[Dict[str, ParameterValues]] = None
+    parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -221,9 +219,9 @@ class CreateJobDefinition(BaseModel):
 class DescribeJobDefinition(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, Any]]
     output_formats: Optional[List[str]] = None
-    parameters: Optional[Dict[str, ParameterValues]] = None
+    parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -241,9 +239,9 @@ class DescribeJobDefinition(BaseModel):
 
 class UpdateJobDefinition(BaseModel):
     runtime_environment_name: Optional[str]
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, Any]]
     output_formats: Optional[List[str]] = None
-    parameters: Optional[Dict[str, ParameterValues]] = None
+    parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
     url: Optional[str] = None
@@ -270,7 +268,7 @@ class ListJobDefinitionsResponse(BaseModel):
 
 
 class CreateJobFromDefinition(BaseModel):
-    parameters: Optional[Dict[str, ParameterValues]] = None
+    parameters: Optional[Dict[str, str]] = None
 
 
 class JobFeature(str, Enum):
