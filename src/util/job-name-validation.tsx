@@ -54,17 +54,13 @@ export function NameError(name: string, trans: TranslationBundle): string {
     );
   }
 
-  // Check for incorrect characters
-  if (invalidCharRegex.test(name)) {
-    return trans.__(
-      'Name must contain only letters, numbers, periods, hyphens, and underscores'
-    );
-  }
-
-  // Check for length.
-  if (name.length > maxLength) {
-    return trans.__('Name may not be longer than %1 characters', maxLength);
-  }
-
-  return 'Name is not valid'; // We shouldn't get here
+    // Check for length.
+    if (name.length > maxLength) {
+      return trans.__('Name may not be longer than %1 characters', maxLength);
+    }
+    
+  // By process of elimination, incorrect characters must be present
+  return trans.__(
+    'Name must contain only letters, numbers, periods, hyphens, and underscores'
+  );
 }
