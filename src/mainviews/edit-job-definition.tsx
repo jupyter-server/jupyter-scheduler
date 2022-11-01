@@ -82,7 +82,7 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
               onClick={handleSubmit}
               disabled={hasErrors}
             >
-              {trans.__('Save changes')}
+              {trans.__('Save Changes')}
             </Button>
           </>
         )}
