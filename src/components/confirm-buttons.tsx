@@ -6,7 +6,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Chip
 } from '@mui/material';
 import { useTranslator } from '../hooks';
 
@@ -17,8 +18,10 @@ export const ConfirmButton = (props: {
   dialogConfirmText: string;
   variant?: 'text' | 'contained' | 'outlined';
   errorColor?: boolean;
+  pendingConfirmText?: string;
 }): JSX.Element => {
   const [open, setOpen] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState(false);
 
   const trans = useTranslator('jupyterlab');
 
@@ -28,13 +31,17 @@ export const ConfirmButton = (props: {
 
   return (
     <>
-      <Button
-        variant={props.variant ?? 'contained'}
-        color={props.errorColor ? 'error' : 'primary'}
-        onClick={_ => setOpen(true)}
-      >
-        {props.title}
-      </Button>
+      {props.pendingConfirmText && pendingConfirm ? (
+        <Chip label={props.pendingConfirmText} />
+      ) : (
+        <Button
+          variant={props.variant ?? 'contained'}
+          color={props.errorColor ? 'error' : 'primary'}
+          onClick={_ => setOpen(true)}
+        >
+          {props.title}
+        </Button>
+      )}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{props.title}</DialogTitle>
 
@@ -55,9 +62,11 @@ export const ConfirmButton = (props: {
           <Button
             variant="contained"
             color="error"
-            onClick={_ => {
+            onClick={async _ => {
               handleClose();
-              props.handleConfirm();
+              setPendingConfirm(true);
+              await props.handleConfirm();
+              setPendingConfirm(false);
             }}
           >
             {props.dialogConfirmText}
@@ -80,6 +89,7 @@ export const ConfirmDeleteButton = (props: {
       title={props.title}
       dialogText={props.dialogText}
       dialogConfirmText={trans.__('Delete')}
+      pendingConfirmText={trans.__('Deleting')}
       errorColor
     />
   );
@@ -97,6 +107,7 @@ export const ConfirmStopButton = (props: {
       title={props.title}
       dialogText={props.dialogText}
       dialogConfirmText={trans.__('Stop')}
+      pendingConfirmText={trans.__('Stopping')}
       variant="outlined"
     />
   );
