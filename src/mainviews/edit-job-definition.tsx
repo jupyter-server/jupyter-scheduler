@@ -28,7 +28,7 @@ export type EditJobDefinitionProps = {
 function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const ss = useMemo(() => new SchedulerService({}), []);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Scheduler.ErrorsType>({});
   const hasErrors = Object.keys(fieldErrors).some(key => !!fieldErrors[key]);
 
@@ -101,7 +101,7 @@ export function EditJobDefinition(props: EditJobDefinitionProps): JSX.Element {
           <Link
             underline="hover"
             color="inherit"
-            onClick={(): void => {
+            onClick={() => {
               props.showListView(JobsView.ListJobDefinitions);
             }}
           >
@@ -110,7 +110,7 @@ export function EditJobDefinition(props: EditJobDefinitionProps): JSX.Element {
           <Link
             underline="hover"
             color="inherit"
-            onClick={(): void => {
+            onClick={() => {
               props.showJobDefinitionDetail(props.model.definitionId);
             }}
           >

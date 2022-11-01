@@ -32,13 +32,13 @@ export interface IOutputFormat {
  * Extended by models which back UIs using the <ScheduleInputs /> component.
  */
 export type ModelWithScheduleFields = {
+  // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
+  scheduleInterval: string;
   // String for schedule in cron format
   schedule?: string;
   // String for timezone in tz database format
   timezone?: string;
   // "Easy scheduling" inputs
-  // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
-  scheduleInterval: string;
   // Minute for an input that only accepts minutes (of the hour)
   scheduleMinuteInput?: string;
   scheduleHourMinute?: number;
