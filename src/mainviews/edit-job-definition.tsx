@@ -63,7 +63,7 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
       <Cluster gap={3} justifyContent="flex-end">
         {loading ? (
           <>
-            {trans.__('Saving changes...')}
+            {trans.__('Saving changes …')}
             <CircularProgress size={30} />
           </>
         ) : (
