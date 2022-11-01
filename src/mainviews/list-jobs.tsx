@@ -254,7 +254,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const emptyRowMessage = useMemo(
     () =>
       trans.__(
-        'There are no notebook job definitions. Notebook job definitions run notebooks and other files in the background on a schedule. ' +
+        'There are no notebook job definitions. Notebook job definitions run files in the background on a schedule. ' +
           'To create a notebook job definition, right-click on a notebook in the file browser and select "Create Notebook Job".'
       ),
     [trans]
