@@ -213,7 +213,9 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
         payload = self.get_json_body()
         try:
             model = CreateJobFromDefinition(**payload)
-            job_id = await ensure_async(self.scheduler.create_job_from_definition(job_definition_id, model=model))
+            job_id = await ensure_async(
+                self.scheduler.create_job_from_definition(job_definition_id, model=model)
+            )
         except SchedulerError as e:
             self.log.exception(e)
             raise tornado.web.HTTPError(500, str(e)) from e
@@ -223,7 +225,7 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
                 500, "Unexpected error occurred during creation of job."
             ) from e
         else:
-            self.finish(json.dumps(dict(job_id=job_id)))    
+            self.finish(json.dumps(dict(job_id=job_id)))
 
 
 class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):

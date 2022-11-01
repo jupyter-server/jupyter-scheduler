@@ -272,6 +272,7 @@ class ListJobDefinitionsResponse(BaseModel):
 class CreateJobFromDefinition(BaseModel):
     parameters: Optional[Dict[str, ParameterValues]] = None
 
+
 class JobFeature(str, Enum):
     job_name = "job_name"
     parameters = "parameters"
