@@ -149,7 +149,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     () =>
       props.emptyRowMessage ??
       trans.__(
-        'There are no notebook jobs. Notebook jobs run notebooks and other files in the background, either immediately or on a schedule. ' +
+        'There are no notebook jobs. Notebook jobs run files in the background, immediately or on a schedule. ' +
           'To create a notebook job, right-click on a notebook in the file browser and select "Create Notebook Job".'
       ),
     [props.emptyRowMessage, trans]
