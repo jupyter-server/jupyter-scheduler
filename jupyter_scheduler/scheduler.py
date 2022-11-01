@@ -620,9 +620,7 @@ class Scheduler(BaseScheduler):
             input_uri = self.get_staging_paths(definition)["input"]
             attributes = definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
             attributes = {**attributes, **model.dict(exclude_none=True), "input_uri": input_uri}
-            job_id = self.create_job(
-                CreateJob(**attributes)
-            )
+            job_id = self.create_job(CreateJob(**attributes))
 
         return job_id
 
