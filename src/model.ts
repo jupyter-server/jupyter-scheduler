@@ -10,6 +10,7 @@ import { VDomModel } from '@jupyterlab/apputils';
 export enum JobsView {
   // assignment ensures any enum value is always truthy
   CreateForm = 1,
+  CreateFromJobDescriptionForm,
   ListJobs,
   ListJobDefinitions,
   JobDetail,
@@ -34,6 +35,8 @@ export interface ICreateJobModel extends PartialJSONObject {
   jobName: string;
   inputFile: string;
   environment: string;
+  // If creating a job from a job definition, the job definition ID to use.
+  jobDefinitionId?: string;
   // A "job" runs now; a "job definition" runs on a schedule
   createType: 'Job' | 'JobDefinition';
   // Errors from creation

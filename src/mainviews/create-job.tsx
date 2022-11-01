@@ -756,7 +756,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
         <Stack spacing={4}>
-          <Heading level={1}>Create Job</Heading>
+          <Heading level={1}>{trans.__('Create Job')}</Heading>
           {createError && <Alert severity="error">{createError}</Alert>}
           <TextField
             label={trans.__('Job name')}

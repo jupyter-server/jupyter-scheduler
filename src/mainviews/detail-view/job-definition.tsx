@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView, ICreateJobModel } from '../../model';
+import { IJobDefinitionModel, JobsView, ICreateJobModel, emptyCreateJobModel } from '../../model';
 import { useTranslator } from '../../hooks';
 import { timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
@@ -45,6 +45,23 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     props.refresh();
   };
 
+  const runJobDefinition = () => {
+    const initialState: ICreateJobModel = {
+      ...emptyCreateJobModel(),
+      inputFile: props.model.inputFile,
+      outputPath: props.model.outputPrefix ?? '',
+      environment: props.model.environment,
+      computeType: props.model.computeType,
+      runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
+      parameters: props.model.parameters,
+      outputFormats: props.model.outputFormats,
+      jobDefinitionId: props.model.definitionId
+    };
+
+    props.showCreateJob(initialState);
+    props.setJobsView(JobsView.CreateFromJobDescriptionForm);
+  };
+
   let cronString;
   try {
     if (props.model.schedule !== undefined) {
@@ -56,6 +73,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   const DefinitionButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+      <Button variant="outlined" onClick={runJobDefinition}>
+        {trans.__('Run Job')}
+      </Button>
       {props.model.active ? (
         <Button variant="outlined" onClick={pauseJobDefinition}>
           {trans.__('Pause')}
