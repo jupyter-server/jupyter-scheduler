@@ -29,6 +29,7 @@ interface IListJobsTableProps {
   jobDefinitionId?: string;
   height?: 'auto' | string | number;
   pageSize?: number;
+  emptyRowMessage?: string;
 }
 
 export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
@@ -145,8 +146,13 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     !deletedRows.has(job.job_id);
 
   const emptyRowMessage = useMemo(
-    () => trans.__('There are no notebook jobs.'),
-    [trans]
+    () =>
+      props.emptyRowMessage ??
+      trans.__(
+        'There are no notebook jobs. Notebook jobs run files in the background, immediately or on a schedule. ' +
+          'To create a notebook job, right-click on a notebook in the file browser and select "Create Notebook Job".'
+      ),
+    [props.emptyRowMessage, trans]
   );
 
   // note that root element here must be a JSX fragment for DataGrid to be sized properly
@@ -246,7 +252,11 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
     !deletedRows.has(jobDef.job_definition_id);
 
   const emptyRowMessage = useMemo(
-    () => trans.__('There are no notebook job definitions.'),
+    () =>
+      trans.__(
+        'There are no notebook job definitions. Notebook job definitions run files in the background on a schedule. ' +
+          'To create a notebook job definition, right-click on a notebook in the file browser and select "Create Notebook Job".'
+      ),
     [trans]
   );
 

@@ -206,6 +206,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
             showJobDetail={props.showJobDetail}
             jobDefinitionId={props.model.definitionId}
             pageSize={5}
+            emptyRowMessage={trans.__(
+              'No notebook jobs associated with this job definition.'
+            )}
           />
         </Stack>
       </CardContent>
