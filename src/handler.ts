@@ -186,7 +186,7 @@ export class SchedulerService {
 
   async createJobFromDefinition(
     definition_id: string,
-    parameters: { [key: string]: any }
+    model: Scheduler.ICreateJobFromDefinition
   ): Promise<Scheduler.ICreateJobResponse> {
     let data;
     try {
@@ -195,7 +195,7 @@ export class SchedulerService {
         `job_definitions/${definition_id}/jobs`,
         {
           method: 'POST',
-          body: JSON.stringify(parameters)
+          body: JSON.stringify(model)
         }
       );
     } catch (e: any) {
@@ -407,6 +407,10 @@ export namespace Scheduler {
     output_filename_template?: string;
     output_formats?: string[];
     compute_type?: string;
+  }
+
+  export interface ICreateJobFromDefinition {
+    parameters?: Parameters;
   }
 
   export type Status =
