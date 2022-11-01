@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   Button,
@@ -10,12 +10,13 @@ import {
 } from '@mui/material';
 import { useTranslator } from '../hooks';
 
-export const ConfirmDeleteButton = (props: {
-  handleDelete: () => Promise<void>;
+export const ConfirmButton = (props: {
+  handleConfirm: () => Promise<void>;
   title: string;
-  text?: string;
+  dialogText: string;
+  dialogConfirmText: string;
 }): JSX.Element => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const trans = useTranslator('jupyterlab');
 
@@ -30,11 +31,11 @@ export const ConfirmDeleteButton = (props: {
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>{props.title}</DialogTitle>
-        {props.text && (
-          <DialogContent>
-            <DialogContentText>{props.text}</DialogContentText>
-          </DialogContent>
-        )}
+
+        <DialogContent>
+          <DialogContentText>{props.dialogText}</DialogContentText>
+        </DialogContent>
+
         <DialogActions>
           <Button
             variant="contained"
@@ -50,13 +51,29 @@ export const ConfirmDeleteButton = (props: {
             color="error"
             onClick={_ => {
               handleClose();
-              props.handleDelete();
+              props.handleConfirm();
             }}
           >
-            {trans.__('Delete')}
+            {props.dialogConfirmText}
           </Button>
         </DialogActions>
       </Dialog>
     </>
+  );
+};
+
+export const ConfirmDeleteButton = (props: {
+  handleDelete: () => Promise<void>;
+  title: string;
+  dialogText: string;
+}): JSX.Element => {
+  const trans = useTranslator('jupyterlab');
+  return (
+    <ConfirmButton
+      handleConfirm={props.handleDelete}
+      title={props.title}
+      dialogText={props.dialogText}
+      dialogConfirmText={trans.__('Delete')}
+    />
   );
 };

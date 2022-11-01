@@ -13,7 +13,7 @@ import { ListJobsTable } from '../list-jobs';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import { Button, Card, CardContent, FormLabel, Stack } from '@mui/material';
-import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
+import { ConfirmDeleteButton } from '../../components/confirm-buttons';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
   ILabeledValueProps,
@@ -100,7 +100,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       <ConfirmDeleteButton
         handleDelete={handleDeleteJobDefinition}
         title={trans.__('Delete Job Definition')}
-        text={trans.__(
+        dialogText={trans.__(
           'Are you sure that you want to delete this job definition?'
         )}
       />
