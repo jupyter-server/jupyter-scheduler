@@ -51,7 +51,8 @@
     "test": "jest --coverage",
     "watch": "run-p watch:src watch:labextension",
     "watch:src": "tsc -w",
-    "watch:labextension": "jupyter labextension watch ."
+    "watch:labextension": "jupyter labextension watch .",
+    "prepare": "jlpm build:prod"
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
