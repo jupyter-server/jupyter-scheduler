@@ -9,8 +9,7 @@ import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
-import IconButton from '@mui/material/IconButton';
-import { Stack, TableCell, TableRow } from '@mui/material';
+import { IconButton, Stack, TableCell, TableRow } from '@mui/material';
 
 function StopButton(props: {
   job: Scheduler.IDescribeJob;
