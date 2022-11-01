@@ -159,14 +159,10 @@ export function ScheduleInputs<M extends ModelWithScheduleFields>(
 
     const scheduleHourMinuteError = validator.validateHourMinute(value);
 
-    if (!scheduleHourMinuteError) {
-      minutes = parseInt(value);
+    if (!scheduleHourMinuteError && props.model.scheduleInterval === 'hour') {
       // No errors; compose a new schedule in cron format
-      switch (props.model.scheduleInterval) {
-        case 'hour':
-          schedule = `${minutes} * * * *`;
-          break;
-      }
+      minutes = parseInt(value);
+      schedule = `${minutes} * * * *`;
     }
 
     props.handleErrorsChange({
@@ -192,16 +188,11 @@ export function ScheduleInputs<M extends ModelWithScheduleFields>(
 
     const monthDayError = validator.validateMonthDay(value);
 
-    if (!monthDayError) {
+    if (!monthDayError && props.model.scheduleInterval === 'month') {
       monthDay = parseInt(value);
-      // Compose a new schedule in cron format
-      switch (props.model.scheduleInterval) {
-        case 'month':
-          schedule = `${props.model.scheduleMinute ?? 0} ${
-            props.model.scheduleHour ?? 0
-          } ${monthDay} * *`;
-          break;
-      }
+      schedule = `${props.model.scheduleMinute ?? 0} ${
+        props.model.scheduleHour ?? 0
+      } ${monthDay} * *`;
     }
 
     props.handleErrorsChange({
