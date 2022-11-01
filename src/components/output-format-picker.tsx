@@ -38,7 +38,8 @@ export function OutputFormatPicker(
     props.environment
   );
 
-  if (outputFormats === null) {
+  // Don't display anything, not even the label, if there are no output formats
+  if (outputFormats === null || outputFormats.length === 0) {
     return null;
   }
 
