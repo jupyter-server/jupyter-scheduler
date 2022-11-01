@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView, ICreateJobModel, emptyCreateJobModel } from '../../model';
+import {
+  IJobDefinitionModel,
+  JobsView,
+  ICreateJobModel,
+  emptyCreateJobModel
+} from '../../model';
 import { useTranslator } from '../../hooks';
 import { timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
