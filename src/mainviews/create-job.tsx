@@ -93,7 +93,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const setList = async () => {
       const envList = await api.getRuntimeEnvironments();
       setEnvironmentList(envList);
-      if (envList.length === 1) {
+
+      // Choose the first environment if none was selected before
+      // (this would happen if the create form is used for editing)
+      if (props.model.environment === '') {
         // If no default compute type is specified, show the first one by default
         let newComputeType = envList[0].compute_types?.[0];
 
