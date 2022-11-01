@@ -15,7 +15,11 @@ from traitlets import Unicode, default
 from traitlets.config import LoggingConfigurable
 
 from jupyter_scheduler.environments import EnvironmentManager
-from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError, SchedulerError
+from jupyter_scheduler.exceptions import (
+    IdempotencyTokenError,
+    InputUriError,
+    SchedulerError,
+)
 from jupyter_scheduler.models import (
     CountJobsQuery,
     CreateJob,
@@ -373,10 +377,10 @@ class Scheduler(BaseScheduler):
         input_path = os.path.join(self.root_dir, model.input_uri)
         if not self.execution_manager_class.validate(self.execution_manager_class, input_path):
             raise SchedulerError(
-                    """There is no kernel associated with the notebook. Please open
+                """There is no kernel associated with the notebook. Please open
                     the notebook, select a kernel, and re-submit the job to execute.
                     """
-                )
+            )
 
         with self.db_session() as session:
             if model.idempotency_token:
