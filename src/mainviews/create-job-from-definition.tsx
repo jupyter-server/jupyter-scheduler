@@ -3,7 +3,7 @@ import React, { ChangeEvent, useMemo, useState } from 'react';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ParametersPicker } from '../components/parameters-picker';
-import { SchedulerService } from '../handler';
+import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
@@ -118,9 +118,11 @@ export function CreateJobFromDefinition(
       return;
     }
 
-    let parameters = {};
+    const createJobFromDefinitionModel: Scheduler.ICreateJobFromDefinition = {};
     if (props.model.parameters !== undefined) {
-      parameters = serializeParameters(props.model.parameters);
+      createJobFromDefinitionModel.parameters = serializeParameters(
+        props.model.parameters
+      );
     }
 
     props.handleModelChange({
@@ -130,7 +132,10 @@ export function CreateJobFromDefinition(
     });
 
     api
-      .createJobFromDefinition(props.model.jobDefinitionId, parameters)
+      .createJobFromDefinition(
+        props.model.jobDefinitionId,
+        createJobFromDefinitionModel
+      )
       .then(response => {
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs);
