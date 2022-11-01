@@ -80,6 +80,11 @@ class ExecutionManager(ABC):
         """
         pass
 
+    @classmethod
+    def validate(cls, input_path: str) -> bool:
+        """Returns True if notebook has valid metadata to execute, False otherwise"""
+        return True
+
     def before_start(self):
         """Called before start of execute"""
         job = self.model
@@ -154,6 +159,16 @@ class DefaultExecutionManager(ExecutionManager):
             JobFeature.stop_job: True,
             JobFeature.delete_job: True,
         }
+
+    def validate(cls, input_path: str) -> bool:
+        with open(input_path) as f:
+            nb = nbformat.read(f, as_version=4)
+            try:
+                nb.metadata.kernelspec["name"]
+            except:
+                return False
+            else:
+                return True
 
 
 class ArchivingExecutionManager(DefaultExecutionManager):
