@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import dataclass
+from datetime import datetime
 from heapq import heappop, heappush
 from typing import List, Optional
 
@@ -56,6 +57,10 @@ class JobDefinitionTask:
     def __lt__(self, other):
         return self.next_run_time < other.next_run_time
 
+    def __str__(self):
+        next_run_time = datetime.fromtimestamp(self.next_run_time / 1e3)
+        return f"Id: {self.job_definition_id}, Run-time: {next_run_time}"
+
 
 class PriorityQueue:
     """A priority queue using heapq"""
@@ -81,6 +86,13 @@ class PriorityQueue:
 
     def isempty(self):
         return len(self._heap) < 1
+
+    def __str__(self):
+        tasks = []
+        for task in self._heap:
+            tasks.append(str(task))
+
+        return "\n".join(tasks)
 
 
 class Cache:
@@ -251,10 +263,16 @@ class TaskRunner(BaseTaskRunner):
             ),
         )
 
-        if cached_next_run_time != next_run_time and active:
-            self.queue.push(
-                JobDefinitionTask(job_definition_id=job_definition_id, next_run_time=next_run_time)
+        next_run_time_changed = cached_next_run_time != next_run_time and active
+        resumed_job = model.active and not cache.active
+
+        if next_run_time_changed or resumed_job:
+            self.log.debug("Updating queue...")
+            task = JobDefinitionTask(
+                job_definition_id=job_definition_id, next_run_time=next_run_time
             )
+            self.queue.push(task)
+            self.log.debug(f"Updated queue, {task}")
 
     def delete_job_definition(self, job_definition_id: str):
         self.cache.delete(job_definition_id)
@@ -266,7 +284,7 @@ class TaskRunner(BaseTaskRunner):
             self.scheduler.create_job(
                 CreateJob(
                     **definition.dict(exclude={"schedule", "timezone"}, exclude_none=True),
-                    input_uri=input_uri
+                    input_uri=input_uri,
                 )
             )
 
@@ -275,6 +293,7 @@ class TaskRunner(BaseTaskRunner):
         return local_time - queue_run_time
 
     def process_queue(self):
+        self.log.debug(self.queue)
         while not self.queue.isempty():
             task = self.queue.peek()
             cache = self.cache.get(task.job_definition_id)
@@ -295,11 +314,11 @@ class TaskRunner(BaseTaskRunner):
             # if run time is in future
             if time_diff < 0:
                 break
-            # if run time is in the past might be in previous run
-            elif time_diff >= (self.poll_interval * 1000):
-                break
             else:
-                self.create_job(task.job_definition_id)
+                try:
+                    self.create_job(task.job_definition_id)
+                except Exception as e:
+                    self.log.exception(e)
                 self.queue.pop()
                 run_time = self.compute_next_run_time(cache.schedule, cache.timezone)
                 self.cache.update(
