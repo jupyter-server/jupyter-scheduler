@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
-import { ConfirmDeleteButton } from '../../components/confirm-delete-button';
+import {
+  ConfirmDialogDeleteButton,
+  ConfirmDialogStopButton
+} from '../../components/confirm-dialog-buttons';
 import { JobFileLink } from '../../components/job-file-link';
 import { Scheduler, SchedulerService } from '../../handler';
 import { useTranslator } from '../../hooks';
@@ -97,14 +100,16 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         </Button>
       )}
       {props.model.status === 'IN_PROGRESS' && (
-        <Button variant="outlined" onClick={handleStopJob}>
-          {trans.__('Stop Job')}
-        </Button>
+        <ConfirmDialogStopButton
+          handleStop={handleStopJob}
+          title={trans.__('Stop Job')}
+          dialogText={trans.__('Are you sure that you want to stop this job?')}
+        />
       )}
-      <ConfirmDeleteButton
+      <ConfirmDialogDeleteButton
         handleDelete={handleDeleteJob}
         title={trans.__('Delete Job')}
-        text={trans.__('Are you sure that you want to delete this job?')}
+        dialogText={trans.__('Are you sure that you want to delete this job?')}
       />
     </Stack>
   );

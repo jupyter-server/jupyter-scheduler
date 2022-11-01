@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-
-import DownloadIcon from '@mui/icons-material/Download';
-import StopIcon from '@mui/icons-material/Stop';
-import IconButton from '@mui/material/IconButton';
-import { Stack, TableCell, TableRow } from '@mui/material';
-
-import { ConfirmDeleteIcon } from './confirm-delete-icon';
+import { ConfirmDeleteButton, ConfirmButton } from './confirm-buttons';
 import { JobFileLink } from './job-file-link';
-
 import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
+import DownloadIcon from '@mui/icons-material/Download';
+import StopIcon from '@mui/icons-material/Stop';
+import { IconButton, Stack, TableCell, TableRow } from '@mui/material';
 
 function StopButton(props: {
   job: Scheduler.IDescribeJob;
@@ -28,9 +24,14 @@ function StopButton(props: {
     <div
       style={props.job.status !== 'IN_PROGRESS' ? { visibility: 'hidden' } : {}}
     >
-      <IconButton onClick={props.clickHandler} title={buttonTitle}>
-        <StopIcon fontSize="small" />
-      </IconButton>
+      <ConfirmButton
+        name={buttonTitle}
+        onConfirm={props.clickHandler}
+        confirmationText={trans.__('Stop')}
+        icon={<StopIcon fontSize="small" />}
+        remainAfterConfirmation
+        remainText={trans.__('Stopping')}
+      />
     </div>
   );
 }
@@ -117,15 +118,7 @@ export function buildJobRow(
     <Timestamp job={job} />,
     translateStatus(job.status),
     <Stack spacing={1} direction="row">
-      <StopButton
-        job={job}
-        clickHandler={() =>
-          app.commands.execute(CommandIDs.stopJob, {
-            id: job.job_id
-          })
-        }
-      />
-      <ConfirmDeleteIcon
+      <ConfirmDeleteButton
         name={job.name}
         clickHandler={() => {
           // optimistic delete for now, no verification on whether the delete
@@ -135,6 +128,14 @@ export function buildJobRow(
           });
           deleteRow(job.job_id);
         }}
+      />
+      <StopButton
+        job={job}
+        clickHandler={() =>
+          app.commands.execute(CommandIDs.stopJob, {
+            id: job.job_id
+          })
+        }
       />
     </Stack>
   ];

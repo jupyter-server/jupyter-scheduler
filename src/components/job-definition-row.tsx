@@ -15,7 +15,7 @@ import TableCell from '@mui/material/TableCell';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { TranslationBundle } from '@jupyterlab/translation';
-import { ConfirmDeleteIcon } from './confirm-delete-icon';
+import { ConfirmDeleteButton } from './confirm-buttons';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -117,7 +117,7 @@ export function buildJobDefinitionRow(
           forceReload();
         }}
       />
-      <ConfirmDeleteIcon
+      <ConfirmDeleteButton
         name={jobDef.name}
         clickHandler={async () => {
           await ss.deleteJobDefinition(jobDef.job_definition_id);
