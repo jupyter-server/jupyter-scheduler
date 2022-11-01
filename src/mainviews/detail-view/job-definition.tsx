@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
-import { IJobDefinitionModel, JobsView, ICreateJobModel, emptyCreateJobModel } from '../../model';
+import {
+  IJobDefinitionModel,
+  JobsView,
+  ICreateJobModel,
+  emptyCreateJobModel
+} from '../../model';
 import { useTranslator } from '../../hooks';
 import { timestampLocalize } from './job-detail';
 import { SchedulerService } from '../../handler';
@@ -194,6 +199,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
             showJobDetail={props.showJobDetail}
             jobDefinitionId={props.model.definitionId}
             pageSize={5}
+            emptyRowMessage={trans.__(
+              'No notebook jobs associated with this job definition.'
+            )}
           />
         </Stack>
       </CardContent>
