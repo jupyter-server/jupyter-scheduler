@@ -2,6 +2,53 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.6.1...77570d8fe60e7237163886cbd3951fa662acac3c))
+
+### Enhancements made
+
+- Validates job name [#259](https://github.com/jupyter-server/jupyter-scheduler/pull/259) ([@jweill-aws](https://github.com/jweill-aws))
+- Making name as required in models [#258](https://github.com/jupyter-server/jupyter-scheduler/pull/258) ([@3coins](https://github.com/3coins))
+- render better empty list messages [#249](https://github.com/jupyter-server/jupyter-scheduler/pull/249) ([@dlqqq](https://github.com/dlqqq))
+- Increase download delay from 500 ms to 5 s [#248](https://github.com/jupyter-server/jupyter-scheduler/pull/248) ([@jweill-aws](https://github.com/jweill-aws))
+- allow arbitrary expressions as job parameters [#247](https://github.com/jupyter-server/jupyter-scheduler/pull/247) ([@dlqqq](https://github.com/dlqqq))
+- Confirmation for stop with visual feedback on request for Job List, Job Detail [#245](https://github.com/jupyter-server/jupyter-scheduler/pull/245) ([@andrii-i](https://github.com/andrii-i))
+- make job definitions editable [#238](https://github.com/jupyter-server/jupyter-scheduler/pull/238) ([@dlqqq](https://github.com/dlqqq))
+- API and handler for creating job from definition [#228](https://github.com/jupyter-server/jupyter-scheduler/pull/228) ([@3coins](https://github.com/3coins))
+- Create job from job definition - UI [#227](https://github.com/jupyter-server/jupyter-scheduler/pull/227) ([@jweill-aws](https://github.com/jweill-aws))
+- Add maxWidth, use LabeledValue in Detail View (#2) [#221](https://github.com/jupyter-server/jupyter-scheduler/pull/221) ([@andrii-i](https://github.com/andrii-i))
+- Generic api errors, delete staging files on job delete [#219](https://github.com/jupyter-server/jupyter-scheduler/pull/219) ([@3coins](https://github.com/3coins))
+
+### Bugs fixed
+
+- fix schedule validation errors not clearing after selecting run now [#261](https://github.com/jupyter-server/jupyter-scheduler/pull/261) ([@dlqqq](https://github.com/dlqqq))
+- Hides Output Format picker when no output formats are present [#246](https://github.com/jupyter-server/jupyter-scheduler/pull/246) ([@jweill-aws](https://github.com/jweill-aws))
+- Added a validate method to check for notebook metadata [#243](https://github.com/jupyter-server/jupyter-scheduler/pull/243) ([@3coins](https://github.com/3coins))
+- Chooses the first environment in the create form [#241](https://github.com/jupyter-server/jupyter-scheduler/pull/241) ([@jweill-aws](https://github.com/jweill-aws))
+- fix pagination in AdvancedTable [#239](https://github.com/jupyter-server/jupyter-scheduler/pull/239) ([@dlqqq](https://github.com/dlqqq))
+- Add additional styling of backgound and paper to handle dark mode. [#230](https://github.com/jupyter-server/jupyter-scheduler/pull/230) ([@ellisonbg](https://github.com/ellisonbg))
+- Use LabeledValue in advanced options in Job Definition and Job Definition Detail [#226](https://github.com/jupyter-server/jupyter-scheduler/pull/226) ([@andrii-i](https://github.com/andrii-i))
+- Blocks job or job definition creation when a parameter has no key and no value [#218](https://github.com/jupyter-server/jupyter-scheduler/pull/218) ([@jweill-aws](https://github.com/jweill-aws))
+- Creates directory based on job name, not based on timestamp [#206](https://github.com/jupyter-server/jupyter-scheduler/pull/206) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Maintenance and upkeep improvements
+
+- Fix for failing check-release workflow [#250](https://github.com/jupyter-server/jupyter-scheduler/pull/250) ([@3coins](https://github.com/3coins))
+- Added release workflows [#244](https://github.com/jupyter-server/jupyter-scheduler/pull/244) ([@3coins](https://github.com/3coins))
+
+### Other merged PRs
+
+- Collapse additional options on submit [#217](https://github.com/jupyter-server/jupyter-scheduler/pull/217) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-10-27&to=2022-11-02&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-10-27..2022-11-02&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-10-27..2022-11-02&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-10-27..2022-11-02&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aellisonbg+updated%3A2022-10-27..2022-11-02&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-10-27..2022-11-02&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-10-27..2022-11-02&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-10-27..2022-11-02&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.4.2
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.4.1...335027a125e34c394a4e9be4adcbba94677caafe))
@@ -26,8 +73,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-10-12&to=2022-10-13&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-10-12..2022-10-13&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-10-12..2022-10-13&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-10-12..2022-10-13&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-10-12..2022-10-13&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.4.1
 
