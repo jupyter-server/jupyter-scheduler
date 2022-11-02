@@ -10,16 +10,16 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { Contents } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
 
-import { SchedulerService } from './handler';
-import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
-import { NotebookJobsPanel } from './notebook-jobs-panel';
+import AdvancedOptions from './advanced-options';
 import {
   calendarAddOnIcon,
   calendarMonthIcon,
   eventNoteIcon
 } from './components/icons';
+import { SchedulerService } from './handler';
+import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
+import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
-import AdvancedOptions from './advanced-options';
 import { MakeNameValid } from './util/job-name-validation';
 
 export namespace CommandIDs {
