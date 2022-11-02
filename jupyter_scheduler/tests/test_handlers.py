@@ -29,6 +29,7 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "output_prefix": "outputs",
                 "idempotency_token": "",
                 "runtime_environment_name": "",
+                "name": "job_a",
             },
         ),
         (
@@ -41,6 +42,7 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "name": "Scheduled Notebook B",
                 "job_definition_id": "7790f93c-4c2c-41b2-9085-daa93915d81c",
                 "parameters": {"a": 1, "b": 2, "foo": "bar", "test": True},
+                "name": "job_a",
             },
         ),
     ],
@@ -109,6 +111,7 @@ async def test_get_jobs_for_single_job(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_get_job:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         mock_get_job.return_value = DescribeJob(
+            name="job_a",
             input_filename="input_a",
             output_prefix="output_a",
             runtime_environment_name="environment_a",
@@ -143,6 +146,7 @@ async def test_get_jobs_for_single_job(jp_fetch):
             {
                 "jobs": [
                     {
+                        "name": "job_a",
                         "input_filename": "input_a",
                         "runtime_environment_name": "environment_a",
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
@@ -189,6 +193,7 @@ async def test_get_jobs_for_single_job(jp_fetch):
             {
                 "jobs": [
                     {
+                        "name": "job_a",
                         "input_filename": "input_a",
                         "runtime_environment_name": "environment_a",
                         "job_id": "542e0fac-1274-4a78-8340-a850bdb559c8",
@@ -226,6 +231,7 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
         assert actual_job["job_id"] == expected_job["job_id"]
         assert actual_job["job_files"] == expected_job["job_files"]
         assert actual_job["url"] == expected_job["url"]
+        assert actual_job["name"] == expected_job["name"]
 
 
 async def test_patch_jobs_for_status(jp_fetch):

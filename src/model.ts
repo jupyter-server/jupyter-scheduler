@@ -276,6 +276,7 @@ export interface IJobDetailModel {
 }
 
 export interface IJobDefinitionModel {
+  name: string;
   inputFile: string;
   outputPath: string;
   environment: string;
@@ -292,7 +293,6 @@ export interface IJobDefinitionModel {
   // String for timezone in tz database format
   timezone?: string;
   definitionId: string;
-  name?: string;
   active?: boolean;
   createTime?: number;
   updateTime?: number;
@@ -331,7 +331,7 @@ export function convertDescribeJobtoJobDetail(
   return {
     ...emptyCreateJobModel(),
     jobId: describeJob.job_id,
-    jobName: describeJob.name ?? '',
+    jobName: describeJob.name,
     inputFile: describeJob.input_filename,
     job_files: convertJobFilesToJson(describeJob.job_files),
     environment: describeJob.runtime_environment_name,
@@ -360,7 +360,7 @@ export function convertDescribeDefinitiontoDefinition(
   );
 
   return {
-    name: describeDefinition.name ?? '',
+    name: describeDefinition.name,
     inputFile: describeDefinition.input_filename,
     definitionId: describeDefinition.job_definition_id,
     outputPath: describeDefinition.output_filename_template ?? '',

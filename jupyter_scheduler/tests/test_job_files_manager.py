@@ -15,6 +15,7 @@ from jupyter_scheduler.scheduler import BaseScheduler
 
 async def test_copy_from_staging():
     job = DescribeJob(
+        name="job_1",
         job_id="1",
         input_filename="helloworld.ipynb",
         runtime_environment_name="env_a",

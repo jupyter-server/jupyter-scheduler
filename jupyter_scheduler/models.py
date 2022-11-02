@@ -81,7 +81,7 @@ class CreateJob(BaseModel):
     job_definition_id: Optional[str] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
-    name: Optional[str] = None
+    name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
 
@@ -131,7 +131,7 @@ class DescribeJob(BaseModel):
     job_definition_id: Optional[str] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
-    name: Optional[str] = None
+    name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     job_id: str
@@ -203,7 +203,7 @@ class CreateJobDefinition(BaseModel):
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
-    name: Optional[str] = None
+    name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
@@ -224,7 +224,7 @@ class DescribeJobDefinition(BaseModel):
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
-    name: Optional[str] = None
+    name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     schedule: Optional[str] = None

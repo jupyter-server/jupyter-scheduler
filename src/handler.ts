@@ -345,17 +345,20 @@ export namespace SchedulerService {
 }
 
 export namespace Scheduler {
-  export type RuntimeEnvironmentParameters = Record<string, number | string | boolean>;
+  export type RuntimeEnvironmentParameters = Record<
+    string,
+    number | string | boolean
+  >;
   export type Parameters = Record<string, string>;
 
   export interface ICreateJobDefinition {
+    name: string;
     input_uri: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
     output_formats?: string[];
     parameters?: Parameters;
     tags?: string[];
-    name?: string;
     output_filename_template?: string;
     compute_type?: string;
     schedule?: string;
@@ -370,13 +373,13 @@ export namespace Scheduler {
   }
 
   export interface IDescribeJobDefinition {
+    name: string;
     input_filename: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
     output_formats?: string[];
     parameters?: Parameters;
     tags?: string[];
-    name?: string;
     output_filename_template?: string;
     compute_type?: string;
     schedule?: string;
@@ -395,6 +398,7 @@ export namespace Scheduler {
   }
 
   export interface ICreateJob {
+    name: string;
     input_uri: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
@@ -402,7 +406,6 @@ export namespace Scheduler {
     job_definition_id?: string;
     parameters?: Parameters;
     tags?: string[];
-    name?: string;
     email_notifications?: IEmailNotifications;
     timeout_seconds?: number;
     max_retries?: number;
@@ -433,6 +436,7 @@ export namespace Scheduler {
   }
 
   export interface IDescribeJob {
+    name: string;
     input_filename: string;
     runtime_environment_name: string;
     runtime_environment_parameters?: RuntimeEnvironmentParameters;
@@ -440,7 +444,6 @@ export namespace Scheduler {
     job_definition_id?: string;
     parameters?: Parameters;
     tags?: string[];
-    name?: string;
     email_notifications?: IEmailNotifications;
     timeout_seconds?: number;
     max_retries?: number;
