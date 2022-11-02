@@ -14,6 +14,9 @@ import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
+import { NameError } from '../util/job-name-validation';
+
+import { caretDownIcon } from '@jupyterlab/ui-components';
 
 import ErrorIcon from '@mui/icons-material/Error';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -32,8 +35,6 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
-
-import { caretDownIcon } from '@jupyterlab/ui-components';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -410,7 +411,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <TextField
             label={trans.__('Job name')}
             variant="outlined"
-            onChange={handleInputChange}
+            onChange={e => {
+              // Validate name
+              setErrors({
+                ...errors,
+                jobName: NameError(e.target.value, trans)
+              });
+              handleInputChange(e as ChangeEvent<HTMLInputElement>);
+            }}
+            error={!!errors['jobName']}
+            helperText={errors['jobName'] ?? ''}
             value={props.model.jobName}
             id={`${formPrefix}jobName`}
             name="jobName"

@@ -10,16 +10,17 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { Contents } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
 
-import { SchedulerService } from './handler';
-import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
-import { NotebookJobsPanel } from './notebook-jobs-panel';
+import AdvancedOptions from './advanced-options';
 import {
   calendarAddOnIcon,
   calendarMonthIcon,
   eventNoteIcon
 } from './components/icons';
+import { SchedulerService } from './handler';
+import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
+import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
-import AdvancedOptions from './advanced-options';
+import { MakeNameValid } from './util/job-name-validation';
 
 export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -74,13 +75,21 @@ function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   return firstItem;
 }
 
-// Get only the file name, with no parent directories, of the currently selected file.
-function getSelectedFileName(widget: FileBrowser | null): string | null {
+// Get only the file base name, with no parent directories and no extension,
+// of the currently selected file.
+function getSelectedFileBaseName(widget: FileBrowser | null): string | null {
   const selectedItem = getSelectedItem(widget);
   if (selectedItem === null) {
     return null;
   }
-  return selectedItem.name;
+  const parts = selectedItem.name.split('.');
+  if (parts.length === 1) {
+    // no extension
+    return parts[0];
+  }
+
+  parts.splice(-1); // Remove the extension
+  return parts.join('.');
 }
 
 // Get the file name, with all parent directories, of the currently selected file.
@@ -183,7 +192,9 @@ async function activatePlugin(
       // Update the job form inside the notebook jobs widget
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
-      newCreateModel.jobName = getSelectedFileName(widget) ?? '';
+      newCreateModel.jobName = MakeNameValid(
+        getSelectedFileBaseName(widget) ?? ''
+      );
       newCreateModel.outputPath = getDirectoryFromPath(filePath) ?? '';
 
       await showJobsPanel({
@@ -206,7 +217,7 @@ async function activatePlugin(
       // Update the job form inside the notebook jobs widget
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
-      newCreateModel.jobName = fileName;
+      newCreateModel.jobName = MakeNameValid(fileName);
       newCreateModel.outputPath = getDirectoryFromPath(filePath) ?? '';
 
       await showJobsPanel({

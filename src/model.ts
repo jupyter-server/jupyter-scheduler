@@ -1,7 +1,9 @@
+import { VDomModel } from '@jupyterlab/apputils';
+
 import { Signal } from '@lumino/signaling';
 import { PartialJSONObject } from '@lumino/coreutils';
+
 import { Scheduler } from './handler';
-import { VDomModel } from '@jupyterlab/apputils';
 
 /**
  * Top-level models
