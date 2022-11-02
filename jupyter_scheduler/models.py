@@ -25,6 +25,7 @@ class RuntimeEnvironment(BaseModel):
     metadata: Optional[Dict[str, str]]  # Optional metadata
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
+    utc_only: Optional[bool]
 
     def __str__(self):
         return self.json()
