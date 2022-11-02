@@ -113,11 +113,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           envList[0].name
         )?.map(format => format.name);
 
+        // Does the default environment support time zones?
+        let newTimeZone = 'UTC';
+        if (!envList[0].utc_only) {
+          newTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        }
+
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
           computeType: newComputeType,
-          outputFormats: outputFormats
+          outputFormats: outputFormats,
+          timezone: newTimeZone
         });
       }
     };
@@ -160,6 +167,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const envObj = environmentList.find(env => env.name === target.value);
       // Validate that the default compute type is in fact in the list
       let newComputeType = envObj?.compute_types?.[0];
+
       if (
         envObj?.default_compute_type &&
         envObj?.compute_types &&
@@ -167,15 +175,24 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ) {
         newComputeType = envObj.default_compute_type;
       }
+
       const newEnvOutputFormats = outputFormatsForEnvironment(
         environmentList,
         target.value
       )?.map(format => format.name);
+
+      // Does the new environment support time zones?
+      let newTimeZone = 'UTC';
+      if (!envObj?.utc_only) {
+        newTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      }
+
       props.handleModelChange({
         ...props.model,
         environment: target.value,
         computeType: newComputeType,
-        outputFormats: newEnvOutputFormats
+        outputFormats: newEnvOutputFormats,
+        timezone: newTimeZone
       });
     } else {
       // otherwise, just set the model
@@ -402,6 +419,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     </InputAdornment>
   );
 
+  // Does the currently-selected environment accept times in UTC only?
+  const utcOnly =
+    environmentList.find(e => e.name === props.model.environment)?.utc_only ??
+    undefined;
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -517,6 +539,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleModelChange={props.handleModelChange}
             errors={errors}
             handleErrorsChange={setErrors}
+            utcOnly={utcOnly}
           />
           <Cluster gap={3} justifyContent="flex-end">
             {props.model.createInProgress || (
