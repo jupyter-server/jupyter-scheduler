@@ -345,7 +345,10 @@ export namespace SchedulerService {
 }
 
 export namespace Scheduler {
-  export type RuntimeEnvironmentParameters = Record<string, number | string | boolean>;
+  export type RuntimeEnvironmentParameters = Record<
+    string,
+    number | string | boolean
+  >;
   export type Parameters = Record<string, string>;
 
   export interface ICreateJobDefinition {
