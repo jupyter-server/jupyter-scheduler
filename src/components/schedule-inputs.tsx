@@ -93,7 +93,7 @@ export function ScheduleInputs<
   );
 
   // validates all schedule fields
-  const validateScheduleFields = () => {
+  const validateScheduleFields = (model: ModelWithScheduleFields) => {
     const newErrors = { ...props.errors };
     for (const fieldKey of fieldKeys) {
       const validator = validatorsByFieldKey[fieldKey];
@@ -102,14 +102,14 @@ export function ScheduleInputs<
       // interval doesn't render this field, then clear validation errors.
       if (
         !validator ||
-        !intervalsByFieldKey[fieldKey].includes(props.model.scheduleInterval)
+        !intervalsByFieldKey[fieldKey].includes(model.scheduleInterval)
       ) {
         newErrors[fieldKey] = '';
         continue;
       }
 
       // otherwise validate the current field.
-      newErrors[fieldKey] = validator(props.model[fieldKey]);
+      newErrors[fieldKey] = validator(model[fieldKey]);
     }
 
     props.handleErrorsChange(newErrors);
@@ -121,7 +121,7 @@ export function ScheduleInputs<
    * - whenever component is unmounted, remove all schedule fields from errors object
    */
   useEffect(() => {
-    validateScheduleFields();
+    validateScheduleFields(props.model);
 
     return () => {
       props.handleErrorsChange({
@@ -169,10 +169,12 @@ export function ScheduleInputs<
       | SelectChangeEvent
       | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    props.handleModelChange({
+    const newModel = {
       ...props.model,
       [e.target.name]: e.target.value
-    });
+    };
+    props.handleModelChange(newModel);
+    validateScheduleFields(newModel);
   };
 
   const handleTimezoneChange = (e: unknown, value: string | null) => {
@@ -249,7 +251,6 @@ export function ScheduleInputs<
       name="scheduleClock"
       value={props.model.scheduleClock}
       onChange={handleChange}
-      onBlur={validateScheduleFields}
       error={!!props.errors.scheduleClock}
       helperText={props.errors.scheduleClock || clockHelperText}
     />
@@ -278,7 +279,6 @@ export function ScheduleInputs<
           name="scheduleInterval"
           value={props.model.scheduleInterval}
           onChange={handleChange}
-          onBlur={validateScheduleFields}
         >
           <MenuItem value={'minute'}>{trans.__('Minute')}</MenuItem>
           <MenuItem value={'hour'}>{trans.__('Hour')}</MenuItem>
@@ -298,7 +298,6 @@ export function ScheduleInputs<
             onChange={handleChange}
             error={!!props.errors.scheduleMinute}
             helperText={props.errors.scheduleMinute || trans.__('0–59')}
-            onBlur={validateScheduleFields}
           />
         </>
       )}
@@ -347,7 +346,6 @@ export function ScheduleInputs<
             onChange={handleChange}
             error={!!props.errors.scheduleMonthDay}
             helperText={props.errors.scheduleMonthDay || monthDayHelperText}
-            onBlur={validateScheduleFields}
           />
           {clockInput}
           {timezonePicker}
@@ -364,7 +362,6 @@ export function ScheduleInputs<
             name="schedule"
             error={!!props.errors.schedule}
             helperText={props.errors.schedule || scheduleHelperText}
-            onBlur={validateScheduleFields}
           />
           {cronTips}
           {timezonePicker}
