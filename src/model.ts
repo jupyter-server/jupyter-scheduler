@@ -51,6 +51,7 @@ export type ModelWithScheduleFields = {
   scheduleMonthDayInput?: string;
   scheduleMonthDay?: number;
   scheduleWeekDay?: string;
+  scheduleTime?: number;
 };
 
 export interface ICreateJobModel
