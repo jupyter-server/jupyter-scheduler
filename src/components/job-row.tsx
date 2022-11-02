@@ -113,15 +113,9 @@ export function buildJobRow(
   const cellContents: React.ReactNode[] = [
     <Link onClick={() => showDetailView(job.job_id)}>{job.name}</Link>,
     inputFile ? (
-      <Link
-        onClick={() => {
-          app.commands.execute('docmanager:open', {
-            path: inputFile.file_path
-          });
-        }}
-      >
+      <JobFileLink app={app} jobFile={inputFile}>
         {job.input_filename}
-      </Link>
+      </JobFileLink>
     ) : (
       job.input_filename
     ),

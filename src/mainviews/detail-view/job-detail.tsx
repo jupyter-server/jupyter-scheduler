@@ -18,7 +18,6 @@ import {
   Card,
   CardContent,
   FormLabel,
-  Link,
   Stack,
   TextField,
   TextFieldProps
@@ -128,15 +127,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {
         label: trans.__('Input file'),
         value: inputJobFile ? (
-          <Link
-            onClick={() => {
-              props.app.commands.execute('docmanager:open', {
-                path: inputJobFile.file_path
-              });
-            }}
-          >
+          <JobFileLink app={props.app} jobFile={inputJobFile}>
             {props.model.inputFile}
-          </Link>
+          </JobFileLink>
         ) : (
           props.model.inputFile
         )
