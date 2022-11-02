@@ -54,10 +54,10 @@ export function NameError(name: string, trans: TranslationBundle): string {
     );
   }
 
-    // Check for length.
-    if (name.length > maxLength) {
-      return trans.__('Name may not be longer than %1 characters', maxLength);
-    }
+  // Check for length.
+  if (name.length > maxLength) {
+    return trans.__('Name may not be longer than %1 characters', maxLength);
+  }
 
   // By process of elimination, incorrect characters must be present
   return trans.__(
