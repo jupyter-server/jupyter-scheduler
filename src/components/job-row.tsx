@@ -9,6 +9,7 @@ import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
+import { Link } from '@mui/material';
 import { IconButton, Stack, TableCell, TableRow } from '@mui/material';
 
 function StopButton(props: {
@@ -57,11 +58,11 @@ function JobFiles(props: {
 
   return (
     <>
-      {props.job.job_files.map(jobFile => {
-        return (
-          jobFile.file_path && <JobFileLink jobFile={jobFile} app={props.app} />
-        );
-      })}
+      {props.job.job_files
+        .filter(jobFile => jobFile.file_format !== 'input' && jobFile.file_path)
+        .map(jobFile => (
+          <JobFileLink jobFile={jobFile} app={props.app} />
+        ))}
     </>
   );
 }
@@ -106,9 +107,25 @@ export function buildJobRow(
   showDetailView: (jobId: string) => void,
   reload: () => void
 ): JSX.Element {
+  const inputFile = job.job_files.find(
+    jobFile => jobFile.file_format === 'input' && jobFile.file_path
+  );
+
   const cellContents: React.ReactNode[] = [
-    <a onClick={() => showDetailView(job.job_id)}>{job.name}</a>,
-    job.input_filename,
+    <Link onClick={() => showDetailView(job.job_id)}>{job.name}</Link>,
+    inputFile ? (
+      <Link
+        onClick={() => {
+          app.commands.execute('docmanager:open', {
+            path: inputFile.file_path
+          });
+        }}
+      >
+        {job.input_filename}
+      </Link>
+    ) : (
+      job.input_filename
+    ),
     <>
       {!job.downloaded && job.status === 'COMPLETED' && (
         <DownloadFilesButton app={app} job={job} reload={reload} />
