@@ -36,20 +36,26 @@ export function CreateScheduleOptions(
     // so that in case there's an error with the schedule,
     // the form can still be submitted.
     if (value === 'Job') {
-      // Change from 'JobDefinition'
+      // Change from 'JobDefinition' and clear all job definition specific errors
       props.handleErrorsChange({
         ...props.errors,
-        schedule: ''
+        schedule: '',
+        scheduleInterval: '',
+        timezone: '',
+        scheduleHourMinute: '',
+        scheduleMinute: '',
+        scheduleHour: '',
+        scheduleMonthDay: '',
+        scheduleWeekDay: '',
+        scheduleTime: ''
       });
     }
-    if (value === 'JobDefinition') {
+    if (value === 'JobDefinition' && props.model.schedule) {
       // If the schedule is not populated, don't display an error for now.
-      if (props.model.schedule) {
-        props.handleErrorsChange({
-          ...props.errors,
-          schedule: validator.validateSchedule(props.model.schedule)
-        });
-      }
+      props.handleErrorsChange({
+        ...props.errors,
+        schedule: validator.validateSchedule(props.model.schedule)
+      });
     }
 
     props.handleModelChange({ ...props.model, [name]: value });
