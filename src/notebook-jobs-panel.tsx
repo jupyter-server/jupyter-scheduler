@@ -12,6 +12,7 @@ import TranslatorContext from './context';
 import { CreateJob } from './mainviews/create-job';
 import { NotebookJobsList } from './mainviews/list-jobs';
 import {
+  defaultScheduleFields,
   ICreateJobModel,
   IJobDefinitionModel,
   JobsModel,
@@ -75,8 +76,10 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.model.updateJobDefinitionModel = {
       definitionId: jobDef.definitionId,
       name: jobDef.name,
-      schedule: jobDef.schedule,
-      timezone: jobDef.timezone,
+      ...defaultScheduleFields,
+      // TODO: should these properties really be optional?
+      schedule: jobDef.schedule || '* * * * *',
+      timezone: jobDef.timezone || 'UTC',
       scheduleInterval: 'custom'
     };
   }
