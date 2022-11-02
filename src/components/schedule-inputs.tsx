@@ -208,15 +208,13 @@ export function ScheduleInputs<
       return trans.__('00:00-23:59');
     }
 
-    const displayMinutes: string = minutes < 10 ? '0' + minutes : '' + minutes;
-    if (hours === 0) {
-      return trans.__('%1:%2 AM', hours, displayMinutes);
-    } else if (hours === 12) {
-      return trans.__('%1:%2 PM', hours, displayMinutes);
-    } else if (hours > 12) {
-      return trans.__('%1:%2 PM', hours - 12, displayMinutes);
+    const displayHours = hours % 12 === 0 ? '12' : hours % 12;
+    const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+
+    if (hours < 12) {
+      return trans.__('%1:%2 AM', displayHours, displayMinutes);
     } else {
-      return trans.__('%1:%2 AM', hours, displayMinutes);
+      return trans.__('%1:%2 PM', displayHours, displayMinutes);
     }
   }, [trans, props.model.scheduleClock]);
 
