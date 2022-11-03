@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.1.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.0.0...513fce30f9983d108f16d8ebd4577e81b3ecf407))
+
+### Enhancements made
+
+- Enabled outputs for failed jobs [#270](https://github.com/jupyter-server/jupyter-scheduler/pull/270) ([@3coins](https://github.com/3coins))
+- move input job file link [#266](https://github.com/jupyter-server/jupyter-scheduler/pull/266) ([@dlqqq](https://github.com/dlqqq))
+- Adds UTC-only option to environment model [#265](https://github.com/jupyter-server/jupyter-scheduler/pull/265) ([@jweill-aws](https://github.com/jweill-aws))
+- refactor schedule inputs [#264](https://github.com/jupyter-server/jupyter-scheduler/pull/264) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- refactor schedule inputs [#264](https://github.com/jupyter-server/jupyter-scheduler/pull/264) ([@dlqqq](https://github.com/dlqqq))
+- Catching create job failures, updates to job definition [#253](https://github.com/jupyter-server/jupyter-scheduler/pull/253) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-02&to=2022-11-03&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-02..2022-11-03&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-02..2022-11-03&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-02..2022-11-03&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-02..2022-11-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.0.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v0.6.1...77570d8fe60e7237163886cbd3951fa662acac3c))
@@ -46,8 +70,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-10-27&to=2022-11-02&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-10-27..2022-11-02&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-10-27..2022-11-02&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-10-27..2022-11-02&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aellisonbg+updated%3A2022-10-27..2022-11-02&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-10-27..2022-11-02&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-10-27..2022-11-02&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-10-27..2022-11-02&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.4.2
 

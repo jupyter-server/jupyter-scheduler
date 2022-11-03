@@ -1,6 +1,6 @@
 {
   "name": "@jupyterlab/scheduler",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A JupyterLab extension for running notebook jobs",
   "keywords": [
     "jupyter",
