@@ -301,7 +301,7 @@ export interface IJobDetailModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  job_files: { [key: string]: string }[];
+  job_files: Scheduler.IJobFile[];
   downloaded: boolean;
 }
 

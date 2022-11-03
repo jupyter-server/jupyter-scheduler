@@ -3,7 +3,7 @@ import React from 'react';
 export interface ILabeledValueProps {
   label: string;
   id?: string;
-  value?: string | number | boolean;
+  value?: React.ReactNode;
   style?: React.CSSProperties;
   InputProps?: {
     startAdornment: JSX.Element;

@@ -7,7 +7,7 @@ import {
   ConfirmDialogStopButton
 } from '../../components/confirm-dialog-buttons';
 import { JobFileLink } from '../../components/job-file-link';
-import { Scheduler, SchedulerService } from '../../handler';
+import { SchedulerService } from '../../handler';
 import { useTranslator } from '../../hooks';
 import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
 import { Scheduler as SchedulerTokens } from '../../tokens';
@@ -114,6 +114,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     </Stack>
   );
 
+  const inputJobFile = props.model.job_files.find(
+    jobFile => jobFile.file_format === 'input' && jobFile.file_path
+  );
+
   const coreOptionsFields: ILabeledValueProps[][] = [
     [
       { value: props.model.jobName, label: trans.__('Job name') },
@@ -121,8 +125,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ],
     [
       {
-        value: props.model.inputFile,
-        label: trans.__('Input filename')
+        label: trans.__('Input file'),
+        value: inputJobFile ? (
+          <JobFileLink app={props.app} jobFile={inputJobFile}>
+            {props.model.inputFile}
+          </JobFileLink>
+        ) : (
+          props.model.inputFile
+        )
       },
       {
         value: props.model.environment,
@@ -154,13 +164,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ]
   ];
 
-  const convertJsonToJobFile = (jobFile: { [key: string]: string }) => {
-    return {
-      display_name: jobFile['display_name'],
-      file_format: jobFile['file_format'],
-      file_path: jobFile['file_path'] || null
-    } as Scheduler.IJobFile;
-  };
+  const hasOutputs =
+    props.model.status === 'COMPLETED' &&
+    props.model.job_files.some(
+      jobFile => jobFile.file_format !== 'input' && jobFile.file_path
+    );
 
   const CoreOptions = (
     <Card>
@@ -178,18 +186,19 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
               ))}
             </Stack>
           ))}
-          {props.model.status === 'COMPLETED' && (
+          {hasOutputs && (
             <>
-              <FormLabel component="legend">{trans.__('Job files')}</FormLabel>
-              {props.model.job_files.map(
-                jobFile =>
-                  jobFile['file_path'] && (
-                    <JobFileLink
-                      jobFile={convertJsonToJobFile(jobFile)}
-                      app={props.app}
-                    />
-                  )
-              )}
+              <FormLabel component="legend">
+                {trans.__('Output files')}
+              </FormLabel>
+              {props.model.job_files
+                .filter(
+                  jobFile =>
+                    jobFile.file_format !== 'input' && jobFile.file_path
+                )
+                .map(jobFile => (
+                  <JobFileLink jobFile={jobFile} app={props.app} />
+                ))}
             </>
           )}
         </Stack>
