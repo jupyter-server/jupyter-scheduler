@@ -56,6 +56,8 @@ class ExecutionManager(ABC):
         self.before_start()
         try:
             self.execute()
+        except CellExecutionError as e:
+            self.on_failure(e)
         except Exception as e:
             self.on_failure(e)
         else:
@@ -98,8 +100,9 @@ class ExecutionManager(ABC):
         """Called after failure of execute"""
         job = self.model
         with self.db_session() as session:
+            status = Status.FAILED_WITH_OUTPUTS if type(e) == CellExecutionError else Status.FAILED
             session.query(Job).filter(Job.job_id == job.job_id).update(
-                {"status": Status.FAILED, "status_message": str(e)}
+                {"status": status, "status_message": str(e)}
             )
             session.commit()
 
@@ -135,7 +138,7 @@ class DefaultExecutionManager(ExecutionManager):
         try:
             ep.preprocess(nb)
         except CellExecutionError as e:
-            pass
+            raise e
         finally:
             for output_format in job.output_formats:
                 cls = nbconvert.get_exporter(output_format)

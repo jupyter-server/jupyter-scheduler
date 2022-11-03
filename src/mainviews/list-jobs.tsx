@@ -91,6 +91,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
           return trans.__('Completed');
         case 'FAILED':
           return trans.__('Failed');
+        case 'FAILED_WITH_OUTPUTS':
+            return trans.__('Failed');
         case 'IN_PROGRESS':
           return trans.__('In progress');
         case 'STOPPED':

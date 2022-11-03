@@ -51,7 +51,7 @@ function JobFiles(props: {
   job: Scheduler.IDescribeJob;
   app: JupyterFrontEnd;
 }): JSX.Element | null {
-  if (props.job.status !== 'COMPLETED') {
+  if (!(props.job.status === 'COMPLETED' || props.job.status === 'FAILED_WITH_OUTPUTS')) {
     return null;
   }
 
@@ -120,7 +120,7 @@ export function buildJobRow(
       job.input_filename
     ),
     <>
-      {!job.downloaded && job.status === 'COMPLETED' && (
+      {!job.downloaded && (job.status === 'COMPLETED' || job.status === 'FAILED_WITH_OUTPUTS') && (
         <DownloadFilesButton app={app} job={job} reload={reload} />
       )}
       <JobFiles job={job} app={app} />

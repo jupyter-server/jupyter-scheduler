@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
@@ -7,7 +7,7 @@ import {
   ConfirmDialogStopButton
 } from '../../components/confirm-dialog-buttons';
 import { JobFileLink } from '../../components/job-file-link';
-import { SchedulerService } from '../../handler';
+import { Scheduler, SchedulerService } from '../../handler';
 import { useTranslator } from '../../hooks';
 import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
 import { Scheduler as SchedulerTokens } from '../../tokens';
@@ -65,6 +65,35 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ss = new SchedulerService({});
 
+  const translateStatus = useCallback(
+    (status: Scheduler.Status) => {
+      // This may look inefficient, but it's intended to call the `trans` function
+      // with distinct, static values, so that code analyzers can pick up all the
+      // needed source strings.
+      switch (status) {
+        case 'CREATED':
+          return trans.__('Created');
+        case 'QUEUED':
+          return trans.__('Queued');
+        case 'COMPLETED':
+          return trans.__('Completed');
+        case 'FAILED':
+          return trans.__('Failed');
+        case 'FAILED_WITH_OUTPUTS':
+            return trans.__('Failed');
+        case 'IN_PROGRESS':
+          return trans.__('In progress');
+        case 'STOPPED':
+          return trans.__('Stopped');
+        case 'STOPPING':
+          return trans.__('Stopping');
+
+        return ''
+      }
+    },
+    [trans]
+  );
+
   const handleDeleteJob = async () => {
     await ss.deleteJob(props.model.jobId ?? '');
     props.setJobsView(JobsView.ListJobs);
@@ -90,7 +119,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {props.model.downloaded === false && props.model.status === 'COMPLETED' && (
+      {props.model.downloaded === false && (props.model.status === 'COMPLETED' || props.model.status === 'FAILED_WITH_OUTPUTS') && (
         <Button
           variant="outlined"
           onClick={downloadFiles}
@@ -140,7 +169,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       }
     ],
     [
-      { value: props.model.status ?? '', label: trans.__('Status') },
+      { value: translateStatus(props.model.status!), label: trans.__('Status') },
       {
         value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
@@ -165,7 +194,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   ];
 
   const hasOutputs =
-    props.model.status === 'COMPLETED' &&
+    (props.model.status === 'COMPLETED' || props.model.status === 'FAILED_WITH_OUTPUTS') &&
     props.model.job_files.some(
       jobFile => jobFile.file_format !== 'input' && jobFile.file_path
     );

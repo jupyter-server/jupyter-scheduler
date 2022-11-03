@@ -313,7 +313,10 @@ class BaseScheduler(LoggingConfigurable):
         )
 
         model.job_files = job_files
-        model.downloaded = all(job_file.file_path for job_file in job_files)
+        if model.status == Status.FAILED_WITH_OUTPUTS:
+            model.downloaded = any(job_file.file_path for job_file in job_files)
+        else:
+            model.downloaded = all(job_file.file_path for job_file in job_files)
 
     def get_local_output_path(self, model: DescribeJob) -> str:
         """Returns the local output directory path
