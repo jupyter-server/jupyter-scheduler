@@ -86,7 +86,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         case 'STOPPING':
           return trans.__('Stopping');
 
-        return ''
+          return '';
       }
     },
     [trans]
@@ -117,15 +117,17 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {props.model.downloaded === false && (props.model.status === 'COMPLETED' || props.model.status === 'FAILED') && (
-        <Button
-          variant="outlined"
-          onClick={downloadFiles}
-          disabled={downloading}
-        >
-          {trans.__('Download Job Files')}
-        </Button>
-      )}
+      {props.model.downloaded === false &&
+        (props.model.status === 'COMPLETED' ||
+          props.model.status === 'FAILED') && (
+          <Button
+            variant="outlined"
+            onClick={downloadFiles}
+            disabled={downloading}
+          >
+            {trans.__('Download Job Files')}
+          </Button>
+        )}
       {props.model.status === 'IN_PROGRESS' && (
         <ConfirmDialogStopButton
           handleStop={handleStopJob}
@@ -167,7 +169,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       }
     ],
     [
-      { value: translateStatus(props.model.status!), label: trans.__('Status') },
+      {
+        value: translateStatus(props.model.status!),
+        label: trans.__('Status')
+      },
       {
         value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
