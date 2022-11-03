@@ -248,7 +248,13 @@ export function ScheduleInputs<
   }
 
   const timezonePicker = props.utcOnly ? (
-    <p>{tzMessage}</p>
+    <p>
+      {tzMessage}
+      <br />
+      {trans.__(
+        'Schedules in UTC are affected by daylight saving time or summer time changes'
+      )}
+    </p>
   ) : (
     <Autocomplete
       id={`${props.idPrefix}timezone`}
