@@ -232,17 +232,19 @@ export function ScheduleInputs<
   if (tzOffsetHours === 0) {
     tzMessage = trans.__('Specify time in UTC (local time)');
   } else if (tzOffsetHours === -1) {
-    tzMessage = trans.__('Specify time in UTC (1 hour behind local time)');
+    tzMessage = trans.__(
+      'Specify time in UTC (subtract 1 hour from local time)'
+    );
   } else if (tzOffsetHours < 0) {
     tzMessage = trans.__(
-      'Specify time in UTC (%1 hours behind local time)',
+      'Specify time in UTC (subtract %1 hours from local time)',
       -tzOffsetHours
     );
   } else if (tzOffsetHours === 1) {
-    tzMessage = trans.__('Specify time in UTC (1 hour ahead of local time)');
+    tzMessage = trans.__('Specify time in UTC (add 1 hour to local time)');
   } else if (tzOffsetHours > 0) {
     tzMessage = trans.__(
-      'Specify time in UTC (%1 hours ahead of local time)',
+      'Specify time in UTC (add %1 hours to local time)',
       tzOffsetHours
     );
   }
