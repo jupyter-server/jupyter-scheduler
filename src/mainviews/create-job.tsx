@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useState,
+  useRef
+} from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
@@ -113,24 +119,48 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           envList[0].name
         )?.map(format => format.name);
 
-        // Does the default environment support time zones?
-        let newTimeZone = 'UTC';
-        if (!envList[0].utc_only) {
-          newTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        }
-
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
           computeType: newComputeType,
-          outputFormats: outputFormats,
-          timezone: newTimeZone
+          outputFormats: outputFormats
         });
       }
     };
 
     setList();
   }, []);
+
+  const envsByName = useMemo(() => {
+    const obj: Record<string, Scheduler.IRuntimeEnvironment> = {};
+    for (const env of environmentList) {
+      obj[env.name] = env;
+    }
+
+    return obj;
+  }, [environmentList]);
+
+  const prevEnvName = useRef<string>();
+
+  /**
+   * Effect: when selected environment changes between supporting/not supporting
+   * timezones, set the timezone accordingly.
+   */
+  useEffect(() => {
+    const prevEnv = envsByName[prevEnvName.current ?? ''];
+    const currEnv = envsByName[props.model.environment];
+
+    if (currEnv && (!prevEnv || prevEnv.utc_only !== currEnv.utc_only)) {
+      props.handleModelChange({
+        ...props.model,
+        timezone: currEnv.utc_only
+          ? 'UTC'
+          : Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+    }
+
+    prevEnvName.current = props.model.environment;
+  }, [props.model.environment, envsByName]);
 
   // If any error message is "truthy" (not null or empty), the form should not be submitted.
   const anyAdvancedErrors = Object.keys(advancedOptionsErrors).some(
@@ -181,18 +211,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         target.value
       )?.map(format => format.name);
 
-      // Does the new environment support time zones?
-      let newTimeZone = 'UTC';
-      if (!envObj?.utc_only) {
-        newTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      }
-
       props.handleModelChange({
         ...props.model,
         environment: target.value,
         computeType: newComputeType,
-        outputFormats: newEnvOutputFormats,
-        timezone: newTimeZone
+        outputFormats: newEnvOutputFormats
       });
     } else {
       // otherwise, just set the model
@@ -420,9 +443,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   );
 
   // Does the currently-selected environment accept times in UTC only?
-  const utcOnly =
-    environmentList.find(e => e.name === props.model.environment)?.utc_only ??
-    undefined;
+  const utcOnly = envsByName[props.model.environment]?.utc_only;
 
   return (
     <Box sx={{ p: 4 }}>
