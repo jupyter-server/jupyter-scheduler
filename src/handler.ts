@@ -426,7 +426,6 @@ export namespace Scheduler {
     | 'IN_PROGRESS'
     | 'COMPLETED'
     | 'FAILED'
-    | 'FAILED_WITH_OUTPUTS'
     | 'STOPPING'
     | 'STOPPED';
 

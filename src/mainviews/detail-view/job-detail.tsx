@@ -79,8 +79,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           return trans.__('Completed');
         case 'FAILED':
           return trans.__('Failed');
-        case 'FAILED_WITH_OUTPUTS':
-            return trans.__('Failed');
         case 'IN_PROGRESS':
           return trans.__('In progress');
         case 'STOPPED':
@@ -119,7 +117,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const ButtonBar = (
     <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {props.model.downloaded === false && (props.model.status === 'COMPLETED' || props.model.status === 'FAILED_WITH_OUTPUTS') && (
+      {props.model.downloaded === false && (props.model.status === 'COMPLETED' || props.model.status === 'FAILED') && (
         <Button
           variant="outlined"
           onClick={downloadFiles}
@@ -194,7 +192,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   ];
 
   const hasOutputs =
-    (props.model.status === 'COMPLETED' || props.model.status === 'FAILED_WITH_OUTPUTS') &&
+    (props.model.status === 'COMPLETED' || props.model.status === 'FAILED') &&
     props.model.job_files.some(
       jobFile => jobFile.file_format !== 'input' && jobFile.file_path
     );

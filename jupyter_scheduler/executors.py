@@ -100,9 +100,8 @@ class ExecutionManager(ABC):
         """Called after failure of execute"""
         job = self.model
         with self.db_session() as session:
-            status = Status.FAILED_WITH_OUTPUTS if type(e) == CellExecutionError else Status.FAILED
             session.query(Job).filter(Job.job_id == job.job_id).update(
-                {"status": status, "status_message": str(e)}
+                {"status": Status.FAILED, "status_message": str(e)}
             )
             session.commit()
 
