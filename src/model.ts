@@ -30,28 +30,48 @@ export interface IOutputFormat {
   readonly label: string;
 }
 
+export type ScheduleInterval =
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'weekday'
+  | 'month'
+  | 'custom';
+
 /**
  * Extended by models which back UIs using the <ScheduleInputs /> component.
  */
 export type ModelWithScheduleFields = {
-  // Intervals: 'minute' | 'hour' | 'day' | 'week' | 'weekday' | 'month' | 'custom'
-  scheduleInterval: string;
-  // String for schedule in cron format
-  schedule?: string;
-  // String for timezone in tz database format
-  timezone?: string;
-  // "Easy scheduling" inputs
-  // Minute for an input that only accepts minutes (of the hour)
-  scheduleMinuteInput?: string;
-  scheduleHourMinute?: number;
-  // Hour and minute for time inputs
-  scheduleTimeInput?: string;
-  scheduleMinute?: number;
-  scheduleHour?: number;
-  scheduleMonthDayInput?: string;
-  scheduleMonthDay?: number;
-  scheduleWeekDay?: string;
-  scheduleTime?: number;
+  /**
+   * User's scheduling input encoded as a cron expression.
+   */
+  schedule: string;
+  /**
+   * Timezone specified in tz database format.
+   */
+  timezone: string;
+  /**
+   * Easy scheduling interval. 'custom' allows users to manually input a cron
+   * expression.
+   */
+  scheduleInterval: ScheduleInterval;
+  /**
+   * Value of input field for 24-hour time (hh:mm).
+   */
+  scheduleClock: string;
+  /**
+   * Value of input field for day of the week (SUN-SAT).
+   */
+  scheduleWeekDay: string;
+  /**
+   * Value of input field for day of the month (0-31).
+   */
+  scheduleMonthDay: string;
+  /**
+   * Value of input field for past the hour.
+   */
+  scheduleMinute: string;
 };
 
 export interface ICreateJobModel
@@ -81,6 +101,16 @@ export interface ICreateJobModel
   createInProgress?: boolean;
 }
 
+export const defaultScheduleFields: ModelWithScheduleFields = {
+  schedule: '0 0 * * MON-FRI',
+  scheduleInterval: 'weekday',
+  scheduleClock: '00:00',
+  scheduleMinute: '0',
+  scheduleMonthDay: '1',
+  scheduleWeekDay: '1',
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+};
+
 export function emptyCreateJobModel(): ICreateJobModel {
   return {
     key: Math.random(),
@@ -89,9 +119,7 @@ export function emptyCreateJobModel(): ICreateJobModel {
     outputPath: '',
     environment: '',
     createType: 'Job',
-    scheduleInterval: 'weekday',
-    schedule: '0 0 * * MON-FRI',
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    ...defaultScheduleFields
   };
 }
 
@@ -105,8 +133,7 @@ export interface IUpdateJobDefinitionModel
 export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
   return {
     definitionId: '',
-    schedule: '',
-    scheduleInterval: 'custom'
+    ...defaultScheduleFields
   };
 }
 
