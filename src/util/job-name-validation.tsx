@@ -2,9 +2,9 @@
 
 import { TranslationBundle } from '@jupyterlab/translation';
 
-const jobNameRegex = /^[a-zA-Z0-9._][a-zA-Z0-9._-]{0,62}$/;
+const jobNameRegex = /^[a-zA-Z0-9._][a-zA-Z0-9._ -]{0,62}$/;
 const invalidFirstCharRegex = /^[^a-zA-Z0-9._]/;
-const invalidCharRegex = /[^a-zA-Z0-9._-]/g;
+const invalidCharRegex = /[^a-zA-Z0-9._ -]/g;
 const maxLength = 63;
 
 export function NameIsValid(name: string): boolean {
@@ -61,6 +61,6 @@ export function NameError(name: string, trans: TranslationBundle): string {
 
   // By process of elimination, incorrect characters must be present
   return trans.__(
-    'Name must contain only letters, numbers, periods, hyphens, and underscores'
+    'Name must contain only letters, numbers, spaces, periods, hyphens, and underscores'
   );
 }
