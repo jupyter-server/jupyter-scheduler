@@ -519,6 +519,7 @@ export namespace Scheduler {
     metadata: { [key: string]: string };
     compute_types: string[] | null;
     default_compute_type: string | null;
+    utc_only?: boolean;
   }
 
   export interface IOutputFormat {

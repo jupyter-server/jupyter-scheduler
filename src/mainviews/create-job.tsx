@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useState,
+  useRef
+} from 'react';
 
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
@@ -125,6 +131,37 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     setList();
   }, []);
 
+  const envsByName = useMemo(() => {
+    const obj: Record<string, Scheduler.IRuntimeEnvironment> = {};
+    for (const env of environmentList) {
+      obj[env.name] = env;
+    }
+
+    return obj;
+  }, [environmentList]);
+
+  const prevEnvName = useRef<string>();
+
+  /**
+   * Effect: when selected environment changes between supporting/not supporting
+   * timezones, set the timezone accordingly.
+   */
+  useEffect(() => {
+    const prevEnv = envsByName[prevEnvName.current ?? ''];
+    const currEnv = envsByName[props.model.environment];
+
+    if (currEnv && (!prevEnv || prevEnv.utc_only !== currEnv.utc_only)) {
+      props.handleModelChange({
+        ...props.model,
+        timezone: currEnv.utc_only
+          ? 'UTC'
+          : Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+    }
+
+    prevEnvName.current = props.model.environment;
+  }, [props.model.environment, envsByName]);
+
   // If any error message is "truthy" (not null or empty), the form should not be submitted.
   const anyAdvancedErrors = Object.keys(advancedOptionsErrors).some(
     key => !!advancedOptionsErrors[key]
@@ -160,6 +197,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const envObj = environmentList.find(env => env.name === target.value);
       // Validate that the default compute type is in fact in the list
       let newComputeType = envObj?.compute_types?.[0];
+
       if (
         envObj?.default_compute_type &&
         envObj?.compute_types &&
@@ -167,10 +205,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       ) {
         newComputeType = envObj.default_compute_type;
       }
+
       const newEnvOutputFormats = outputFormatsForEnvironment(
         environmentList,
         target.value
       )?.map(format => format.name);
+
       props.handleModelChange({
         ...props.model,
         environment: target.value,
@@ -402,6 +442,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     </InputAdornment>
   );
 
+  // Does the currently-selected environment accept times in UTC only?
+  const utcOnly = envsByName[props.model.environment]?.utc_only;
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -517,6 +560,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleModelChange={props.handleModelChange}
             errors={errors}
             handleErrorsChange={setErrors}
+            utcOnly={utcOnly}
           />
           <Cluster gap={3} justifyContent="flex-end">
             {props.model.createInProgress || (

@@ -39,6 +39,7 @@ export type ScheduleInputsProps<
   handleModelChange: (model: M) => void;
   errors: E;
   handleErrorsChange: (errors: E) => void;
+  utcOnly?: boolean;
 };
 
 const emptyScheduleErrors: Record<keyof ErrorsWithScheduleFields, ''> = {
@@ -226,7 +227,37 @@ export function ScheduleInputs<
     }
   }, [props.model.schedule]);
 
-  const timezonePicker = (
+  const tzOffsetHours = new Date().getTimezoneOffset() / 60;
+  let tzMessage;
+  if (tzOffsetHours === 0) {
+    tzMessage = trans.__('Specify time in UTC (local time)');
+  } else if (tzOffsetHours === -1) {
+    tzMessage = trans.__(
+      'Specify time in UTC (subtract 1 hour from local time)'
+    );
+  } else if (tzOffsetHours < 0) {
+    tzMessage = trans.__(
+      'Specify time in UTC (subtract %1 hours from local time)',
+      -tzOffsetHours
+    );
+  } else if (tzOffsetHours === 1) {
+    tzMessage = trans.__('Specify time in UTC (add 1 hour to local time)');
+  } else if (tzOffsetHours > 0) {
+    tzMessage = trans.__(
+      'Specify time in UTC (add %1 hours to local time)',
+      tzOffsetHours
+    );
+  }
+
+  const timezonePicker = props.utcOnly ? (
+    <p>
+      {tzMessage}
+      <br />
+      {trans.__(
+        'Schedules in UTC are affected by daylight saving time or summer time changes'
+      )}
+    </p>
+  ) : (
     <Autocomplete
       id={`${props.idPrefix}timezone`}
       options={timezones}

@@ -16,6 +16,7 @@ export type CreateScheduleOptionsProps = {
   handleModelChange: (model: ICreateJobModel) => void;
   errors: Scheduler.ErrorsType;
   handleErrorsChange: (errors: Scheduler.ErrorsType) => void;
+  utcOnly?: boolean;
 };
 
 export function CreateScheduleOptions(
@@ -60,6 +61,7 @@ export function CreateScheduleOptions(
           handleModelChange={props.handleModelChange}
           errors={props.errors}
           handleErrorsChange={props.handleErrorsChange}
+          utcOnly={props.utcOnly}
         />
       )}
     </Stack>
