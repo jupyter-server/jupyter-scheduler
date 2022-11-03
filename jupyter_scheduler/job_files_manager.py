@@ -7,7 +7,6 @@ import fsspec
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.scheduler import BaseScheduler
-from jupyter_scheduler.utils import resolve_path
 
 
 class JobFilesManager:
@@ -71,9 +70,12 @@ class Downloader:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
                 filepaths = self.generate_filepaths()
                 for input_filepath, output_filepath in filepaths:
-                    input_file = tar.extractfile(member=input_filepath)
-                    with fsspec.open(output_filepath, mode="wb") as output_file:
-                        output_file.write(input_file.read())
+                    try:
+                        input_file = tar.extractfile(member=input_filepath)
+                        with fsspec.open(output_filepath, mode="wb") as output_file:
+                            output_file.write(input_file.read())
+                    except Exception as e:
+                        pass
 
     def download(self):
         if not self.staging_paths:
@@ -86,6 +88,9 @@ class Downloader:
         else:
             filepaths = self.generate_filepaths()
             for input_filepath, output_filepath in filepaths:
-                with fsspec.open(input_filepath) as input_file:
-                    with fsspec.open(output_filepath, mode="wb") as output_file:
-                        output_file.write(input_file.read())
+                try:
+                    with fsspec.open(input_filepath) as input_file:
+                        with fsspec.open(output_filepath, mode="wb") as output_file:
+                            output_file.write(input_file.read())
+                except Exception as e:
+                    pass

@@ -56,6 +56,8 @@ class ExecutionManager(ABC):
         self.before_start()
         try:
             self.execute()
+        except CellExecutionError as e:
+            self.on_failure(e)
         except Exception as e:
             self.on_failure(e)
         else:
@@ -135,7 +137,7 @@ class DefaultExecutionManager(ExecutionManager):
         try:
             ep.preprocess(nb)
         except CellExecutionError as e:
-            pass
+            raise e
         finally:
             for output_format in job.output_formats:
                 cls = nbconvert.get_exporter(output_format)

@@ -51,7 +51,7 @@ function JobFiles(props: {
   job: Scheduler.IDescribeJob;
   app: JupyterFrontEnd;
 }): JSX.Element | null {
-  if (props.job.status !== 'COMPLETED') {
+  if (!(props.job.status === 'COMPLETED' || props.job.status === 'FAILED')) {
     return null;
   }
 
@@ -111,7 +111,12 @@ export function buildJobRow(
   );
 
   const cellContents: React.ReactNode[] = [
-    <Link onClick={() => showDetailView(job.job_id)}>{job.name}</Link>,
+    <Link
+      onClick={() => showDetailView(job.job_id)}
+      title={`Open detail view for "${job.name}"`}
+    >
+      {job.name}
+    </Link>,
     inputFile ? (
       <JobFileLink app={app} jobFile={inputFile}>
         {job.input_filename}
@@ -120,9 +125,10 @@ export function buildJobRow(
       job.input_filename
     ),
     <>
-      {!job.downloaded && job.status === 'COMPLETED' && (
-        <DownloadFilesButton app={app} job={job} reload={reload} />
-      )}
+      {!job.downloaded &&
+        (job.status === 'COMPLETED' || job.status === 'FAILED') && (
+          <DownloadFilesButton app={app} job={job} reload={reload} />
+        )}
       <JobFiles job={job} app={app} />
     </>,
     <Timestamp job={job} />,
