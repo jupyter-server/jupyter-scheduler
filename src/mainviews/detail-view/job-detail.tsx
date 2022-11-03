@@ -85,8 +85,6 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           return trans.__('Stopped');
         case 'STOPPING':
           return trans.__('Stopping');
-
-          return '';
       }
     },
     [trans]
