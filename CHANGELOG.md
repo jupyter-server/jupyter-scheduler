@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.1.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.0...f030c57010cd625a401de21fd875b739880e5fb8))
+
+### Enhancements made
+
+- Bump jupyter-server version ceiling [#278](https://github.com/jupyter-server/jupyter-scheduler/pull/278) ([@dlqqq](https://github.com/dlqqq))
+- Adds error reporting [#277](https://github.com/jupyter-server/jupyter-scheduler/pull/277) ([@jweill-aws](https://github.com/jweill-aws))
+- Allows spaces in job names, except in the first position [#273](https://github.com/jupyter-server/jupyter-scheduler/pull/273) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Bugs fixed
+
+- hide timezone selector when editing job definition created with utc_only environment [#280](https://github.com/jupyter-server/jupyter-scheduler/pull/280) ([@dlqqq](https://github.com/dlqqq))
+- Adds error reporting [#277](https://github.com/jupyter-server/jupyter-scheduler/pull/277) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-03&to=2022-11-04&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-03..2022-11-04&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-03..2022-11-04&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-03..2022-11-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.1.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.0.0...513fce30f9983d108f16d8ebd4577e81b3ecf407))
@@ -23,8 +46,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-02&to=2022-11-03&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-02..2022-11-03&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-02..2022-11-03&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-02..2022-11-03&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-02..2022-11-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.0.0
 
