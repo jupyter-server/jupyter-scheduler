@@ -6,6 +6,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { VDomRenderer } from '@jupyterlab/apputils';
 import { ITranslator, TranslationBundle } from '@jupyterlab/translation';
 import { LabIcon } from '@jupyterlab/ui-components';
+import { Message } from '@lumino/messaging';
 
 import { ErrorBoundary } from './components/error-boundary';
 import { calendarMonthIcon } from './components/icons';
@@ -62,6 +63,65 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
 
     this.node.setAttribute('role', 'region');
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
+  }
+
+  /**
+   * Handle the DOM events for the directory listing.
+   *
+   * @param event - The DOM event sent to the widget.
+   *
+   * #### Notes
+   * This method implements the DOM `EventListener` interface and is
+   * called in response to events on the panel's DOM node. It should
+   * not be called directly by user code (see
+   * https://jupyterlab.readthedocs.io/en/stable/developer/patterns.html,
+   * "Dom Events" section).
+   */
+  handleEvent(event: Event): void {
+    switch (event.type) {
+      case 'dblclick':
+        alert('mouse clicked');
+        break;
+      case 'lm-dragenter':
+        alert('dragenter');
+        break;
+      case 'lm-dragleave':
+        alert('dragleave');
+        break;
+      case 'lm-dragover':
+        alert('dragover');
+        break;
+      case 'lm-drop':
+        alert('Notebook dropped');
+        console.log(event);
+        break;
+      default:
+        break;
+    }
+  }
+
+  /**
+   *  A message handler invoked on an `'after-attach'` message.
+   */
+  protected onAfterAttach(msg: Message): void {
+    this.node.addEventListener('dblclick', this);
+    // this.node.addEventListener('lm-dragenter', this);
+    // this.node.addEventListener('lm-dragleave', this);
+    // this.node.addEventListener('lm-dragover', this);
+    // this.node.addEventListener('lm-dragenter', this);
+    this.node.addEventListener('lm-drop', this);
+  }
+
+  /**
+   *  A message handler invoked on an `'after-detach'` message.
+   */
+  protected onAfterDetach(msg: Message): void {
+    this.node.removeEventListener('dblclick', this);
+    // this.node.removeEventListener('lm-dragenter', this);
+    // this.node.removeEventListener('lm-dragleave', this);
+    // this.node.removeEventListener('lm-dragover', this);
+    // this.node.removeEventListener('lm-dragenter', this);
+    this.node.removeEventListener('lm-drop', this);
   }
 
   showListView(
