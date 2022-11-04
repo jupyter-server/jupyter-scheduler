@@ -81,6 +81,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.model.updateJobDefinitionModel = {
       definitionId: jobDef.definitionId,
       name: jobDef.name,
+      environment: jobDef.environment,
       ...defaultScheduleFields,
       // TODO: should these properties really be optional?
       schedule: jobDef.schedule || '* * * * *',

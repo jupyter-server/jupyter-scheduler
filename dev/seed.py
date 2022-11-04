@@ -36,7 +36,7 @@ def get_db_path():
     return os.path.join(data[0], "scheduler.sqlite")
 
 
-def create_random_job_def(index: int) -> CreateJobDefinition:
+def create_random_job_def(index: int, env: str) -> CreateJobDefinition:
     name = (
         random.choice(
             [
@@ -66,7 +66,7 @@ def create_random_job_def(index: int) -> CreateJobDefinition:
         timezone=timezone,
         schedule=schedule,
         active=active,
-        runtime_environment_name="",
+        runtime_environment_name=env,
     )
 
 
@@ -128,6 +128,9 @@ async def load_data(jobs_count: int, job_defs_count: int, db_path: str):
         environments_manager=CondaEnvironmentManager(),
         task_runner_class=None,
     )
+
+    environments = scheduler.environments_manager.list_environments()
+
     job_def_ids = []
 
     # clear existing output files
@@ -138,7 +141,8 @@ async def load_data(jobs_count: int, job_defs_count: int, db_path: str):
     os.mkdir(os.path.join(root_dir, "outputs"))
 
     for index in range(1, job_defs_count + 1):
-        job_def_id = scheduler.create_job_definition(create_random_job_def(index))
+        env = random.choice(environments).name
+        job_def_id = scheduler.create_job_definition(create_random_job_def(index, env))
         job_def_ids.append(job_def_id)
 
     for index in range(1, jobs_count + 1):

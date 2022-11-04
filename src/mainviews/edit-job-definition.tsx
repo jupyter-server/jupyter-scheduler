@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Button,
   Box,
@@ -29,15 +29,38 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const ss = useMemo(() => new SchedulerService({}), []);
   const [loading, setLoading] = useState(false);
+  const [utcOnly, setUtcOnly] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Scheduler.ErrorsType>({});
   const hasErrors = Object.keys(fieldErrors).some(key => !!fieldErrors[key]);
+
+  /**
+   * Effect: fetch environment list on initial render, and set timezone
+   * accordingly.
+   */
+  useEffect(() => {
+    async function fetchEnvironments() {
+      setLoading(true);
+      const envs = await ss.getRuntimeEnvironments();
+      const env = envs.find(env => env.name === props.model.environment);
+      if (env?.utc_only) {
+        setUtcOnly(true);
+        props.handleModelChange({
+          ...props.model,
+          timezone: 'UTC'
+        });
+      }
+      setLoading(false);
+    }
+    fetchEnvironments();
+  }, []);
 
   const handleSubmit = async () => {
     if (hasErrors) {
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     try {
       await ss.updateJobDefinition(props.model.definitionId, {
         schedule: props.model.schedule,
@@ -46,9 +69,13 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
       props.showJobDefinitionDetail(props.model.definitionId);
     } catch (e) {
       // TODO: catch any errors from backend and display them to user.
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return <CircularProgress />;
+  }
 
   return (
     <Stack spacing={4} maxWidth={500}>
@@ -59,9 +86,10 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
         handleModelChange={props.handleModelChange}
         errors={fieldErrors}
         handleErrorsChange={newErrors => setFieldErrors(newErrors)}
+        utcOnly={utcOnly}
       />
       <Cluster gap={3} justifyContent="flex-end">
-        {loading ? (
+        {saving ? (
           <>
             {trans.__('Saving changes …')}
             <CircularProgress size={30} />
