@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { VDomRenderer } from '@jupyterlab/apputils';
-import { ITranslator } from '@jupyterlab/translation';
+import { ITranslator, TranslationBundle } from '@jupyterlab/translation';
 import { LabIcon } from '@jupyterlab/ui-components';
 
 import { ErrorBoundary } from './components/error-boundary';
@@ -32,6 +32,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _description?: string;
   readonly _app: JupyterFrontEnd;
   readonly _translator: ITranslator;
+  readonly _trans: TranslationBundle;
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
 
   constructor(options: NotebookJobsPanel.IOptions) {
@@ -54,6 +55,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._description = options.description ?? trans.__('Job Runs');
     this._app = options.app;
     this._translator = options.translator;
+    this._trans = this._translator.load('jupyterlab');
     this._advancedOptions = options.advancedOptions;
 
     this.node.setAttribute('role', 'region');
@@ -93,17 +95,15 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       this.model.jobsView = JobsView.CreateForm;
     };
 
-    const trans = this._translator.load('jupyterlab');
-
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
           <ErrorBoundary
-            alertTitle={trans.__('Internal error')}
-            alertMessage={trans.__(
+            alertTitle={this._trans.__('Internal error')}
+            alertMessage={this._trans.__(
               'We encountered an internal error. Please try your command again.'
             )}
-            detailTitle={trans.__('Error details')}
+            detailTitle={this._trans.__('Error details')}
           >
             {this.model.jobsView === JobsView.CreateForm && (
               <CreateJob
