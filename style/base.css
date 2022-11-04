@@ -28,6 +28,17 @@
   margin-top: 12px;
 }
 
+/* Error reporting */
+.jp-error-boundary {
+  max-width: 500px;
+  margin: 12px;
+}
+
+.jp-error-boundary h1 {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
 /* Create job form */
 
 .jp-create-job-form {
