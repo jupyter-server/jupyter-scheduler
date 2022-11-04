@@ -127,12 +127,15 @@ export interface IUpdateJobDefinitionModel
   extends ModelWithScheduleFields,
     PartialJSONObject {
   definitionId: string;
-  name?: string;
+  name: string;
+  environment: string;
 }
 
 export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
   return {
     definitionId: '',
+    name: '',
+    environment: '',
     ...defaultScheduleFields
   };
 }
