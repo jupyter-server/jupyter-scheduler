@@ -2,7 +2,11 @@ import { Alert, AlertTitle, Stack, Typography } from '@mui/material';
 
 import React from 'react';
 
-interface IErrorBoundaryProps {}
+interface IErrorBoundaryProps {
+  alertTitle: string;
+  alertMessage: string;
+  detailTitle: string;
+}
 
 interface IErrorBoundaryState {
   hasError: boolean;
@@ -29,9 +33,6 @@ export class ErrorBoundary extends React.Component<
   }
 
   render(): React.ReactNode {
-    const errorMessage =
-      'We encountered an internal error. Please try your command again.';
-
     let errorDetail;
     if (typeof this.state.error === 'string') {
       errorDetail = this.state.error;
@@ -43,7 +44,7 @@ export class ErrorBoundary extends React.Component<
     if (errorDetail !== undefined) {
       infoSection = (
         <>
-          <Typography variant="h1">Error details</Typography>
+          <Typography variant="h1">{this.props.detailTitle}</Typography>
           <pre>{errorDetail}</pre>
         </>
       );
@@ -53,8 +54,8 @@ export class ErrorBoundary extends React.Component<
         <div className="jp-error-boundary">
           <Stack spacing={4}>
             <Alert severity="error">
-              <AlertTitle>Internal error</AlertTitle>
-              {errorMessage}
+              <AlertTitle>{this.props.alertTitle}</AlertTitle>
+              {this.props.alertMessage}
             </Alert>
             {infoSection}
           </Stack>

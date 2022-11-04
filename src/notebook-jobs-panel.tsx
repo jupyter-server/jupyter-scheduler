@@ -93,10 +93,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       this.model.jobsView = JobsView.CreateForm;
     };
 
+    const trans = this._translator.load('jupyterlab');
+
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
-          <ErrorBoundary>
+          <ErrorBoundary
+            alertTitle={trans.__('Internal error')}
+            alertMessage={trans.__(
+              'We encountered an internal error. Please try your command again.'
+            )}
+            detailTitle={trans.__('Error details')}
+          >
             {this.model.jobsView === JobsView.CreateForm && (
               <CreateJob
                 key={this.model.createJobModel.key}
