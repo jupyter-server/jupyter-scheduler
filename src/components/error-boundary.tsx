@@ -29,7 +29,8 @@ export class ErrorBoundary extends React.Component<
 
   componentDidCatch(error: unknown, errorInfo: React.ErrorInfo): void {
     // You can also log the error to an error reporting service
-    console.log('Caught error in ErrorBoundary', error, errorInfo);
+    // errorInfo has full stack trace, which we are not using
+    this.setState({ hasError: true, error });
   }
 
   render(): React.ReactNode {
