@@ -22,13 +22,7 @@ export class ErrorBoundary extends React.Component<
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: unknown): IErrorBoundaryState {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true, error: error };
-  }
-
   componentDidCatch(error: unknown, errorInfo: React.ErrorInfo): void {
-    // You can also log the error to an error reporting service
     // errorInfo has full stack trace, which we are not using
     this.setState({ hasError: true, error });
   }
@@ -41,15 +35,6 @@ export class ErrorBoundary extends React.Component<
       errorDetail = this.state.error.message;
     }
 
-    let infoSection;
-    if (errorDetail !== undefined) {
-      infoSection = (
-        <>
-          <Typography variant="h1">{this.props.detailTitle}</Typography>
-          <pre>{errorDetail}</pre>
-        </>
-      );
-    }
     if (this.state.hasError) {
       return (
         <div className="jp-error-boundary">
@@ -58,7 +43,12 @@ export class ErrorBoundary extends React.Component<
               <AlertTitle>{this.props.alertTitle}</AlertTitle>
               {this.props.alertMessage}
             </Alert>
-            {infoSection}
+            {errorDetail && (
+              <>
+                <Typography variant="h1">{this.props.detailTitle}</Typography>
+                <pre>{errorDetail}</pre>
+              </>
+            )}
           </Stack>
         </div>
       );
