@@ -28,7 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
-    "jupyter_server>=1.6,<2",
+    "jupyter_server>=1.6,<3",
     "traitlets",
     "nbconvert",
     "pydantic",
@@ -43,7 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
-    "jupyter_server[test]"
+    "jupyter_server[test]>=1.6,<3"
 ]
 dev = [
     "click"
