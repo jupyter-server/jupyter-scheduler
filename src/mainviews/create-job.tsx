@@ -383,10 +383,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         // Switch to the list view with "Job Definition List" active
         props.showListView(JobsView.ListJobDefinitions);
       })
-      .catch((error: string) => {
+      .catch((error: Error) => {
         props.handleModelChange({
           ...props.model,
-          createError: error,
+          createError: error.message,
           createInProgress: false
         });
       });
