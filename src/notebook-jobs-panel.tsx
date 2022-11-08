@@ -16,6 +16,8 @@ import { DetailView } from './mainviews/detail-view';
 import { CreateJobFromDefinition } from './mainviews/create-job-from-definition';
 import { EditJobDefinition } from './mainviews/edit-job-definition';
 import { NotebookJobsList } from './mainviews/list-jobs';
+import { Message } from '@lumino/messaging';
+import { IDragEvent } from '@lumino/dragdrop';
 
 import TranslatorContext from './context';
 import {
