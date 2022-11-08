@@ -7,7 +7,7 @@ import { PathExt } from '@jupyterlab/coreutils';
 
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { IconButton } from '@mui/material';
+import { IconButton, Link } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -96,9 +96,12 @@ export function buildJobDefinitionRow(
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
     // name
-    <a onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}>
+    <Link
+      onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}
+      title={`Open detail view for "${jobDef.name}"`}
+    >
       {jobDef.name}
-    </a>,
+    </Link>,
     PathExt.basename(jobDef.input_filename),
     <CreatedAt job={jobDef} />,
     <ScheduleSummary schedule={jobDef.schedule} />,
