@@ -185,7 +185,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
-  const [displayError, setDisplayError] = useState<string | undefined>();
+  const [displayError, setDisplayError] = useState<string | null>();
 
   const api = useMemo(() => new SchedulerService({}), []);
 
