@@ -113,7 +113,7 @@ export class SchedulerService {
         }
       );
     } catch (e: any) {
-      console.error(e);
+      Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
   }
@@ -244,8 +244,8 @@ export class SchedulerService {
         method: 'PATCH',
         body: JSON.stringify({ active: false })
       });
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      Promise.reject(e);
     }
   }
 
@@ -255,8 +255,8 @@ export class SchedulerService {
         method: 'PATCH',
         body: JSON.stringify({ active: true })
       });
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      Promise.reject(e);
     }
   }
 

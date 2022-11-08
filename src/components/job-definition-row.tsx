@@ -91,7 +91,8 @@ export function buildJobDefinitionRow(
   ) => void,
   forceReload: () => void,
   trans: TranslationBundle,
-  ss: SchedulerService
+  ss: SchedulerService,
+  handleApiError: (error: string) => void
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
     // name
@@ -106,23 +107,37 @@ export function buildJobDefinitionRow(
       <PauseButton
         jobDef={jobDef}
         clickHandler={async () => {
-          await ss.pauseJobDefinition(jobDef.job_definition_id);
-          forceReload();
+          ss.pauseJobDefinition(jobDef.job_definition_id)
+            .then(response => {
+              forceReload();
+            })
+            .catch((error: Error) => {
+              handleApiError(error.message);
+            });
         }}
       />
       <ResumeButton
         jobDef={jobDef}
         clickHandler={async () => {
-          await ss.resumeJobDefinition(jobDef.job_definition_id);
-          forceReload();
+          ss.resumeJobDefinition(jobDef.job_definition_id)
+            .then(response => {
+              forceReload();
+            })
+            .catch((error: Error) => {
+              handleApiError(error.message);
+            });
         }}
       />
       <ConfirmDeleteButton
         name={jobDef.name}
         clickHandler={async () => {
-          await ss.deleteJobDefinition(jobDef.job_definition_id);
-
-          deleteRow(jobDef.job_definition_id);
+          ss.deleteJobDefinition(jobDef.job_definition_id)
+            .then(response => {
+              deleteRow(jobDef.job_definition_id);
+            })
+            .catch((error: Error) => {
+              handleApiError(error.message);
+            });
         }}
       />
     </Stack>
