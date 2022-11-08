@@ -60,7 +60,7 @@ export class SchedulerService {
           method: 'GET'
         }
       );
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
@@ -78,7 +78,7 @@ export class SchedulerService {
       data = await requestAPI(this.serverSettings, `job_definitions${query}`, {
         method: 'GET'
       });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
     }
     return data as Scheduler.IListJobDefinitionsResponse;
@@ -93,7 +93,7 @@ export class SchedulerService {
         method: 'POST',
         body: JSON.stringify(definition)
       });
-    } catch (e: any) {
+    } catch (e) {
       return Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
@@ -112,7 +112,7 @@ export class SchedulerService {
           method: 'DELETE'
         }
       );
-    } catch (e: any) {
+    } catch (e) {
       Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
@@ -128,7 +128,7 @@ export class SchedulerService {
       data = await requestAPI(this.serverSettings, `jobs${query}`, {
         method: 'GET'
       });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
     }
     return data as Scheduler.IDescribeJob;
@@ -145,7 +145,7 @@ export class SchedulerService {
       data = await requestAPI(this.serverSettings, `jobs${query}`, {
         method: 'GET'
       });
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
     }
     return data as Scheduler.IListJobsResponse;
@@ -198,7 +198,7 @@ export class SchedulerService {
           body: JSON.stringify(model)
         }
       );
-    } catch (e: any) {
+    } catch (e) {
       return Promise.reject(e);
     }
     return data as Scheduler.ICreateJobResponse;

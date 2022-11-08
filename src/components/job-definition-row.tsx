@@ -108,7 +108,7 @@ export function buildJobDefinitionRow(
         jobDef={jobDef}
         clickHandler={async () => {
           ss.pauseJobDefinition(jobDef.job_definition_id)
-            .then(response => {
+            .then(_ => {
               forceReload();
             })
             .catch((error: Error) => {
@@ -120,7 +120,7 @@ export function buildJobDefinitionRow(
         jobDef={jobDef}
         clickHandler={async () => {
           ss.resumeJobDefinition(jobDef.job_definition_id)
-            .then(response => {
+            .then(_ => {
               forceReload();
             })
             .catch((error: Error) => {
@@ -132,7 +132,7 @@ export function buildJobDefinitionRow(
         name={jobDef.name}
         clickHandler={async () => {
           ss.deleteJobDefinition(jobDef.job_definition_id)
-            .then(response => {
+            .then(_ => {
               deleteRow(jobDef.job_definition_id);
             })
             .catch((error: Error) => {
