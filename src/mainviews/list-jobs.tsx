@@ -185,7 +185,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
-  const [displayError, setDisplayError] = useState<string | null>();
+  const [displayError, setDisplayError] = useState<string | null>(null);
 
   const api = useMemo(() => new SchedulerService({}), []);
 
@@ -229,7 +229,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
         variant="contained"
         size="small"
         onClick={() => {
-          setDisplayError(undefined);
+          setDisplayError(null);
           setJobDefsQuery(query => ({ ...query }));
         }}
       >

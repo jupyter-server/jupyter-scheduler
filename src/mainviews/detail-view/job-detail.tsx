@@ -94,14 +94,14 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
   );
 
   const handleDeleteJob = async () => {
-    setDisplayError(undefined);
+    setDisplayError(null);
     ss.deleteJob(props.model.jobId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobs))
       .catch((e: Error) => setDisplayError(e.message));
   };
 
   const handleStopJob = async () => {
-    setDisplayError(undefined);
+    setDisplayError(null);
     props.app.commands
       .execute('scheduling:stop-job', {
         id: props.model.jobId
