@@ -62,11 +62,12 @@ export const timestampLocalize = (time: number | ''): string => {
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const [downloading, setDownloading] = useState(false);
+  const [displayError, setDisplayError] = useState<string | null>(null);
 
   const ss = new SchedulerService({});
 
   const translateStatus = useCallback(
-    (status: Scheduler.Status) => {
+    (status: Scheduler.Status | undefined) => {
       // This may look inefficient, but it's intended to call the `trans` function
       // with distinct, static values, so that code analyzers can pick up all the
       // needed source strings.
@@ -85,21 +86,28 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           return trans.__('Stopped');
         case 'STOPPING':
           return trans.__('Stopping');
+        default:
+          return '';
       }
     },
     [trans]
   );
 
   const handleDeleteJob = async () => {
-    await ss.deleteJob(props.model.jobId ?? '');
-    props.setJobsView(JobsView.ListJobs);
+    setDisplayError(null);
+    ss.deleteJob(props.model.jobId ?? '')
+      .then(_ => props.setJobsView(JobsView.ListJobs))
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const handleStopJob = async () => {
-    await props.app.commands.execute('scheduling:stop-job', {
-      id: props.model.jobId
-    });
-    props.handleModelChange();
+    setDisplayError(null);
+    props.app.commands
+      .execute('scheduling:stop-job', {
+        id: props.model.jobId
+      })
+      .then(_ => props.handleModelChange())
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const downloadFiles = async () => {
@@ -168,7 +176,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ],
     [
       {
-        value: translateStatus(props.model.status!),
+        value: translateStatus(props.model.status),
         label: trans.__('Status')
       },
       {
@@ -292,10 +300,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   return (
     <>
-      {ButtonBar}
+      {displayError && <Alert severity="error">{displayError}</Alert>}
       {props.model.statusMessage && (
         <Alert severity="error">{props.model.statusMessage}</Alert>
       )}
+      {ButtonBar}
       {CoreOptions}
       {Parameters}
       {AdvancedOptions}

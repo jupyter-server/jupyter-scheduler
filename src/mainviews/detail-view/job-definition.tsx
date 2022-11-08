@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   IJobDefinitionModel,
   JobsView,
@@ -12,7 +12,14 @@ import cronstrue from 'cronstrue';
 import { ListJobsTable } from '../list-jobs';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
-import { Button, Card, CardContent, FormLabel, Stack } from '@mui/material';
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  FormLabel,
+  Stack
+} from '@mui/material';
 import { ConfirmDialogDeleteButton } from '../../components/confirm-dialog-buttons';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
@@ -33,22 +40,28 @@ export interface IJobDefinitionProps {
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
+  const [displayError, setDisplayError] = useState<string | null>(null);
 
   const ss = useMemo(() => new SchedulerService({}), []);
 
   const handleDeleteJobDefinition = async () => {
-    await ss.deleteJobDefinition(props.model.definitionId ?? '');
-    props.setJobsView(JobsView.ListJobDefinitions);
+    ss.deleteJobDefinition(props.model.definitionId ?? '')
+      .then(_ => props.setJobsView(JobsView.ListJobDefinitions))
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const pauseJobDefinition = async () => {
-    await ss.pauseJobDefinition(props.model.definitionId);
-    props.refresh();
+    setDisplayError(null);
+    ss.pauseJobDefinition(props.model.definitionId)
+      .then(_ => props.refresh())
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const resumeJobDefinition = async () => {
-    await ss.resumeJobDefinition(props.model.definitionId);
-    props.refresh();
+    setDisplayError(null);
+    ss.resumeJobDefinition(props.model.definitionId)
+      .then(_ => props.refresh())
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const runJobDefinition = () => {
@@ -217,6 +230,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   return (
     <>
+      {displayError && <Alert severity="error">{displayError}</Alert>}
       {DefinitionButtonBar}
       {JobDefinition}
       {JobsList}
