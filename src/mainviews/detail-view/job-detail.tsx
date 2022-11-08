@@ -97,7 +97,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     setDisplayError(undefined);
     ss.deleteJob(props.model.jobId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobs))
-      .catch(e => setDisplayError(e));
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const handleStopJob = async () => {
@@ -107,7 +107,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         id: props.model.jobId
       })
       .then(_ => props.handleModelChange())
-      .catch(e => setDisplayError(e));
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const downloadFiles = async () => {

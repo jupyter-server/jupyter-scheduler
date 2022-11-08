@@ -47,21 +47,21 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const handleDeleteJobDefinition = async () => {
     ss.deleteJobDefinition(props.model.definitionId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobDefinitions))
-      .catch(e => setDisplayError(e));
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const pauseJobDefinition = async () => {
     setDisplayError(undefined);
     ss.pauseJobDefinition(props.model.definitionId)
       .then(_ => props.refresh())
-      .catch(e => setDisplayError(e));
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const resumeJobDefinition = async () => {
     setDisplayError(undefined);
     ss.resumeJobDefinition(props.model.definitionId)
       .then(_ => props.refresh())
-      .catch(e => setDisplayError(e));
+      .catch((e: Error) => setDisplayError(e.message));
   };
 
   const runJobDefinition = () => {
