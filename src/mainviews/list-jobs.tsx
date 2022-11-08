@@ -1,11 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import { Alert, Button, Box, Stack, Tab, Tabs } from '@mui/material';
 
 import { Heading } from '../components/heading';
 import { useTranslator } from '../hooks';
@@ -189,6 +185,8 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
+  const [displayError, setDisplayError] = useState<string | undefined>();
+
   const api = useMemo(() => new SchedulerService({}), []);
 
   const deleteRow = useCallback(
@@ -230,7 +228,10 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
       <Button
         variant="contained"
         size="small"
-        onClick={() => setJobDefsQuery(query => ({ ...query }))}
+        onClick={() => {
+          setDisplayError(undefined);
+          setJobDefsQuery(query => ({ ...query }));
+        }}
       >
         {trans.__('Reload')}
       </Button>
@@ -245,7 +246,8 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
       deleteRow,
       () => setJobDefsQuery({}),
       trans,
-      new SchedulerService({})
+      new SchedulerService({}),
+      setDisplayError
     );
 
   const rowFilter = (jobDef: Scheduler.IDescribeJobDefinition) =>
@@ -262,6 +264,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
 
   return (
     <>
+      {displayError && <Alert severity="error">{displayError}</Alert>}
       {reloadButton}
       <AdvancedTable
         query={jobDefsQuery}
