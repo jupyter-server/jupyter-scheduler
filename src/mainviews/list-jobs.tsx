@@ -228,7 +228,10 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
       <Button
         variant="contained"
         size="small"
-        onClick={() => setJobDefsQuery(query => ({ ...query }))}
+        onClick={() => {
+          setDisplayError(undefined);
+          setJobDefsQuery(query => ({ ...query }));
+        }}
       >
         {trans.__('Reload')}
       </Button>
