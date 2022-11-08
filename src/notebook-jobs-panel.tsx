@@ -76,7 +76,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     console.log('lm-dragover');
     event.preventDefault();
     event.stopPropagation();
-    (event as IDragEvent).dropAction = 'move';
+    event.dropAction = 'move';
   };
 
   handleDrop = (event: IDragEvent): void => {
@@ -103,7 +103,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   handleEvent(event: Event): void {
     switch (event.type) {
       case 'lm-dragenter':
-        console.log('lm-dragenter');
         event.preventDefault();
         event.stopPropagation();
         break;
@@ -121,7 +120,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   /**
    *  A message handler invoked on an `'after-attach'` message.
    */
-  protected onAfterAttach(msg: Message): void {
+  protected onAfterAttach(_: Message): void {
     this.node.addEventListener('lm-dragover', this, true);
     this.node.addEventListener('lm-dragenter', this, true);
     this.node.addEventListener('lm-drop', this, true);
@@ -130,7 +129,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   /**
    *  A message handler invoked on an `'before-detach'` message.
    */
-  protected onBeforeDetach(msg: Message): void {
+  protected onBeforeDetach(_: Message): void {
     this.node.removeEventListener('lm-dragover', this, true);
     this.node.removeEventListener('lm-dragenter', this, true);
     this.node.removeEventListener('lm-drop', this, true);
