@@ -73,19 +73,24 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   }
 
   handleDrag = (event: IDragEvent): void => {
-    console.log('lm-dragover');
-    event.preventDefault();
-    event.stopPropagation();
-    event.dropAction = 'move';
+    if (this.model.jobsView === JobsView.EditJobDefinition) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.dropAction = 'move';
+    }
   };
 
   handleDrop = (event: IDragEvent): void => {
-    console.log('lm-drop');
-    const data = event.mimeData.getData(CONTENTS_MIME_RICH);
-    console.log(data);
-    alert(`Notebook ${data.model.name} lm-dropped`);
-    event.preventDefault();
-    event.stopPropagation();
+    if (this.model.jobsView === JobsView.EditJobDefinition) {
+      const data = event.mimeData.getData(CONTENTS_MIME_RICH);
+      console.log('event:');
+      console.log(event);
+      console.log('data:');
+      console.log(data);
+      alert(`Notebook ${data.model.name} lm-dropped`);
+      event.preventDefault();
+      event.stopPropagation();
+    }
   };
 
   /**
