@@ -252,6 +252,7 @@ class UpdateJobDefinition(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     active: Optional[bool] = None
     compute_type: Optional[str] = None
+    input_uri: Optional[str] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):
