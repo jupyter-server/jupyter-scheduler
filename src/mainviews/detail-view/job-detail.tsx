@@ -62,7 +62,7 @@ export const timestampLocalize = (time: number | ''): string => {
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const [downloading, setDownloading] = useState(false);
-  const [displayError, setDisplayError] = useState<string | undefined>();
+  const [displayError, setDisplayError] = useState<string | null>(null);
 
   const ss = new SchedulerService({});
 

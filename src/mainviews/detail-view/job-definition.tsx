@@ -40,7 +40,7 @@ export interface IJobDefinitionProps {
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-  const [displayError, setDisplayError] = useState<string | undefined>();
+  const [displayError, setDisplayError] = useState<string | null>(null);
 
   const ss = useMemo(() => new SchedulerService({}), []);
 
@@ -51,14 +51,14 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   };
 
   const pauseJobDefinition = async () => {
-    setDisplayError(undefined);
+    setDisplayError(null);
     ss.pauseJobDefinition(props.model.definitionId)
       .then(_ => props.refresh())
       .catch((e: Error) => setDisplayError(e.message));
   };
 
   const resumeJobDefinition = async () => {
-    setDisplayError(undefined);
+    setDisplayError(null);
     ss.resumeJobDefinition(props.model.definitionId)
       .then(_ => props.refresh())
       .catch((e: Error) => setDisplayError(e.message));
