@@ -67,12 +67,22 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
+  handleDrag = (event: Event): void => {
+    console.log('lm-dragover');
+    event.preventDefault();
+    event.stopPropagation();
+    (event as IDragEvent).dropAction = 'move';
+  };
+
   handleDrop = (event: Event): void => {
+    console.log('lm-drop');
     const data = (event as IDragEvent).mimeData.getData(
       'application/x-jupyter-icontentsrich'
     );
     console.log(data);
     alert(`Notebook ${data.model.name} lm-dropped`);
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   /**
@@ -90,15 +100,15 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   handleEvent(event: Event): void {
     switch (event.type) {
       case 'lm-dragenter':
+        console.log('lm-dragenter');
         event.preventDefault();
+        event.stopPropagation();
         break;
       case 'lm-dragover':
-        event.preventDefault();
+        this.handleDrag(event);
         break;
       case 'lm-drop':
         this.handleDrop(event);
-        event.preventDefault();
-        event.stopImmediatePropagation();
         break;
       default:
         break;
@@ -109,18 +119,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
    *  A message handler invoked on an `'after-attach'` message.
    */
   protected onAfterAttach(msg: Message): void {
-    this.node.addEventListener('lm-dragover', this);
-    this.node.addEventListener('lm-dragenter', this);
-    this.node.addEventListener('lm-drop', this);
+    this.node.addEventListener('lm-dragover', this, true);
+    this.node.addEventListener('lm-dragenter', this, true);
+    this.node.addEventListener('lm-drop', this, true);
   }
 
   /**
-   *  A message handler invoked on an `'after-detach'` message.
+   *  A message handler invoked on an `'before-detach'` message.
    */
-  protected onAfterDetach(msg: Message): void {
-    this.node.removeEventListener('lm-dragover', this);
-    this.node.removeEventListener('lm-dragenter', this);
-    this.node.removeEventListener('lm-drop', this);
+  protected onBeforeDetach(msg: Message): void {
+    this.node.removeEventListener('lm-dragover', this, true);
+    this.node.removeEventListener('lm-dragenter', this, true);
+    this.node.removeEventListener('lm-drop', this, true);
   }
 
   showListView(
