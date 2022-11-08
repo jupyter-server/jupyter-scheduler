@@ -30,6 +30,11 @@ import {
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
 
+/**
+ * The mime type for a rich contents drag object.
+ */
+const CONTENTS_MIME_RICH = 'application/x-jupyter-icontentsrich';
+
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
   readonly _description?: string;
@@ -67,18 +72,16 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
-  handleDrag = (event: Event): void => {
+  handleDrag = (event: IDragEvent): void => {
     console.log('lm-dragover');
     event.preventDefault();
     event.stopPropagation();
     (event as IDragEvent).dropAction = 'move';
   };
 
-  handleDrop = (event: Event): void => {
+  handleDrop = (event: IDragEvent): void => {
     console.log('lm-drop');
-    const data = (event as IDragEvent).mimeData.getData(
-      'application/x-jupyter-icontentsrich'
-    );
+    const data = event.mimeData.getData(CONTENTS_MIME_RICH);
     console.log(data);
     alert(`Notebook ${data.model.name} lm-dropped`);
     event.preventDefault();
@@ -105,10 +108,10 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
         event.stopPropagation();
         break;
       case 'lm-dragover':
-        this.handleDrag(event);
+        this.handleDrag(event as IDragEvent);
         break;
       case 'lm-drop':
-        this.handleDrop(event);
+        this.handleDrop(event as IDragEvent);
         break;
       default:
         break;
