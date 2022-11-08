@@ -92,7 +92,7 @@ export function buildJobDefinitionRow(
   forceReload: () => void,
   trans: TranslationBundle,
   ss: SchedulerService,
-  handleApiError: (error: string) => void
+  handleApiError: (error: string | undefined) => void
 ): JSX.Element {
   const cellContents: React.ReactNode[] = [
     // name
@@ -110,6 +110,7 @@ export function buildJobDefinitionRow(
       <PauseButton
         jobDef={jobDef}
         clickHandler={async () => {
+          handleApiError(undefined);
           ss.pauseJobDefinition(jobDef.job_definition_id)
             .then(_ => {
               forceReload();
@@ -122,6 +123,7 @@ export function buildJobDefinitionRow(
       <ResumeButton
         jobDef={jobDef}
         clickHandler={async () => {
+          handleApiError(undefined);
           ss.resumeJobDefinition(jobDef.job_definition_id)
             .then(_ => {
               forceReload();
@@ -134,6 +136,7 @@ export function buildJobDefinitionRow(
       <ConfirmDeleteButton
         name={jobDef.name}
         clickHandler={async () => {
+          handleApiError(undefined);
           ss.deleteJobDefinition(jobDef.job_definition_id)
             .then(_ => {
               deleteRow(jobDef.job_definition_id);

@@ -51,12 +51,14 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   };
 
   const pauseJobDefinition = async () => {
+    setDisplayError(undefined);
     ss.pauseJobDefinition(props.model.definitionId)
       .then(_ => props.refresh())
       .catch(e => setDisplayError(e));
   };
 
   const resumeJobDefinition = async () => {
+    setDisplayError(undefined);
     ss.resumeJobDefinition(props.model.definitionId)
       .then(_ => props.refresh())
       .catch(e => setDisplayError(e));
