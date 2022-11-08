@@ -65,6 +65,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
+  handleDrop = (event: Event): void => {
+    const data = (event as IDragEvent).mimeData.getData(
+      'application/x-jupyter-icontentsrich'
+    );
+    console.log(data);
+    alert(`Notebook ${data.model.name} lm-dropped`);
+  };
+
   /**
    * Handle the DOM events for the directory listing.
    *
@@ -79,21 +87,16 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
    */
   handleEvent(event: Event): void {
     switch (event.type) {
-      case 'dblclick':
-        alert('mouse clicked');
-        break;
       case 'lm-dragenter':
-        alert('dragenter');
-        break;
-      case 'lm-dragleave':
-        alert('dragleave');
+        event.preventDefault();
         break;
       case 'lm-dragover':
-        alert('dragover');
+        event.preventDefault();
         break;
       case 'lm-drop':
-        alert('Notebook dropped');
-        console.log(event);
+        this.handleDrop(event);
+        event.preventDefault();
+        event.stopImmediatePropagation();
         break;
       default:
         break;
@@ -104,11 +107,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
    *  A message handler invoked on an `'after-attach'` message.
    */
   protected onAfterAttach(msg: Message): void {
-    this.node.addEventListener('dblclick', this);
-    // this.node.addEventListener('lm-dragenter', this);
-    // this.node.addEventListener('lm-dragleave', this);
-    // this.node.addEventListener('lm-dragover', this);
-    // this.node.addEventListener('lm-dragenter', this);
+    this.node.addEventListener('lm-dragover', this);
+    this.node.addEventListener('lm-dragenter', this);
     this.node.addEventListener('lm-drop', this);
   }
 
@@ -116,11 +116,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
    *  A message handler invoked on an `'after-detach'` message.
    */
   protected onAfterDetach(msg: Message): void {
-    this.node.removeEventListener('dblclick', this);
-    // this.node.removeEventListener('lm-dragenter', this);
-    // this.node.removeEventListener('lm-dragleave', this);
-    // this.node.removeEventListener('lm-dragover', this);
-    // this.node.removeEventListener('lm-dragenter', this);
+    this.node.removeEventListener('lm-dragover', this);
+    this.node.removeEventListener('lm-dragenter', this);
     this.node.removeEventListener('lm-drop', this);
   }
 
