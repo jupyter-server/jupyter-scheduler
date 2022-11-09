@@ -113,10 +113,10 @@ export function AdvancedTable<
     fetchInitialRows();
   }, [props.query]);
 
-  const fetchMoreRows = async () => {
+  const fetchMoreRows = async (newPage: number) => {
     // Do nothing if the next token is undefined (shouldn't happen, but required for type safety)
     if (nextToken === undefined) {
-      return;
+      return false;
     }
 
     // Apply the custom token to the existing query parameters
@@ -131,18 +131,32 @@ export function AdvancedTable<
       })
       .then(payload => {
         setLoading(false);
+        const newRows = props.extractRows(payload) || [];
 
-        // Merge the two lists of jobs and keep the next token from the new response.
+        if (newRows.length === 0) {
+          // no rows in next page -- leave page unchanged, disable next page
+          // button, and show an error banner
+          setNextToken(undefined);
+          setDisplayError(trans.__('Last page reached.'));
+          return;
+        }
+
+        // otherwise, merge the two lists of jobs and keep the next token from
+        // the new response.
         setRows(rows => [
           ...(rows || []),
           ...(props.extractRows(payload) || [])
         ]);
         setNextToken(payload?.next_token);
         setTotalCount(payload?.total_count);
+        setPage(newPage);
+        setMaxPage(newPage);
       })
       .catch((e: Error) => {
         setDisplayError(e.message);
       });
+
+    return true;
   };
 
   const renderedRows: JSX.Element[] = useMemo(
@@ -155,15 +169,15 @@ export function AdvancedTable<
   );
 
   const handlePageChange = async (e: unknown, newPage: number) => {
+    // first clear any display errors
+    setDisplayError(null);
     // if newPage <= maxPage, no need to fetch more rows
     if (newPage <= maxPage) {
       setPage(newPage);
       return;
     }
 
-    await fetchMoreRows();
-    setPage(newPage);
-    setMaxPage(newPage);
+    await fetchMoreRows(newPage);
   };
 
   const onLastPage = page === maxPage && nextToken === undefined;
