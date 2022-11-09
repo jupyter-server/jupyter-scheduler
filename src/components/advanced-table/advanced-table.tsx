@@ -193,19 +193,8 @@ export function AdvancedTable<
           // for some reason `to` is set incorrectly on the last page in
           // server-side pagination, so we need to build the string differently
           // in this case.
-
-          // In a case where "from" is larger than the row count, display no message.
-          // This happens when the last page incorrectly has a nextToken.
-          if (from > loadedRows) {
-            return '';
-          }
-
           return trans.__('%1–%2 of %3', from, loadedRows, loadedRows);
         } else {
-          if (from > to) {
-            return '';
-          }
-
           return trans.__(
             '%1–%2 of %3',
             from,
@@ -214,10 +203,6 @@ export function AdvancedTable<
           );
         }
       } else {
-        if (from > to) {
-          return '';
-        }
-
         return trans.__('%1–%2 of %3', from, to, count);
       }
     },
