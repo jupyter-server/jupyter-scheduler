@@ -298,6 +298,16 @@ export function ScheduleInputs<
 
   return (
     <>
+      <TextField
+        label={trans.__('Input file')}
+        // variant="outlined"
+        // onChange={handleChange}
+        // value={props.model.schedule}
+        // id={`${props.idPrefix}schedule`}
+        // name="schedule"
+        // error={!!props.errors.schedule}
+        // helperText={props.errors.schedule || scheduleHelperText}
+      />
       <FormControl>
         <InputLabel id={intervalLabelId}>{intervalLabelText}</InputLabel>
         <Select
