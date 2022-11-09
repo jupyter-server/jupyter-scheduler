@@ -12,6 +12,7 @@ import Paper from '@mui/material/Paper';
 import { Scheduler } from '../../handler';
 import { AdvancedTableHeader } from './advanced-table-header';
 import { useTranslator } from '../../hooks';
+import { Alert } from '@mui/material';
 
 const PAGE_SIZE = 25;
 
@@ -76,6 +77,7 @@ export function AdvancedTable<
   const [page, setPage] = useState<number>(0);
   const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [displayError, setDisplayError] = useState<string | null>(null);
   const trans = useTranslator('jupyterlab');
   const theme = useTheme();
 
@@ -87,20 +89,22 @@ export function AdvancedTable<
     setMaxPage(0);
 
     setLoading(true);
-    const payload = await props.request({
-      ...props.query,
-      max_items: pageSize
-    });
-    setLoading(false);
+    setDisplayError(null); // Cancel previous errors
 
-    // TODO: more elegant handling of a failed network request.
-    if (!payload) {
-      return;
-    }
-
-    setRows(props.extractRows(payload));
-    setNextToken(payload.next_token);
-    setTotalCount(payload.total_count);
+    props
+      .request({
+        ...props.query,
+        max_items: pageSize
+      })
+      .then(payload => {
+        setLoading(false);
+        setRows(props.extractRows(payload));
+        setNextToken(payload?.next_token);
+        setTotalCount(payload?.total_count);
+      })
+      .catch((e: Error) => {
+        setDisplayError(e.message);
+      });
   };
 
   // Fetch the initial rows asynchronously on component creation
@@ -117,21 +121,28 @@ export function AdvancedTable<
 
     // Apply the custom token to the existing query parameters
     setLoading(true);
-    const payload = await props.request({
-      ...props.query,
-      max_items: pageSize,
-      next_token: nextToken
-    });
-    setLoading(false);
+    setDisplayError(null); // Cancel previous errors
 
-    if (!payload) {
-      return;
-    }
+    props
+      .request({
+        ...props.query,
+        max_items: pageSize,
+        next_token: nextToken
+      })
+      .then(payload => {
+        setLoading(false);
 
-    // Merge the two lists of jobs and keep the next token from the new response.
-    setRows(rows => [...(rows || []), ...(props.extractRows(payload) || [])]);
-    setNextToken(payload.next_token);
-    setTotalCount(payload.total_count);
+        // Merge the two lists of jobs and keep the next token from the new response.
+        setRows(rows => [
+          ...(rows || []),
+          ...(props.extractRows(payload) || [])
+        ]);
+        setNextToken(payload?.next_token);
+        setTotalCount(payload?.total_count);
+      })
+      .catch((e: Error) => {
+        setDisplayError(e.message);
+      });
   };
 
   const renderedRows: JSX.Element[] = useMemo(
@@ -192,7 +203,7 @@ export function AdvancedTable<
     );
   }
 
-  return (
+  const tableDiv = (
     <div
       style={height === 'auto' ? { flex: 1, height: 0 } : { maxHeight: height }}
     >
@@ -231,5 +242,12 @@ export function AdvancedTable<
         />
       </TableContainer>
     </div>
+  );
+
+  return (
+    <>
+      {displayError && <Alert severity="error">{displayError}</Alert>}
+      {tableDiv}
+    </>
   );
 }
