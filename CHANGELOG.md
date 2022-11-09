@@ -2,6 +2,34 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.1.2
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.1...09a48b611a1e2f7255a14de5f3a2be7598c2720f))
+
+### Enhancements made
+
+- Adds error wrapper for list queries [#288](https://github.com/jupyter-server/jupyter-scheduler/pull/288) ([@jweill-aws](https://github.com/jweill-aws))
+- Errors for pause, resume, delete in detail page and list view [#286](https://github.com/jupyter-server/jupyter-scheduler/pull/286) ([@jweill-aws](https://github.com/jweill-aws))
+- Error alerts in list job definitions view [#284](https://github.com/jupyter-server/jupyter-scheduler/pull/284) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Bugs fixed
+
+- suppress warning raised by jupyter-core [#294](https://github.com/jupyter-server/jupyter-scheduler/pull/294) ([@dlqqq](https://github.com/dlqqq))
+- Adds tooltips to job definition links from list view [#287](https://github.com/jupyter-server/jupyter-scheduler/pull/287) ([@jweill-aws](https://github.com/jweill-aws))
+- Uses same schema for create job/JD error [#283](https://github.com/jupyter-server/jupyter-scheduler/pull/283) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Other merged PRs
+
+- Guards against "6–5 of 5" [#290](https://github.com/jupyter-server/jupyter-scheduler/pull/290) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-04&to=2022-11-09&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-04..2022-11-09&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-04..2022-11-09&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-04..2022-11-09&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.1.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.0...f030c57010cd625a401de21fd875b739880e5fb8))
@@ -22,8 +50,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-03&to=2022-11-04&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-03..2022-11-04&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-03..2022-11-04&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-03..2022-11-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.1.0
 
