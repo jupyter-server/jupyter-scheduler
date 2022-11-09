@@ -1,5 +1,9 @@
 name: Build
 
+# suppress warning raised by https://github.com/jupyter/jupyter_core/pull/292
+env:
+  JUPYTER_PLATFORM_DIRS: '1'
+
 on:
   push:
     branches: main
@@ -11,85 +15,85 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
-    - name: Install dependencies
-      run: python -m pip install -U jupyterlab~=3.1
+      - name: Install dependencies
+        run: python -m pip install -U jupyterlab~=3.1
 
-    - name: Lint the extension
-      run: |
-        set -eux
-        jlpm
+      - name: Lint the extension
+        run: |
+          set -eux
+          jlpm
 
-    - name: Test the extension
-      run: |
-        set -eux
-        jlpm run test
-        python -m pip install .[test]
-        pytest -vv -r ap --cov jupyter_scheduler
+      - name: Test the extension
+        run: |
+          set -eux
+          jlpm run test
+          python -m pip install .[test]
+          pytest -vv -r ap --cov jupyter_scheduler
 
-    - name: Build the extension
-      run: |
-        set -eux
-        python -m pip install .
+      - name: Build the extension
+        run: |
+          set -eux
+          python -m pip install .
 
-        jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
+          jupyter server extension list
+          jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
 
-        jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
-        python -m jupyterlab.browser_check
+          jupyter labextension list
+          jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
+          python -m jupyterlab.browser_check
 
-    - name: Package the extension
-      run: |
-        set -eux
+      - name: Package the extension
+        run: |
+          set -eux
 
-        pip install build
-        python -m build
-        pip uninstall -y "jupyter_scheduler" jupyterlab
+          pip install build
+          python -m build
+          pip uninstall -y "jupyter_scheduler" jupyterlab
 
-    - name: Upload extension packages
-      uses: actions/upload-artifact@v2
-      with:
-        name: extension-artifacts
-        path: dist/jupyter_scheduler*
-        if-no-files-found: error
+      - name: Upload extension packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: extension-artifacts
+          path: dist/jupyter_scheduler*
+          if-no-files-found: error
 
   test_isolated:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Install Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-        architecture: 'x64'
-    - uses: actions/download-artifact@v2
-      with:
-        name: extension-artifacts
-    - name: Install and Test
-      run: |
-        set -eux
-        # Remove NodeJS, twice to take care of system and locally installed node versions.
-        sudo rm -rf $(which node)
-        sudo rm -rf $(which node)
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: 'x64'
+      - uses: actions/download-artifact@v2
+        with:
+          name: extension-artifacts
+      - name: Install and Test
+        run: |
+          set -eux
+          # Remove NodeJS, twice to take care of system and locally installed node versions.
+          sudo rm -rf $(which node)
+          sudo rm -rf $(which node)
 
-        pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
+          pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
 
 
-        jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
+          jupyter server extension list
+          jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
 
-        jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
-        python -m jupyterlab.browser_check --no-chrome-test
+          jupyter labextension list
+          jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
+          python -m jupyterlab.browser_check --no-chrome-test
 
   integration-tests:
     name: Integration tests
@@ -100,49 +104,49 @@ jobs:
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
-    - name: Download extension package
-      uses: actions/download-artifact@v2
-      with:
-        name: extension-artifacts
+      - name: Download extension package
+        uses: actions/download-artifact@v2
+        with:
+          name: extension-artifacts
 
-    - name: Install the extension
-      run: |
-        set -eux
-        python -m pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
+      - name: Install the extension
+        run: |
+          set -eux
+          python -m pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
 
-    - name: Install dependencies
-      working-directory: ui-tests
-      env:
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
-      run: jlpm install
+      - name: Install dependencies
+        working-directory: ui-tests
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+        run: jlpm install
 
-    - name: Set up browser cache
-      uses: actions/cache@v2
-      with:
-        path: |
-          ${{ github.workspace }}/pw-browsers
-        key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
+      - name: Set up browser cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ github.workspace }}/pw-browsers
+          key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
 
-    - name: Install browser
-      run: jlpm playwright install chromium
-      working-directory: ui-tests
+      - name: Install browser
+        run: jlpm playwright install chromium
+        working-directory: ui-tests
 
-    - name: Execute integration tests
-      working-directory: ui-tests
-      run: |
-        jlpm playwright test
+      - name: Execute integration tests
+        working-directory: ui-tests
+        run: |
+          jlpm playwright test
 
-    - name: Upload Playwright Test report
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: jupyter_scheduler-playwright-tests
-        path: |
-          ui-tests/test-results
-          ui-tests/playwright-report
+      - name: Upload Playwright Test report
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: jupyter_scheduler-playwright-tests
+          path: |
+            ui-tests/test-results
+            ui-tests/playwright-report
