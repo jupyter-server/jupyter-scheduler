@@ -155,8 +155,6 @@ export function AdvancedTable<
       .catch((e: Error) => {
         setDisplayError(e.message);
       });
-
-    return true;
   };
 
   const renderedRows: JSX.Element[] = useMemo(
