@@ -8,7 +8,8 @@ import {
   InputLabel,
   Link,
   Stack,
-  Typography
+  Typography,
+  TextField
 } from '@mui/material';
 
 import { Heading } from '../components/heading';
@@ -90,6 +91,13 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
         </Alert>
       )}
       <InputLabel>{trans.__('Schedule')}</InputLabel>
+      <TextField
+        label={trans.__('Input file snapshot')}
+        // onChange={handleChange}
+        value={props.model.name}
+        className="input-file-snapshot"
+        helperText={trans.__('Drag and drop a file to update snapshot')}
+      />
       <ScheduleInputs
         idPrefix=""
         model={props.model}
