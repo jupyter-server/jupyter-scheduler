@@ -73,7 +73,10 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   }
 
   handleDrag = (event: IDragEvent): void => {
-    if (this.model.jobsView === JobsView.EditJobDefinition) {
+    if (
+      this.model.jobsView === JobsView.EditJobDefinition &&
+      (event.target as Element)?.className?.includes('input-file-snapshot')
+    ) {
       event.preventDefault();
       event.stopPropagation();
       event.dropAction = 'move';
@@ -81,7 +84,10 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   };
 
   handleDrop = (event: IDragEvent): void => {
-    if (this.model.jobsView === JobsView.EditJobDefinition) {
+    if (
+      this.model.jobsView === JobsView.EditJobDefinition &&
+      (event.target as Element)?.className?.includes('input-file-snapshot')
+    ) {
       const data = event.mimeData.getData(CONTENTS_MIME_RICH);
       console.log('event:');
       console.log(event);

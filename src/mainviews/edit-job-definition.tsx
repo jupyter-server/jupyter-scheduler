@@ -90,14 +90,15 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           {displayError}
         </Alert>
       )}
-      <InputLabel>{trans.__('Schedule')}</InputLabel>
       <TextField
         label={trans.__('Input file snapshot')}
         // onChange={handleChange}
         value={props.model.name}
-        className="input-file-snapshot"
+        inputProps={{ className: 'input-file-snapshot' }}
         helperText={trans.__('Drag and drop a file to update snapshot')}
+        name="inputFile"
       />
+      <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""
         model={props.model}
