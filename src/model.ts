@@ -144,6 +144,7 @@ export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
 export interface IListJobsModel extends PartialJSONObject {
   newlyCreatedId?: string;
   newlyCreatedName?: string;
+  successMessageExpiration?: number; // milliseconds since epoch, local time
 }
 
 export function emptyListJobsModel(): IListJobsModel {

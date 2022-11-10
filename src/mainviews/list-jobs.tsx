@@ -27,10 +27,12 @@ interface IListJobsTableProps {
   pageSize?: number;
   emptyRowMessage?: string;
   // If we are arriving at the list view from a create operation, we
-  // want to verify that the newly-created job is present in the first
-  // set of rows.
+  // want to display a success banner until a certain expiration time
+  // is reached (so that a session restoration won't cause the create
+  // message to appear, confusing the user)
   newlyCreatedId?: string;
   newlyCreatedName?: string;
+  successMessageExpiration?: number; // In milliseconds since UNIX epoch
 }
 
 export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
@@ -44,7 +46,28 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJob['job_id']>
   >(new Set());
+
+  // Display creation message
+  const now = new Date().getTime();
+
   const trans = useTranslator('jupyterlab');
+
+  // TODO: Include link to detail page
+  const successMessage =
+    props.newlyCreatedId !== undefined &&
+    props.newlyCreatedName !== undefined &&
+    props.successMessageExpiration !== undefined &&
+    now <= props.successMessageExpiration
+      ? trans.__(
+          'Your job "%1" has been created. ' +
+            'If you do not see it in the list below, please reload the list in a few seconds.',
+          props.newlyCreatedName
+        )
+      : null;
+
+  const [displaySuccess, setDisplaySuccess] = useState<React.ReactNode | null>(
+    successMessage
+  );
 
   // Cache environment list — we need this for the output formats.
   const [environmentList, setEnvironmentList] = useState<
@@ -156,23 +179,14 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     [props.emptyRowMessage, trans]
   );
 
-  // Fail if all of the first page of results do not match the new job ID
-  const findCondition =
-    props.newlyCreatedId === undefined
-      ? undefined
-      : (rows: Scheduler.IDescribeJob[]) =>
-          rows.some(row => row.job_id === props.newlyCreatedId);
-  const infoMessageIfNotFound =
-    props.newlyCreatedName === undefined
-      ? undefined
-      : trans.__(
-          'Creating "%1". In a few seconds, please reload to view it.',
-          props.newlyCreatedName
-        );
-
   // note that root element here must be a JSX fragment for DataGrid to be sized properly
   return (
     <>
+      {displaySuccess && (
+        <Alert severity="success" onClose={() => setDisplaySuccess(null)}>
+          {displaySuccess}
+        </Alert>
+      )}
       {reloadButton}
       <AdvancedTable
         query={jobsQuery}
@@ -187,8 +201,6 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
         rowFilter={rowFilter}
         height={props.height}
         pageSize={props.pageSize}
-        findCondition={findCondition}
-        infoMessageIfNotFound={infoMessageIfNotFound}
       />
     </>
   );
@@ -207,7 +219,9 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
   // Alerts to display with varying severities
-  const [displayError, setDisplayError] = useState<string | null>(null);
+  const [displayError, setDisplayError] = useState<React.ReactNode | null>(
+    null
+  );
 
   const api = useMemo(() => new SchedulerService({}), []);
 
@@ -323,8 +337,6 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
     [trans]
   );
 
-  console.log('model: ', props.model);
-
   // Retrieve the initial jobs list
   return (
     <Box sx={{ p: 4 }} style={{ height: '100%', boxSizing: 'border-box' }}>
@@ -351,6 +363,7 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
               showJobDetail={props.showJobDetail}
               newlyCreatedId={props.model.newlyCreatedId}
               newlyCreatedName={props.model.newlyCreatedName}
+              successMessageExpiration={props.model.successMessageExpiration}
             />
           </>
         )}

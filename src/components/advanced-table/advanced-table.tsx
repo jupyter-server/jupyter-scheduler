@@ -60,14 +60,6 @@ type AdvancedTableProps<
    * manually set to whatever value is provided. Defaults to 'auto'.
    */
   height?: 'auto' | string | number;
-  /**
-   * Optional condition that searches the first set of rows for a match. If the
-   * search fails, we will display an info message. If a findCondition is
-   * specified, an infoMessageIfNotFound must be specified, or the findCondition
-   * will not be tested.
-   */
-  findCondition?: (rows: R[]) => boolean;
-  infoMessageIfNotFound?: React.ReactNode;
 };
 
 /**
@@ -113,23 +105,6 @@ export function AdvancedTable<
         setRows(rows);
         setNextToken(payload?.next_token);
         setTotalCount(payload?.total_count);
-
-        // Run find condition
-        if (
-          props.findCondition !== undefined &&
-          props.infoMessageIfNotFound !== undefined
-        ) {
-          console.log('Running find condition');
-        }
-
-        // Check the initial rows
-        if (
-          props.findCondition !== undefined &&
-          props.infoMessageIfNotFound !== undefined &&
-          !props.findCondition(rows)
-        ) {
-          setDisplayInfo(props.infoMessageIfNotFound);
-        }
       })
       .catch((e: Error) => {
         setDisplayError(e.message);
