@@ -26,13 +26,6 @@ interface IListJobsTableProps {
   height?: 'auto' | string | number;
   pageSize?: number;
   emptyRowMessage?: string;
-  // If we are arriving at the list view from a create operation, we
-  // want to display a success banner until a certain expiration time
-  // is reached (so that a session restoration won't cause the create
-  // message to appear, confusing the user)
-  newlyCreatedId?: string;
-  newlyCreatedName?: string;
-  successMessageExpiration?: number; // In milliseconds since UNIX epoch
 }
 
 export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
@@ -47,26 +40,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     Set<Scheduler.IDescribeJob['job_id']>
   >(new Set());
 
-  const now = new Date().getTime();
-
   const trans = useTranslator('jupyterlab');
-
-  // Display creation message
-  const successMessage =
-    props.newlyCreatedId !== undefined &&
-    props.newlyCreatedName !== undefined &&
-    props.successMessageExpiration !== undefined &&
-    now <= props.successMessageExpiration
-      ? trans.__(
-          'Your job "%1" has been created. ' +
-            'If you do not see it in the list below, please reload the list in a few seconds.',
-          props.newlyCreatedName
-        )
-      : null;
-
-  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(
-    successMessage
-  );
 
   // Cache environment list — we need this for the output formats.
   const [environmentList, setEnvironmentList] = useState<
@@ -181,11 +155,6 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   // note that root element here must be a JSX fragment for DataGrid to be sized properly
   return (
     <>
-      {displayInfo && (
-        <Alert severity="info" onClose={() => setDisplayInfo(null)}>
-          {displayInfo}
-        </Alert>
-      )}
       {reloadButton}
       <AdvancedTable
         query={jobsQuery}
@@ -208,9 +177,6 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
 type ListJobDefinitionsTableProps = {
   app: JupyterFrontEnd;
   showJobDefinitionDetail: (jobDefId: string) => void;
-  newlyCreatedId?: string;
-  newlyCreatedName?: string;
-  successMessageExpiration?: number; // In milliseconds since UNIX epoch
 };
 
 function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
@@ -220,28 +186,9 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
-  // Alerts to display with varying severities
+
   const [displayError, setDisplayError] = useState<React.ReactNode | null>(
     null
-  );
-
-  // Display creation message
-  const now = new Date().getTime();
-
-  const successMessage =
-    props.newlyCreatedId !== undefined &&
-    props.newlyCreatedName !== undefined &&
-    props.successMessageExpiration !== undefined &&
-    now <= props.successMessageExpiration
-      ? trans.__(
-          'Your job definition "%1" has been created. ' +
-            'If you do not see it in the list below, please reload the list in a few seconds.',
-          props.newlyCreatedName
-        )
-      : null;
-
-  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(
-    successMessage
   );
 
   const api = useMemo(() => new SchedulerService({}), []);
@@ -326,11 +273,6 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
           {displayError}
         </Alert>
       )}
-      {displayInfo && (
-        <Alert severity="info" onClose={() => setDisplayInfo(null)}>
-          {displayInfo}
-        </Alert>
-      )}
       {reloadButton}
       <AdvancedTable
         query={jobDefsQuery}
@@ -367,6 +309,25 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
     [trans]
   );
 
+  // Display creation message
+  const now = new Date().getTime();
+
+  const successMessage =
+    props.model.newlyCreatedId !== undefined &&
+    props.model.newlyCreatedName !== undefined &&
+    props.model.successMessageExpiration !== undefined &&
+    now <= props.model.successMessageExpiration
+      ? trans.__(
+          'Your job definition "%1" has been created. ' +
+            'If you do not see it in the list below, please reload the list in a few seconds.',
+          props.model.newlyCreatedName
+        )
+      : null;
+
+  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(
+    successMessage
+  );
+
   // Retrieve the initial jobs list
   return (
     <Box sx={{ p: 4 }} style={{ height: '100%', boxSizing: 'border-box' }}>
@@ -384,6 +345,11 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
             value={JobsView.ListJobDefinitions}
           />
         </Tabs>
+        {displayInfo && (
+          <Alert severity="info" onClose={() => setDisplayInfo(null)}>
+            {displayInfo}
+          </Alert>
+        )}
         {props.listView === JobsView.ListJobs && (
           <>
             <Heading level={1}>{jobsHeader}</Heading>
@@ -391,9 +357,6 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
               app={props.app}
               showCreateJob={props.showCreateJob}
               showJobDetail={props.showJobDetail}
-              newlyCreatedId={props.model.newlyCreatedId}
-              newlyCreatedName={props.model.newlyCreatedName}
-              successMessageExpiration={props.model.successMessageExpiration}
             />
           </>
         )}
@@ -403,9 +366,6 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
             <ListJobDefinitionsTable
               app={props.app}
               showJobDefinitionDetail={props.showJobDefinitionDetail}
-              newlyCreatedId={props.model.newlyCreatedId}
-              newlyCreatedName={props.model.newlyCreatedName}
-              successMessageExpiration={props.model.successMessageExpiration}
             />
           </>
         )}
