@@ -6,7 +6,6 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { VDomRenderer } from '@jupyterlab/apputils';
 import { ITranslator, TranslationBundle } from '@jupyterlab/translation';
 import { LabIcon } from '@jupyterlab/ui-components';
-import { Message } from '@lumino/messaging';
 
 import { ErrorBoundary } from './components/error-boundary';
 import { calendarMonthIcon } from './components/icons';
@@ -44,7 +43,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
-  _last_input_file_snapshot: Element | null;
+  _last_input_drop_target: Element | null;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(
@@ -68,7 +67,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._translator = options.translator;
     this._trans = this._translator.load('jupyterlab');
     this._advancedOptions = options.advancedOptions;
-    this._last_input_file_snapshot = null;
+    this._last_input_drop_target = null;
 
     this.node.setAttribute('role', 'region');
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
@@ -77,14 +76,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   removeDraghoverClass = (event: Event): void => {
     if ((event.target as Element)?.className?.includes('draghover')) {
       (event.target as Element)?.classList?.remove('draghover');
-      this._last_input_file_snapshot = null;
+      this._last_input_drop_target = null;
     }
   };
 
   handleDrag = (event: IDragEvent): void => {
     if (
       this.model.jobsView === JobsView.EditJobDefinition &&
-      (event.target as Element)?.className?.includes('drop-target')
+      (event.target as Element)?.className?.includes('input-file-snapshot')
     ) {
       event.preventDefault();
       event.stopPropagation();
@@ -95,18 +94,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
           'lm-dragleave',
           this.removeDraghoverClass
         );
-        this._last_input_file_snapshot = event.target as Element;
+        this._last_input_drop_target = event.target as Element;
       }
-    } else if (this._last_input_file_snapshot) {
-      this._last_input_file_snapshot.classList?.remove('draghover');
-      this._last_input_file_snapshot = null;
+    } else if (this._last_input_drop_target) {
+      this._last_input_drop_target.classList?.remove('draghover');
+      this._last_input_drop_target = null;
     }
   };
 
   handleDrop = (event: IDragEvent): void => {
     if (
       this.model.jobsView === JobsView.EditJobDefinition &&
-      (event.target as Element)?.className?.includes('drop-target')
+      (event.target as Element)?.className?.includes('input-file-snapshot')
     ) {
       const data = event.mimeData.getData(CONTENTS_MIME_RICH);
       console.log('event:');
@@ -118,7 +117,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       event.stopPropagation();
       if ((event.target as Element)?.className?.includes('draghover')) {
         (event.target as Element)?.classList?.remove('draghover');
-        this._last_input_file_snapshot = null;
+        this._last_input_drop_target = null;
       }
     }
   };

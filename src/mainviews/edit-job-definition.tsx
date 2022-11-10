@@ -98,7 +98,7 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
         </InputLabel>
         <OutlinedInput
           id="input-file-snapshot-id"
-          inputProps={{ className: 'drop-target' }}
+          inputProps={{ className: 'input-file-snapshot' }}
           label={trans.__('Input file snapshot')}
           // onChange={handleChange}
           value={props.model.name}
