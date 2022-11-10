@@ -105,7 +105,9 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           aria-describedby="input-file-snapshot-helper-text"
         />
         <FormHelperText id="input-file-snapshot-helper-text">
-          {trans.__('Drag and drop a file to update snapshot')}
+          {trans.__(
+            'Drag the file from file browser and drop it into this field to update input file snapshot'
+          )}
         </FormHelperText>
       </FormControl>
 
