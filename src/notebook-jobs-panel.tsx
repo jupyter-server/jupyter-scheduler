@@ -149,12 +149,10 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
         break;
       case 'lm-dragleave':
       case 'dragleave':
-        if (this._last_input_file_snapshot) {
-          (event.target as Element)?.removeEventListener(
-            'lm-dragleave',
-            this.removeDraghoverClass
-          );
-        }
+        (event.target as Element)?.removeEventListener(
+          'lm-dragleave',
+          this.removeDraghoverClass
+        );
         break;
       default:
         break;
