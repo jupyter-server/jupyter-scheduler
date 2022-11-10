@@ -310,13 +310,9 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   );
 
   // Display creation message
-  const now = new Date().getTime();
-
   const successMessage =
     props.model.newlyCreatedId !== undefined &&
-    props.model.newlyCreatedName !== undefined &&
-    props.model.successMessageExpiration !== undefined &&
-    now <= props.model.successMessageExpiration
+    props.model.newlyCreatedName !== undefined
       ? trans.__(
           'Your job definition "%1" has been created. ' +
             'If you do not see it in the list below, please reload the list in a few seconds.',

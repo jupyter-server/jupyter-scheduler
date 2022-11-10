@@ -69,9 +69,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   ): void {
     this.model.listJobsModel.newlyCreatedId = newlyCreatedId;
     this.model.listJobsModel.newlyCreatedName = newlyCreatedName;
-    // Display the success message for at most one minute.
-    this.model.listJobsModel.successMessageExpiration =
-      new Date().getTime() + 60 * 1000;
     this.model.jobsView = view;
   }
 
