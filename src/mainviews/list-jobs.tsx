@@ -168,6 +168,10 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
         rowFilter={rowFilter}
         height={props.height}
         pageSize={props.pageSize}
+        findCondition={(rows: Scheduler.IDescribeJob[]) => {
+          return false;
+        }}
+        infoMessageIfNotFound="Creating your job. Please refresh later to view the newly created job."
       />
     </>
   );
@@ -185,6 +189,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
+  // Alerts to display with varying severities
   const [displayError, setDisplayError] = useState<string | null>(null);
 
   const api = useMemo(() => new SchedulerService({}), []);

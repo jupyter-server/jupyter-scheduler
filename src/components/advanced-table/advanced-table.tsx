@@ -60,6 +60,14 @@ type AdvancedTableProps<
    * manually set to whatever value is provided. Defaults to 'auto'.
    */
   height?: 'auto' | string | number;
+  /**
+   * Optional condition that searches the first set of rows for a match. If the
+   * search fails, we will display an info message. If a findCondition is
+   * specified, an infoMessageIfNotFound must be specified, or the findCondition
+   * will not be tested.
+   */
+  findCondition?: (rows: R[]) => boolean;
+  infoMessageIfNotFound?: React.ReactNode;
 };
 
 /**
@@ -77,7 +85,10 @@ export function AdvancedTable<
   const [page, setPage] = useState<number>(0);
   const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
-  const [displayError, setDisplayError] = useState<string | null>(null);
+  const [displayError, setDisplayError] = useState<React.ReactNode | null>(
+    null
+  );
+  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(null);
   const trans = useTranslator('jupyterlab');
   const theme = useTheme();
 
@@ -98,9 +109,19 @@ export function AdvancedTable<
       })
       .then(payload => {
         setLoading(false);
-        setRows(props.extractRows(payload));
+        const rows = props.extractRows(payload);
+        setRows(rows);
         setNextToken(payload?.next_token);
         setTotalCount(payload?.total_count);
+
+        // Check the initial rows
+        if (
+          props.findCondition !== undefined &&
+          props.infoMessageIfNotFound !== undefined &&
+          !props.findCondition(rows)
+        ) {
+          setDisplayInfo(props.infoMessageIfNotFound);
+        }
       })
       .catch((e: Error) => {
         setDisplayError(e.message);
@@ -259,6 +280,7 @@ export function AdvancedTable<
   return (
     <>
       {displayError && <Alert severity="error">{displayError}</Alert>}
+      {displayInfo && <Alert severity="info">{displayInfo}</Alert>}
       {tableDiv}
     </>
   );
