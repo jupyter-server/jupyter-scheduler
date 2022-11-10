@@ -279,8 +279,16 @@ export function AdvancedTable<
 
   return (
     <>
-      {displayError && <Alert severity="error">{displayError}</Alert>}
-      {displayInfo && <Alert severity="info">{displayInfo}</Alert>}
+      {displayError && (
+        <Alert severity="error" onClose={() => setDisplayError(null)}>
+          {displayError}
+        </Alert>
+      )}
+      {displayInfo && (
+        <Alert severity="info" onClose={() => setDisplayInfo(null)}>
+          {displayInfo}
+        </Alert>
+      )}
       {tableDiv}
     </>
   );
