@@ -1,0 +1,8 @@
+.input-file-snapshot.drophover {
+  background: rgba(33, 150, 243, 0.1);
+  border: var(--jp-border-width) dashed var(--jp-brand-color1);
+  transition-property: top, left, right, bottom;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+  border-width: 2px;
+}

@@ -9,7 +9,9 @@ import {
   Link,
   Stack,
   Typography,
-  TextField
+  FormControl,
+  OutlinedInput,
+  FormHelperText
 } from '@mui/material';
 
 import { Heading } from '../components/heading';
@@ -90,14 +92,23 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           {displayError}
         </Alert>
       )}
-      <TextField
-        label={trans.__('Input file snapshot')}
-        // onChange={handleChange}
-        value={props.model.name}
-        inputProps={{ className: 'input-file-snapshot' }}
-        helperText={trans.__('Drag and drop a file to update snapshot')}
-        name="inputFile"
-      />
+      <FormControl sx={{ border: 'undefined' }}>
+        <InputLabel htmlFor="input-file-snapshot-id">
+          Input file snapshot
+        </InputLabel>
+        <OutlinedInput
+          id="input-file-snapshot-id"
+          inputProps={{ className: 'input-file-snapshot' }}
+          label={trans.__('Input file snapshot')}
+          // onChange={handleChange}
+          value={props.model.name}
+          aria-describedby="input-file-snapshot-helper-text"
+        />
+        <FormHelperText id="input-file-snapshot-helper-text">
+          {trans.__('Drag and drop a file to update snapshot')}
+        </FormHelperText>
+      </FormControl>
+
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""
