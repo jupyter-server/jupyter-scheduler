@@ -26,6 +26,11 @@ interface IListJobsTableProps {
   height?: 'auto' | string | number;
   pageSize?: number;
   emptyRowMessage?: string;
+  // If we are arriving at the list view from a create operation, we
+  // want to verify that the newly-created job is present in the first
+  // set of rows.
+  newlyCreatedJobId?: string;
+  newlyCreatedJobName?: string;
 }
 
 export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
@@ -152,6 +157,19 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   );
 
   // note that root element here must be a JSX fragment for DataGrid to be sized properly
+  const findCondition =
+    props.newlyCreatedJobId !== undefined
+      ? undefined
+      : (rows: Scheduler.IDescribeJob[]) =>
+          rows.some(row => row.job_id === props.newlyCreatedJobId);
+  const infoMessageIfNotFound =
+    props.newlyCreatedJobName === undefined
+      ? undefined
+      : trans.__(
+          'Creating "%1". In a few seconds, please reload to view it.',
+          props.newlyCreatedJobName
+        );
+
   return (
     <>
       {reloadButton}
@@ -168,10 +186,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
         rowFilter={rowFilter}
         height={props.height}
         pageSize={props.pageSize}
-        findCondition={(rows: Scheduler.IDescribeJob[]) => {
-          return false;
-        }}
-        infoMessageIfNotFound="Creating your job. Please refresh later to view the newly created job."
+        findCondition={findCondition}
+        infoMessageIfNotFound={infoMessageIfNotFound}
       />
     </>
   );
