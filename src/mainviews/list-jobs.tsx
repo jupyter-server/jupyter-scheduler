@@ -7,7 +7,7 @@ import { Heading } from '../components/heading';
 import { useTranslator } from '../hooks';
 import { buildJobRow } from '../components/job-row';
 import { buildJobDefinitionRow } from '../components/job-definition-row';
-import { ICreateJobModel, JobsView } from '../model';
+import { ICreateJobModel, IListJobsModel, JobsView } from '../model';
 import { Scheduler, SchedulerService } from '../handler';
 import { Cluster } from '../components/cluster';
 import {
@@ -29,8 +29,8 @@ interface IListJobsTableProps {
   // If we are arriving at the list view from a create operation, we
   // want to verify that the newly-created job is present in the first
   // set of rows.
-  newlyCreatedJobId?: string;
-  newlyCreatedJobName?: string;
+  newlyCreatedId?: string;
+  newlyCreatedName?: string;
 }
 
 export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
@@ -156,20 +156,21 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     [props.emptyRowMessage, trans]
   );
 
-  // note that root element here must be a JSX fragment for DataGrid to be sized properly
+  // Fail if all of the first page of results do not match the new job ID
   const findCondition =
-    props.newlyCreatedJobId !== undefined
+    props.newlyCreatedId === undefined
       ? undefined
       : (rows: Scheduler.IDescribeJob[]) =>
-          rows.some(row => row.job_id === props.newlyCreatedJobId);
+          rows.some(row => row.job_id === props.newlyCreatedId);
   const infoMessageIfNotFound =
-    props.newlyCreatedJobName === undefined
+    props.newlyCreatedName === undefined
       ? undefined
       : trans.__(
           'Creating "%1". In a few seconds, please reload to view it.',
-          props.newlyCreatedJobName
+          props.newlyCreatedName
         );
 
+  // note that root element here must be a JSX fragment for DataGrid to be sized properly
   return (
     <>
       {reloadButton}
@@ -305,6 +306,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
 
 export interface IListJobsProps {
   app: JupyterFrontEnd;
+  model: IListJobsModel;
   listView: JobsView.ListJobs | JobsView.ListJobDefinitions;
   showListView: (view: JobsView.ListJobs | JobsView.ListJobDefinitions) => void;
   showCreateJob: (newModel: ICreateJobModel) => void;
@@ -320,6 +322,8 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
     () => trans.__('Notebook Job Definitions'),
     [trans]
   );
+
+  console.log('model: ', props.model);
 
   // Retrieve the initial jobs list
   return (
@@ -345,6 +349,8 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
               app={props.app}
               showCreateJob={props.showCreateJob}
               showJobDetail={props.showJobDetail}
+              newlyCreatedId={props.model.newlyCreatedId}
+              newlyCreatedName={props.model.newlyCreatedName}
             />
           </>
         )}

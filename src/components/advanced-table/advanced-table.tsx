@@ -114,6 +114,14 @@ export function AdvancedTable<
         setNextToken(payload?.next_token);
         setTotalCount(payload?.total_count);
 
+        // Run find condition
+        if (
+          props.findCondition !== undefined &&
+          props.infoMessageIfNotFound !== undefined
+        ) {
+          console.log('Running find condition');
+        }
+
         // Check the initial rows
         if (
           props.findCondition !== undefined &&

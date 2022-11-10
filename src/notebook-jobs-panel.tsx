@@ -62,8 +62,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
-  showListView(view: JobsView.ListJobs | JobsView.ListJobDefinitions): void {
+  showListView(
+    view: JobsView.ListJobs | JobsView.ListJobDefinitions,
+    newlyCreatedId?: string,
+    newlyCreatedName?: string
+  ): void {
     this.model.jobsView = view;
+    this.model.listJobsModel.newlyCreatedId = newlyCreatedId;
+    this.model.listJobsModel.newlyCreatedName = newlyCreatedName;
   }
 
   showDetailView(jobId: string): void {
@@ -132,6 +138,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               this.model.jobsView === JobsView.ListJobDefinitions) && (
               <NotebookJobsList
                 app={this._app}
+                model={this.model.listJobsModel}
                 listView={this.model.jobsView}
                 showListView={this.showListView.bind(this)}
                 showCreateJob={showCreateJob}

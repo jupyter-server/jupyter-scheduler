@@ -142,7 +142,8 @@ export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IListJobsModel extends PartialJSONObject {
-  /* reserved */
+  newlyCreatedId?: string;
+  newlyCreatedName?: string;
 }
 
 export function emptyListJobsModel(): IListJobsModel {
