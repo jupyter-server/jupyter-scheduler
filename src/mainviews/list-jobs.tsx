@@ -65,7 +65,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
         )
       : null;
 
-  const [displaySuccess, setDisplaySuccess] = useState<React.ReactNode | null>(
+  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(
     successMessage
   );
 
@@ -182,9 +182,9 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   // note that root element here must be a JSX fragment for DataGrid to be sized properly
   return (
     <>
-      {displaySuccess && (
-        <Alert severity="success" onClose={() => setDisplaySuccess(null)}>
-          {displaySuccess}
+      {displayInfo && (
+        <Alert severity="info" onClose={() => setDisplayInfo(null)}>
+          {displayInfo}
         </Alert>
       )}
       {reloadButton}
