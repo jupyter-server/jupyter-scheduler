@@ -52,7 +52,6 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   // Display creation message
-  // TODO: Include link to detail page
   const successMessage =
     props.newlyCreatedId !== undefined &&
     props.newlyCreatedName !== undefined &&
@@ -229,7 +228,6 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   // Display creation message
   const now = new Date().getTime();
 
-  // TODO: Include link to detail page
   const successMessage =
     props.newlyCreatedId !== undefined &&
     props.newlyCreatedName !== undefined &&

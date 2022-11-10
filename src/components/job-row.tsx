@@ -74,11 +74,12 @@ type DownloadFilesButtonProps = {
 
 function DownloadFilesButton(props: DownloadFilesButtonProps) {
   const [downloading, setDownloading] = useState(false);
+  const trans = useTranslator('jupyterlab');
 
   return (
     <IconButton
       aria-label="download"
-      title="Download Job Files"
+      title={trans.__('Download Job Files')}
       disabled={downloading}
       onClick={async () => {
         setDownloading(true);
@@ -109,11 +110,12 @@ export function buildJobRow(
   const inputFile = job.job_files.find(
     jobFile => jobFile.file_format === 'input' && jobFile.file_path
   );
+  const trans = useTranslator('jupyterlab');
 
   const cellContents: React.ReactNode[] = [
     <Link
       onClick={() => showDetailView(job.job_id)}
-      title={`Open detail view for "${job.name}"`}
+      title={trans.__('Open detail view for "%1"', job.name)}
     >
       {job.name}
     </Link>,
