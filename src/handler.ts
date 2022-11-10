@@ -113,7 +113,7 @@ export class SchedulerService {
         }
       );
     } catch (e) {
-      Promise.reject(e);
+      return Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
   }
@@ -245,7 +245,7 @@ export class SchedulerService {
         body: JSON.stringify({ active: false })
       });
     } catch (e: unknown) {
-      Promise.reject(e);
+      return Promise.reject(e);
     }
   }
 
@@ -256,7 +256,7 @@ export class SchedulerService {
         body: JSON.stringify({ active: true })
       });
     } catch (e: unknown) {
-      Promise.reject(e);
+      return Promise.reject(e);
     }
   }
 
