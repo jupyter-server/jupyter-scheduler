@@ -147,9 +147,14 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
         this.handleDrop(event as IDragEvent);
         break;
       case 'lm-dragleave':
-      case 'dragleave':
         (event.target as Element)?.removeEventListener(
           'lm-dragleave',
+          this.removeDraghoverClass
+        );
+        break;
+      case 'dragleave':
+        (event.target as Element)?.removeEventListener(
+          'dragleave',
           this.removeDraghoverClass
         );
         break;
