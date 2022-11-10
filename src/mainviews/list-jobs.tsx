@@ -313,11 +313,17 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const successMessage =
     props.model.newlyCreatedId !== undefined &&
     props.model.newlyCreatedName !== undefined
-      ? trans.__(
-          'Your job definition "%1" has been created. ' +
-            'If you do not see it in the list below, please reload the list in a few seconds.',
-          props.model.newlyCreatedName
-        )
+      ? props.listView === JobsView.ListJobs
+        ? trans.__(
+            'Your job "%1" has been created. ' +
+              'If you do not see it in the list below, please reload the list in a few seconds.',
+            props.model.newlyCreatedName
+          )
+        : trans.__(
+            'Your job definition "%1" has been created. ' +
+              'If you do not see it in the list below, please reload the list in a few seconds.',
+            props.model.newlyCreatedName
+          )
       : null;
 
   const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(
