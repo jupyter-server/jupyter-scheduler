@@ -8,10 +8,7 @@ import {
   InputLabel,
   Link,
   Stack,
-  Typography,
-  FormControl,
-  OutlinedInput,
-  FormHelperText
+  Typography
 } from '@mui/material';
 
 import { Heading } from '../components/heading';
@@ -21,6 +18,7 @@ import { IUpdateJobDefinitionModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
 import { SchedulerService } from '../handler';
 import { Scheduler } from '../tokens';
+import { InputFileSnapshot } from '../components/input-file-snapshot';
 
 export type EditJobDefinitionProps = {
   model: IUpdateJobDefinitionModel;
@@ -92,25 +90,7 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           {displayError}
         </Alert>
       )}
-      <FormControl sx={{ border: 'undefined' }}>
-        <InputLabel htmlFor="input-file-snapshot-id">
-          Input file snapshot
-        </InputLabel>
-        <OutlinedInput
-          id="input-file-snapshot-id"
-          inputProps={{ className: 'input-file-snapshot' }}
-          label={trans.__('Input file snapshot')}
-          // onChange={handleChange}
-          value={props.model.name}
-          aria-describedby="input-file-snapshot-helper-text"
-        />
-        <FormHelperText id="input-file-snapshot-helper-text">
-          {trans.__(
-            'Drag the file from file browser and drop it into this field to update input file snapshot'
-          )}
-        </FormHelperText>
-      </FormControl>
-
+      <InputFileSnapshot name={props.model.name} />
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""
