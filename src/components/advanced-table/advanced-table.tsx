@@ -77,10 +77,7 @@ export function AdvancedTable<
   const [page, setPage] = useState<number>(0);
   const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
-  const [displayError, setDisplayError] = useState<React.ReactNode | null>(
-    null
-  );
-  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(null);
+  const [displayError, setDisplayError] = useState<string | null>(null);
   const trans = useTranslator('jupyterlab');
   const theme = useTheme();
 
@@ -101,8 +98,7 @@ export function AdvancedTable<
       })
       .then(payload => {
         setLoading(false);
-        const rows = props.extractRows(payload);
-        setRows(rows);
+        setRows(props.extractRows(payload));
         setNextToken(payload?.next_token);
         setTotalCount(payload?.total_count);
       })
@@ -262,16 +258,7 @@ export function AdvancedTable<
 
   return (
     <>
-      {displayError && (
-        <Alert severity="error" onClose={() => setDisplayError(null)}>
-          {displayError}
-        </Alert>
-      )}
-      {displayInfo && (
-        <Alert severity="info" onClose={() => setDisplayInfo(null)}>
-          {displayInfo}
-        </Alert>
-      )}
+      {displayError && <Alert severity="error">{displayError}</Alert>}
       {tableDiv}
     </>
   );
