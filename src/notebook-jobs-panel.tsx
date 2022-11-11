@@ -140,7 +140,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               this.model.jobsView === JobsView.ListJobDefinitions) && (
               <NotebookJobsList
                 app={this._app}
-                model={this.model.listJobsModel}
                 listView={this.model.jobsView}
                 showListView={this.showListView.bind(this)}
                 showCreateJob={showCreateJob}

@@ -7,7 +7,7 @@ import { Heading } from '../components/heading';
 import { useTranslator } from '../hooks';
 import { buildJobRow } from '../components/job-row';
 import { buildJobDefinitionRow } from '../components/job-definition-row';
-import { ICreateJobModel, IListJobsModel, JobsView } from '../model';
+import { ICreateJobModel, JobsView } from '../model';
 import { Scheduler, SchedulerService } from '../handler';
 import { Cluster } from '../components/cluster';
 import {
@@ -292,7 +292,6 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
 
 export interface IListJobsProps {
   app: JupyterFrontEnd;
-  model: IListJobsModel;
   listView: JobsView.ListJobs | JobsView.ListJobDefinitions;
   showListView: (view: JobsView.ListJobs | JobsView.ListJobDefinitions) => void;
   showCreateJob: (newModel: ICreateJobModel) => void;
@@ -313,8 +312,7 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
 
   // Display creation message
   const successMessage =
-    props.newlyCreatedId !== undefined &&
-    props.newlyCreatedName !== undefined
+    props.newlyCreatedId !== undefined && props.newlyCreatedName !== undefined
       ? props.listView === JobsView.ListJobs
         ? trans.__(
             'Your job "%1" has been created. ' +
