@@ -39,6 +39,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJob['job_id']>
   >(new Set());
+
   const trans = useTranslator('jupyterlab');
 
   // Cache environment list — we need this for the output formats.
@@ -185,7 +186,10 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJobDefinition['job_definition_id']>
   >(new Set());
-  const [displayError, setDisplayError] = useState<string | null>(null);
+
+  const [displayError, setDisplayError] = useState<React.ReactNode | null>(
+    null
+  );
 
   const api = useMemo(() => new SchedulerService({}), []);
 
@@ -264,7 +268,11 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
 
   return (
     <>
-      {displayError && <Alert severity="error">{displayError}</Alert>}
+      {displayError && (
+        <Alert severity="error" onClose={() => setDisplayError(null)}>
+          {displayError}
+        </Alert>
+      )}
       {reloadButton}
       <AdvancedTable
         query={jobDefsQuery}
@@ -289,6 +297,8 @@ export interface IListJobsProps {
   showCreateJob: (newModel: ICreateJobModel) => void;
   showJobDetail: (jobId: string) => void;
   showJobDefinitionDetail: (jobDefId: string) => void;
+  newlyCreatedId?: string;
+  newlyCreatedName?: string;
 }
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
@@ -298,6 +308,26 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const jobDefinitionsHeader = useMemo(
     () => trans.__('Notebook Job Definitions'),
     [trans]
+  );
+
+  // Display creation message
+  const successMessage =
+    props.newlyCreatedId !== undefined && props.newlyCreatedName !== undefined
+      ? props.listView === JobsView.ListJobs
+        ? trans.__(
+            'Your job "%1" has been created. ' +
+              'If you do not see it in the list below, please reload the list in a few seconds.',
+            props.newlyCreatedName
+          )
+        : trans.__(
+            'Your job definition "%1" has been created. ' +
+              'If you do not see it in the list below, please reload the list in a few seconds.',
+            props.newlyCreatedName
+          )
+      : null;
+
+  const [displayInfo, setDisplayInfo] = useState<React.ReactNode | null>(
+    successMessage
   );
 
   // Retrieve the initial jobs list
@@ -317,6 +347,11 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
             value={JobsView.ListJobDefinitions}
           />
         </Tabs>
+        {displayInfo && (
+          <Alert severity="info" onClose={() => setDisplayInfo(null)}>
+            {displayInfo}
+          </Alert>
+        )}
         {props.listView === JobsView.ListJobs && (
           <>
             <Heading level={1}>{jobsHeader}</Heading>
