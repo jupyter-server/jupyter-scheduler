@@ -108,14 +108,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       (event?.target as Element)?.className?.includes('input-file-snapshot')
     ) {
       const mimeData = event.mimeData.getData(CONTENTS_MIME_RICH);
-
-      // TODO: delete comments below when done
-      console.log('event:');
-      console.log(event);
-      console.log('data:');
-      console.log(mimeData);
-
-      alert(`Notebook from path "${mimeData.model.path}" lm-dropped`);
       event.dropAction = 'copy';
       event.preventDefault();
       event.stopPropagation();
