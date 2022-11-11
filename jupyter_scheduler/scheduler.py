@@ -546,9 +546,11 @@ class Scheduler(BaseScheduler):
                 JobDefinition.job_definition_id == job_definition_id
             )
 
-            job_definition = (filtered_query.one())
+            job_definition = filtered_query.one()
             if model.input_uri != job_definition.input_filename:
-                staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
+                staging_paths = self.get_staging_paths(
+                    DescribeJobDefinition.from_orm(job_definition)
+                )
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
             filtered_query.update(model.dict(exclude_none=True))
