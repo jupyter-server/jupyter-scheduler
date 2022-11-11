@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.1.3
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.2...5fb7d1f99f65335b3067d2c28278951167d78b4e))
+
+### Enhancements made
+
+- Display success message on list view after creating a job [#297](https://github.com/jupyter-server/jupyter-scheduler/pull/297) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Bugs fixed
+
+- Fixed propagation of error message to UI  [#299](https://github.com/jupyter-server/jupyter-scheduler/pull/299) ([@3coins](https://github.com/3coins))
+- correctly handle last page even when latest next_token is truthy [#292](https://github.com/jupyter-server/jupyter-scheduler/pull/292) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-09&to=2022-11-11&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-09..2022-11-11&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-09..2022-11-11&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-09..2022-11-11&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-09..2022-11-11&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.1.2
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.1...09a48b611a1e2f7255a14de5f3a2be7598c2720f))
@@ -27,8 +48,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-04&to=2022-11-09&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-04..2022-11-09&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-04..2022-11-09&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-04..2022-11-09&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.1.1
 
