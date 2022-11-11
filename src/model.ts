@@ -129,6 +129,7 @@ export interface IUpdateJobDefinitionModel
   definitionId: string;
   name: string;
   environment: string;
+  inputFileSnapshot?: string;
 }
 
 export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
@@ -136,6 +137,7 @@ export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
     definitionId: '',
     name: '',
     environment: '',
+    inputFileSnapshot: '',
     ...defaultScheduleFields
   };
 }

@@ -5,10 +5,10 @@ import {
   Box,
   Breadcrumbs,
   CircularProgress,
-  InputLabel,
   Link,
   Stack,
-  Typography
+  Typography,
+  InputLabel
 } from '@mui/material';
 
 import { Heading } from '../components/heading';
@@ -90,7 +90,9 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           {displayError}
         </Alert>
       )}
-      <InputFileSnapshot name={props.model.name} />
+      <InputFileSnapshot
+        inputFileSnapshot={props.model.inputFileSnapshot ?? 'no input'}
+      />
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""

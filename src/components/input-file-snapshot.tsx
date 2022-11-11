@@ -8,7 +8,9 @@ import {
   FormHelperText
 } from '@mui/material';
 
-export const InputFileSnapshot = (props: { name: string }): JSX.Element => {
+export const InputFileSnapshot = (props: {
+  inputFileSnapshot: string;
+}): JSX.Element => {
   const trans = useTranslator('jupyterlab');
 
   return (
@@ -20,10 +22,7 @@ export const InputFileSnapshot = (props: { name: string }): JSX.Element => {
         id="input-file-snapshot-id"
         inputProps={{ className: 'input-file-snapshot' }}
         label={trans.__('Input file snapshot')}
-        onChange={e =>
-          alert(`Input file snapshot value changed to ${e.target.value}`)
-        }
-        value={props.name}
+        value={props.inputFileSnapshot}
         aria-describedby="input-file-snapshot-helper-text"
       />
       <FormHelperText id="input-file-snapshot-helper-text">
