@@ -34,6 +34,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _translator: ITranslator;
   readonly _trans: TranslationBundle;
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
+  private _newlyCreatedId: string | undefined;
+  private _newlyCreatedName: string | undefined;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(
@@ -67,8 +69,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     newlyCreatedId?: string,
     newlyCreatedName?: string
   ): void {
-    this.model.listJobsModel.newlyCreatedId = newlyCreatedId;
-    this.model.listJobsModel.newlyCreatedName = newlyCreatedName;
+    this._newlyCreatedId = newlyCreatedId;
+    this._newlyCreatedName = newlyCreatedName;
     this.model.jobsView = view;
   }
 
@@ -146,6 +148,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
                 showJobDefinitionDetail={this.showJobDefinitionDetail.bind(
                   this
                 )}
+                newlyCreatedId={this._newlyCreatedId}
+                newlyCreatedName={this._newlyCreatedName}
               />
             )}
             {(this.model.jobsView === JobsView.JobDetail ||

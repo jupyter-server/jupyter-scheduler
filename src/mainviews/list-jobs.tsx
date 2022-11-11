@@ -298,6 +298,8 @@ export interface IListJobsProps {
   showCreateJob: (newModel: ICreateJobModel) => void;
   showJobDetail: (jobId: string) => void;
   showJobDefinitionDetail: (jobDefId: string) => void;
+  newlyCreatedId?: string;
+  newlyCreatedName?: string;
 }
 
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
@@ -311,18 +313,18 @@ export function NotebookJobsList(props: IListJobsProps): JSX.Element {
 
   // Display creation message
   const successMessage =
-    props.model.newlyCreatedId !== undefined &&
-    props.model.newlyCreatedName !== undefined
+    props.newlyCreatedId !== undefined &&
+    props.newlyCreatedName !== undefined
       ? props.listView === JobsView.ListJobs
         ? trans.__(
             'Your job "%1" has been created. ' +
               'If you do not see it in the list below, please reload the list in a few seconds.',
-            props.model.newlyCreatedName
+            props.newlyCreatedName
           )
         : trans.__(
             'Your job definition "%1" has been created. ' +
               'If you do not see it in the list below, please reload the list in a few seconds.',
-            props.model.newlyCreatedName
+            props.newlyCreatedName
           )
       : null;
 
