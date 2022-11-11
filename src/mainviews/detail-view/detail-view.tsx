@@ -63,11 +63,11 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
   const ss = new SchedulerService({});
 
   const fetchJobDetailModel = async () => {
-    try{
+    try {
       const jobFromService = await ss.getJob(props.model.id);
       const jobDetailModel = convertDescribeJobtoJobDetail(jobFromService);
       setJobsModel(jobDetailModel);
-    } catch(e: any) {
+    } catch (e: any) {
       setJobsModel({
         jobId: '',
         jobName: '',
@@ -76,7 +76,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         job_files: [],
         downloaded: false,
         createError: e.message
-      })
+      });
     }
   };
 
@@ -95,9 +95,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         outputPath: '',
         environment: '',
         createError: e.message
-      })
+      });
     }
-
   };
 
   useEffect(() => {

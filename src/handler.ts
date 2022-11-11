@@ -61,7 +61,7 @@ export class SchedulerService {
         }
       );
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
     return data as Scheduler.IDescribeJobDefinition;
   }
@@ -79,7 +79,7 @@ export class SchedulerService {
         method: 'GET'
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
     return data as Scheduler.IListJobDefinitionsResponse;
   }
@@ -129,7 +129,7 @@ export class SchedulerService {
         method: 'GET'
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
     return data as Scheduler.IDescribeJob;
   }
@@ -146,7 +146,7 @@ export class SchedulerService {
         method: 'GET'
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
     return data as Scheduler.IListJobsResponse;
   }
@@ -163,7 +163,7 @@ export class SchedulerService {
         method: 'GET'
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
 
     return data.count;
@@ -211,7 +211,7 @@ export class SchedulerService {
         body: JSON.stringify({ status })
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   }
 
@@ -222,7 +222,7 @@ export class SchedulerService {
         method: 'GET'
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
 
     return data as Scheduler.IRuntimeEnvironment[];
@@ -234,7 +234,7 @@ export class SchedulerService {
         method: 'DELETE'
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   }
 
@@ -270,7 +270,7 @@ export class SchedulerService {
         }
       );
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
@@ -284,7 +284,7 @@ export class SchedulerService {
         body: JSON.stringify(model)
       });
     } catch (e) {
-      return Promise.reject(e)
+      return Promise.reject(e);
     }
   }
 
