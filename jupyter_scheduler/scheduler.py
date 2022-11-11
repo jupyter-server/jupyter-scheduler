@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 from multiprocessing import Process
 from typing import Dict, Optional, Type, Union
@@ -682,3 +683,99 @@ class ArchivingScheduler(Scheduler):
         staging_paths["input"] = os.path.join(self.staging_path, model.job_id, model.input_filename)
 
         return staging_paths
+
+
+class SchedulerWithErrors(Scheduler):
+    """
+    Use only for testing exceptions, not to be used in production
+
+    This scheduler uses the default `Scheduler`, but randomly
+    raises the `SchedulerError` to help view/test errors in the
+    UI. To use this, specify the fully classified class name at
+    at start up or add to one of the server config files.
+
+    Usage
+    -----
+    >> jupyter lab --SchedulerApp.scheduler_class=jupyter_scheduler.scheduler.SchedulerWithErrors
+    """
+
+    def _should_raise_error(self, probability=0.5):
+        return random.random() < probability
+
+    def create_job(self, model: CreateJob) -> str:
+        if self._should_raise_error():
+            raise SchedulerError("Failed create job because of a deliberate exception.")
+        else:
+            return super().create_job(model)
+
+    def update_job(self, job_id: str, model: UpdateJob):
+        if self._should_raise_error():
+            raise SchedulerError("Failed update job because of a deliberate exception.")
+        else:
+            super().update_job(job_id, model)
+
+    def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
+        if self._should_raise_error():
+            raise SchedulerError("Failed list jobs because of a deliberate exception.")
+        else:
+            return super().list_jobs(query)
+
+    def count_jobs(self, query: CountJobsQuery) -> int:
+        if self._should_raise_error():
+            raise SchedulerError("Failed count jobs because of a deliberate exception.")
+        else:
+            return super().count_jobs(query)
+
+    def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
+        if self._should_raise_error():
+            raise SchedulerError("Failed get job because of a deliberate exception.")
+        else:
+            return super().get_job(job_id, job_files)
+
+    def delete_job(self, job_id: str):
+        if self._should_raise_error():
+            raise SchedulerError("Failed delete job because of a deliberate exception.")
+        else:
+            super().delete_job(job_id)
+
+    def stop_job(self, job_id: str):
+        if self._should_raise_error():
+            raise SchedulerError("Failed stop job because of a deliberate exception.")
+        else:
+            super().stop_job(job_id)
+
+    def create_job_definition(self, model: CreateJobDefinition) -> str:
+        if self._should_raise_error():
+            raise SchedulerError("Failed create job definition because of a deliberate exception.")
+        else:
+            return super().create_job_definition(model)
+
+    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
+        if self._should_raise_error():
+            raise SchedulerError("Failed update job definition because of a deliberate exception.")
+        else:
+            super().update_job_definition(job_definition_id, model)
+
+    def delete_job_definition(self, job_definition_id: str):
+        if self._should_raise_error():
+            raise SchedulerError("Failed delete job definition because of a deliberate exception.")
+        else:
+            super().delete_job_definition(job_definition_id)
+
+    def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
+        if self._should_raise_error():
+            raise SchedulerError("Failed get job definition because of a deliberate exception.")
+        else:
+            return super().get_job_definition(job_definition_id)
+
+    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
+        if self._should_raise_error():
+            raise SchedulerError("Failed list job definitions because of a deliberate exception.")
+        else:
+            return super().list_job_definitions(query)
+
+    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+        if self._should_raise_error():
+            raise SchedulerError("Failed list jobs because of a deliberate exception.")
+        else:
+            return super().create_job_from_definition(job_definition_id, model)

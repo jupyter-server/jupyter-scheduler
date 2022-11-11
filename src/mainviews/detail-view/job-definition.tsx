@@ -40,7 +40,7 @@ export interface IJobDefinitionProps {
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
-  const [displayError, setDisplayError] = useState<string | null>(null);
+  const [displayError, setDisplayError] = useState<string | null>(props.model.createError || null);
 
   const ss = useMemo(() => new SchedulerService({}), []);
 
@@ -231,10 +231,12 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   return (
     <>
       {displayError && <Alert severity="error">{displayError}</Alert>}
+      {props.model.inputFile && <>
       {DefinitionButtonBar}
-      {JobDefinition}
-      {JobsList}
-      {AdvancedOptions}
+        {JobDefinition}
+        {JobsList}
+        {AdvancedOptions}
+      </>}
     </>
   );
 }

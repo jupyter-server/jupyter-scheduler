@@ -76,10 +76,15 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def get(self, job_definition_id=None):
         if job_definition_id:
-            job_definition = await ensure_async(
-                self.scheduler.get_job_definition(job_definition_id)
-            )
-            self.finish(job_definition.json())
+            try:
+                job_definition = await ensure_async(
+                    self.scheduler.get_job_definition(job_definition_id)
+                )
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise tornado.web.HTTPError(500, str(e)) from e
+            else:
+                self.finish(job_definition.json())
         else:
             create_time = self.get_query_argument("create_time", None)
             sort_by = compute_sort_model(self.get_query_arguments("sort_by"))
@@ -92,8 +97,13 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                 next_token=self.get_query_argument("next_token", None),
             )
-            list_response = await ensure_async(self.scheduler.list_job_definitions(list_query))
-            self.finish(list_response.json(exclude_none=True))
+            try:
+                list_response = await ensure_async(self.scheduler.list_job_definitions(list_query))
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise tornado.web.HTTPError(500, str(e)) from e
+            else:
+                self.finish(list_response.json(exclude_none=True))
 
     @tornado.web.authenticated
     async def post(self):
@@ -119,25 +129,42 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def patch(self, job_definition_id):
         payload = self.get_json_body()
-        await ensure_async(
-            self.scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(**payload))
-        )
-        self.set_status(204)
-        self.finish()
+        try:
+            await ensure_async(
+                self.scheduler.update_job_definition(
+                    job_definition_id, UpdateJobDefinition(**payload)
+                )
+            )
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        else:
+            self.set_status(204)
+            self.finish()
 
     @tornado.web.authenticated
     async def delete(self, job_definition_id):
-        await ensure_async(self.scheduler.delete_job_definition(job_definition_id))
-        self.set_status(204)
-        self.finish()
+        try:
+            await ensure_async(self.scheduler.delete_job_definition(job_definition_id))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        else:
+            self.set_status(204)
+            self.finish()
 
 
 class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def get(self, job_id=None):
         if job_id:
-            job = await ensure_async(self.scheduler.get_job(job_id))
-            self.finish(job.json())
+            try:
+                job = await ensure_async(self.scheduler.get_job(job_id))
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise tornado.web.HTTPError(500, str(e)) from e
+            else:
+                self.finish(job.json())
         else:
             status = self.get_query_argument("status", None)
             start_time = self.get_query_argument("start_time", None)
@@ -152,9 +179,13 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                 next_token=self.get_query_argument("next_token", None),
             )
-            list_jobs_response = await ensure_async(self.scheduler.list_jobs(list_jobs_query))
-
-            self.finish(list_jobs_response.json(exclude_none=True))
+            try:
+                list_jobs_response = await ensure_async(self.scheduler.list_jobs(list_jobs_query))
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise tornado.web.HTTPError(500, str(e)) from e
+            else:
+                self.finish(list_jobs_response.json(exclude_none=True))
 
     @tornado.web.authenticated
     async def post(self):
@@ -191,20 +222,28 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 "Invalid value for field 'status'. Jobs can only be updated to status 'STOPPED' after creation.",
             )
 
-        if status:
-            await ensure_async(self.scheduler.stop_job(job_id))
+        try:
+            if status:
+                await ensure_async(self.scheduler.stop_job(job_id))
+            else:
+                await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
         else:
-            await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
-
-        self.set_status(204)
-        self.finish()
+            self.set_status(204)
+            self.finish()
 
     @tornado.web.authenticated
     async def delete(self, job_id):
-        await ensure_async(self.scheduler.delete_job(job_id))
-
-        self.set_status(204)
-        self.finish()
+        try:
+            await ensure_async(self.scheduler.delete_job(job_id))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        else:
+            self.set_status(204)
+            self.finish()
 
 
 class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
@@ -232,11 +271,15 @@ class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @tornado.web.authenticated
     async def delete(self):
         job_ids = self.get_query_arguments("job_id")
-        for job_id in job_ids:
-            await ensure_async(self.scheduler.delete_job(job_id))
-
-        self.set_status(204)
-        self.finish()
+        try:
+            for job_id in job_ids:
+                await ensure_async(self.scheduler.delete_job(job_id))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        else:
+            self.set_status(204)
+            self.finish()
 
 
 class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
@@ -246,9 +289,13 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         count_jobs_query = CountJobsQuery(
             status=Status(status.upper()) if status else Status.IN_PROGRESS
         )
-        count = await ensure_async(self.scheduler.count_jobs(count_jobs_query))
-
-        self.finish(json.dumps(dict(count=count)))
+        try:
+            count = await ensure_async(self.scheduler.count_jobs(count_jobs_query))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        else:
+            self.finish(json.dumps(dict(count=count)))
 
 
 class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
@@ -304,7 +351,11 @@ class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
     @tornado.web.authenticated
     async def get(self, job_id):
         redownload = self.get_query_argument("redownload", False)
-        await self.job_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
-
-        self.set_status(204)
-        self.finish()
+        try:
+            await self.job_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
+        except Exception as e:
+            self.log.exception(e)
+            raise tornado.web.HTTPError(500, str(e)) from e
+        else:
+            self.set_status(204)
+            self.finish()

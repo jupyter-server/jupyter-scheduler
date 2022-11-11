@@ -62,7 +62,7 @@ export const timestampLocalize = (time: number | ''): string => {
 export function JobDetail(props: IJobDetailProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const [downloading, setDownloading] = useState(false);
-  const [displayError, setDisplayError] = useState<string | null>(null);
+  const [displayError, setDisplayError] = useState<string | null>(props.model.createError || null);
 
   const ss = new SchedulerService({});
 
@@ -141,11 +141,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           dialogText={trans.__('Are you sure that you want to stop this job?')}
         />
       )}
-      <ConfirmDialogDeleteButton
-        handleDelete={handleDeleteJob}
-        title={trans.__('Delete Job')}
-        dialogText={trans.__('Are you sure that you want to delete this job?')}
-      />
+      {props.model.jobId !== '' && (
+        <ConfirmDialogDeleteButton
+          handleDelete={handleDeleteJob}
+          title={trans.__('Delete Job')}
+          dialogText={trans.__('Are you sure that you want to delete this job?')}
+        />
+      )}
     </Stack>
   );
 
@@ -304,10 +306,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {props.model.statusMessage && (
         <Alert severity="error">{props.model.statusMessage}</Alert>
       )}
-      {ButtonBar}
-      {CoreOptions}
-      {Parameters}
-      {AdvancedOptions}
+      {props.model.jobId && <>
+        {ButtonBar}
+        {CoreOptions}
+        {Parameters}
+        {AdvancedOptions}
+      </>}
     </>
   );
 }
