@@ -68,7 +68,8 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
     setSaving(true);
     ss.updateJobDefinition(props.model.definitionId, {
       schedule: props.model.schedule,
-      timezone: props.model.timezone
+      timezone: props.model.timezone,
+      input_uri: props.model.inputFileSnapshot
     })
       .then(() => {
         props.showJobDefinitionDetail(props.model.definitionId);
@@ -90,9 +91,7 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           {displayError}
         </Alert>
       )}
-      <InputFileSnapshot
-        inputFileSnapshot={props.model.inputFileSnapshot ?? 'no input'}
-      />
+      <InputFileSnapshot inputFileSnapshot={props.model.inputFileSnapshot} />
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""

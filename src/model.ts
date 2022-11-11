@@ -129,7 +129,7 @@ export interface IUpdateJobDefinitionModel
   definitionId: string;
   name: string;
   environment: string;
-  inputFileSnapshot?: string;
+  inputFileSnapshot: string;
 }
 
 export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {

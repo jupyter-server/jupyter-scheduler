@@ -322,6 +322,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters
     };
 
+    // eslint-disable-next-line no-debugger
+    debugger;
+
     if (props.model.parameters !== undefined) {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }

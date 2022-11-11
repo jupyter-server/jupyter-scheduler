@@ -219,7 +219,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       // TODO: should these properties really be optional?
       schedule: jobDef.schedule || '* * * * *',
       timezone: jobDef.timezone || 'UTC',
-      scheduleInterval: 'custom'
+      scheduleInterval: 'custom',
+      inputFileSnapshot: jobDef.inputFile
     };
   }
 

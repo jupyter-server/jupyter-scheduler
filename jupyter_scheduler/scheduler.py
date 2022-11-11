@@ -542,9 +542,16 @@ class Scheduler(BaseScheduler):
 
     def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         with self.db_session() as session:
-            session.query(JobDefinition).filter(
+            filtered_query = session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == job_definition_id
-            ).update(model.dict(exclude_none=True))
+            )
+
+            job_definition = (filtered_query.one())
+            if model.input_uri != job_definition.input_filename:
+                staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
+                self.copy_input_file(model.input_uri, staging_paths["input"])
+
+            filtered_query.update(model.dict(exclude_none=True))
             session.commit()
 
             schedule = (
