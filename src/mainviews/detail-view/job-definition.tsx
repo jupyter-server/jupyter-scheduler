@@ -67,6 +67,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const runJobDefinition = () => {
     const initialState: ICreateJobModel = {
       ...emptyCreateJobModel(),
+      jobName: props.model.name,
       inputFile: props.model.inputFile,
       outputPath: props.model.outputPrefix ?? '',
       environment: props.model.environment,

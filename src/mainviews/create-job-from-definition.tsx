@@ -18,7 +18,9 @@ export interface ICreateJobFromDefinitionProps {
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
   showListView: (
-    list: JobsView.ListJobs | JobsView.ListJobDefinitions
+    list: JobsView.ListJobs | JobsView.ListJobDefinitions,
+    newlyCreatedId?: string,
+    newlyCreatedName?: string
   ) => unknown;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
@@ -138,7 +140,11 @@ export function CreateJobFromDefinition(
       )
       .then(response => {
         // Switch to the list view with "Job List" active
-        props.showListView(JobsView.ListJobs);
+        props.showListView(
+          JobsView.ListJobs,
+          response.job_id,
+          props.model.jobName
+        );
       })
       .catch((error: Error) => {
         props.handleModelChange({
