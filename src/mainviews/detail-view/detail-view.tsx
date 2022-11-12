@@ -16,12 +16,13 @@ import { Scheduler } from '../../tokens';
 import { JobDetail } from './job-detail';
 import { JobDefinition } from './job-definition';
 
-import Stack from '@mui/material/Stack';
 import {
+  Alert,
   Box,
   Breadcrumbs,
   CircularProgress,
   Link,
+  Stack,
   Typography
 } from '@mui/material';
 import { Heading } from '../../components/heading';
@@ -57,6 +58,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
   const [jobModel, setJobsModel] = useState<IJobDetailModel | null>(null);
   const [jobDefinitionModel, setJobDefinitionModel] =
     useState<IJobDefinitionModel | null>(null);
+  const [fetchError, setFetchError] = useState<string>();
 
   const trans = useTranslator('jupyterlab');
 
@@ -68,15 +70,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
       const jobDetailModel = convertDescribeJobtoJobDetail(jobFromService);
       setJobsModel(jobDetailModel);
     } catch (e: any) {
-      setJobsModel({
-        jobId: '',
-        jobName: '',
-        inputFile: '',
-        environment: '',
-        job_files: [],
-        downloaded: false,
-        createError: e.message
-      });
+      setFetchError(e.message);
     }
   };
 
@@ -88,14 +82,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
       );
       setJobDefinitionModel(jobDefinitionModel);
     } catch (e: any) {
-      setJobDefinitionModel({
-        definitionId: '',
-        name: '',
-        inputFile: '',
-        outputPath: '',
-        environment: '',
-        createError: e.message
-      });
+      setFetchError(e.message);
     }
   };
 
@@ -150,6 +137,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             ? trans.__('Job Detail')
             : trans.__('Job Definition')}
         </Heading>
+        {fetchError && <Alert severity="error">{fetchError}</Alert>}
         {props.jobsView === JobsView.JobDetail && jobModel && (
           <JobDetail
             app={props.app}
@@ -174,7 +162,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             advancedOptions={props.advancedOptions}
           />
         )}
-        {!jobModel && !jobDefinitionModel && (
+        {!jobModel && !jobDefinitionModel && !fetchError && (
           <Loading title={trans.__('Loading')} />
         )}
       </Stack>
