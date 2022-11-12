@@ -16,12 +16,13 @@ import { Scheduler } from '../../tokens';
 import { JobDetail } from './job-detail';
 import { JobDefinition } from './job-definition';
 
-import Stack from '@mui/material/Stack';
 import {
+  Alert,
   Box,
   Breadcrumbs,
   CircularProgress,
   Link,
+  Stack,
   Typography
 } from '@mui/material';
 import { Heading } from '../../components/heading';
@@ -57,23 +58,32 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
   const [jobModel, setJobsModel] = useState<IJobDetailModel | null>(null);
   const [jobDefinitionModel, setJobDefinitionModel] =
     useState<IJobDefinitionModel | null>(null);
+  const [fetchError, setFetchError] = useState<string>();
 
   const trans = useTranslator('jupyterlab');
 
   const ss = new SchedulerService({});
 
   const fetchJobDetailModel = async () => {
-    const jobFromService = await ss.getJob(props.model.id);
-    const jobDetailModel = convertDescribeJobtoJobDetail(jobFromService);
-    setJobsModel(jobDetailModel);
+    try {
+      const jobFromService = await ss.getJob(props.model.id);
+      const jobDetailModel = convertDescribeJobtoJobDetail(jobFromService);
+      setJobsModel(jobDetailModel);
+    } catch (e: any) {
+      setFetchError(e.message);
+    }
   };
 
   const fetchJobDefinitionModel = async () => {
-    const definitionFromService = await ss.getJobDefinition(props.model.id);
-    const jobDefinitionModel = convertDescribeDefinitiontoDefinition(
-      definitionFromService
-    );
-    setJobDefinitionModel(jobDefinitionModel);
+    try {
+      const definitionFromService = await ss.getJobDefinition(props.model.id);
+      const jobDefinitionModel = convertDescribeDefinitiontoDefinition(
+        definitionFromService
+      );
+      setJobDefinitionModel(jobDefinitionModel);
+    } catch (e: any) {
+      setFetchError(e.message);
+    }
   };
 
   useEffect(() => {
@@ -127,6 +137,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             ? trans.__('Job Detail')
             : trans.__('Job Definition')}
         </Heading>
+        {fetchError && <Alert severity="error">{fetchError}</Alert>}
         {props.jobsView === JobsView.JobDetail && jobModel && (
           <JobDetail
             app={props.app}
@@ -151,7 +162,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             advancedOptions={props.advancedOptions}
           />
         )}
-        {!jobModel && !jobDefinitionModel && (
+        {!jobModel && !jobDefinitionModel && !fetchError && (
           <Loading title={trans.__('Loading')} />
         )}
       </Stack>

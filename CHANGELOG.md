@@ -12,7 +12,7 @@
 
 ### Bugs fixed
 
-- Fixed propagation of error message to UI  [#299](https://github.com/jupyter-server/jupyter-scheduler/pull/299) ([@3coins](https://github.com/3coins))
+- Fixed propagation of error message to UI [#299](https://github.com/jupyter-server/jupyter-scheduler/pull/299) ([@3coins](https://github.com/3coins))
 - correctly handle last page even when latest next_token is truthy [#292](https://github.com/jupyter-server/jupyter-scheduler/pull/292) ([@dlqqq](https://github.com/dlqqq))
 
 ### Contributors to this release
