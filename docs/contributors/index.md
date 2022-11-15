@@ -1,14 +1,14 @@
 # Contributors
 
-This page is targeted at people who wish to contribute to Jupyter Scheduler directly,
+This page is for people who wish to contribute to Jupyter Scheduler directly,
 
 Developers wishing to extend or override Jupyter Scheduler should instead refer
 to our {doc}`developer's guide </developers/index>`.
 
 ## Development install
 
-The below sequence of commands will install a development environment for
-Jupyter Scheduler locally. Before running this, you should ensure that NodeJS is
+The commands below will install a development environment for
+Jupyter Scheduler locally. Before running these commands, you should ensure that NodeJS is
 installed locally. The `jlpm` command is JupyterLab's pinned version of
 [yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
 `yarn` or `npm` in lieu of `jlpm` below.
@@ -44,8 +44,8 @@ jlpm watch
 jupyter lab
 ```
 
-With the watch command running, every saved change will immediately be built
-locally and available in your running JupyterLab. Refresh JupyterLab to load the
+With the `watch` command running, every file change will be built immediately
+and made available in your running JupyterLab. Refresh JupyterLab to load the
 change in your browser (you may need to wait several seconds for the extension
 to be rebuilt).
 
@@ -67,7 +67,7 @@ pip uninstall jupyter_scheduler
 ```
 
 In development mode, you will also need to remove the symlink created by
-`jupyter labextension develop` command. To find its location, you can run
+`jupyter labextension develop` command. To find it, run
 `jupyter labextension list` to figure out where the `labextensions` folder is
 located. Then you can remove the symlink named `jupyter-scheduler` within that
 folder.
@@ -76,7 +76,7 @@ folder.
 
 ### Server tests
 
-This extension is using [Pytest](https://docs.pytest.org/) for Python code testing.
+This extension uses [Pytest](https://docs.pytest.org/) for Python code testing.
 
 Install test dependencies (needed only once):
 
@@ -106,22 +106,22 @@ jlpm test
 This extension uses Playwright for the integration tests (aka user level tests).
 More precisely, the JupyterLab helper
 [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
-handle testing the extension in JupyterLab.
+test the extension in JupyterLab.
 
-More information are provided within the
+You can find more information in the
 [ui-tests](https://github.com/jupyter-server/jupyter-scheduler/tree/main/ui-tests)
 README.
 
 ## Documentation
 
-First, ensure GNU Make is installed locally, and then install the `docs` extras:
+First, ensure GNU Make is installed locally, and then install the `docs` dependencies:
 
 ```
 pip install -e ".[docs]"
 ```
 
 Documentation is built with the [Sphinx](https://www.sphinx-doc.org/en/master/)
-documentation generator, via the following command run from the project root:
+documentation generator, using the following command executed from the project root:
 
 ```
 make -C docs html
@@ -131,10 +131,9 @@ Documentation source files are written in
 [MyST](https://myst-parser.readthedocs.io/en/latest/index.html), a rich and more
 expressive flavor of Markdown. These files are located under `docs/`.
 
-The built documentation files are generated under `docs/_build/html` can be
-accessed in the browser via a file URI, e.g.
-`file:///Users/dlq/workplace/jupyter-scheduler/docs/_build/html/index.html`.  We
-recommend bookmarking this if you will be editing documentation frequently.
+The generated documentation files placed under `docs/_build/html` can be
+directly opened in the browser.  We recommend bookmarking these file links 
+if you will be editing and reviewing documentation frequently in the browser.
 
 Sphinx by default only rebuilds files it detects were changed, though this
 detection logic is sometimes faulty. To force a full rebuild of the
@@ -148,21 +147,20 @@ make -C docs clean && make -C docs html
 
 Releases should be done via [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
 If you have admin permissions on the repository, you can go to the "Actions"
-panel on GitHub and follow the below instructions to release a new version of
+panel on GitHub and follow the following instructions to release a new version of
 Jupyter Scheduler.
 
-1. Click the "Step 1: Prep Release" workflow on the left-hand panel, and then
-click "Run workflow". This will open a form. Replace the "Next Version
-Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). Do not
-include the "v" prefix. "Branch to Target" should be replaced with the branch
-that should be released. Usually this will be `main`. Then click "Run workflow"
-(the green button) to submit the form and run the workflow.
+1. Select the "Step 1: Prep Release" workflow on the left-hand panel, and then
+select "Run workflow". This will open the workflow form. Replace the "Next Version
+Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). "Branch to Target" 
+should be replaced with the branch that should be released. Usually this will be `main`. 
+Then select "Run workflow" button to run the workflow.
 
 2. Verify the draft release changelog in the
 [Releases](https://github.com/jupyter-server/jupyter-scheduler/releases) page
 for Jupyter Scheduler.
 
-3. Return to the Actions panel and click the "Step 2: Publish Release" workflow.
+3. Return to the Actions panel and select the "Step 2: Publish Release" workflow.
 Run this workflow with the target branch set to the same branch specified in
 Step 1.
 
@@ -177,16 +175,15 @@ release changelog afterwards.
 
 #### Python package
 
-This extension can be distributed as Python
-packages. All of the Python
-packaging instructions in the `pyproject.toml` file to wrap your extension in a
+This extension can be distributed as Python packages. The Python
+packaging instructions in the `pyproject.toml` file can wrap your extension in a
 Python package. Before generating a package, we first need to install `build`.
 
 ```bash
 pip install build twine tbump
 ```
 
-Make sure you have checked out the `main` branch updated from remote.
+Check out your local `main` branch and keep it up to date with the remote version.
 
 ```bash
 git checkout main

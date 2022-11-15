@@ -1,13 +1,12 @@
 # Users
 
-These pages are targeted at people interested in simply installing Jupyter
-Scheduler and using it.
+These pages are for people interested in installing and using Jupyter Scheduler.
 
 For configuration options, please refer to our {doc}`operator's guide </operators/index>`.
 
 ## Installation
 
-Jupyter Scheduler can be installed from the PyPi registry via `pip`:
+Jupyter Scheduler can be installed from the PyPI registry via `pip`:
 
 ```
 pip install jupyter-scheduler
@@ -20,5 +19,5 @@ jupyter server extension list
 jupyter labextension list
 ```
 
-and asserting that both the `jupyter_scheduler` server extension and the
+and checking that both the `jupyter_scheduler` server extension and the
 `@jupyterlab/scheduler` prebuilt lab extension are enabled.

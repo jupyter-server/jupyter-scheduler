@@ -1,6 +1,6 @@
 # Operators
 
-These pages are targeted at people who want to configure and deploy Jupyter Scheduler.
+These docs are intended for users who want to configure and deploy Jupyter Scheduler.
 
 For installation and usage instructions, please refer to our {doc}`user's guide </users/index>`.
 
@@ -52,7 +52,7 @@ all abstract methods. The default class is
 jupyter lab --SchedulerApp.environment_manager_class=jupyter_scheduler.environments.CondaEnvironmentManager
 ```
 
-For more information on how to write a custom implementation, please to our {doc}`developer's guide </developers/index>`.
+For more information on writing a custom implementation, please see the {doc}`developer's guide </developers/index>`.
 
 ### execution_manager_class
 
@@ -60,7 +60,7 @@ The fully classified classname to use for the execution manager, the module that
 is responsible for reading the input file, executing and writing the output.
 This option lets you specify a custom execution engine without replacing the
 whole scheduler API. This class should extend
-`jupyter_scheduler.executors.ExecutionManager` and implement the execute method.
+`jupyter_scheduler.executors.ExecutionManager` and implement the `execute` method.
 The default class is `jupyter_scheduler.executors.DefaultExecutionManager`.
 
 ```
@@ -71,7 +71,7 @@ jupyter lab --BaseScheduler.execution_manager_class=jupyter_scheduler.executors.
 jupyter lab --Scheduler.execution_manager_class=jupyter_scheduler.executors.DefaultExecutionManager
 ```
 
-For more information on how to write a custom implementation, please to our {doc}`developer's guide </developers/index>`.
+For more information on writing a custom implementation, please see the {doc}`developer's guide </developers/index>`.
 
 ## UI configuration
 
@@ -88,5 +88,5 @@ This allows you to customize the
 "advanced options" shown in the "Create Job" form and the "Job Details" view
 (and the same form/view for job definitions).
 
-For more information on how to write a custom plugin, please to our
+For more information about writing a custom plugin, please see the
 {doc}`developer's guide </developers/index>`.
