@@ -4,7 +4,7 @@ These pages are targeted at people who want to configure and deploy Jupyter Sche
 
 For installation and usage instructions, please refer to our {doc}`user's guide </users/index>`.
 
-## Configuration
+## Server configuration
 
 You can configure the server extension to replace the Scheduler server API,
 replace the execution engine, re-create the database tables, and select a
@@ -72,3 +72,21 @@ jupyter lab --Scheduler.execution_manager_class=jupyter_scheduler.executors.Defa
 ```
 
 For more information on how to write a custom implementation, please to our {doc}`developer's guide </developers/index>`.
+
+## UI configuration
+
+You can configure the Jupyter Scheduler UI by installing a lab extension that both:
+
+1. Exports a
+[plugin](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#plugins)
+providing the `Scheduler.IAdvancedOptions`
+[token](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#tokens).
+
+2. Disables the `@jupyterlab/scheduler:IAdvancedOptions` plugin.
+
+This allows you to customize the
+"advanced options" shown in the "Create Job" form and the "Job Details" view
+(and the same form/view for job definitions).
+
+For more information on how to write a custom plugin, please to our
+{doc}`developer's guide </developers/index>`.
