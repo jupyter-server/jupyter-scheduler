@@ -132,7 +132,7 @@ Documentation source files are written in
 expressive flavor of Markdown. These files are located under `docs/`.
 
 The generated documentation files placed under `docs/_build/html` can be
-directly opened in the browser.  We recommend bookmarking these file links 
+directly opened in the browser.  We recommend bookmarking these file links
 if you will be editing and reviewing documentation frequently in the browser.
 
 Sphinx by default only rebuilds files it detects were changed, though this
@@ -152,8 +152,8 @@ Jupyter Scheduler.
 
 1. Select the "Step 1: Prep Release" workflow on the left-hand panel, and then
 select "Run workflow". This will open the workflow form. Replace the "Next Version
-Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). "Branch to Target" 
-should be replaced with the branch that should be released. Usually this will be `main`. 
+Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). "Branch to Target"
+should be replaced with the branch that should be released. Usually this will be `main`.
 Then select "Run workflow" button to run the workflow.
 
 2. Verify the draft release changelog in the
