@@ -1,0 +1,243 @@
+# Contributors
+
+This page is targeted at people who wish to contribute to Jupyter Scheduler directly,
+
+Developers wishing to extend or override Jupyter Scheduler should instead refer
+to our {doc}`developer's guide </developers/index>`.
+
+## Development install
+
+The below sequence of commands will install a development environment for
+Jupyter Scheduler locally. Before running this, you should ensure that NodeJS is
+installed locally. The `jlpm` command is JupyterLab's pinned version of
+[yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
+`yarn` or `npm` in lieu of `jlpm` below.
+
+```bash
+# Clone the repo to your local environment
+git clone https://github.com/jupyter-server/jupyter-scheduler.git
+
+# Change dir to the cloned project
+cd jupyter-scheduler
+
+# Install the project in editable mode
+pip install -e .
+
+# Link your development version of the extension with JupyterLab
+jupyter labextension develop . --overwrite
+
+# Server extension must be manually installed in develop mode
+jupyter server extension enable jupyter_scheduler
+
+# Rebuild extension Typescript source after making changes
+jlpm build
+```
+
+You can watch the source directory and run JupyterLab at the same time in
+different terminals to watch for changes in the extension's source and
+automatically rebuild the extension.
+
+```bash
+# Watch the source directory in one terminal, automatically rebuilding when needed
+jlpm watch
+# Run JupyterLab in another terminal
+jupyter lab
+```
+
+With the watch command running, every saved change will immediately be built
+locally and available in your running JupyterLab. Refresh JupyterLab to load the
+change in your browser (you may need to wait several seconds for the extension
+to be rebuilt).
+
+By default, the `jlpm build` command generates the source maps for this
+extension to make it easier to debug using the browser dev tools. To also
+generate source maps for the JupyterLab core extensions, you can run the
+following command:
+
+```bash
+jupyter lab build --minimize=False
+```
+
+## Development uninstall
+
+```bash
+# Server extension must be manually disabled in develop mode
+jupyter server extension disable jupyter_scheduler
+pip uninstall jupyter_scheduler
+```
+
+In development mode, you will also need to remove the symlink created by
+`jupyter labextension develop` command. To find its location, you can run
+`jupyter labextension list` to figure out where the `labextensions` folder is
+located. Then you can remove the symlink named `jupyter-scheduler` within that
+folder.
+
+## Testing
+
+### Server tests
+
+This extension is using [Pytest](https://docs.pytest.org/) for Python code testing.
+
+Install test dependencies (needed only once):
+
+```sh
+pip install -e ".[test]"
+```
+
+To execute them, run:
+
+```sh
+pytest -vv -r ap --cov jupyter_scheduler
+```
+
+### Frontend tests
+
+This extension is using [Jest](https://jestjs.io/) for JavaScript code testing.
+
+To execute them, execute:
+
+```sh
+jlpm
+jlpm test
+```
+
+### Integration tests
+
+This extension uses Playwright for the integration tests (aka user level tests).
+More precisely, the JupyterLab helper
+[Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
+handle testing the extension in JupyterLab.
+
+More information are provided within the
+[ui-tests](https://github.com/jupyter-server/jupyter-scheduler/tree/main/ui-tests)
+README.
+
+## Documentation
+
+First, ensure GNU Make is installed locally, and then install the `docs` extras:
+
+```
+pip install -e ".[docs]"
+```
+
+Documentation is built with the [Sphinx](https://www.sphinx-doc.org/en/master/)
+documentation generator, via the following command run from the project root:
+
+```
+make -C docs html
+```
+
+Documentation source files are written in
+[MyST](https://myst-parser.readthedocs.io/en/latest/index.html), a rich and more
+expressive flavor of Markdown. These files are located under `docs/`.
+
+The built documentation files are generated under `docs/_build/html` can be
+accessed in the browser via a file URI, e.g.
+`file:///Users/dlq/workplace/jupyter-scheduler/docs/_build/html/index.html`.  We
+recommend bookmarking this if you will be editing documentation frequently.
+
+Sphinx by default only rebuilds files it detects were changed, though this
+detection logic is sometimes faulty. To force a full rebuild of the
+documentation:
+
+```
+make -C docs clean && make -C docs html
+```
+
+## Releasing
+
+Releases should be done via [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
+If you have admin permissions on the repository, you can go to the "Actions"
+panel on GitHub and follow the below instructions to release a new version of
+Jupyter Scheduler.
+
+1. Click the "Step 1: Prep Release" workflow on the left-hand panel, and then
+click "Run workflow". This will open a form. Replace the "Next Version
+Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). Do not
+include the "v" prefix. "Branch to Target" should be replaced with the branch
+that should be released. Usually this will be `main`. Then click "Run workflow"
+(the green button) to submit the form and run the workflow.
+
+2. Verify the draft release changelog in the
+[Releases](https://github.com/jupyter-server/jupyter-scheduler/releases) page
+for Jupyter Scheduler.
+
+3. Return to the Actions panel and click the "Step 2: Publish Release" workflow.
+Run this workflow with the target branch set to the same branch specified in
+Step 1.
+
+4. Wait for the workflow to complete, and then verify the publish on PyPi and
+NPM.
+
+### Manual release
+
+In the unlikely scenario Jupyter Releaser fails in Step 2, the below steps
+should be followed to perform a manual release. Make sure to publish the draft
+release changelog afterwards.
+
+#### Python package
+
+This extension can be distributed as Python
+packages. All of the Python
+packaging instructions in the `pyproject.toml` file to wrap your extension in a
+Python package. Before generating a package, we first need to install `build`.
+
+```bash
+pip install build twine tbump
+```
+
+Make sure you have checked out the `main` branch updated from remote.
+
+```bash
+git checkout main
+git remote update
+git pull upstream main
+```
+
+Bump the version using `tbump`. By default this will create a tag.
+
+```bash
+tbump --no-push <new-version>
+```
+
+Push the bump version commit and tag to main upstream branch.
+
+```bash
+git push upstream main
+git push upstream <new-version-tag>
+```
+
+Checkout the new tagged commit.
+
+```bash
+git checkout <new-version-tag>
+```
+
+Build the extension
+
+```bash
+jlpm run build:prod
+```
+
+To create a Python source package (`.tar.gz`) and the binary package (`.whl`) in the `dist/` directory, do:
+
+```bash
+python -m build
+```
+
+> `python setup.py sdist bdist_wheel` is deprecated and will not work for this package.
+
+Then to upload the package to PyPI, do:
+
+```bash
+twine upload dist/*
+```
+
+#### NPM package
+
+To publish the frontend part of the extension as a NPM package, do:
+
+```bash
+npm login
+npm publish --access public
+```

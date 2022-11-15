@@ -48,6 +48,11 @@ test = [
 dev = [
     "click"
 ]
+docs = [
+    "sphinx",
+    "myst_parser",
+    "pydata_sphinx_theme"
+]
 
 [project.urls]
 Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
