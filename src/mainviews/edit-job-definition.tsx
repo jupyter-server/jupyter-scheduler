@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
+  Alert,
   Button,
   Box,
   Breadcrumbs,
-  Stack,
-  Link,
-  Typography,
+  CircularProgress,
   InputLabel,
-  CircularProgress
+  Link,
+  Stack,
+  Typography
 } from '@mui/material';
 
 import { Heading } from '../components/heading';
@@ -32,6 +33,9 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
   const [utcOnly, setUtcOnly] = useState(false);
   const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Scheduler.ErrorsType>({});
+  const [displayError, setDisplayError] = useState<React.ReactNode | null>(
+    null
+  );
   const hasErrors = Object.keys(fieldErrors).some(key => !!fieldErrors[key]);
 
   /**
@@ -61,16 +65,17 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
     }
 
     setSaving(true);
-    try {
-      await ss.updateJobDefinition(props.model.definitionId, {
-        schedule: props.model.schedule,
-        timezone: props.model.timezone
+    ss.updateJobDefinition(props.model.definitionId, {
+      schedule: props.model.schedule,
+      timezone: props.model.timezone
+    })
+      .then(() => {
+        props.showJobDefinitionDetail(props.model.definitionId);
+      })
+      .catch((e: Error) => {
+        setSaving(false);
+        setDisplayError(e.message);
       });
-      props.showJobDefinitionDetail(props.model.definitionId);
-    } catch (e) {
-      // TODO: catch any errors from backend and display them to user.
-      setSaving(false);
-    }
   };
 
   if (loading) {
@@ -79,6 +84,11 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
 
   return (
     <Stack spacing={4} maxWidth={500}>
+      {displayError && (
+        <Alert severity="error" onClose={() => setDisplayError(null)}>
+          {displayError}
+        </Alert>
+      )}
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""
