@@ -10,12 +10,11 @@ For configuration options, please refer to our {doc}`operator's guide </operator
 
 ## Extension points
 
-You can customize Jupyter Scheduler using 
+You can customize Jupyter Scheduler using
 [plugins](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#plugins).
-If you override the 
+If you override the
 [token](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#tokens)
 in the `@jupyterlab/scheduler:IAdvancedOptions` plugin, you can customize the advanced options
 shown in the "Create Job" form and the "Job Details" view (and the same form/view for job
 definitions). You can find the token exported as `IAdvancedOptions` in
 [src/tokens.ts](https://github.com/jupyter-server/jupyter-scheduler/blob/main/src/tokens.ts).
-
