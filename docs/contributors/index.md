@@ -58,8 +58,7 @@ pip uninstall jupyter_scheduler
 ```
 
 In development mode, you will also need to remove the symlink created by
-`jupyter labextension develop` command. First, find where the lab extension
-folder is located:
+`jupyter labextension develop` command. First, find the lab extension folder:
 
 ```bash
 $ jupyter labextension list
@@ -69,8 +68,7 @@ $ jupyter labextension list
         @jupyterlab/scheduler v1.1.4 enabled OK
 ```
 
-Then you can remove the symlink named `jupyter-scheduler` within that
-folder.
+Then, remove the symlink named `jupyter-scheduler` within that folder.
 ```
 # Remove the symlink
 rm /opt/anaconda3/envs/jupyter-scheduler/share/jupyter/labextensions/jupyter_scheduler
@@ -107,7 +105,7 @@ jlpm test
 
 ### Integration tests
 
-This extension uses Playwright for the integration tests (aka user level tests).
+This extension uses Playwright for the integration tests (user-level tests).
 More precisely, the JupyterLab helper
 [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
 test the extension in JupyterLab.
@@ -125,7 +123,7 @@ pip install -e ".[docs]"
 ```
 
 Documentation is built with the [Sphinx](https://www.sphinx-doc.org/en/master/)
-documentation generator, using the following command executed from the project root:
+documentation generator, by running the following command from the project root:
 
 ```
 make -C docs html
