@@ -5,10 +5,10 @@ from multiprocessing import Process
 from typing import Dict, List, Optional, Type
 
 import fsspec
+from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
 from jupyter_scheduler.scheduler import BaseScheduler
-from jupyter_server.utils import ensure_async
 
 
 class JobFilesManager:
@@ -96,6 +96,7 @@ class Downloader:
                             output_file.write(input_file.read())
                 except Exception as e:
                     pass
+
 
 class JobFilesManagerWithErrors(JobFilesManager):
     """
