@@ -5,7 +5,6 @@ from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
-from jupyter_scheduler.job_files_manager import JobFilesManager
 from jupyter_scheduler.orm import create_tables
 
 from .handlers import (
@@ -60,6 +59,13 @@ class SchedulerApp(ExtensionApp):
         help=_i18n("The scheduler class to use."),
     )
 
+    job_files_manager_class = Type(
+        default_value="jupyter_scheduler.job_files_manager.JobFilesManager",
+        klass="jupyter_scheduler.job_files_manager.JobFilesManager",
+        config=True,
+        help=_i18n("The job files manager class to use."),
+    )
+
     def initialize_settings(self):
         super().initialize_settings()
 
@@ -74,7 +80,7 @@ class SchedulerApp(ExtensionApp):
             config=self.config,
         )
 
-        job_files_manager = JobFilesManager(scheduler=scheduler)
+        job_files_manager = self.job_files_manager_class(scheduler=scheduler)
 
         self.settings.update(
             environments_manager=environments_manager,

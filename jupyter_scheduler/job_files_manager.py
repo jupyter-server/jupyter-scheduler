@@ -1,12 +1,14 @@
 import os
+import random
 import tarfile
 from multiprocessing import Process
 from typing import Dict, List, Optional, Type
 
 import fsspec
-from jupyter_server.utils import ensure_async
 
+from jupyter_scheduler.exceptions import SchedulerError
 from jupyter_scheduler.scheduler import BaseScheduler
+from jupyter_server.utils import ensure_async
 
 
 class JobFilesManager:
@@ -94,3 +96,26 @@ class Downloader:
                             output_file.write(input_file.read())
                 except Exception as e:
                     pass
+
+class JobFilesManagerWithErrors(JobFilesManager):
+    """
+    Use only for testing exceptions, not to be used in production
+
+    This uses the default `JobFilesManager`, but randomly
+    raises the `SchedulerError` to help view/test errors in the
+    UI. To use this, specify the fully classified class name at
+    at start up or add to one of the server config files.
+
+    Usage
+    -----
+    >> jupyter lab --SchedulerApp.job_files_manager_class=jupyter_scheduler.job_files_manager.JobFilesManagerWithErrors
+    """
+
+    def _should_raise_error(self, probability=0.5):
+        return random.random() < probability
+
+    async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
+        if self._should_raise_error():
+            raise SchedulerError("Failed copy_from_staging because of a deliberate exception.")
+        else:
+            return super().copy_from_staging(job_id, redownload)

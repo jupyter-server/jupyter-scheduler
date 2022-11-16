@@ -70,6 +70,7 @@ type DownloadFilesButtonProps = {
   app: JupyterFrontEnd;
   job: Scheduler.IDescribeJob;
   reload: () => void;
+  setDisplayError: (message: React.ReactNode) => void;
 };
 
 function DownloadFilesButton(props: DownloadFilesButtonProps) {
@@ -83,13 +84,20 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
       disabled={downloading}
       onClick={async () => {
         setDownloading(true);
-        await props.app.commands.execute(CommandIDs.downloadFiles, {
-          id: props.job.job_id,
-          redownload: false
-        });
-        await new Promise(res => setTimeout(res, 5000));
-        setDownloading(false);
-        props.reload();
+        props.app.commands
+          .execute(CommandIDs.downloadFiles, {
+            id: props.job.job_id,
+            redownload: false
+          })
+          .then(_ =>
+            new Promise(res => setTimeout(res, 5000)).then(_ => {
+              setDownloading(false);
+              props.reload();
+            })
+          )
+          .catch((e: Error) => {
+            props.setDisplayError(e.message);
+          });
       }}
     >
       <DownloadIcon />
@@ -105,7 +113,8 @@ export function buildJobRow(
   deleteRow: (id: Scheduler.IDescribeJob['job_id']) => void,
   translateStatus: (status: Scheduler.Status) => string,
   showDetailView: (jobId: string) => void,
-  reload: () => void
+  reload: () => void,
+  setDisplayError: (message: React.ReactNode) => void
 ): JSX.Element {
   const inputFile = job.job_files.find(
     jobFile => jobFile.file_format === 'input' && jobFile.file_path
@@ -129,7 +138,12 @@ export function buildJobRow(
     <>
       {!job.downloaded &&
         (job.status === 'COMPLETED' || job.status === 'FAILED') && (
-          <DownloadFilesButton app={app} job={job} reload={reload} />
+          <DownloadFilesButton
+            app={app}
+            job={job}
+            reload={reload}
+            setDisplayError={setDisplayError}
+          />
         )}
       <JobFiles job={job} app={app} />
     </>,
@@ -139,20 +153,22 @@ export function buildJobRow(
       <ConfirmDeleteButton
         name={job.name}
         clickHandler={() => {
-          // optimistic delete for now, no verification on whether the delete
-          // succeeded
-          app.commands.execute(CommandIDs.deleteJob, {
-            id: job.job_id
-          });
-          deleteRow(job.job_id);
+          app.commands
+            .execute(CommandIDs.deleteJob, {
+              id: job.job_id
+            })
+            .then(_ => deleteRow(job.job_id))
+            .catch((e: Error) => setDisplayError(e.message));
         }}
       />
       <StopButton
         job={job}
         clickHandler={() =>
-          app.commands.execute(CommandIDs.stopJob, {
-            id: job.job_id
-          })
+          app.commands
+            .execute(CommandIDs.stopJob, {
+              id: job.job_id
+            })
+            .catch((e: Error) => setDisplayError(e.message))
         }
       />
     </Stack>

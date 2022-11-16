@@ -270,7 +270,7 @@ export class SchedulerService {
         }
       );
     } catch (e) {
-      console.log(e);
+      return Promise.reject(e);
     }
   }
 
