@@ -3,7 +3,7 @@
 [![Github Actions Status](https://github.com/jupyter-server/jupyter-scheduler/workflows/Build/badge.svg)](https://github.com/jupyter-server/jupyter-scheduler/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupyter-server/jupyter-scheduler/main?urlpath=lab)
 
 A JupyterLab extension for running notebook jobs. Documentation is available on
-ReadTheDocs.
+[ReadTheDocs](https://jupyter-scheduler.readthedocs.io).
 
 This extension is composed of a Python package named `jupyter_scheduler`
 for the server extension and a NPM package named `@jupyterlab/scheduler`
@@ -34,8 +34,10 @@ pip uninstall jupyter_scheduler
 
 ## User's guide
 
-Please refer to our user's guide for more information on installation and usage.
+Please refer to our [user's guide](https://jupyter-scheduler.readthedocs.io/en/latest/users/index.html)
+for more information on installation and usage.
 
 ## Contributing
 
-Please refer to our contributor's guide for more information on installation and usage.
+Please refer to our [contributor's guide](https://jupyter-scheduler.readthedocs.io/en/latest/contributors/index.html)
+for more information on installation and usage.

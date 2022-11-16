@@ -1,6 +1,6 @@
 # Contributors
 
-This page is for people who wish to contribute to Jupyter Scheduler directly,
+This page is for people who wish to contribute to Jupyter Scheduler directly.
 
 Developers wishing to extend or override Jupyter Scheduler should instead refer
 to our {doc}`developer's guide </developers/index>`.
