@@ -112,13 +112,20 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const downloadFiles = async () => {
     setDownloading(true);
-    await props.app.commands.execute(CommandIDs.downloadFiles, {
-      id: props.model.jobId,
-      redownload: false
-    });
-    await new Promise(res => setTimeout(res, 5000));
-    await props.handleModelChange();
-    setDownloading(false);
+    props.app.commands
+      .execute(CommandIDs.downloadFiles, {
+        id: props.model.jobId,
+        redownload: false
+      })
+      .then(() => {
+        new Promise(res => setTimeout(res, 5000)).then(_ =>
+          props.handleModelChange().then(_ => setDownloading(false))
+        );
+      })
+      .catch((e: Error) => {
+        setDisplayError(e.message);
+        setDownloading(false);
+      });
   };
 
   const ButtonBar = (

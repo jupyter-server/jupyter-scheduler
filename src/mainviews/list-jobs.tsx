@@ -39,6 +39,9 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   const [deletedRows, setDeletedRows] = useState<
     Set<Scheduler.IDescribeJob['job_id']>
   >(new Set());
+  const [displayError, setDisplayError] = useState<React.ReactNode | null>(
+    null
+  );
 
   const trans = useTranslator('jupyterlab');
 
@@ -136,7 +139,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
       deleteRow,
       translateStatus,
       props.showJobDetail,
-      reload
+      reload,
+      setDisplayError
     );
 
   const rowFilter = (job: Scheduler.IDescribeJob) =>
@@ -155,6 +159,11 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
   // note that root element here must be a JSX fragment for DataGrid to be sized properly
   return (
     <>
+      {displayError && (
+        <Alert severity="error" onClose={() => setDisplayError(null)}>
+          {displayError}
+        </Alert>
+      )}
       {reloadButton}
       <AdvancedTable
         query={jobsQuery}
