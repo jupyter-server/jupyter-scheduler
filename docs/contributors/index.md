@@ -58,10 +58,23 @@ pip uninstall jupyter_scheduler
 ```
 
 In development mode, you will also need to remove the symlink created by
-`jupyter labextension develop` command. To find it, run
-`jupyter labextension list` to figure out where the `labextensions` folder is
-located. Then you can remove the symlink named `jupyter-scheduler` within that
+`jupyter labextension develop` command. First, find where the lab extension
+folder is located:
+
+```bash
+$ jupyter labextension list
+
+...
+/opt/anaconda3/envs/jupyter-scheduler/share/jupyter/labextensions
+        @jupyterlab/scheduler v1.1.4 enabled OK
+```
+
+Then you can remove the symlink named `jupyter-scheduler` within that
 folder.
+```
+# Remove the symlink
+rm /opt/anaconda3/envs/jupyter-scheduler/share/jupyter/labextensions/jupyter_scheduler
+```
 
 ## Testing
 
