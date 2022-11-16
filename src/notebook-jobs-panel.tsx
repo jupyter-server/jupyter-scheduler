@@ -212,7 +212,8 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       schedule: jobDef.schedule || '* * * * *',
       timezone: jobDef.timezone || 'UTC',
       scheduleInterval: 'custom',
-      inputFileSnapshot: jobDef.inputFile
+      inputFileSnapshot: jobDef.inputFile,
+      updateTime: jobDef.updateTime
     };
   }
 

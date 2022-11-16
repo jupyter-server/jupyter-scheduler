@@ -19,6 +19,8 @@ import { useTranslator } from '../hooks';
 import { SchedulerService } from '../handler';
 import { Scheduler } from '../tokens';
 import { InputFileSnapshot } from '../components/input-file-snapshot';
+import { LabeledValue } from '../components/labeled-value';
+import { timestampLocalize } from './detail-view/job-detail';
 
 export type EditJobDefinitionProps = {
   model: IUpdateJobDefinitionModel;
@@ -92,6 +94,10 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
         </Alert>
       )}
       <InputFileSnapshot inputFileSnapshot={props.model.inputFileSnapshot} />
+      <LabeledValue
+        value={timestampLocalize(props.model.updateTime)}
+        label={trans.__('Updated at')}
+      />
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""

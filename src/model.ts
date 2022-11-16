@@ -130,6 +130,7 @@ export interface IUpdateJobDefinitionModel
   name: string;
   environment: string;
   inputFileSnapshot: string;
+  updateTime: number;
 }
 
 export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
@@ -138,6 +139,7 @@ export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
     name: '',
     environment: '',
     inputFileSnapshot: '',
+    updateTime: 0,
     ...defaultScheduleFields
   };
 }
@@ -330,7 +332,7 @@ export interface IJobDefinitionModel {
   definitionId: string;
   active?: boolean;
   createTime?: number;
-  updateTime?: number;
+  updateTime: number;
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
