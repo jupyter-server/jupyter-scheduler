@@ -94,10 +94,6 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
         </Alert>
       )}
       <InputFileSnapshot inputFileSnapshot={props.model.inputFileSnapshot} />
-      <LabeledValue
-        value={timestampLocalize(props.model.updateTime)}
-        label={trans.__('Updated at')}
-      />
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""
@@ -166,6 +162,10 @@ export function EditJobDefinition(props: EditJobDefinitionProps): JSX.Element {
           <Typography color="text.primary">{trans.__('Edit')}</Typography>
         </Breadcrumbs>
         <Heading level={1}>{trans.__('Edit Job Definition')}</Heading>
+        <LabeledValue
+          value={timestampLocalize(props.model.updateTime)}
+          label={trans.__('Job Definition updated at')}
+        />
         <EditJobDefinitionBody {...props} />
       </Stack>
     </Box>
