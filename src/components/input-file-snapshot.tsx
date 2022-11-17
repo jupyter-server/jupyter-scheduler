@@ -27,7 +27,7 @@ export const InputFileSnapshot = (props: {
       />
       <FormHelperText id="input-file-snapshot-helper-text">
         {trans.__(
-          'Drag the file from file browser and drop it into this field to update input file snapshot'
+          'Drag a file from the file browser and drop it here to update the input file snapshot'
         )}
       </FormHelperText>
     </FormControl>
