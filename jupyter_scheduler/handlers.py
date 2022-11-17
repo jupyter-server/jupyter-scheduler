@@ -196,9 +196,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 raise HTTPError(500, str(e)) from e
             except Exception as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, "Unexpected error occurred while fetching details for the job."
-                ) from e
+                raise HTTPError(500, "Unexpected error occurred while fetching job details.") from e
             else:
                 self.finish(job.json())
         else:
