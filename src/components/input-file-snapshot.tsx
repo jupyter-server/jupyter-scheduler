@@ -16,7 +16,7 @@ export const InputFileSnapshot = (props: {
   return (
     <FormControl sx={{ border: 'undefined' }}>
       <InputLabel htmlFor="input-file-snapshot-id">
-        Input file snapshot
+        {trans.__('Input file snapshot')}
       </InputLabel>
       <OutlinedInput
         id="input-file-snapshot-id"
