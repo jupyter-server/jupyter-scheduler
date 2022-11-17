@@ -14,7 +14,7 @@ export const InputFileSnapshot = (props: {
   const trans = useTranslator('jupyterlab');
 
   return (
-    <FormControl sx={{ border: 'undefined' }}>
+    <FormControl sx={{ border: 'unset' }}>
       <InputLabel htmlFor="input-file-snapshot-id">
         {trans.__('Input file snapshot')}
       </InputLabel>
