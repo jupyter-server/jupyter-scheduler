@@ -147,7 +147,12 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             ? trans.__('Job Detail')
             : trans.__('Job Definition')}
         </Heading>
-        <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+        <Stack
+          direction="row"
+          gap={2}
+          justifyContent="flex-end"
+          flexWrap={'wrap'}
+        >
           <Button variant="outlined" color="primary" onClick={reload}>
             {trans.__('Reload')}
           </Button>
