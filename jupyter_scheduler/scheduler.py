@@ -545,19 +545,22 @@ class Scheduler(BaseScheduler):
             filtered_query = session.query(JobDefinition).filter(
                 JobDefinition.job_definition_id == job_definition_id
             )
+            
+            describe_job_definition = DescribeJobDefinition.from_orm(filtered_query.one())
+            new_input_filename = os.path.basename(model.input_uri)
+
+            if describe_job_definition.input_filename == new_input_filename and describe_job_definition.schedule == model.schedule and describe_job_definition.timezone == model.timezone and (model.active == None or describe_job_definition.active == model.active):
+                return
+
             updates = model.dict(exclude_none=True, exclude={"input_uri"})
 
             if model.input_uri:
-                job_definition = filtered_query.one()
-                staging_paths = self.get_staging_paths(
-                    DescribeJobDefinition.from_orm(job_definition)
-                )
+                staging_paths = self.get_staging_paths(describe_job_definition)
                 staging_directory = os.path.dirname(staging_paths["input"])
-                input_filename = os.path.basename(model.input_uri)
                 self.copy_input_file(
-                    model.input_uri, os.path.join(staging_directory, input_filename)
+                    model.input_uri, os.path.join(staging_directory, new_input_filename)
                 )
-                updates["input_filename"] = input_filename
+                updates["input_filename"] = new_input_filename
 
             filtered_query.update(updates)
             session.commit()
