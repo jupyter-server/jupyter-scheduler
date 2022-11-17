@@ -164,7 +164,7 @@ export function EditJobDefinition(props: EditJobDefinitionProps): JSX.Element {
         <Heading level={1}>{trans.__('Edit Job Definition')}</Heading>
         <LabeledValue
           value={timestampLocalize(props.model.updateTime)}
-          label={trans.__('Job Definition updated at')}
+          label={trans.__('Job definition updated at')}
         />
         <EditJobDefinitionBody {...props} />
       </Stack>
