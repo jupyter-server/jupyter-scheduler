@@ -1,16 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import {
-  IJobDefinitionModel,
-  JobsView,
-  ICreateJobModel,
-  emptyCreateJobModel
-} from '../../model';
-import { useTranslator } from '../../hooks';
-import { timestampLocalize } from './job-detail';
-import { SchedulerService } from '../../handler';
-import cronstrue from 'cronstrue';
-import { ListJobsTable } from '../list-jobs';
-import { Scheduler as SchedulerTokens } from '../../tokens';
+
+import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import {
   Alert,
@@ -20,46 +10,81 @@ import {
   FormLabel,
   Stack
 } from '@mui/material';
+
+import cronstrue from 'cronstrue';
+
+import { ButtonBar } from '../../components/button-bar';
 import { ConfirmDialogDeleteButton } from '../../components/confirm-dialog-buttons';
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
   ILabeledValueProps,
   LabeledValue
 } from '../../components/labeled-value';
+import { SchedulerService } from '../../handler';
+import { useTranslator } from '../../hooks';
+import { ListJobsTable } from '../list-jobs';
+import {
+  IJobDefinitionModel,
+  JobsView,
+  ICreateJobModel,
+  emptyCreateJobModel
+} from '../../model';
+import { Scheduler as SchedulerTokens } from '../../tokens';
+
+import { timestampLocalize } from './job-detail';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
-  model: IJobDefinitionModel;
+  model: IJobDefinitionModel | null;
   refresh: () => void;
   setJobsView: (view: JobsView) => void;
   showJobDetail: (jobId: string) => void;
   showCreateJob: (state: ICreateJobModel) => void;
   editJobDefinition: (jobDefinition: IJobDefinitionModel) => void;
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  reload: () => void;
 }
 
 export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const [displayError, setDisplayError] = useState<string | null>(null);
-
   const ss = useMemo(() => new SchedulerService({}), []);
 
+  const ReloadButton = (
+    <Button variant="contained" onClick={props.reload}>
+      {trans.__('Reload Job Definition')}
+    </Button>
+  );
+
+  const ErrorBanner = displayError && (
+    <Alert severity="error">{displayError}</Alert>
+  );
+
+  if (props.model === null) {
+    return (
+      <>
+        {ErrorBanner}
+        <ButtonBar>{ReloadButton}</ButtonBar>
+      </>
+    );
+  }
+  const model: IJobDefinitionModel = props.model;
+
   const handleDeleteJobDefinition = async () => {
-    ss.deleteJobDefinition(props.model.definitionId ?? '')
+    ss.deleteJobDefinition(props.model?.definitionId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobDefinitions))
       .catch((e: Error) => setDisplayError(e.message));
   };
 
   const pauseJobDefinition = async () => {
     setDisplayError(null);
-    ss.pauseJobDefinition(props.model.definitionId)
+    ss.pauseJobDefinition(model.definitionId)
       .then(_ => props.refresh())
       .catch((e: Error) => setDisplayError(e.message));
   };
 
   const resumeJobDefinition = async () => {
     setDisplayError(null);
-    ss.resumeJobDefinition(props.model.definitionId)
+    ss.resumeJobDefinition(model.definitionId)
       .then(_ => props.refresh())
       .catch((e: Error) => setDisplayError(e.message));
   };
@@ -67,15 +92,15 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const runJobDefinition = () => {
     const initialState: ICreateJobModel = {
       ...emptyCreateJobModel(),
-      jobName: props.model.name,
-      inputFile: props.model.inputFile,
-      outputPath: props.model.outputPrefix ?? '',
-      environment: props.model.environment,
-      computeType: props.model.computeType,
-      runtimeEnvironmentParameters: props.model.runtimeEnvironmentParameters,
-      parameters: props.model.parameters,
-      outputFormats: props.model.outputFormats,
-      jobDefinitionId: props.model.definitionId
+      jobName: model.name,
+      inputFile: model.inputFile,
+      outputPath: model.outputPrefix ?? '',
+      environment: model.environment,
+      computeType: model.computeType,
+      runtimeEnvironmentParameters: model.runtimeEnvironmentParameters,
+      parameters: model.parameters,
+      outputFormats: model.outputFormats,
+      jobDefinitionId: model.definitionId
     };
 
     props.showCreateJob(initialState);
@@ -92,7 +117,8 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   }
 
   const DefinitionButtonBar = (
-    <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+    <ButtonBar>
+      {ReloadButton}
       <Button variant="outlined" onClick={runJobDefinition}>
         {trans.__('Run Job')}
       </Button>
@@ -105,10 +131,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           {trans.__('Resume')}
         </Button>
       )}
-      <Button
-        variant="outlined"
-        onClick={() => props.editJobDefinition(props.model)}
-      >
+      <Button variant="outlined" onClick={() => props.editJobDefinition(model)}>
         {trans.__('Edit Job Definition')}
       </Button>
       <ConfirmDialogDeleteButton
@@ -118,7 +141,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           'Are you sure that you want to delete this job definition?'
         )}
       />
-    </Stack>
+    </ButtonBar>
   );
 
   const jobDefinitionFields: ILabeledValueProps[][] = [
@@ -231,7 +254,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   return (
     <>
-      {displayError && <Alert severity="error">{displayError}</Alert>}
+      {ErrorBanner}
       {DefinitionButtonBar}
       {JobDefinition}
       {JobsList}

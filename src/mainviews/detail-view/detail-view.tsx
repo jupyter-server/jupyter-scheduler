@@ -20,7 +20,6 @@ import {
   Alert,
   Box,
   Breadcrumbs,
-  Button,
   CircularProgress,
   Link,
   Stack,
@@ -147,22 +146,12 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             ? trans.__('Job Detail')
             : trans.__('Job Definition')}
         </Heading>
-        <Stack
-          direction="row"
-          gap={2}
-          justifyContent="flex-end"
-          flexWrap={'wrap'}
-        >
-          <Button variant="outlined" color="primary" onClick={reload}>
-            {trans.__('Reload')}
-          </Button>
-        </Stack>
         {fetchError && (
           <Alert severity="error" onClose={() => setFetchError(undefined)}>
             {fetchError}
           </Alert>
         )}
-        {props.jobsView === JobsView.JobDetail && jobModel && (
+        {props.jobsView === JobsView.JobDetail && (
           <JobDetail
             app={props.app}
             model={jobModel}
@@ -171,9 +160,10 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             setJobsView={props.setJobsView}
             // Extension point: optional additional component
             advancedOptions={props.advancedOptions}
+            reload={reload}
           />
         )}
-        {props.jobsView === JobsView.JobDefinitionDetail && jobDefinitionModel && (
+        {props.jobsView === JobsView.JobDefinitionDetail && (
           <JobDefinition
             app={props.app}
             model={jobDefinitionModel}
@@ -184,6 +174,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             editJobDefinition={props.editJobDefinition}
             // Extension point: optional additional component
             advancedOptions={props.advancedOptions}
+            reload={reload}
           />
         )}
         {!jobModel && !jobDefinitionModel && !fetchError && (
