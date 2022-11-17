@@ -43,7 +43,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
-  _last_input_drop_target: Element | null;
+  private _last_input_drop_target: Element | null;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(
