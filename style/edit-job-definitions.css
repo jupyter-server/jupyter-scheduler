@@ -1,4 +1,4 @@
-.input-file-snapshot.draghover {
+.jp-input-file-snapshot.draghover {
   background: rgba(33, 150, 243, 0.1);
   border: var(--jp-border-width) dashed var(--jp-brand-color1);
   transition-property: top, left, right, bottom;

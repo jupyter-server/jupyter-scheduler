@@ -15,17 +15,17 @@ export const InputFileSnapshot = (props: {
 
   return (
     <FormControl sx={{ border: 'unset' }}>
-      <InputLabel htmlFor="input-file-snapshot-id">
+      <InputLabel htmlFor="jp-input-file-snapshot-id">
         {trans.__('Input file snapshot')}
       </InputLabel>
       <OutlinedInput
-        id="input-file-snapshot-id"
-        inputProps={{ className: 'input-file-snapshot' }}
+        id="jp-input-file-snapshot-id"
+        inputProps={{ className: 'jp-input-file-snapshot' }}
         label={trans.__('Input file snapshot')}
         value={props.inputFileSnapshot}
-        aria-describedby="input-file-snapshot-helper-text"
+        aria-describedby="jp-input-file-snapshot-helper-text"
       />
-      <FormHelperText id="input-file-snapshot-helper-text">
+      <FormHelperText id="jp-input-file-snapshot-helper-text">
         {trans.__(
           'Drag a file from the file browser and drop it here to update the input file snapshot'
         )}

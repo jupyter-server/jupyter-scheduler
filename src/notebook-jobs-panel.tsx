@@ -83,7 +83,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   handleDrag = (event: IDragEvent): void => {
     if (
       this.model.jobsView === JobsView.EditJobDefinition &&
-      (event.target as Element)?.className?.includes('input-file-snapshot')
+      (event.target as Element)?.className?.includes('jp-input-file-snapshot')
     ) {
       event.preventDefault();
       event.stopPropagation();
@@ -149,12 +149,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       case 'lm-dragleave':
         (event.target as Element)?.removeEventListener(
           'lm-dragleave',
-          this.removeDragHoverClass
-        );
-        break;
-      case 'dragleave':
-        (event.target as Element)?.removeEventListener(
-          'dragleave',
           this.removeDragHoverClass
         );
         break;
