@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
@@ -20,6 +20,7 @@ import {
   Alert,
   Box,
   Breadcrumbs,
+  Button,
   CircularProgress,
   Link,
   Stack,
@@ -86,7 +87,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     }
   };
 
-  useEffect(() => {
+  const fetchModel = () => {
     switch (props.jobsView) {
       case JobsView.JobDetail:
         fetchJobDetailModel();
@@ -95,7 +96,16 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         fetchJobDefinitionModel();
         break;
     }
+  };
+
+  useEffect(() => {
+    fetchModel();
   }, [props.jobsView, props.model, props.model.id]);
+
+  const reload = useCallback(() => {
+    setFetchError(undefined);
+    fetchModel();
+  }, []);
 
   const BreadcrumbsStyled = (
     <div role="presentation">
@@ -137,7 +147,16 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             ? trans.__('Job Detail')
             : trans.__('Job Definition')}
         </Heading>
-        {fetchError && <Alert severity="error">{fetchError}</Alert>}
+        <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
+          <Button variant="outlined" color="primary" onClick={reload}>
+            {trans.__('Reload')}
+          </Button>
+        </Stack>
+        {fetchError && (
+          <Alert severity="error" onClose={() => setFetchError(undefined)}>
+            {fetchError}
+          </Alert>
+        )}
         {props.jobsView === JobsView.JobDetail && jobModel && (
           <JobDetail
             app={props.app}
