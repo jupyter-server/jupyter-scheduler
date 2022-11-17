@@ -73,7 +73,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
   }
 
-  removeDraghoverClass = (event: Event): void => {
+  removeDragHoverClass = (event: Event): void => {
     if ((event.target as Element)?.className?.includes('draghover')) {
       (event.target as Element)?.classList?.remove('draghover');
       this._last_input_drop_target = null;
@@ -92,7 +92,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
         (event.target as Element)?.classList?.add('draghover');
         (event.target as Element)?.addEventListener(
           'lm-dragleave',
-          this.removeDraghoverClass
+          this.removeDragHoverClass
         );
         this._last_input_drop_target = event.target as Element;
       }
@@ -149,13 +149,13 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       case 'lm-dragleave':
         (event.target as Element)?.removeEventListener(
           'lm-dragleave',
-          this.removeDraghoverClass
+          this.removeDragHoverClass
         );
         break;
       case 'dragleave':
         (event.target as Element)?.removeEventListener(
           'dragleave',
-          this.removeDraghoverClass
+          this.removeDragHoverClass
         );
         break;
       default:
