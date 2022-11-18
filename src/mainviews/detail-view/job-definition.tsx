@@ -70,7 +70,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const model: IJobDefinitionModel = props.model;
 
   const handleDeleteJobDefinition = async () => {
-    ss.deleteJobDefinition(props.model?.definitionId ?? '')
+    ss.deleteJobDefinition(model.definitionId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobDefinitions))
       .catch((e: Error) => setDisplayError(e.message));
   };
@@ -109,8 +109,8 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
 
   let cronString;
   try {
-    if (props.model.schedule !== undefined) {
-      cronString = cronstrue.toString(props.model.schedule);
+    if (model.schedule !== undefined) {
+      cronString = cronstrue.toString(model.schedule);
     }
   } catch (e) {
     // Do nothing; let the errors or nothing display instead
@@ -122,7 +122,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       <Button variant="outlined" onClick={runJobDefinition}>
         {trans.__('Run Job')}
       </Button>
-      {props.model.active ? (
+      {model.active ? (
         <Button variant="outlined" onClick={pauseJobDefinition}>
           {trans.__('Pause')}
         </Button>
@@ -145,45 +145,45 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   );
 
   const jobDefinitionFields: ILabeledValueProps[][] = [
-    [{ value: props.model.name, label: trans.__('Name') }],
+    [{ value: model.name, label: trans.__('Name') }],
     [
       {
-        value: props.model.inputFile,
+        value: model.inputFile,
         label: trans.__('Input file')
       },
       {
-        value: props.model.outputPath,
+        value: model.outputPath,
         label: trans.__('Output directory')
       }
     ],
     [
       {
-        value: props.model.environment,
+        value: model.environment,
         label: trans.__('Environment')
       },
       {
-        value: props.model.active ? trans.__('Active') : trans.__('Paused'),
+        value: model.active ? trans.__('Active') : trans.__('Paused'),
         label: trans.__('Status')
       }
     ],
     [
       {
-        value: timestampLocalize(props.model.createTime ?? ''),
+        value: timestampLocalize(model.createTime ?? ''),
         label: trans.__('Created at')
       },
       {
-        value: timestampLocalize(props.model.updateTime ?? ''),
+        value: timestampLocalize(model.updateTime ?? ''),
         label: trans.__('Updated at')
       }
     ],
     [
       {
-        value: props.model.schedule ?? '',
+        value: model.schedule ?? '',
         helperText: cronString ?? '',
         label: trans.__('Schedule')
       },
       {
-        value: props.model.timezone ?? '',
+        value: model.timezone ?? '',
         label: trans.__('Time zone')
       }
     ]
@@ -219,7 +219,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
           </FormLabel>
           <props.advancedOptions
             jobsView={JobsView.JobDefinitionDetail}
-            model={props.model}
+            model={model}
             handleModelChange={(_: any) => {
               return;
             }}
@@ -241,7 +241,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
             app={props.app}
             showCreateJob={props.showCreateJob}
             showJobDetail={props.showJobDetail}
-            jobDefinitionId={props.model.definitionId}
+            jobDefinitionId={model.definitionId}
             pageSize={5}
             emptyRowMessage={trans.__(
               'No notebook jobs associated with this job definition.'
