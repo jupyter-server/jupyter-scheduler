@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
+import { ButtonBar } from '../../components/button-bar';
 import {
   ConfirmDialogDeleteButton,
   ConfirmDialogStopButton
@@ -39,12 +40,13 @@ import {
 } from '../../components/labeled-value';
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
-  model: IJobDetailModel;
+  model: IJobDetailModel | null;
   handleModelChange: () => Promise<void>;
   setCreateJobModel: (createModel: ICreateJobModel) => void;
   setJobsView: (view: JobsView) => void;
   // Extension point: optional additional component
   advancedOptions: React.FunctionComponent<SchedulerTokens.IAdvancedOptionsProps>;
+  reload: () => void;
 }
 
 export const timestampLocalize = (time: number | ''): string => {
@@ -95,7 +97,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
 
   const handleDeleteJob = async () => {
     setDisplayError(null);
-    ss.deleteJob(props.model.jobId ?? '')
+    ss.deleteJob(props.model?.jobId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobs))
       .catch((e: Error) => setDisplayError(e.message));
   };
@@ -104,7 +106,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     setDisplayError(null);
     props.app.commands
       .execute('scheduling:stop-job', {
-        id: props.model.jobId
+        id: props.model?.jobId
       })
       .then(_ => props.handleModelChange())
       .catch((e: Error) => setDisplayError(e.message));
@@ -114,7 +116,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     setDownloading(true);
     props.app.commands
       .execute(CommandIDs.downloadFiles, {
-        id: props.model.jobId,
+        id: props.model?.jobId,
         redownload: false
       })
       .then(() => {
@@ -128,9 +130,13 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       });
   };
 
-  const ButtonBar = (
-    <Stack direction="row" gap={2} justifyContent="flex-end" flexWrap={'wrap'}>
-      {props.model.downloaded === false &&
+  const JobButtonBar = (
+    <ButtonBar>
+      <Button variant="contained" onClick={props.reload}>
+        {trans.__('Reload Job')}
+      </Button>
+      {props.model !== null &&
+        props.model.downloaded === false &&
         (props.model.status === 'COMPLETED' ||
           props.model.status === 'FAILED') && (
           <Button
@@ -141,20 +147,34 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             {trans.__('Download Job Files')}
           </Button>
         )}
-      {props.model.status === 'IN_PROGRESS' && (
+      {props.model !== null && props.model.status === 'IN_PROGRESS' && (
         <ConfirmDialogStopButton
           handleStop={handleStopJob}
           title={trans.__('Stop Job')}
           dialogText={trans.__('Are you sure that you want to stop this job?')}
         />
       )}
-      <ConfirmDialogDeleteButton
-        handleDelete={handleDeleteJob}
-        title={trans.__('Delete Job')}
-        dialogText={trans.__('Are you sure that you want to delete this job?')}
-      />
-    </Stack>
+      {props.model !== null && (
+        <ConfirmDialogDeleteButton
+          handleDelete={handleDeleteJob}
+          title={trans.__('Delete Job')}
+          dialogText={trans.__(
+            'Are you sure that you want to delete this job?'
+          )}
+        />
+      )}
+    </ButtonBar>
   );
+
+  // If we don't have a set model, don't display anything else.
+  if (props.model === null) {
+    return (
+      <>
+        {displayError && <Alert severity="error">{displayError}</Alert>}
+        {JobButtonBar}
+      </>
+    );
+  }
 
   const inputJobFile = props.model.job_files.find(
     jobFile => jobFile.file_format === 'input' && jobFile.file_path
@@ -311,7 +331,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {props.model.statusMessage && (
         <Alert severity="error">{props.model.statusMessage}</Alert>
       )}
-      {ButtonBar}
+      {JobButtonBar}
       {CoreOptions}
       {Parameters}
       {AdvancedOptions}

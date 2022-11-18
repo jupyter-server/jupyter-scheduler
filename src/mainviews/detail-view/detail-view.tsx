@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import {
@@ -86,7 +86,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
     }
   };
 
-  useEffect(() => {
+  const fetchModel = () => {
     switch (props.jobsView) {
       case JobsView.JobDetail:
         fetchJobDetailModel();
@@ -95,7 +95,16 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
         fetchJobDefinitionModel();
         break;
     }
+  };
+
+  useEffect(() => {
+    fetchModel();
   }, [props.jobsView, props.model, props.model.id]);
+
+  const reload = useCallback(() => {
+    setFetchError(undefined);
+    fetchModel();
+  }, []);
 
   const BreadcrumbsStyled = (
     <div role="presentation">
@@ -137,8 +146,12 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             ? trans.__('Job Detail')
             : trans.__('Job Definition')}
         </Heading>
-        {fetchError && <Alert severity="error">{fetchError}</Alert>}
-        {props.jobsView === JobsView.JobDetail && jobModel && (
+        {fetchError && (
+          <Alert severity="error" onClose={() => setFetchError(undefined)}>
+            {fetchError}
+          </Alert>
+        )}
+        {props.jobsView === JobsView.JobDetail && (
           <JobDetail
             app={props.app}
             model={jobModel}
@@ -147,9 +160,10 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             setJobsView={props.setJobsView}
             // Extension point: optional additional component
             advancedOptions={props.advancedOptions}
+            reload={reload}
           />
         )}
-        {props.jobsView === JobsView.JobDefinitionDetail && jobDefinitionModel && (
+        {props.jobsView === JobsView.JobDefinitionDetail && (
           <JobDefinition
             app={props.app}
             model={jobDefinitionModel}
@@ -160,6 +174,7 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
             editJobDefinition={props.editJobDefinition}
             // Extension point: optional additional component
             advancedOptions={props.advancedOptions}
+            reload={reload}
           />
         )}
         {!jobModel && !jobDefinitionModel && !fetchError && (
