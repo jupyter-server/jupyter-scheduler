@@ -547,10 +547,9 @@ class Scheduler(BaseScheduler):
             )
 
             describe_job_definition = DescribeJobDefinition.from_orm(filtered_query.one())
-            new_input_filename = os.path.basename(model.input_uri)
 
             if (
-                describe_job_definition.input_filename == new_input_filename
+                (not model.input_uri or (model.input_uri and describe_job_definition.input_filename == os.path.basename(model.input_uri)))
                 and describe_job_definition.schedule == model.schedule
                 and describe_job_definition.timezone == model.timezone
                 and (model.active == None or describe_job_definition.active == model.active)
@@ -560,6 +559,7 @@ class Scheduler(BaseScheduler):
             updates = model.dict(exclude_none=True, exclude={"input_uri"})
 
             if model.input_uri:
+                new_input_filename = os.path.basename(model.input_uri)
                 staging_paths = self.get_staging_paths(describe_job_definition)
                 staging_directory = os.path.dirname(staging_paths["input"])
                 self.copy_input_file(
