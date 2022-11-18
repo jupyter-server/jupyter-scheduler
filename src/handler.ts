@@ -370,6 +370,7 @@ export namespace Scheduler {
     schedule?: string;
     timezone?: string;
     active?: boolean;
+    input_uri?: string;
   }
 
   export interface IDescribeJobDefinition {

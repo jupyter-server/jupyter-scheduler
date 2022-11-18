@@ -5,10 +5,10 @@ import {
   Box,
   Breadcrumbs,
   CircularProgress,
-  InputLabel,
   Link,
   Stack,
-  Typography
+  Typography,
+  InputLabel
 } from '@mui/material';
 
 import { Heading } from '../components/heading';
@@ -18,6 +18,9 @@ import { IUpdateJobDefinitionModel, JobsView } from '../model';
 import { useTranslator } from '../hooks';
 import { SchedulerService } from '../handler';
 import { Scheduler } from '../tokens';
+import { InputFileSnapshot } from '../components/input-file-snapshot';
+import { LabeledValue } from '../components/labeled-value';
+import { timestampLocalize } from './detail-view/job-detail';
 
 export type EditJobDefinitionProps = {
   model: IUpdateJobDefinitionModel;
@@ -67,7 +70,8 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
     setSaving(true);
     ss.updateJobDefinition(props.model.definitionId, {
       schedule: props.model.schedule,
-      timezone: props.model.timezone
+      timezone: props.model.timezone,
+      input_uri: props.model.inputFileSnapshot
     })
       .then(() => {
         props.showJobDefinitionDetail(props.model.definitionId);
@@ -89,6 +93,7 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           {displayError}
         </Alert>
       )}
+      <InputFileSnapshot inputFileSnapshot={props.model.inputFileSnapshot} />
       <InputLabel>{trans.__('Schedule')}</InputLabel>
       <ScheduleInputs
         idPrefix=""
@@ -157,6 +162,10 @@ export function EditJobDefinition(props: EditJobDefinitionProps): JSX.Element {
           <Typography color="text.primary">{trans.__('Edit')}</Typography>
         </Breadcrumbs>
         <Heading level={1}>{trans.__('Edit Job Definition')}</Heading>
+        <LabeledValue
+          value={timestampLocalize(props.model.updateTime)}
+          label={trans.__('Job definition updated at')}
+        />
         <EditJobDefinitionBody {...props} />
       </Stack>
     </Box>

@@ -15,6 +15,8 @@ import { DetailView } from './mainviews/detail-view';
 import { CreateJobFromDefinition } from './mainviews/create-job-from-definition';
 import { EditJobDefinition } from './mainviews/edit-job-definition';
 import { NotebookJobsList } from './mainviews/list-jobs';
+import { Message } from '@lumino/messaging';
+import { IDragEvent } from '@lumino/dragdrop';
 
 import TranslatorContext from './context';
 import {
@@ -27,6 +29,11 @@ import {
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
 
+/**
+ * The mime type for a rich contents drag object.
+ */
+const CONTENTS_MIME_RICH = 'application/x-jupyter-icontentsrich';
+
 export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _title?: string;
   readonly _description?: string;
@@ -36,6 +43,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
+  private _last_input_drop_target: Element | null;
 
   constructor(options: NotebookJobsPanel.IOptions) {
     super(
@@ -59,9 +67,112 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._translator = options.translator;
     this._trans = this._translator.load('jupyterlab');
     this._advancedOptions = options.advancedOptions;
+    this._last_input_drop_target = null;
 
     this.node.setAttribute('role', 'region');
     this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
+  }
+
+  removeDragHoverClass = (event: Event): void => {
+    if ((event.target as Element)?.className?.includes('draghover')) {
+      (event.target as Element)?.classList?.remove('draghover');
+      this._last_input_drop_target = null;
+    }
+  };
+
+  handleDrag = (event: IDragEvent): void => {
+    if (
+      this.model.jobsView === JobsView.EditJobDefinition &&
+      (event.target as Element)?.className?.includes('jp-input-file-snapshot')
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.dropAction = 'move';
+      if (!(event.target as Element)?.className?.includes('draghover')) {
+        (event.target as Element)?.classList?.add('draghover');
+        (event.target as Element)?.addEventListener(
+          'lm-dragleave',
+          this.removeDragHoverClass
+        );
+        this._last_input_drop_target = event.target as Element;
+      }
+    } else if (this._last_input_drop_target) {
+      this._last_input_drop_target.classList?.remove('draghover');
+      this._last_input_drop_target = null;
+    }
+  };
+
+  handleDrop = (event: IDragEvent): void => {
+    if (
+      this.model.jobsView === JobsView.EditJobDefinition &&
+      (event?.target as Element)?.className?.includes('input-file-snapshot')
+    ) {
+      const mimeData = event.mimeData.getData(CONTENTS_MIME_RICH);
+      event.dropAction = 'copy';
+      event.preventDefault();
+      event.stopPropagation();
+      this.model.updateJobDefinitionModel = {
+        ...this.model.updateJobDefinitionModel,
+        inputFileSnapshot: mimeData.model.path
+      };
+      if ((event.target as Element)?.className?.includes('draghover')) {
+        (event.target as Element)?.classList?.remove('draghover');
+        this._last_input_drop_target = null;
+      }
+    }
+  };
+
+  /**
+   * Handle the DOM events for the directory listing.
+   *
+   * @param event - The DOM event sent to the widget.
+   *
+   * #### Notes
+   * This method implements the DOM `EventListener` interface and is
+   * called in response to events on the panel's DOM node. It should
+   * not be called directly by user code (see
+   * https://jupyterlab.readthedocs.io/en/stable/developer/patterns.html,
+   * "Dom Events" section).
+   */
+  handleEvent(event: Event): void {
+    switch (event.type) {
+      case 'lm-dragenter':
+        event.preventDefault();
+        event.stopPropagation();
+        break;
+      case 'lm-dragover':
+        this.handleDrag(event as IDragEvent);
+        break;
+      case 'lm-drop':
+        this.handleDrop(event as IDragEvent);
+        break;
+      case 'lm-dragleave':
+        (event.target as Element)?.removeEventListener(
+          'lm-dragleave',
+          this.removeDragHoverClass
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  /**
+   *  A message handler invoked on an `'after-attach'` message.
+   */
+  protected onAfterAttach(_: Message): void {
+    this.node.addEventListener('lm-dragover', this, true);
+    this.node.addEventListener('lm-dragenter', this, true);
+    this.node.addEventListener('lm-drop', this, true);
+  }
+
+  /**
+   *  A message handler invoked on an `'before-detach'` message.
+   */
+  protected onBeforeDetach(_: Message): void {
+    this.node.removeEventListener('lm-dragover', this, true);
+    this.node.removeEventListener('lm-dragenter', this, true);
+    this.node.removeEventListener('lm-drop', this, true);
   }
 
   showListView(
@@ -94,7 +205,9 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       // TODO: should these properties really be optional?
       schedule: jobDef.schedule || '* * * * *',
       timezone: jobDef.timezone || 'UTC',
-      scheduleInterval: 'custom'
+      scheduleInterval: 'custom',
+      inputFileSnapshot: jobDef.inputFile,
+      updateTime: jobDef.updateTime
     };
   }
 
