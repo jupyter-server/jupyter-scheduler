@@ -549,7 +549,14 @@ class Scheduler(BaseScheduler):
             describe_job_definition = DescribeJobDefinition.from_orm(filtered_query.one())
 
             if (
-                (not model.input_uri or (model.input_uri and describe_job_definition.input_filename == os.path.basename(model.input_uri)))
+                (
+                    not model.input_uri
+                    or (
+                        model.input_uri
+                        and describe_job_definition.input_filename
+                        == os.path.basename(model.input_uri)
+                    )
+                )
                 and describe_job_definition.schedule == model.schedule
                 and describe_job_definition.timezone == model.timezone
                 and (model.active == None or describe_job_definition.active == model.active)
