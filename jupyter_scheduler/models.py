@@ -212,7 +212,7 @@ class CreateJobDefinition(BaseModel):
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
-        if not values["input_filename"] and values["input_uri"]:
+        if not values["input_filename"] and "input_uri" in values and values["input_uri"]:
             values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values

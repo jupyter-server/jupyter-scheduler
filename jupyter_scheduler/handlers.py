@@ -137,7 +137,9 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(500, str(e)) from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred during creation of job.") from e
+            raise HTTPError(
+                500, "Unexpected error occurred during creation of job definition."
+            ) from e
         else:
             self.finish(json.dumps(dict(job_definition_id=job_definition_id)))
 
@@ -188,15 +190,12 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         if job_id:
             try:
                 job = await ensure_async(self.scheduler.get_job(job_id))
-            except ValidationError as e:
-                self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
             except SchedulerError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
             except Exception as e:
                 self.log.exception(e)
-                raise HTTPError(500, "Unexpected error occurred while fetching job details.") from e
+                raise HTTPError(500, "Unexpected error occurred while getting job details.") from e
             else:
                 self.finish(job.json())
         else:

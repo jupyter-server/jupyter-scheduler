@@ -2,9 +2,14 @@ import json
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 from tornado.httpclient import HTTPClientError
 
-from jupyter_scheduler.exceptions import IdempotencyTokenError, InputUriError
+from jupyter_scheduler.exceptions import (
+    IdempotencyTokenError,
+    InputUriError,
+    SchedulerError,
+)
 from jupyter_scheduler.handlers import compute_sort_model
 from jupyter_scheduler.models import (
     CountJobsQuery,
@@ -234,6 +239,52 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
         assert actual_job["name"] == expected_job["name"]
 
 
+async def test_get_job_for_scheduler_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_get_job:
+        mock_get_job.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch(
+                "scheduler", "jobs", "542e0fac-1274-4a78-8340-a850bdb559c8", method="GET"
+            )
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_get_job_for_unexpected_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_list_jobs:
+        mock_list_jobs.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch(
+                "scheduler", "jobs", "542e0fac-1274-4a78-8340-a850bdb559c8", method="GET"
+            )
+        assert expected_http_error(e, 500, "Unexpected error occurred while getting job details.")
+
+
+async def test_get_jobs_for_validation_error(jp_fetch):
+    with pytest.raises(HTTPClientError) as e:
+        await jp_fetch("scheduler", "jobs", method="GET", params={"max_items": "abc"})
+    assert expected_http_error(
+        e,
+        500,
+        "1 validation error for ListJobsQuery\nmax_items\n  value is not a valid integer (type=type_error.integer)",
+    )
+
+
+async def test_get_jobs_for_scheduler_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.list_jobs") as mock_list_jobs:
+        mock_list_jobs.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "jobs", method="GET")
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_get_jobs_for_unexpected_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.list_jobs") as mock_list_jobs:
+        mock_list_jobs.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "jobs", method="GET")
+        assert expected_http_error(e, 500, "Unexpected error occurred while getting jobs list.")
+
+
 async def test_patch_jobs_for_status(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
@@ -291,6 +342,47 @@ async def test_patch_jobs_for_name_update(jp_fetch):
         assert response.code == 204
 
 
+@pytest.mark.skip("Can't produce a validation error currently, but leaving this here for future")
+async def test_patch_jobs_for_validation_error(jp_fetch):
+    with pytest.raises(HTTPClientError) as e:
+        await jp_fetch(
+            "scheduler",
+            "jobs",
+            "542e0fac-1274-4a78-8340-a850bdb559c8",
+            method="PATCH",
+            body=json.dumps({"a": "b"}),
+        )
+    assert expected_http_error(e, 500, "Validation error")
+
+
+async def test_patch_jobs_for_scheduler_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
+        mock_update_job.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch(
+                "scheduler",
+                "jobs",
+                "542e0fac-1274-4a78-8340-a850bdb559c8",
+                method="PATCH",
+                body=json.dumps({"name": "job_b"}),
+            )
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_patch_jobs_for_unexpected_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
+        mock_update_job.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch(
+                "scheduler",
+                "jobs",
+                "542e0fac-1274-4a78-8340-a850bdb559c8",
+                method="PATCH",
+                body=json.dumps({"name": "job_b"}),
+            )
+        assert expected_http_error(e, 500, "Unexpected error occurred while updating the job.")
+
+
 async def test_delete_job(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
@@ -298,6 +390,24 @@ async def test_delete_job(jp_fetch):
 
         mock_delete_job.assert_called_once_with(job_id)
         assert response.code == 204
+
+
+async def test_delete_job_for_scheduler_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
+        mock_delete_job.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+            response = await jp_fetch("scheduler", "jobs", job_id, method="DELETE")
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_delete_job_for_unexpected_error(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
+        mock_delete_job.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+            response = await jp_fetch("scheduler", "jobs", job_id, method="DELETE")
+        assert expected_http_error(e, 500, "Unexpected error occurred while deleting the job.")
 
 
 async def test_batch_delete(jp_fetch):
@@ -370,3 +480,200 @@ async def test_get_config(jp_fetch):
 def test_compute_sort_model(query_argument, expected_model):
     model = compute_sort_model(query_argument)
     assert model == expected_model
+
+
+async def test_post_job_from_job_definition_for_validation_error(jp_fetch):
+    with pytest.raises(HTTPClientError) as e:
+        payload = {"parameters": 1}
+        await jp_fetch(
+            "scheduler", "job_definitions", "df-1", "jobs", method="POST", body=json.dumps(payload)
+        )
+    assert expected_http_error(
+        e,
+        500,
+        "1 validation error for CreateJobFromDefinition\nparameters\n  value is not a valid dict (type=type_error.dict)",
+    )
+
+
+async def test_post_job_from_job_definition_for_scheduler_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.create_job_from_definition"
+    ) as mock_create_job:
+        mock_create_job.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch(
+                "scheduler", "job_definitions", "df-1", "jobs", method="POST", body=json.dumps({})
+            )
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_post_job_from_job_definition_for_unexpected_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.create_job_from_definition"
+    ) as mock_create_job:
+        mock_create_job.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch(
+                "scheduler", "job_definitions", "df-1", "jobs", method="POST", body=json.dumps({})
+            )
+        assert expected_http_error(e, 500, "Unexpected error occurred during creation of job.")
+
+
+async def test_get_job_definition_for_scheduler_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.get_job_definition"
+    ) as mock_get_job_definition:
+        mock_get_job_definition.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "job_definitions", "def-1", method="GET")
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_get_job_definition_for_unexpected_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.get_job_definition"
+    ) as mock_get_job_definition:
+        mock_get_job_definition.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "job_definitions", "def-1", method="GET")
+        assert expected_http_error(
+            e, 500, "Unexpected error occurred while getting job definition details."
+        )
+
+
+async def test_get_job_definitions_for_validation_error(jp_fetch):
+    with pytest.raises(HTTPClientError) as e:
+        await jp_fetch("scheduler", "job_definitions", method="GET", params={"max_items": "abc"})
+    assert expected_http_error(
+        e,
+        500,
+        "1 validation error for ListJobDefinitionsQuery\nmax_items\n  value is not a valid integer (type=type_error.integer)",
+    )
+
+
+async def test_get_job_definitions_for_scheduler_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.list_job_definitions"
+    ) as mock_list_job_definitions:
+        mock_list_job_definitions.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "job_definitions", method="GET")
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_get_job_definitions_for_unexpected_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.list_job_definitions"
+    ) as mock_list_job_definitions:
+        mock_list_job_definitions.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "job_definitions", method="GET")
+        assert expected_http_error(
+            e, 500, "Unexpected error occurred while getting job definition list."
+        )
+
+
+async def test_post_job_definition_for_validation_error(jp_fetch):
+    with pytest.raises(HTTPClientError) as e:
+        payload = {}
+        await jp_fetch("scheduler", "job_definitions", method="POST", body=json.dumps(payload))
+    assert expected_http_error(
+        e,
+        500,
+        "3 validation errors for CreateJobDefinition\ninput_uri\n  field required (type=value_error.missing)\nruntime_environment_name\n  field required (type=value_error.missing)\nname\n  field required (type=value_error.missing)",
+    )
+
+
+async def test_post_job_definition_scheduler_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.create_job_definition"
+    ) as mock_create_job_definition:
+        mock_create_job_definition.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            payload = {
+                "input_uri": "notebook.ipynb",
+                "name": "a job",
+                "runtime_environment_name": "environment_a",
+            }
+            await jp_fetch("scheduler", "job_definitions", method="POST", body=json.dumps(payload))
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_post_job_definition_unexpected_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.create_job_definition"
+    ) as mock_create_job_definition:
+        mock_create_job_definition.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            payload = {
+                "input_uri": "notebook.ipynb",
+                "name": "a job",
+                "runtime_environment_name": "environment_a",
+            }
+            await jp_fetch("scheduler", "job_definitions", method="POST", body=json.dumps(payload))
+        assert expected_http_error(
+            e, 500, "Unexpected error occurred during creation of job definition."
+        )
+
+
+async def test_patch_job_definition_for_validation_error(jp_fetch):
+    with pytest.raises(HTTPClientError) as e:
+        payload = {"output_formats": 1}
+        await jp_fetch(
+            "scheduler", "job_definitions", "def-1", method="PATCH", body=json.dumps(payload)
+        )
+    assert expected_http_error(
+        e,
+        500,
+        "1 validation error for UpdateJobDefinition\noutput_formats\n  value is not a valid list (type=type_error.list)",
+    )
+
+
+async def test_patch_job_definition_for_scheduler_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.update_job_definition"
+    ) as mock_update_job_definition:
+        mock_update_job_definition.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            payload = {}
+            await jp_fetch(
+                "scheduler", "job_definitions", "def-1", method="PATCH", body=json.dumps(payload)
+            )
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_patch_job_definition_for_unexpected_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.update_job_definition"
+    ) as mock_update_job_definition:
+        mock_update_job_definition.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            payload = {}
+            await jp_fetch(
+                "scheduler", "job_definitions", "def-1", method="PATCH", body=json.dumps(payload)
+            )
+        assert expected_http_error(
+            e, 500, "Unexpected error occurred while updating the job definition."
+        )
+
+
+async def test_delete_job_definition_for_scheduler_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.delete_job_definition"
+    ) as mock_delete_job_definition:
+        mock_delete_job_definition.side_effect = SchedulerError("Scheduler error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "job_definitions", "def-1", method="DELETE")
+        assert expected_http_error(e, 500, "Scheduler error")
+
+
+async def test_delete_job_definition_for_unexpected_error(jp_fetch):
+    with patch(
+        "jupyter_scheduler.scheduler.Scheduler.delete_job_definition"
+    ) as mock_delete_job_definition:
+        mock_delete_job_definition.side_effect = ValueError("Unexpected error")
+        with pytest.raises(HTTPClientError) as e:
+            await jp_fetch("scheduler", "job_definitions", "def-1", method="DELETE")
+        assert expected_http_error(
+            e, 500, "Unexpected error occurred while deleting the job definition."
+        )
