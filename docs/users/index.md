@@ -24,11 +24,11 @@ and checking that both the `jupyter_scheduler` server extension and the
 
 ## Use
 
-Jupyter Scheduler can run your Jupyter notebooks in the background once or on a schedule. You can create *jobs* (single run of an individual notebook) and *job definitions* (scheduled recurring notebook jobs). 
+Jupyter Scheduler can run your Jupyter notebooks in the background once or on a schedule. You can create *jobs* (single run of an individual notebook) and *job definitions* (scheduled recurring notebook jobs).
 
 ### Creating a job or job definition
 
-1. Choose a Jupyter notebook to create a job or job definition from 
+1. Choose a Jupyter notebook to create a job or job definition from
   - To create a *job* or *job definition* from a file browser, right-click on a notebook in the file browser and choose “Create Notebook Job” from the context menu:
 ![“Create Notebook Job” button in the file browser context menu](create_job_from_filebrowser.png)
 
