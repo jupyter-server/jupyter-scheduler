@@ -60,7 +60,7 @@ You can sort the list by clicking one of the headers. You can delete and pause/r
 When one of your jobs has completed, you can download its files from the list or detail view. When your notebook runs, we save a copy of the input file, so that even if you later change the file, we capture the state of the notebook at the time your job ran. We use unique names for the input and output files so that rerunning the same notebook produces new files every time.
 ### Using details view
 
-You can click job or job definition name in the list view to see details about it. 
+You can click job or job definition name in the list view to see details about it.
 
 - Job Detail
 
