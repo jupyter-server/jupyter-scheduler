@@ -49,4 +49,19 @@ Jupyter Scheduler can run your Jupyter notebooks in the background once or on a 
 
 ### Using list view
 
+Once you’ve created a job or job schedule, you can use the “Notebook Jobs” icon on the launcher to view lists of jobs and job definitions. Each item’s name links to a detail view.
+
+[launcher pic fullscreen]
+
+You can sort the list by clicking one of the headers. You can delete and pause/resume the execution of each job in the list by clicking appropriate buttons in "Actions" column.
+
+[populated list view pic with download and action buttons]
+
+When one of your jobs has completed, you can download its files from the list or detail view. When your notebook runs, we save a copy of the input file, so that even if you later change the file, we capture the state of the notebook at the time your job ran. We use unique names for the input and output files so that rerunning the same notebook produces new files every time.
 ### Using details view
+
+You can click job or job definition name in the list view to see details about it. 
+
+- Job Detail
+
+- Jod Definition Detail
