@@ -38,13 +38,14 @@ Jupyter Scheduler can run your Jupyter notebooks in the background once or on a 
 2. Fill out Create Job form
 
    You can give your notebook job or job definition a name, choose an environment to run it in, select different output formats, and provide parameters that are set as local variables when your notebook gets executed. This parameterized execution is similar to [Papermill](https://papermill.readthedocs.io/en/latest/); Jupyter Scheduler provides a UI for managing and accessing the outputs of your notebook jobs inside JupyterLab.
+   
    - To create a *job*, press "Create" button when "Run Now" is chosen under "Schedule".
-  !["Create Job Form"](create_job_form.png)
+   !["Create Job Form"](create_job_form.png)
 
    - To create a *job definition* that would run your job on a recurring schedule select “Run on a schedule” radio button in "Schedule" section. We provide a few useful shortcuts to, for example, run your notebook at a specified minute, hour, daily or weekly interval.
-  !["Run on schedule"](run_on_schedule.png)
+   !["Run on schedule"](run_on_schedule.png)
    You can also specify a custom schedule in [crontab format](https://www.man7.org/linux/man-pages/man5/crontab.5.html) by selecting "Custom schedule" in "Interval" drop-down menu.
-  !["Custom schedule option"](custom_schedule.png)
+   !["Custom schedule option"](custom_schedule.png)
 
 ### Using list view
 
