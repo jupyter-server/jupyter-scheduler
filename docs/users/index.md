@@ -77,7 +77,7 @@ After download is finished, you can access the downloaded files through links th
 
 You can click job or job definition name in the list view to see its details.
 
-- Job Detail
+#### Job detail
 
 Job Definition detail page displays information about particular job and provides access to action buttons with which you can reload the state of the job, stop the job (if it's in progress), download output files (if it's finished), and delete a job.
 
