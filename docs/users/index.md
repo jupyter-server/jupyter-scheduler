@@ -39,7 +39,7 @@ To create a *job* or *job definition* from an open notebook, click on a “Creat
 
 Give your notebook job or job definition a name, choose an environment to run it in, select its output formats, and provide parameters that are set as local variables when your notebook gets executed. This parameterized execution is similar to the one used in [Papermill](https://papermill.readthedocs.io/en/latest/).
 
-   - To create a *job*, select "Run now" in the "Schedule" section, and click "Create".
+To create a *job* that runs once, select "Run now" in the "Schedule" section, and click "Create".
    !["Create Job Form"](./images/create_job_form.png)
 
    - To create a *job definition* that runs repeatedly on a schedule, select "Run on a schedule" in the "Schedule" section. You can use shortcuts to, for example, run your notebook every hour or every day.
