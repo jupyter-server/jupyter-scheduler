@@ -61,7 +61,7 @@ You can sort the list by clicking one of the headers (for example, click "Job na
 
 !["Notebook Jobs list sorted alphabetically after Job Name header is clicked"](./images/headers.png)
 
-You can also delete each job or pause its execution in the list by clicking appropriate buttons in "Actions" column.
+You can also delete each job or stop a running job by clicking the buttons in the "Actions" column. The job definitions list also has a button to pause and resume a job definition. Paused job definitions do not start jobs.
 
 !["Delete and Stop buttons in Actions column"](./images/actions_list.png)
 
