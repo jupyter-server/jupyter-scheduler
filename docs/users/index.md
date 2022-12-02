@@ -79,7 +79,7 @@ You can click job or job definition name in the list view to see its details.
 
 #### Job detail
 
-Job Definition detail page displays information about particular job and provides access to action buttons with which you can reload the state of the job, stop the job (if it's in progress), download output files (if it's finished), and delete a job.
+The job detail page displays information about one job. It includes action buttons to reload the detail view, stop the job (if it's in progress), download output files (if it's finished), and delete a job.
 
 !["Action buttons in job detail view"](./images/actions_job_details.png)
 
