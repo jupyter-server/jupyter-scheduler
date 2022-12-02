@@ -53,17 +53,17 @@ Once you’ve created a job or job schedule, you can use the “Notebook Jobs”
 
 !["Launcher with Notebook Jobs icon in Other section"](./images/launcher.png)
 
-Each item’s name links to a detail view. 
+Each item’s name links to a detail view.
 
-You can sort the list by clicking one of the headers (for example, click "Job name" header to sort the list alphabetically based on "Job Name"). 
+You can sort the list by clicking one of the headers (for example, click "Job name" header to sort the list alphabetically based on "Job Name").
 
 !["Notebook Jobs list sorted alphabetically after Job Name header is clicked"](./images/headers.png)
 
-You can also delete each job or pause its execution in the list by clicking appropriate buttons in "Actions" column. 
+You can also delete each job or pause its execution in the list by clicking appropriate buttons in "Actions" column.
 
 !["Delete and Stop buttons in Actions column"](./images/actions.png)
 
-When one of your jobs has completed, you can download its files by clicking "Download job files" button in "Ouput files" column. 
+When one of your jobs has completed, you can download its files by clicking "Download job files" button in "Ouput files" column.
 
 !["Download button in Output Files column"](./images/download_button.png)
 
