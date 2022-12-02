@@ -69,7 +69,7 @@ When one of your jobs has completed, you can download its input and output files
 
 !["Download button in Output Files column"](./images/download_button.png)
 
-After download is finished, you can access the downloaded files through links that appear instead of "Download job files" button in "Output files" column.
+After clicking the download button, links to files appear in the "Input file" and "Output files" columns.
 
 !["Links to downloaded files in Output Files column after download is finished"](./images/downloaded_files.png)
 
