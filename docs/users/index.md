@@ -39,7 +39,7 @@ Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a 
 
 Give your notebook job or job definition a name, choose an environment to run it in, select its output formats, and provide parameters that are set as local variables when your notebook gets executed. This parameterized execution is similar to the one used in [Papermill](https://papermill.readthedocs.io/en/latest/).
 
-   - To create a *job*, press "Create" button when "Run Now" is chosen in "Schedule" section.
+   - To create a *job*, select "Run now" in the "Schedule" section, and click "Create".
    !["Create Job Form"](./images/create_job_form.png)
 
    - To create a *job definition* that would run your job on a recurring schedule select “Run on a schedule” radio button in "Schedule" section. We provide a few useful shortcuts to, for example, run your notebook at a specified minute, hour, daily or weekly interval.
