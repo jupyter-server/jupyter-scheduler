@@ -73,7 +73,7 @@ After download is finished, you can access the downloaded files through links th
 
 !["Links to downloaded files in Output Files column after download is finished"](./images/downloaded_files.png)
 
-### Using details view
+### Details view
 
 You can click job or job definition name in the list view to see its details.
 
