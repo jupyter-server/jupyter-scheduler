@@ -65,7 +65,7 @@ You can also delete each job or stop a running job by clicking the buttons in th
 
 !["Delete and Stop buttons in Actions column"](./images/actions_list.png)
 
-When one of your jobs has completed, you can download its files by clicking "Download job files" button in "Ouput files" column.
+When one of your jobs has completed, you can download its input and output files by clicking the "Download job files" button in the "Output files" column.
 
 !["Download button in Output Files column"](./images/download_button.png)
 
