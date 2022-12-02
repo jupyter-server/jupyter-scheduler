@@ -24,7 +24,7 @@ and checking that both the `jupyter_scheduler` server extension and the
 
 ## Use
 
-Jupyter Scheduler can run your Jupyter notebooks in the background once or on a schedule. You can create *jobs* (single run of an individual notebook) and *job definitions* (scheduled recurring notebook jobs). When your notebook runs, we save a copy of the input file, so that even if you later change the file, we capture the state of the notebook at the time your job ran. We use unique names for the input and output files so that rerunning the same notebook produces new files every time.
+Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a schedule. You can create *jobs* (single run of an individual notebook) and *job definitions* (scheduled recurring notebook jobs). When the scheduler runs your notebook, it makes a copy of the input file. The scheduler uses unique names for the input and output files so that rerunning the same notebook produces new files every time.
 
 ### Creating a job or job definition
 
