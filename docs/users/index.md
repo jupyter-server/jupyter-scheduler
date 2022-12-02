@@ -49,7 +49,7 @@ Give your notebook job or job definition a name, choose an environment to run it
 
 ### Using list view
 
-Once you’ve created a job or job schedule, you can use the “Notebook Jobs” icon on the launcher to view lists of jobs and job definitions.
+Once you've created a job or job schedule, you can use the "Notebook Jobs" icon in the launcher to view lists of jobs and job definitions.
 
 !["Launcher with Notebook Jobs icon in Other section"](./images/launcher.png)
 
