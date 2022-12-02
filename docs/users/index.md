@@ -75,7 +75,7 @@ After download is finished, you can access the downloaded files through links th
 
 ### Details view
 
-You can click job or job definition name in the list view to see its details.
+You can click the job or job definition name in the list view to see details.
 
 #### Job detail
 
