@@ -53,7 +53,7 @@ Once you've created a job or job schedule, you can use the "Notebook Jobs" icon 
 
 !["Launcher with Notebook Jobs icon in Other section"](./images/launcher.png)
 
-Each items name links to a detail view.
+Each item's name links to a detail view.
 
 !["Job name as a link in each column"](./images/item_name.png)
 
