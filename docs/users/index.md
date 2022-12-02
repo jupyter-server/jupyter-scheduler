@@ -42,7 +42,7 @@ Give your notebook job or job definition a name, choose an environment to run it
 To create a *job* that runs once, select "Run now" in the "Schedule" section, and click "Create".
    !["Create Job Form"](./images/create_job_form.png)
 
-   - To create a *job definition* that runs repeatedly on a schedule, select "Run on a schedule" in the "Schedule" section. You can use shortcuts to, for example, run your notebook every hour or every day.
+To create a *job definition* that runs repeatedly on a schedule, select "Run on a schedule" in the "Schedule" section. You can use shortcuts to, for example, run your notebook every hour or every day.
    !["Run on schedule"](./images/run_on_schedule.png)
    You can also specify a custom schedule in [crontab format](https://www.man7.org/linux/man-pages/man5/crontab.5.html) by selecting "Custom schedule" in the "Interval" drop-down menu.
    !["Custom schedule option"](./images/custom_schedule.png)
