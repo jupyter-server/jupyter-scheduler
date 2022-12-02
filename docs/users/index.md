@@ -83,7 +83,7 @@ Job Definition detail page displays information about particular job and provide
 
 !["Action buttons in job detail view"](./images/actions_job_details.png)
 
-- Jod Definition Detail
+#### Job definition detail
 
 The job definition detail page displays information about one job definition. It includes action buttons to reload, pause, resume, edit, and delete the job definition. It also includes a list of jobs created by this job definition.
 
