@@ -85,7 +85,7 @@ Job Definition detail page displays information about particular job and provide
 
 - Jod Definition Detail
 
-Job Definition detail page displays information about particular job definition, provides access to action buttons, and list of jobs created by this job definition.  
+Job Definition detail page displays information about particular job definition, provides access to action buttons, and list of jobs created by this job definition.
 
 You can reload the state of the job definition, run the job based on the input file snapshot, pause the creation of new jobs, edit job definition or delete it by clicking appropriate buttons on top of the form.
 
