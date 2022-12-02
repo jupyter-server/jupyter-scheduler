@@ -58,7 +58,7 @@ Each item's name links to a detail view.
 
 !["Job name as a link in each column"](./images/item_name.png)
 
-You can sort the list by clicking one of the headers (for example, click "Job name" header to sort the list alphabetically based on "Job Name").
+You can sort the list by clicking one of the headers (for example, click the "Job name" header to sort the list alphabetically based on "Job Name").
 
 !["Notebook Jobs list sorted alphabetically after Job Name header is clicked"](./images/headers.png)
 
