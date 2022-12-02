@@ -53,7 +53,9 @@ Once you’ve created a job or job schedule, you can use the “Notebook Jobs”
 
 !["Launcher with Notebook Jobs icon in Other section"](./images/launcher.png)
 
-Each item’s name links to a detail view.
+Each items name links to a detail view.
+
+!["Job name as a link in each column"](./images/item_name.png)
 
 You can sort the list by clicking one of the headers (for example, click "Job name" header to sort the list alphabetically based on "Job Name").
 
@@ -61,13 +63,13 @@ You can sort the list by clicking one of the headers (for example, click "Job na
 
 You can also delete each job or pause its execution in the list by clicking appropriate buttons in "Actions" column.
 
-!["Delete and Stop buttons in Actions column"](./images/actions.png)
+!["Delete and Stop buttons in Actions column"](./images/actions_list.png)
 
 When one of your jobs has completed, you can download its files by clicking "Download job files" button in "Ouput files" column.
 
 !["Download button in Output Files column"](./images/download_button.png)
 
-After download is finished, you can access the downloaded files by clicking format names that appeared instead of "Download job files" button in "Output files" column.
+After download is finished, you can access the downloaded files through links that appear instead of "Download job files" button in "Output files" column.
 
 !["Links to downloaded files in Output Files column after download is finished"](./images/downloaded_files.png)
 
@@ -77,4 +79,14 @@ You can click job or job definition name in the list view to see its details.
 
 - Job Detail
 
+Job Definition detail page displays information about particular job and provides access to action buttons with which you can reload the state of the job, stop the job (if it's in progress), download output files (if it's finished), and delete a job.
+
+!["Action buttons in job detail view"](./images/actions_job_details.png)
+
 - Jod Definition Detail
+
+Job Definition detail page displays information about particular job definition, provides access to action buttons, and list of jobs created by this job definition.  
+
+You can reload the state of the job definition, run the job based on the input file snapshot, pause the creation of new jobs, edit job definition or delete it by clicking appropriate buttons on top of the form.
+
+!["Action buttons in job definition detail view"](./images/actions_definition_details.png)
