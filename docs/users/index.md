@@ -35,7 +35,7 @@ Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a 
    - To create a *job* or *job definition* from an open notebook, click on a “Create a notebook job” button in the top toolbar of the open notebook:
 ![“Create a notebook job” button in the top toolbar of the open Notebook](./images/create_job_from_notebook.png)
 
-2. Fill out Create Job form
+#### Submit the Create Job form
 
    You can give your notebook job or job definition a name, choose an environment to run it in, select different output formats, and provide parameters that are set as local variables when your notebook gets executed. This parameterized execution is similar to [Papermill](https://papermill.readthedocs.io/en/latest/); Jupyter Scheduler provides a UI for managing and accessing the outputs of your notebook jobs inside JupyterLab.
 
