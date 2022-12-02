@@ -29,7 +29,7 @@ Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a 
 ### Creating a job or job definition
 
 #### Choose a notebook
-   - To create a *job* or *job definition* from a file browser, right-click on a notebook in the file browser and choose “Create Notebook Job” from the context menu:
+To create a *job* or *job definition* from a file browser, right-click on a notebook in the file browser and choose “Create Notebook Job” from the context menu:
 ![“Create Notebook Job” button in the file browser context menu](./images/create_job_from_filebrowser.png)
 
    - To create a *job* or *job definition* from an open notebook, click on a “Create a notebook job” button in the top toolbar of the open notebook:
