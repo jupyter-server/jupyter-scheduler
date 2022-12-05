@@ -9,7 +9,7 @@ For configuration options, please refer to our {doc}`operator's guide </operator
 Jupyter Scheduler can be installed from the PyPI registry via `pip`:
 
 ```
-pip install jupyter-scheduler
+pip install jupyter_scheduler
 ```
 
 This automatically enables its extensions. You can verify this by running
