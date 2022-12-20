@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.2.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.4...211c92b26eecc701f4e108fd18ddc38c5dea38ef))
+
+### Enhancements made
+
+- Adds reload on detail page [#315](https://github.com/jupyter-server/jupyter-scheduler/pull/315) ([@jweill-aws](https://github.com/jweill-aws))
+- Adds override for job files manager, more error handlers [#314](https://github.com/jupyter-server/jupyter-scheduler/pull/314) ([@jweill-aws](https://github.com/jweill-aws))
+- Displays errors on edit job definition page [#308](https://github.com/jupyter-server/jupyter-scheduler/pull/308) ([@jweill-aws](https://github.com/jweill-aws))
+- Update file snapshot while editing job definition by dragndrop from file browser [#285](https://github.com/jupyter-server/jupyter-scheduler/pull/285) ([@andrii-i](https://github.com/andrii-i))
+
+### Bugs fixed
+
+- Added exception handlers, simplified imports [#309](https://github.com/jupyter-server/jupyter-scheduler/pull/309) ([@3coins](https://github.com/3coins))
+- Updates "Download job files" tooltip in list jobs view [#307](https://github.com/jupyter-server/jupyter-scheduler/pull/307) ([@jweill-aws](https://github.com/jweill-aws))
+
+### Maintenance and upkeep improvements
+
+### Documentation improvements
+
+- Add happy-case/happy path walkthrough to user docs [#323](https://github.com/jupyter-server/jupyter-scheduler/pull/323) ([@andrii-i](https://github.com/andrii-i))
+- Add readme links [#312](https://github.com/jupyter-server/jupyter-scheduler/pull/312) ([@dlqqq](https://github.com/dlqqq))
+- migrate to readthedocs documentation [#311](https://github.com/jupyter-server/jupyter-scheduler/pull/311) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-12&to=2022-12-20&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-12..2022-12-20&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-11-12..2022-12-20&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-12..2022-12-20&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-12..2022-12-20&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-12..2022-12-20&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-11-12..2022-12-20&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.1.4
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.3...2dc60d66a901b9d8ee0d4204803f1e2cf4d4ebf7))
@@ -20,8 +52,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-11&to=2022-11-12&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-11..2022-11-12&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-11..2022-11-12&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-11..2022-11-12&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.1.3
 
