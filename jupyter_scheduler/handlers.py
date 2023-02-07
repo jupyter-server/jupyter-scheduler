@@ -394,7 +394,6 @@ class ConfigHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
 
 class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
-
     _job_files_manager = None
 
     @property
