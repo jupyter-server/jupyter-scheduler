@@ -41,6 +41,9 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
+import { ServerConnection } from '@jupyterlab/services';
+import { Dialog, showDialog } from '@jupyterlab/apputils';
+import { SERVER_EXTENSION_404 } from '../util/errors';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -338,6 +341,29 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs, response.job_id, jobOptions.name);
       })
+      .catch((responseError: ServerConnection.ResponseError) => {
+        // Response error: got something other than 200 OK in response
+        const responseCode = responseError.response.status;
+        // Treat a 404 Not Found response as the backend not being present.
+        if (responseCode === 404) {
+          showDialog({
+            title: trans.__('Jupyter Scheduler server extension not found'),
+            body: SERVER_EXTENSION_404,
+            buttons: [Dialog.okButton()]
+          }).catch(console.warn);
+        }
+
+        const errorMessage =
+          responseCode === 404
+            ? trans.__('Jupyter Scheduler server extension cannot be found.')
+            : responseError.message;
+
+        props.handleModelChange({
+          ...props.model,
+          createError: errorMessage,
+          createInProgress: false
+        });
+      })
       .catch((error: Error) => {
         props.handleModelChange({
           ...props.model,
@@ -388,6 +414,29 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           response.job_definition_id,
           jobDefinitionOptions.name
         );
+      })
+      .catch((responseError: ServerConnection.ResponseError) => {
+        // Response error: got something other than 200 OK in response
+        const responseCode = responseError.response.status;
+        // Treat a 404 Not Found response as the backend not being present.
+        if (responseCode === 404) {
+          showDialog({
+            title: trans.__('Jupyter Scheduler server extension not found'),
+            body: SERVER_EXTENSION_404,
+            buttons: [Dialog.okButton()]
+          }).catch(console.warn);
+        }
+
+        const errorMessage =
+          responseCode === 404
+            ? trans.__('Jupyter Scheduler server extension cannot be found.')
+            : responseError.message;
+
+        props.handleModelChange({
+          ...props.model,
+          createError: errorMessage,
+          createInProgress: false
+        });
       })
       .catch((error: Error) => {
         props.handleModelChange({
