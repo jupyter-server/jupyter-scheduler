@@ -16,7 +16,7 @@ extension manager, you might only install the client extension and not the serve
 pip install jupyter_scheduler
 ```
 
-This automatically enables the client and server extensions. You can verify this by running
+This automatically enables the lab and server extensions. You can verify this by running
 
 ```
 jupyter server extension list

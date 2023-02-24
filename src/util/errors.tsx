@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const SERVER_EXTENSION_404 = (
+export const SERVER_EXTENSION_404_JSX = (
   <div>
     <p>
       The Jupyter Scheduler extension is installed but it can't be activated. It

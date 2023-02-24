@@ -25,7 +25,7 @@ import { SchedulerService } from './handler';
 import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
-import { SERVER_EXTENSION_404 } from './util/errors';
+import { SERVER_EXTENSION_404_JSX } from './util/errors';
 import { MakeNameValid } from './util/job-name-validation';
 
 export namespace CommandIDs {
@@ -129,14 +129,13 @@ async function activatePlugin(
   advancedOptions: Scheduler.IAdvancedOptions,
   launcher: ILauncher | null
 ): Promise<void> {
-  const { commands } = app;
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
 
   // Try calling an API to verify that the server extension is actually installed
   let serverExtensionOk = false;
   api
-    .getJobs({ max_items: 1 })
+    .getJobs({ max_items: 0 })
     .then(response => {
       serverExtensionOk = true;
     })
@@ -147,7 +146,7 @@ async function activatePlugin(
       if (responseCode === 404) {
         showDialog({
           title: trans.__('Jupyter Scheduler server extension not found'),
-          body: SERVER_EXTENSION_404,
+          body: SERVER_EXTENSION_404_JSX,
           buttons: [Dialog.okButton()]
         }).catch(console.warn);
       } else {
@@ -161,6 +160,7 @@ async function activatePlugin(
     return; // Don't activate the rest of the plugin
   }
 
+  const { commands } = app;
   const fileBrowserTracker = browserFactory.tracker;
   const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
