@@ -40,6 +40,8 @@ class CondaEnvironmentManager(EnvironmentManager):
             envs = json.loads(envs).get("envs", [])
         except subprocess.CalledProcessError as e:
             envs = []
+        except FileNotFoundError as e:
+            envs = []
 
         current_python_root = sys.prefix
         if not envs or current_python_root not in envs:
