@@ -6,7 +6,7 @@ For configuration options, please refer to our {doc}`operator's guide </operator
 
 ## Installation
 
-Jupyter Scheduler has a client extension and a server extension. **Both are required** to
+Jupyter Scheduler has a lab (client) extension and a server extension. **Both are required** to
 be able to schedule and run notebooks. If you install Jupyter Scheduler via the JupyterLab
 extension manager, you might only install the client extension and not the server extension.
 
