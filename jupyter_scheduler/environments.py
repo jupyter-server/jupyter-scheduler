@@ -41,7 +41,8 @@ class CondaEnvironmentManager(EnvironmentManager):
         except subprocess.CalledProcessError as e:
             envs = []
 
-        if not envs:
+        current_python_root = sys.prefix
+        if not envs or current_python_root not in envs:
             envs = [sys.executable]
 
         for env in envs:
