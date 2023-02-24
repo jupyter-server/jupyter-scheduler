@@ -69,6 +69,7 @@ $ jupyter labextension list
 ```
 
 Then, remove the symlink named `jupyter-scheduler` within that folder.
+
 ```
 # Remove the symlink
 rm /opt/anaconda3/envs/jupyter-scheduler/share/jupyter/labextensions/jupyter_scheduler
@@ -134,7 +135,7 @@ Documentation source files are written in
 expressive flavor of Markdown. These files are located under `docs/`.
 
 The generated documentation files placed under `docs/_build/html` can be
-directly opened in the browser.  We recommend bookmarking these file links
+directly opened in the browser. We recommend bookmarking these file links
 if you will be editing and reviewing documentation frequently in the browser.
 
 Sphinx by default only rebuilds files it detects were changed, though this
@@ -153,21 +154,21 @@ panel on GitHub and follow the following instructions to release a new version o
 Jupyter Scheduler.
 
 1. Select the "Step 1: Prep Release" workflow on the left-hand panel, and then
-select "Run workflow". This will open the workflow form. Replace the "Next Version
-Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). "Branch to Target"
-should be replaced with the branch that should be released. Usually this will be `main`.
-Then select "Run workflow" button to run the workflow.
+   select "Run workflow". This will open the workflow form. Replace the "Next Version
+   Specifier" with the next version of Jupyter Scheduler (e.g. 1.2.3). "Branch to Target"
+   should be replaced with the branch that should be released. Usually this will be `main`.
+   Then select "Run workflow" button to run the workflow.
 
 2. Verify the draft release changelog in the
-[Releases](https://github.com/jupyter-server/jupyter-scheduler/releases) page
-for Jupyter Scheduler.
+   [Releases](https://github.com/jupyter-server/jupyter-scheduler/releases) page
+   for Jupyter Scheduler.
 
 3. Return to the Actions panel and select the "Step 2: Publish Release" workflow.
-Run this workflow with the target branch set to the same branch specified in
-Step 1.
+   Run this workflow with the target branch set to the same branch specified in
+   Step 1.
 
 4. Wait for the workflow to complete, and then verify the publish on PyPi and
-NPM.
+   NPM.
 
 ### Manual release
 

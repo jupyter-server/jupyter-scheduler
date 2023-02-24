@@ -28,30 +28,30 @@ and checking that both the `jupyter_scheduler` server extension and the
 
 ## Use
 
-Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a schedule. You can create *jobs* (single run of an individual notebook) and *job definitions* (scheduled recurring notebook jobs). When the scheduler runs your notebook, it makes a copy of the input file. The scheduler uses unique names for the input and output files so that rerunning the same notebook produces new files every time.
-
+Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a schedule. You can create _jobs_ (single run of an individual notebook) and _job definitions_ (scheduled recurring notebook jobs). When the scheduler runs your notebook, it makes a copy of the input file. The scheduler uses unique names for the input and output files so that rerunning the same notebook produces new files every time.
 
 ### Creating a job or job definition
 
 #### Choose a notebook
-To create a *job* or *job definition* from a file browser, right-click on a notebook in the file browser and choose “Create Notebook Job” from the context menu:
+
+To create a _job_ or _job definition_ from a file browser, right-click on a notebook in the file browser and choose “Create Notebook Job” from the context menu:
 ![“Create Notebook Job” button in the file browser context menu](./images/create_job_from_filebrowser.png)
 
-To create a *job* or *job definition* from an open notebook, click on a “Create a notebook job” button in the top toolbar of the open notebook:
+To create a _job_ or _job definition_ from an open notebook, click on a “Create a notebook job” button in the top toolbar of the open notebook:
 ![“Create a notebook job” button in the top toolbar of the open Notebook](./images/create_job_from_notebook.png)
 
 #### Submit the Create Job form
 
 Give your notebook job or job definition a name, choose an environment to run it in, select its output formats, and provide parameters that are set as local variables when your notebook gets executed. This parameterized execution is similar to the one used in [Papermill](https://papermill.readthedocs.io/en/latest/).
 
-To create a *job* that runs once, select "Run now" in the "Schedule" section, and click "Create".
-   !["Create Job Form"](./images/create_job_form.png)
+To create a _job_ that runs once, select "Run now" in the "Schedule" section, and click "Create".
+!["Create Job Form"](./images/create_job_form.png)
 
-To create a *job definition* that runs repeatedly on a schedule, select "Run on a schedule" in the "Schedule" section. You can use shortcuts to, for example, run your notebook every hour or every day.
-   !["Run on schedule"](./images/run_on_schedule.png)
+To create a _job definition_ that runs repeatedly on a schedule, select "Run on a schedule" in the "Schedule" section. You can use shortcuts to, for example, run your notebook every hour or every day.
+!["Run on schedule"](./images/run_on_schedule.png)
 
 You can also specify a custom schedule in [crontab format](https://www.man7.org/linux/man-pages/man5/crontab.5.html) by selecting "Custom schedule" in the "Interval" drop-down menu.
-   !["Custom schedule option"](./images/custom_schedule.png)
+!["Custom schedule option"](./images/custom_schedule.png)
 
 ### Using list view
 
