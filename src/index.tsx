@@ -3,11 +3,16 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
+import {
+  Dialog,
+  MainAreaWidget,
+  showDialog,
+  WidgetTracker
+} from '@jupyterlab/apputils';
 import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { Contents } from '@jupyterlab/services';
+import { Contents, ServerConnection } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
 
 import AdvancedOptions from './advanced-options';
@@ -20,6 +25,7 @@ import { SchedulerService } from './handler';
 import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
+import { SERVER_EXTENSION_404 } from './util/errors';
 import { MakeNameValid } from './util/job-name-validation';
 
 export namespace CommandIDs {
@@ -125,8 +131,37 @@ async function activatePlugin(
 ): Promise<void> {
   const { commands } = app;
   const trans = translator.load('jupyterlab');
-  const fileBrowserTracker = browserFactory.tracker;
   const api = new SchedulerService({});
+
+  // Try calling an API to verify that the server extension is actually installed
+  let serverExtensionOk = false;
+  api
+    .getJobs({ max_items: 1 })
+    .then(response => {
+      serverExtensionOk = true;
+    })
+    .catch((responseError: ServerConnection.ResponseError) => {
+      // Response error: got something other than 200 OK in response
+      const responseCode = responseError.response.status;
+      // Treat a 404 Not Found response as the backend not being present.
+      if (responseCode === 404) {
+        showDialog({
+          title: trans.__('Jupyter Scheduler server extension not found'),
+          body: SERVER_EXTENSION_404,
+          buttons: [Dialog.okButton()]
+        }).catch(console.warn);
+      } else {
+        // Treat other response codes as transient errors; optimistically hope that
+        // server extension is present
+        serverExtensionOk = true;
+      }
+    });
+
+  if (!serverExtensionOk) {
+    return; // Don't activate the rest of the plugin
+  }
+
+  const fileBrowserTracker = browserFactory.tracker;
   const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
   });

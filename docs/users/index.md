@@ -6,13 +6,17 @@ For configuration options, please refer to our {doc}`operator's guide </operator
 
 ## Installation
 
-Jupyter Scheduler can be installed from the PyPI registry via `pip`:
+Jupyter Scheduler has a client extension and a server extension. **Both are required** to
+be able to schedule and run notebooks. If you install Jupyter Scheduler via the JupyterLab
+extension manager, you might only install the client extension and not the server extension.
+
+**Recommended:** Install Jupyter Scheduler from the PyPI registry via `pip`:
 
 ```
 pip install jupyter_scheduler
 ```
 
-This automatically enables its extensions. You can verify this by running
+This automatically enables the client and server extensions. You can verify this by running
 
 ```
 jupyter server extension list
@@ -25,6 +29,7 @@ and checking that both the `jupyter_scheduler` server extension and the
 ## Use
 
 Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a schedule. You can create *jobs* (single run of an individual notebook) and *job definitions* (scheduled recurring notebook jobs). When the scheduler runs your notebook, it makes a copy of the input file. The scheduler uses unique names for the input and output files so that rerunning the same notebook produces new files every time.
+
 
 ### Creating a job or job definition
 
