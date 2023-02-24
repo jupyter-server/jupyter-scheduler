@@ -91,9 +91,9 @@ For more information on writing a custom implementation, please see the {doc}`de
 You can configure the Jupyter Scheduler UI by installing a lab extension that both:
 
 1. Exports a
-[plugin](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#plugins)
-providing the `Scheduler.IAdvancedOptions`
-[token](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#tokens).
+   [plugin](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#plugins)
+   providing the `Scheduler.IAdvancedOptions`
+   [token](https://jupyterlab.readthedocs.io/en/stable/extension/extension_dev.html#tokens).
 
 2. Disables the `@jupyterlab/scheduler:IAdvancedOptions` plugin.
 
