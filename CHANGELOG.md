@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.3.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.2.0...e7c0c1b12f3a0debb9cd30b1ddc6d6b7ddfd800e))
+
+### Enhancements made
+
+- bump binder node version [#343](https://github.com/jupyter-server/jupyter-scheduler/pull/343) ([@dlqqq](https://github.com/dlqqq))
+- Added fallback to active python env when conda is absent [#342](https://github.com/jupyter-server/jupyter-scheduler/pull/342) ([@3coins](https://github.com/3coins))
+
+### Bugs fixed
+
+- Fix check release workflow [#344](https://github.com/jupyter-server/jupyter-scheduler/pull/344) ([@dlqqq](https://github.com/dlqqq))
+- Adds server extension check on startup [#341](https://github.com/jupyter-server/jupyter-scheduler/pull/341) ([@JasonWeill](https://github.com/JasonWeill))
+- explicitly state pytest-cov test dep [#336](https://github.com/jupyter-server/jupyter-scheduler/pull/336) ([@dlqqq](https://github.com/dlqqq))
+- fix(event-note-icon): add viewBox attr to svg so it resizes [#333](https://github.com/jupyter-server/jupyter-scheduler/pull/333) ([@maxime-helen](https://github.com/maxime-helen))
+
+### Maintenance and upkeep improvements
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-12-20&to=2023-02-24&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-12-20..2023-02-24&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-12-20..2023-02-24&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-12-20..2023-02-24&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2022-12-20..2023-02-24&type=Issues) | [@maxime-helen](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Amaxime-helen+updated%3A2022-12-20..2023-02-24&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-12-20..2023-02-24&type=Issues) | [@rubenvarela](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Arubenvarela+updated%3A2022-12-20..2023-02-24&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2022-12-20..2023-02-24&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.2.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.4...211c92b26eecc701f4e108fd18ddc38c5dea38ef))
@@ -31,8 +57,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-12&to=2022-12-20&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-12..2022-12-20&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-11-12..2022-12-20&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-12..2022-12-20&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-12..2022-12-20&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-12..2022-12-20&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-11-12..2022-12-20&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.1.4
 
