@@ -27,9 +27,9 @@ class EnvironmentManager(ABC):
 
 
 class CondaEnvironmentManager(EnvironmentManager):
-    """Provides list of system installed conda environments,
-    falls back to the python executable that jupyter lab is
-    running in, if conda is not installed or activated
+    """Provides a list of Conda environments. If Conda is not
+    installed or activated, it defaults to providing exclusively
+    the Python executable that JupyterLab is currently running in.
     """
 
     def list_environments(self) -> List[RuntimeEnvironment]:
