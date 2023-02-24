@@ -122,3 +122,6 @@ dmypy.json
 
 # job outputs in local development env
 dev/jobs
+
+# jupyter releaser local checkout
+.jupyter_releaser_checkout
