@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import sys
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
@@ -26,7 +27,10 @@ class EnvironmentManager(ABC):
 
 
 class CondaEnvironmentManager(EnvironmentManager):
-    """Provides list of system installed conda environments"""
+    """Provides list of system installed conda environments,
+    falls back to the python executable that jupyter lab is
+    running in, if conda is not installed or activated
+    """
 
     def list_environments(self) -> List[RuntimeEnvironment]:
         environments = []
@@ -35,7 +39,10 @@ class CondaEnvironmentManager(EnvironmentManager):
             envs = subprocess.check_output(["conda", "env", "list", "--json"])
             envs = json.loads(envs).get("envs", [])
         except subprocess.CalledProcessError as e:
-            raise EnvironmentRetrievalError(e) from e
+            envs = []
+
+        if not envs:
+            envs = [sys.executable]
 
         for env in envs:
             name = os.path.basename(env)
@@ -43,7 +50,7 @@ class CondaEnvironmentManager(EnvironmentManager):
                 RuntimeEnvironment(
                     name=name,
                     label=name,
-                    description=f"Conda environment: {name}",
+                    description=f"Environment: {name}",
                     file_extensions=["ipynb"],
                     output_formats=["ipynb", "html"],
                     metadata={"path": env},
