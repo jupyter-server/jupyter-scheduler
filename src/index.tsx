@@ -134,28 +134,25 @@ async function activatePlugin(
 
   // Try calling an API to verify that the server extension is actually installed
   let serverExtensionOk = false;
-  api
-    .getJobs({ max_items: 0 })
-    .then(response => {
+  try{
+    await api.getJobs({ max_items: 0 })  
+    serverExtensionOk = true;
+  } catch (responseError: unknown) {
+    const responseCode = (responseError as ServerConnection.ResponseError).response.status;
+    // Treat a 404 Not Found response as the backend not being present.
+    if (responseCode === 404) {
+      showDialog({
+        title: trans.__('Jupyter Scheduler server extension not found'),
+        body: SERVER_EXTENSION_404_JSX,
+        buttons: [Dialog.okButton()]
+      }).catch(console.warn);
+    } else {
+      // Treat other response codes as transient errors; optimistically hope that
+      // server extension is present
       serverExtensionOk = true;
-    })
-    .catch((responseError: ServerConnection.ResponseError) => {
-      // Response error: got something other than 200 OK in response
-      const responseCode = responseError.response.status;
-      // Treat a 404 Not Found response as the backend not being present.
-      if (responseCode === 404) {
-        showDialog({
-          title: trans.__('Jupyter Scheduler server extension not found'),
-          body: SERVER_EXTENSION_404_JSX,
-          buttons: [Dialog.okButton()]
-        }).catch(console.warn);
-      } else {
-        // Treat other response codes as transient errors; optimistically hope that
-        // server extension is present
-        serverExtensionOk = true;
-      }
-    });
-
+    }
+  }
+  
   if (!serverExtensionOk) {
     return; // Don't activate the rest of the plugin
   }
