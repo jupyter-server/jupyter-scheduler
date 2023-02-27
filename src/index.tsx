@@ -135,7 +135,7 @@ async function activatePlugin(
   // Try calling an API to verify that the server extension is actually installed
   let serverExtensionOk = false;
   try{
-    await api.getJobs({ max_items: 0 })  
+    await api.getJobs({ max_items: 0 })
     serverExtensionOk = true;
   } catch (responseError: unknown) {
     const responseCode = (responseError as ServerConnection.ResponseError).response.status;
@@ -152,7 +152,7 @@ async function activatePlugin(
       serverExtensionOk = true;
     }
   }
-  
+
   if (!serverExtensionOk) {
     return; // Don't activate the rest of the plugin
   }
