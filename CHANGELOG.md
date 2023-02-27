@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.3.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.0...e36032d3331200b4f21261bdc50e8d733e66b2bc))
+
+### Bugs fixed
+
+- Fixed issue with extension always deactivating [#347](https://github.com/jupyter-server/jupyter-scheduler/pull/347) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-02-24&to=2023-02-27&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2023-02-24..2023-02-27&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.3.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.2.0...e7c0c1b12f3a0debb9cd30b1ddc6d6b7ddfd800e))
@@ -25,8 +41,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-12-20&to=2023-02-24&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-12-20..2023-02-24&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-12-20..2023-02-24&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-12-20..2023-02-24&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2022-12-20..2023-02-24&type=Issues) | [@maxime-helen](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Amaxime-helen+updated%3A2022-12-20..2023-02-24&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-12-20..2023-02-24&type=Issues) | [@rubenvarela](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Arubenvarela+updated%3A2022-12-20..2023-02-24&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2022-12-20..2023-02-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.2.0
 
