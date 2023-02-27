@@ -132,29 +132,22 @@ async function activatePlugin(
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
 
-  // Try calling an API to verify that the server extension is actually installed
-  let serverExtensionOk = false;
-  try{
-    await api.getJobs({ max_items: 0 })
-    serverExtensionOk = true;
-  } catch (responseError: unknown) {
-    const responseCode = (responseError as ServerConnection.ResponseError).response.status;
-    // Treat a 404 Not Found response as the backend not being present.
-    if (responseCode === 404) {
+  // Call API to verify that the server extension is actually installed
+  try {
+    await api.getJobs({ max_items: 0 });
+  } catch (e: unknown) {
+    // in case of 404, show missing server extension dialog and return
+    if (
+      e instanceof ServerConnection.ResponseError &&
+      e.response.status === 404
+    ) {
       showDialog({
         title: trans.__('Jupyter Scheduler server extension not found'),
         body: SERVER_EXTENSION_404_JSX,
         buttons: [Dialog.okButton()]
       }).catch(console.warn);
-    } else {
-      // Treat other response codes as transient errors; optimistically hope that
-      // server extension is present
-      serverExtensionOk = true;
+      return;
     }
-  }
-
-  if (!serverExtensionOk) {
-    return; // Don't activate the rest of the plugin
   }
 
   const { commands } = app;
