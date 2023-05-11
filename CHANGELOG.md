@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.3.2
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.1...6e4081a273b6da508942d3fe0b4a8ee75f2eade3))
+
+### Bugs fixed
+
+- Fixed encoding while reading notebook in some platforms [#354](https://github.com/jupyter-server/jupyter-scheduler/pull/354) ([@3coins](https://github.com/3coins))
+
+### Maintenance and upkeep improvements
+
+- Bump webpack from 5.74.0 to 5.76.1 [#360](https://github.com/jupyter-server/jupyter-scheduler/pull/360) ([@dependabot](https://github.com/dependabot))
+- Bump json5 from 1.0.1 to 1.0.2 [#359](https://github.com/jupyter-server/jupyter-scheduler/pull/359) ([@dependabot](https://github.com/dependabot))
+- Bump loader-utils from 1.4.0 to 1.4.2 [#357](https://github.com/jupyter-server/jupyter-scheduler/pull/357) ([@dependabot](https://github.com/dependabot))
+- Bump http-cache-semantics from 4.1.0 to 4.1.1 [#358](https://github.com/jupyter-server/jupyter-scheduler/pull/358) ([@dependabot](https://github.com/dependabot))
+- Bump decode-uri-component from 0.2.0 to 0.2.2 [#356](https://github.com/jupyter-server/jupyter-scheduler/pull/356) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-02-27&to=2023-05-11&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2023-02-27..2023-05-11&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2023-02-27..2023-05-11&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-02-27..2023-05-11&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2023-02-27..2023-05-11&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.3.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.0...e36032d3331200b4f21261bdc50e8d733e66b2bc))
@@ -15,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-02-24&to=2023-02-27&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2023-02-24..2023-02-27&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.3.0
 
