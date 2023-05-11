@@ -12,7 +12,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
-from jupyter_scheduler.utils import get_utc_timestamp, resolve_path
+from jupyter_scheduler.utils import get_utc_timestamp
 
 
 class ExecutionManager(ABC):
@@ -123,7 +123,7 @@ class DefaultExecutionManager(ExecutionManager):
     def execute(self):
         job = self.model
 
-        with open(self.staging_paths["input"]) as f:
+        with open(self.staging_paths["input"], encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=4)
 
         if job.parameters:
@@ -163,7 +163,7 @@ class DefaultExecutionManager(ExecutionManager):
         }
 
     def validate(cls, input_path: str) -> bool:
-        with open(input_path) as f:
+        with open(input_path, encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=4)
             try:
                 nb.metadata.kernelspec["name"]
@@ -186,7 +186,7 @@ class ArchivingExecutionManager(DefaultExecutionManager):
     def execute(self):
         job = self.model
 
-        with open(self.staging_paths["input"]) as f:
+        with open(self.staging_paths["input"], encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=4)
 
         if job.parameters:
