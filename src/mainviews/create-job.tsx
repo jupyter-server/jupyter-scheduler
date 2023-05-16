@@ -197,7 +197,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     const parameterNameIdx = parameterNameMatch(target.name);
     const parameterValueIdx = parameterValueMatch(target.name);
     const newParams = props.model.parameters || [];
-    
+
     if (parameterNameIdx !== null) {
       newParams[parameterNameIdx].name = target.value;
       props.handleModelChange({ ...props.model, parameters: newParams });
@@ -208,7 +208,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const value = +target.value;
       const name = target.name;
       props.handleModelChange({ ...props.model, [name]: isNaN(value)? target.value: value });
-    } 
+    }
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {

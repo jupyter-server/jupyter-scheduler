@@ -74,9 +74,9 @@ export type ModelWithScheduleFields = {
   scheduleMinute: string;
 
   maxRetryAttempts: number;
-  
+
   maxRunTime: number;
-  
+
   maxWaitTime: number;
 };
 
