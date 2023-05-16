@@ -5,6 +5,7 @@ import { TranslationBundle } from '@jupyterlab/translation';
 const jobNameRegex = /^[a-zA-Z0-9._][a-zA-Z0-9._ -]{0,62}$/;
 const invalidFirstCharRegex = /^[^a-zA-Z0-9._]/;
 const invalidCharRegex = /[^a-zA-Z0-9._ -]/g;
+const validIntegerRregex = /^[+]?[1-9]\d*$/;
 const maxLength = 63;
 
 export function NameIsValid(name: string): boolean {
@@ -63,4 +64,64 @@ export function NameError(name: string, trans: TranslationBundle): string {
   return trans.__(
     'Name must contain only letters, numbers, spaces, periods, hyphens, and underscores'
   );
+}
+
+export function MaxRetryAttemptsError(maxRetryAttempts: string, trans: TranslationBundle): string {
+  // Check for blank
+  if (maxRetryAttempts === '') {
+    return trans.__('You must specify max retry attempts');
+  }
+
+  if (!validIntegerRregex.test(maxRetryAttempts)) {
+    return trans.__(
+      'Max retry attempts must be an integer'
+    );
+  }
+ const integerValue = +maxRetryAttempts
+  // Check for length.
+  if (integerValue < 1 || integerValue > 30) {
+    return trans.__('Max retry attempts must be between 1 and 30');
+  }
+
+  return '';
+}
+
+export function MaxRunTimeError(maxRunTime: string, trans: TranslationBundle): string {
+  // Check for blank
+  if (maxRunTime === '') {
+    return trans.__('You must specify max run time');
+  }
+
+  if (!validIntegerRregex.test(maxRunTime)) {
+    return trans.__(
+      'Max run time must be an integer'
+    );
+  }
+ const integerValue = +maxRunTime
+  // Check for length.
+  if (integerValue < 1) {
+    return trans.__('Max run time must be greater than 1');
+  }
+
+  return '';
+}
+
+export function MaxWaitTimeError(maxWaitTime: string, trans: TranslationBundle): string {
+  // Check for blank
+  if (maxWaitTime === '') {
+    return trans.__('You must specify max run time');
+  }
+
+  if (!validIntegerRregex.test(maxWaitTime)) {
+    return trans.__(
+      'Max wait time must be an integer'
+    );
+  }
+ const integerValue = +maxWaitTime
+  // Check for length.
+  if (integerValue < 1) {
+    return trans.__('Max wait time must be greater than 1');
+  }
+
+  return '';
 }

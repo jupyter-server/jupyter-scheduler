@@ -20,7 +20,7 @@ import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
-import { NameError } from '../util/job-name-validation';
+import { NameError, MaxRetryAttemptsError, MaxRunTimeError, MaxWaitTimeError } from '../util/job-name-validation';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
@@ -189,6 +189,26 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       const name = target.name;
       props.handleModelChange({ ...props.model, [name]: value });
     }
+  };
+
+  const handleNumericInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const target = event.target;
+
+    const parameterNameIdx = parameterNameMatch(target.name);
+    const parameterValueIdx = parameterValueMatch(target.name);
+    const newParams = props.model.parameters || [];
+    
+    if (parameterNameIdx !== null) {
+      newParams[parameterNameIdx].name = target.value;
+      props.handleModelChange({ ...props.model, parameters: newParams });
+    } else if (parameterValueIdx !== null) {
+      newParams[parameterValueIdx].value = +target.value;
+      props.handleModelChange({ ...props.model, parameters: newParams });
+    } else {
+      const value = +target.value;
+      const name = target.name;
+      props.handleModelChange({ ...props.model, [name]: isNaN(value)? target.value: value });
+    } 
   };
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
@@ -494,6 +514,57 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleSelectChange}
             environmentList={environmentList}
             value={props.model.environment}
+          />
+          <TextField
+            label={trans.__('Maximum Retry Attempts')}
+            variant="outlined"
+            onChange={e => {
+              // Validate name
+              setErrors({
+                ...errors,
+                maxRetryAttempts: MaxRetryAttemptsError(e.target.value, trans)
+              });
+              handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
+            }}
+            error={!!errors['maxRetryAttempts']}
+            helperText={errors['maxRetryAttempts'] ?? ''}
+            value={props.model.maxRetryAttempts}
+            id={`${formPrefix}maxRetryAttempts`}
+            name="maxRetryAttempts"
+          />
+          <TextField
+            label={trans.__('Max Run Time (In Seconds)')}
+            variant="outlined"
+            onChange={e => {
+              // Validate name
+              setErrors({
+                ...errors,
+                maxRunTime: MaxRunTimeError(e.target.value, trans)
+              });
+              handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
+            }}
+            error={!!errors['maxRunTime']}
+            helperText={errors['maxRunTime'] ?? ''}
+            value={props.model.maxRunTime}
+            id={`${formPrefix}maxRunTime`}
+            name="maxRunTime"
+          />
+          <TextField
+            label={trans.__('Max Wait Time (In Seconds)')}
+            variant="outlined"
+            onChange={e => {
+              // Validate name
+              setErrors({
+                ...errors,
+                maxWaitTime: MaxWaitTimeError(e.target.value, trans)
+              });
+              handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
+            }}
+            error={!!errors['maxWaitTime']}
+            helperText={errors['maxWaitTime'] ?? ''}
+            value={props.model.maxWaitTime}
+            id={`${formPrefix}maxWaitTime`}
+            name="maxWaitTime"
           />
           <OutputFormatPicker
             label={trans.__('Output formats')}
