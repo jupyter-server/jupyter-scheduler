@@ -118,7 +118,7 @@ export function MaxWaitTimeError(maxWaitTime: string, trans: TranslationBundle):
       'Max wait time must be an integer'
     );
   }
-  
+
   // Check for length.
   if (integerValue < 1) {
     return trans.__('Max wait time must be greater than 1');
