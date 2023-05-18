@@ -205,7 +205,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       newParams[parameterValueIdx].value = +target.value;
       props.handleModelChange({ ...props.model, parameters: newParams });
     } else {
-      const value = +target.value;
+      const value = parseInt(target.value);
       const name = target.name;
       props.handleModelChange({ ...props.model, [name]: isNaN(value)? target.value: value });
     }
@@ -308,11 +308,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       if (jobParameters[name] !== undefined) {
         console.error(
           'Parameter ' +
-            name +
-            ' already set to ' +
-            jobParameters[name] +
-            ' and is about to be set again to ' +
-            value
+          name +
+          ' already set to ' +
+          jobParameters[name] +
+          ' and is about to be set again to ' +
+          value
         );
       } else {
         jobParameters[name] = value;
@@ -339,7 +339,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       compute_type: props.model.computeType,
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
-      runtime_environment_parameters: props.model.runtimeEnvironmentParameters
+      runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
+      maxRetryAttempts: props.model.maxRetryAttempts,
+      maxRunTime: props.model.maxRunTime,
+      maxWaitTime: props.model.maxWaitTime,
     };
 
     if (props.model.parameters !== undefined) {
@@ -384,7 +387,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
-      timezone: props.model.timezone
+      timezone: props.model.timezone,
+      maxRetryAttempts: props.model.maxRetryAttempts,
+      maxRunTime: props.model.maxRunTime,
+      maxWaitTime: props.model.maxWaitTime,
     };
 
     if (props.model.parameters !== undefined) {
@@ -515,57 +521,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             environmentList={environmentList}
             value={props.model.environment}
           />
-          <TextField
-            label={trans.__('Maximum Retry Attempts')}
-            variant="outlined"
-            onChange={e => {
-              // Validate name
-              setErrors({
-                ...errors,
-                maxRetryAttempts: MaxRetryAttemptsError(e.target.value, trans)
-              });
-              handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
-            }}
-            error={!!errors['maxRetryAttempts']}
-            helperText={errors['maxRetryAttempts'] ?? ''}
-            value={props.model.maxRetryAttempts}
-            id={`${formPrefix}maxRetryAttempts`}
-            name="maxRetryAttempts"
-          />
-          <TextField
-            label={trans.__('Max Run Time (In Seconds)')}
-            variant="outlined"
-            onChange={e => {
-              // Validate name
-              setErrors({
-                ...errors,
-                maxRunTime: MaxRunTimeError(e.target.value, trans)
-              });
-              handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
-            }}
-            error={!!errors['maxRunTime']}
-            helperText={errors['maxRunTime'] ?? ''}
-            value={props.model.maxRunTime}
-            id={`${formPrefix}maxRunTime`}
-            name="maxRunTime"
-          />
-          <TextField
-            label={trans.__('Max Wait Time (In Seconds)')}
-            variant="outlined"
-            onChange={e => {
-              // Validate name
-              setErrors({
-                ...errors,
-                maxWaitTime: MaxWaitTimeError(e.target.value, trans)
-              });
-              handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
-            }}
-            error={!!errors['maxWaitTime']}
-            helperText={errors['maxWaitTime'] ?? ''}
-            value={props.model.maxWaitTime}
-            id={`${formPrefix}maxWaitTime`}
-            name="maxWaitTime"
-          />
+
           <OutputFormatPicker
             label={trans.__('Output formats')}
             name="outputFormat"
@@ -620,6 +576,63 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               </FormLabel>
             </AccordionSummary>
             <AccordionDetails id={`${formPrefix}create-panel-content`}>
+              <div>
+                <TextField
+                  label={trans.__('Maximum Retry Attempts')}
+                  variant="outlined"
+                  onChange={e => {
+                    // Validate name
+                    setErrors({
+                      ...errors,
+                      maxRetryAttempts: MaxRetryAttemptsError(e.target.value, trans)
+                    });
+                    handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
+                  }}
+                  error={!!errors['maxRetryAttempts']}
+                  helperText={errors['maxRetryAttempts'] ?? ''}
+                  value={props.model.maxRetryAttempts}
+                  id={`${formPrefix}maxRetryAttempts`}
+                  name="maxRetryAttempts"
+                />
+              </div>
+              <div>
+                <TextField
+                  label={trans.__('Max Run Time (In Seconds)')}
+                  variant="outlined"
+                  onChange={e => {
+                    // Validate name
+                    setErrors({
+                      ...errors,
+                      maxRunTime: MaxRunTimeError(e.target.value, trans)
+                    });
+                    handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
+                  }}
+                  error={!!errors['maxRunTime']}
+                  helperText={errors['maxRunTime'] ?? ''}
+                  value={props.model.maxRunTime}
+                  id={`${formPrefix}maxRunTime`}
+                  name="maxRunTime"
+                />
+              </div>
+              <div>
+                <TextField
+                  label={trans.__('Max Wait Time (In Seconds)')}
+                  variant="outlined"
+                  onChange={e => {
+                    // Validate name
+                    setErrors({
+                      ...errors,
+                      maxWaitTime: MaxWaitTimeError(e.target.value, trans)
+                    });
+                    handleNumericInputChange(e as ChangeEvent<HTMLInputElement>);
+                  }}
+                  error={!!errors['maxWaitTime']}
+                  helperText={errors['maxWaitTime'] ?? ''}
+                  value={props.model.maxWaitTime}
+                  id={`${formPrefix}maxWaitTime`}
+                  name="maxWaitTime"
+                />
+              </div>
               <props.advancedOptions
                 jobsView={JobsView.CreateForm}
                 model={props.model}

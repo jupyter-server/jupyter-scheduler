@@ -82,7 +82,7 @@ export type ModelWithScheduleFields = {
 
 export interface ICreateJobModel
   extends ModelWithScheduleFields,
-    PartialJSONObject {
+  PartialJSONObject {
   /**
    * Key of the CreateJob component. When changed, this forces a re-mount.
    */
@@ -105,6 +105,9 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
+  maxRetryAttempts: number;
+  maxRunTime: number;
+  maxWaitTime: number;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -134,7 +137,7 @@ export function emptyCreateJobModel(): ICreateJobModel {
 
 export interface IUpdateJobDefinitionModel
   extends ModelWithScheduleFields,
-    PartialJSONObject {
+  PartialJSONObject {
   definitionId: string;
   name: string;
   environment: string;
