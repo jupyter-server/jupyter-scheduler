@@ -35,7 +35,6 @@ export function ConfirmButton(props: {
                 setConfirmed(true);
               }
             }}
-            onBlur={_ => setClicked(false)}
             style={{ visibility: clicked ? 'visible' : 'hidden' }}
             autoFocus
           >
