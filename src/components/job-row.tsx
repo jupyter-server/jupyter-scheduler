@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ConfirmButton } from './confirm-buttons';
-import { ConfirmDialogDeleteButton } from './confirm-dialog-buttons';
+import { ConfirmDialogDeleteIconButton } from './confirm-dialog-buttons';
 import { JobFileLink } from './job-file-link';
 import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
@@ -151,7 +151,7 @@ export function buildJobRow(
     <Timestamp job={job} />,
     translateStatus(job.status),
     <Stack spacing={1} direction="row">
-      <ConfirmDialogDeleteButton
+      <ConfirmDialogDeleteIconButton
         handleDelete={async () => {
           app.commands
             .execute(CommandIDs.deleteJob, {
@@ -160,7 +160,7 @@ export function buildJobRow(
             .then(_ => deleteRow(job.job_id))
             .catch((e: Error) => setDisplayError(e.message));
         }}
-        title={trans.__('Delete')}
+        title={trans.__('Delete "%1"', job.name)}
         dialogText={trans.__(
           'Are you sure that you want to delete "%1"?',
           job.name
