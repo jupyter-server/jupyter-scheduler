@@ -15,7 +15,7 @@ import TableCell from '@mui/material/TableCell';
 import { Scheduler, SchedulerService } from '../handler';
 import { useTranslator } from '../hooks';
 import { TranslationBundle } from '@jupyterlab/translation';
-import { ConfirmDeleteButton } from './confirm-buttons';
+import { ConfirmDialogDeleteIconButton } from './confirm-dialog-buttons';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -133,9 +133,9 @@ export function buildJobDefinitionRow(
             });
         }}
       />
-      <ConfirmDeleteButton
-        name={jobDef.name}
-        clickHandler={async () => {
+      <ConfirmDialogDeleteIconButton
+        title={trans.__('Delete "%1"', jobDef.name)}
+        handleDelete={async () => {
           handleApiError(null);
           ss.deleteJobDefinition(jobDef.job_definition_id)
             .then(_ => {
@@ -145,6 +145,10 @@ export function buildJobDefinitionRow(
               handleApiError(error.message);
             });
         }}
+        dialogText={trans.__(
+          'Are you sure that you want to delete "%1"?',
+          jobDef.name
+        )}
       />
     </Stack>
   ];

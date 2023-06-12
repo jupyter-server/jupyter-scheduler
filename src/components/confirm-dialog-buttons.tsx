@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 import CloseIcon from '@mui/icons-material/Close';
+import StopIcon from '@mui/icons-material/Stop';
+
 import {
   Button,
   Dialog,
@@ -134,6 +136,25 @@ export const ConfirmDialogStopButton = (props: {
   return (
     <ConfirmDialogButton
       onConfirm={props.handleStop}
+      title={props.title}
+      dialogText={props.dialogText}
+      dialogConfirmText={trans.__('Stop')}
+      pendingConfirmText={trans.__('Stopping')}
+      variant="outlined"
+    />
+  );
+};
+
+export const ConfirmDialogStopIconButton = (props: {
+  handleStop: () => Promise<void>;
+  title: string;
+  dialogText: string;
+}): JSX.Element => {
+  const trans = useTranslator('jupyterlab');
+  return (
+    <ConfirmDialogButton
+      onConfirm={props.handleStop}
+      icon={<StopIcon fontSize="small" />}
       title={props.title}
       dialogText={props.dialogText}
       dialogConfirmText={trans.__('Stop')}

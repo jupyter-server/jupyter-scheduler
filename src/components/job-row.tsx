@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { ConfirmButton } from './confirm-buttons';
-import { ConfirmDialogDeleteIconButton } from './confirm-dialog-buttons';
+import {
+  ConfirmDialogDeleteIconButton,
+  ConfirmDialogStopIconButton
+} from './confirm-dialog-buttons';
 import { JobFileLink } from './job-file-link';
 import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
 import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import DownloadIcon from '@mui/icons-material/Download';
-import StopIcon from '@mui/icons-material/Stop';
 import { IconButton, Stack, Link, TableCell, TableRow } from '@mui/material';
 
 function StopButton(props: {
@@ -17,21 +18,18 @@ function StopButton(props: {
   clickHandler: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
-  const buttonTitle = props.job.name
-    ? trans.__('Stop "%1"', props.job.name)
-    : trans.__('Stop job');
 
   return (
     <div
       style={props.job.status !== 'IN_PROGRESS' ? { visibility: 'hidden' } : {}}
     >
-      <ConfirmButton
-        name={buttonTitle}
-        onConfirm={props.clickHandler}
-        confirmationText={trans.__('Stop')}
-        icon={<StopIcon fontSize="small" />}
-        remainAfterConfirmation
-        remainText={trans.__('Stopping')}
+      <ConfirmDialogStopIconButton
+        handleStop={async () => props.clickHandler()}
+        title={trans.__('Stop "%1"', props.job.name)}
+        dialogText={trans.__(
+          'Are you sure that you want to stop "%1"?',
+          props.job.name
+        )}
       />
     </div>
   );
