@@ -19,6 +19,16 @@ export function ConfirmButton(props: {
   const [clicked, setClicked] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
+  // For Safari compatibility, also apply this to the "mouseDown" event, since the
+  // "click" event doesn't fire when the user clicks or taps on a button made visible
+  // in this way
+  const clickHandler = (e: any) => {
+    props.onConfirm();
+    if (props.remainAfterConfirmation) {
+      setConfirmed(true);
+    }
+  };
+
   return (
     <Box sx={{ width: '6em' }}>
       {clicked ? (
@@ -29,12 +39,8 @@ export function ConfirmButton(props: {
             variant="contained"
             color="error"
             title={props.name}
-            onClick={_ => {
-              props.onConfirm();
-              if (props.remainAfterConfirmation) {
-                setConfirmed(true);
-              }
-            }}
+            onClick={clickHandler}
+            onMouseDown={clickHandler}
             onBlur={_ => setClicked(false)}
             style={{ visibility: clicked ? 'visible' : 'hidden' }}
             autoFocus
