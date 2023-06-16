@@ -1,4 +1,4 @@
-import { Box, Button, Chip, IconButton, SvgIconTypeMap } from '@mui/material';
+import { Box, Button, Chip, IconButton } from '@mui/material';
 import React, { useState } from 'react';
 import { useTranslator } from '../hooks';
 import CloseIcon from '@mui/icons-material/Close';
