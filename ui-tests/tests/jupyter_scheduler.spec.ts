@@ -14,3 +14,12 @@ test('Should add a Notebook Jobs card to JupyterLab launcher', async ({
   await launcher.waitFor();
   expect(page.getByTitle('Notebook Job')).toBeDefined();
 });
+
+test('Test should fail', async ({
+  page
+}) => {
+  await page.goto();
+  const launcher = page.locator('div[role="main"] >> text=Launcher');
+  await launcher.waitFor();
+  expect(page.getByTitle('Nonexisting title 2869291980')).toBeDefined();
+});
