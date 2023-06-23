@@ -9,6 +9,6 @@ test.use({ autoGoto: false });
 test('Should add a Notebook Jobs card to JupyterLab launcher', async ({
   page
 }) => {
-  page.getByRole('tabpanel', { name: 'Launcher' });
+  await page.waitForSelector('div[role="main"] >> text=Launcher');
   expect(page.getByTitle('Notebook Job')).toBeDefined();
 });
