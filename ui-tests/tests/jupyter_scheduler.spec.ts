@@ -12,18 +12,7 @@ test('Should add a Notebook Jobs card to JupyterLab launcher', async ({
   await page.goto();
   const launcher = page.locator('div[role="main"] >> text=Launcher');
   await launcher.waitFor();
-  const jobsElement = page.locator('div.jp-LauncherCard[title="Notebook Jobs"]');
+  const jobsEl = page.locator('div.jp-LauncherCard[title="Notebook Jobs"]');
 
-  await expect(jobsElement).toBeVisible();
-});
-
-test('Test should fail', async ({
-  page
-}) => {
-  await page.goto();
-  const launcher = page.locator('div[role="main"] >> text=Launcher');
-  await launcher.waitFor();
-  const jobsElement = page.locator('div.jp-LauncherCard[title="Nonexisting title 2869291980"]');
-
-  await expect(jobsElement).toBeVisible();
+  await expect(jobsEl).toBeVisible();
 });
