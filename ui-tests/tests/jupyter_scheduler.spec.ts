@@ -26,3 +26,15 @@ test('"Create a notebook job" button is visible in notebook toolbar', async ({
 
   await expect(createJobButton).toBeVisible();
 });
+
+test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
+  page
+}) => {
+  await page.goto();
+  await page.notebook.createNew();
+  const notebookListing = page.locator('li.jp-DirListing-item[data-file-type="notebook"]');
+  await notebookListing.click({ button: 'right' });
+  const createJobItem = page.locator('li[data-type="command"][data-command="scheduling:create-from-filebrowser"] >> div:has-text("Create Notebook Job")');
+
+  await expect(createJobItem).toBeVisible();
+});
