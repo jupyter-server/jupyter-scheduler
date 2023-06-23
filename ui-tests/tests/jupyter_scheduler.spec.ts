@@ -9,6 +9,7 @@ test.use({ autoGoto: false });
 test('Should add a Notebook Jobs card to JupyterLab launcher', async ({
   page
 }) => {
+  await page.goto();
   const launcher = page.locator('div[role="main"] >> text=Launcher');
   await launcher.waitFor();
   expect(page.getByTitle('Notebook Job')).toBeDefined();
