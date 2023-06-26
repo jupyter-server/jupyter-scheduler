@@ -13,8 +13,10 @@ test('"Notebook Jobs" card is visible in JupyterLab launcher', async ({
   const launcher = page.locator('div[role="main"] >> text=Launcher');
   await launcher.waitFor();
   const jobsEl = page.locator('div.jp-LauncherCard[title="Notebook Jobs"]');
+  const snapshotName = 'launcher-with-scheduler.png';
 
   await expect(jobsEl).toBeVisible();
+  expect(await page.screenshot()).toMatchSnapshot(snapshotName);
 });
 
 test('"Create a notebook job" button is visible in notebook toolbar', async ({
