@@ -42,6 +42,9 @@ test('"Create Notebook Job" item is visible when right clicking a notebook in Fi
   await page.click('.jp-DirListing-item[data-file-type="notebook"]', { button : 'right'});
 
   expect(await page.menu.isAnyOpen()).toBe(true);
+  const righClickMenu = page.locator('ul.lm-Menu-content[role="menu"]');
   const createJobItem = page.locator('li[data-type="command"][data-command="scheduling:create-from-filebrowser"] >> div:has-text("Create Notebook Job")');
+  const snapshotName = 'notebook-with-createjob-button.png';
   await expect(createJobItem).toBeVisible();
+  expect(await righClickMenu.screenshot()).toMatchSnapshot(snapshotName);
 });
