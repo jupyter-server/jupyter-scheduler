@@ -179,7 +179,7 @@ class ArchivingExecutionManager(DefaultExecutionManager):
 
     Notes
     -----
-    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchiveDownloadingScheduler`
+    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchivingScheduler`
     as the `scheduler_class` during jupyter server start.
     """
 
