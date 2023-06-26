@@ -6,7 +6,7 @@ import { expect, test } from '@jupyterlab/galata';
  */
 test.use({ autoGoto: false });
 
-test('Notebook Jobs card is visible in JupyterLab launcher', async ({
+test('"Notebook Jobs" card is visible in JupyterLab launcher', async ({
   page
 }) => {
   await page.goto();
