@@ -25,8 +25,10 @@ test('"Create a notebook job" button is visible in notebook toolbar', async ({
   await page.goto();
   await page.notebook.createNew();
   const createJobButton = page.locator('button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a notebook job"]');
+  const snapshotName = 'notebook-with-createjob-button.png';
 
   await expect(createJobButton).toBeVisible();
+  expect(await page.screenshot()).toMatchSnapshot(snapshotName);
 });
 
 test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
