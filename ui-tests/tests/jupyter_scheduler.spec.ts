@@ -32,9 +32,12 @@ test('"Create Notebook Job" item is visible when right clicking a notebook in Fi
 }) => {
   await page.goto();
   await page.notebook.createNew();
-  const notebookListing = page.locator('li.jp-DirListing-item[data-file-type="notebook"]');
-  await notebookListing.click({ button: 'right' });
-  const createJobItem = page.locator('li[data-type="command"][data-command="scheduling:create-from-filebrowser"] >> div:has-text("Create Notebook Job")');
+  await page.sidebar.openTab('filebrowser');
+  expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
+  await page.filebrowser.refresh();
+  await page.click('.jp-DirListing-item[data-file-type="notebook"]', { button : 'right'});
 
+  expect(await page.menu.isAnyOpen()).toBe(true);
+  const createJobItem = page.locator('li[data-type="command"][data-command="scheduling:create-from-filebrowser"] >> div:has-text("Create Notebook Job")');
   await expect(createJobItem).toBeVisible();
 });
