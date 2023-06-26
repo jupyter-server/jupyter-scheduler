@@ -24,6 +24,7 @@ test('"Create a notebook job" button is visible in notebook toolbar', async ({
 }) => {
   await page.goto();
   await page.notebook.createNew();
+  await page.waitForSelector('text=Python 3 (ipykernel) | Idle');
   const createJobButton = page.locator('button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a notebook job"]');
   const snapshotName = 'notebook-with-createjob-button.png';
 
