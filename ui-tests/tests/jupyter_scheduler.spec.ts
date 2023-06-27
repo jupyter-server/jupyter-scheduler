@@ -30,7 +30,7 @@ test.describe('File selection for normal staging', () => {
     page
   }) => {
     await page.notebook.createNew();
-    page.locator('.DebuggerBugButton[aria-disabled="false"][title="Enable Debugger"]').waitFor();
+    page.locator('.DebuggerBugButton[aria-disabled="false"]').waitFor();
     const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
     const snapshotName = 'notebook-with-createjob-button.png';
 
