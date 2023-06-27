@@ -714,6 +714,34 @@ class ArchivingScheduler(Scheduler):
 
         return staging_paths
 
+class AllFilesArchivingScheduler(Scheduler):
+    """Scheduler that adds archive path to staging paths, captures all files in output directory."""
+
+    execution_manager_class = TType(
+        klass="jupyter_scheduler.executors.ExecutionManager",
+        default_value="jupyter_scheduler.executors.ArchivingExecutionManager",
+        config=True,
+    )
+
+    def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+        staging_paths = {}
+        if not model:
+            return staging_paths
+
+        id = model.job_id if isinstance(model, DescribeJob) else model.job_definition_id
+
+        for output_format in model.output_formats:
+            filename = create_output_filename(
+                model.input_filename, model.create_time, output_format
+            )
+            staging_paths[output_format] = filename
+
+        # Create an output file
+        filename = create_output_filename(model.input_filename, model.create_time, "zip")
+        staging_paths["zip"] = os.path.join(self.staging_path, model.job_id, filename)
+        staging_paths["input"] = os.path.join(self.staging_path, model.job_id, model.input_filename)
+
+        return staging_paths
 
 class SchedulerWithErrors(Scheduler):
     """

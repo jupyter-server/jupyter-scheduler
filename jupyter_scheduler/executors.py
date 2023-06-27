@@ -1,4 +1,6 @@
 import io
+import os
+import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
@@ -221,3 +223,47 @@ class ArchivingExecutionManager(DefaultExecutionManager):
             archive_filepath = self.staging_paths["tar.gz"]
             with fsspec.open(archive_filepath, "wb") as f:
                 f.write(fh.getvalue())
+
+class AllFilesArchivingExecutionManager(DefaultExecutionManager):
+    """Execution manager that archives all output files in and under the output directory
+    into a single zip file
+
+    Notes
+    -----
+    Should be used along with :class:`~jupyter_scheduler.scheduler.AllFilesArchivingScheduler`
+    as the `scheduler_class` during jupyter server start.
+    """
+
+    def execute(self):
+        job = self.model
+
+        with open(self.staging_paths["input"], encoding="utf-8") as f:
+            nb = nbformat.read(f, as_version=4)
+
+        if job.parameters:
+            nb = add_parameters(nb, job.parameters)
+
+        ep = ExecutePreprocessor(
+            kernel_name=nb.metadata.kernelspec["name"],
+            store_widget_state=True,
+        )
+
+        try:
+            ep.preprocess(nb)
+        except CellExecutionError as e:
+            pass
+        finally:
+            # Create all desired output files, other than "input" and "zip"
+            for output_format in job.output_formats:
+                if output_format == "input" or output_format == "zip":
+                    pass
+                else:
+                    cls = nbconvert.get_exporter(output_format)
+                    output, resources = cls().from_notebook_node(nb)
+
+            # Create a zip file
+            staging_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
+
+            # Truncate '.zip' off the end of the filename
+            basename = self.staging_paths["zip"][:-4]
+            shutil.make_archive(basename, 'zip', staging_dir)
