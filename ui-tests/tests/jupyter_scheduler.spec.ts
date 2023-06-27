@@ -49,7 +49,7 @@ test.describe('File selection for normal staging', () => {
 
     expect(await page.menu.isAnyOpen()).toBe(true);
     const righClickMenu = page.locator('ul.lm-Menu-content[role="menu"]');
-    const createJobItem = page.locator('li[data-type="command"][data-command="scheduling:create-from-filebrowser"] >> div:has-text("Create Notebook Job")');
+    const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
     const snapshotName = 'filebrowser-notebook-rightclick-menu.png';
     await expect(createJobItem).toBeVisible();
     expect(await righClickMenu.screenshot()).toMatchSnapshot(snapshotName);
@@ -88,5 +88,19 @@ class SchedulerHelper {
    */
   get notebookToolbarButtonLocator() {
     return this.page.locator(this.notebookToolbarButtonSelector);
+  }
+
+  /**
+   * JupyterLab File Browser right-click menu "Create Notebook Job" item selector
+   */
+  get filebrowserMenuItemSelector() {
+    return 'li[data-type="command"][data-command="scheduling:create-from-filebrowser"] >> div:has-text("Create Notebook Job")';
+  }
+
+  /**
+   * JupyterLab File Browser right-click menu "Create Notebook Job" item locator
+   */
+  get filebrowserMenuItemLocator() {
+    return this.page.locator(this.filebrowserMenuItemSelector);
   }
 }
