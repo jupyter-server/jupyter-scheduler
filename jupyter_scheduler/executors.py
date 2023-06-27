@@ -260,6 +260,9 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
                 else:
                     cls = nbconvert.get_exporter(output_format)
                     output, resources = cls().from_notebook_node(nb)
+                    f = open(self.staging_paths[output_format], 'wb')
+                    f.write(bytes(output, "utf-8"))
+                    f.close()
 
             # Create a zip file
             staging_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
