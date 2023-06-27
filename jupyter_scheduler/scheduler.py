@@ -709,8 +709,8 @@ class ArchivingScheduler(Scheduler):
 
         output_format = "tar.gz"
         filename = create_output_filename(model.input_filename, model.create_time, output_format)
-        staging_paths[output_format] = os.path.join(self.staging_path, model.job_id, filename)
-        staging_paths["input"] = os.path.join(self.staging_path, model.job_id, model.input_filename)
+        staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
+        staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
 
@@ -738,8 +738,8 @@ class AllFilesArchivingScheduler(Scheduler):
 
         # Create an output file
         filename = create_output_filename(model.input_filename, model.create_time, "zip")
-        staging_paths["zip"] = os.path.join(self.staging_path, model.job_id, filename)
-        staging_paths["input"] = os.path.join(self.staging_path, model.job_id, model.input_filename)
+        staging_paths["zip"] = os.path.join(self.staging_path, id, filename)
+        staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
 

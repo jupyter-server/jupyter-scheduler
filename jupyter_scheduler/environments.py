@@ -66,7 +66,7 @@ class CondaEnvironmentManager(EnvironmentManager):
         return ""
 
     def output_formats_mapping(self) -> Dict[str, str]:
-        return {"ipynb": "Notebook", "html": "HTML"}
+        return {"ipynb": "Notebook", "html": "HTML", "zip": "Zip"}
 
 
 class StaticEnvironmentManager(EnvironmentManager):
@@ -90,7 +90,7 @@ class StaticEnvironmentManager(EnvironmentManager):
         return ""
 
     def output_formats_mapping(self) -> Dict[str, str]:
-        return {"ipynb": "Notebook", "html": "HTML"}
+        return {"ipynb": "Notebook", "html": "HTML", "zip": "Zip"}
 
 
 class EnvironmentRetrievalError(Exception):
