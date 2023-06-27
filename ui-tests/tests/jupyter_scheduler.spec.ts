@@ -30,8 +30,8 @@ test.describe('File selection for normal staging', () => {
     page
   }) => {
     await page.notebook.createNew();
-    await page.waitForSelector('text=Python 3 (ipykernel) | Idle');
-    const createJobButton = page.locator('button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a notebook job"]');
+    await page.waitForSelector('text=Kernel status: Idle');
+    const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
     const snapshotName = 'notebook-with-createjob-button.png';
 
     await expect(createJobButton).toBeVisible();
@@ -74,5 +74,19 @@ class SchedulerHelper {
    */
   get launcherCardLocator() {
     return this.page.locator(this.launcherCardSelector);
+  }
+
+  /**
+   * JupyterLab notebook toolbar "Create a notebook job" button selector
+   */
+  get notebookToolbarButtonSelector() {
+    return 'button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a notebook job"]';
+  }
+
+  /**
+   * JupyterLab notebook toolbar "Create a notebook job" button locator
+   */
+  get notebookToolbarButtonLocator() {
+    return this.page.locator(this.notebookToolbarButtonSelector);
   }
 }
