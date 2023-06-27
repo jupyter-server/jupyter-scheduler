@@ -19,7 +19,7 @@ test.describe('File selection for normal staging', () => {
   }) => {
     const launcher = page.locator('div[role="main"] >> text=Launcher');
     await launcher.waitFor();
-    const launcherCard = page.locator('div.jp-LauncherCard[title="Notebook Jobs"]');
+    const launcherCard = schedulerHelper.launcherCardLocator;
     const snapshotName = 'launcher-with-scheduler.png';
 
     await expect(launcherCard).toBeVisible();
