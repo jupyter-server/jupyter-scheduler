@@ -30,7 +30,7 @@ test.describe('File selection for normal staging', () => {
     page
   }) => {
     await page.notebook.createNew();
-    await page.waitForSelector('text=Kernel status: Idle');
+    await page.locator('text=Kernel status: Idle').waitFor({ state: 'hidden'});
     const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
     const snapshotName = 'notebook-with-createjob-button.png';
 
