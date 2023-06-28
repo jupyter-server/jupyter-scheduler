@@ -224,6 +224,7 @@ class ArchivingExecutionManager(DefaultExecutionManager):
             with fsspec.open(archive_filepath, "wb") as f:
                 f.write(fh.getvalue())
 
+
 class AllFilesArchivingExecutionManager(DefaultExecutionManager):
     """Execution manager that, for automated runs, archives all output files
     in and under the output directory into a single zip file
@@ -260,7 +261,7 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
                 else:
                     cls = nbconvert.get_exporter(output_format)
                     output, resources = cls().from_notebook_node(nb)
-                    f = open(self.staging_paths[output_format], 'wb')
+                    f = open(self.staging_paths[output_format], "wb")
                     f.write(bytes(output, "utf-8"))
                     f.close()
                     print(f"Wrote file {self.staging_paths[output_format]}\n")
@@ -268,9 +269,9 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
             if "zip" in job.output_formats:
                 # For automated runs, create a zip file of the current directory
                 # and everything under it
-                staging_dir = '.'
+                staging_dir = "."
 
                 # Truncate '.zip' off the end of the filename
                 basename = self.staging_paths["zip"][:-4]
-                shutil.make_archive(basename, 'zip', staging_dir)
+                shutil.make_archive(basename, "zip", staging_dir)
                 print(f"Wrote zip file {basename}.zip\n")
