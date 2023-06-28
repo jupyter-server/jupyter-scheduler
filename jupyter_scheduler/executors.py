@@ -225,8 +225,8 @@ class ArchivingExecutionManager(DefaultExecutionManager):
                 f.write(fh.getvalue())
 
 class AllFilesArchivingExecutionManager(DefaultExecutionManager):
-    """Execution manager that archives all output files in and under the output directory
-    into a single zip file
+    """Execution manager that, for automated runs, archives all output files
+    in and under the output directory into a single zip file
 
     Notes
     -----
@@ -263,10 +263,14 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
                     f = open(self.staging_paths[output_format], 'wb')
                     f.write(bytes(output, "utf-8"))
                     f.close()
+                    print(f"Wrote file {self.staging_paths[output_format]}\n")
 
-            # Create a zip file
-            staging_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
+            if "zip" in job.output_formats:
+                # For automated runs, create a zip file of the current directory
+                # and everything under it
+                staging_dir = '.'
 
-            # Truncate '.zip' off the end of the filename
-            basename = self.staging_paths["zip"][:-4]
-            shutil.make_archive(basename, 'zip', staging_dir)
+                # Truncate '.zip' off the end of the filename
+                basename = self.staging_paths["zip"][:-4]
+                shutil.make_archive(basename, 'zip', staging_dir)
+                print(f"Wrote zip file {basename}.zip\n")
