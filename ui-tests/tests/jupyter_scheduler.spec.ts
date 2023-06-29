@@ -40,6 +40,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await expect(createJobButton).toBeVisible();
     expect(await page.screenshot()).toMatchSnapshot(notebookSnapshot);
     await page.menu.clickMenuItem('File>Save Notebook');
+    await page.click('button:has-text("Rename")');
     await createJobButton.click();
     await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
