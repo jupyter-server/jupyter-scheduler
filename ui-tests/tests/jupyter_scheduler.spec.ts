@@ -12,6 +12,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
   test.beforeEach(async ({ page }) => {
     schedulerHelper = new SchedulerHelper(page);
     await page.goto();
+    await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
   });
 
   test('"Notebook Jobs" card is visible in JupyterLab launcher', async ({
@@ -62,6 +63,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await createJobItem.click();
     await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
     const createViewSnapshot = 'create-view-empty.png';
+    await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
@@ -81,6 +83,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.click('button:has-text("Reload")');
     await page.locator('text=MyTestJob').waitFor();
     const listViewSnapshot = 'list-view-completed.png';
+    await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
     expect(await page.screenshot()).toMatchSnapshot(listViewSnapshot);
   });
 });
