@@ -62,10 +62,4 @@ test.describe('File selection for normal staging', () => {
     await createJobItem.click()
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
-
-  test('Empty', async ({
-    page
-  }) => {
-
-  });
 });
