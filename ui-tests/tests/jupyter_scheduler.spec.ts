@@ -7,7 +7,7 @@ import { SchedulerHelper } from '../helpers/SchedulerHelper';
  */
 test.use({ autoGoto: false });
 
-test.describe('File selection for normal staging', () => {
+test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
   let schedulerHelper: SchedulerHelper;
   test.beforeEach(async ({ page }) => {
     schedulerHelper = new SchedulerHelper(page);
