@@ -24,7 +24,6 @@ test.describe('File selection for normal staging', () => {
 
     await expect(launcherCard).toBeVisible();
     expect(await page.screenshot()).toMatchSnapshot(launcherSnapshot);
-
   });
 
   test('"Create a notebook job" button is visible in notebook toolbar and leads to "Create a Job" page', async ({
@@ -40,14 +39,13 @@ test.describe('File selection for normal staging', () => {
     await expect(createJobButton).toBeVisible();
     expect(await page.screenshot()).toMatchSnapshot(notebookSnapshot);
     await createJobButton.click();
-    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"))
+    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
-  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
+  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser and leads to "Create a Job" page', async ({
     page
   }) => {
-    await page.notebook.createNew();
     await page.sidebar.openTab('filebrowser');
     expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
     await page.filebrowser.refresh();
@@ -59,5 +57,29 @@ test.describe('File selection for normal staging', () => {
     const righClickMenuSnapshot = 'filebrowser-notebook-rightclick-menu.png';
     await expect(createJobItem).toBeVisible();
     expect(await righClickMenu.screenshot()).toMatchSnapshot(righClickMenuSnapshot);
+
+    await createJobItem.click();
+    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+    const createViewSnapshot = 'create-view-empty.png';
+    expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
+  });
+
+  test('Create a job and see it in the list of jobs', async ({
+    page
+  }) => {
+    await page.sidebar.openTab('filebrowser');
+    await page.filebrowser.refresh();
+    await page.click('.jp-DirListing-item[data-file-type="notebook"]', { button : 'right'});
+    const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
+    await createJobItem.click();
+    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+
+    await page.fill('input[name=jobName]', 'MyTestJob');
+    await page.click('button:has-text("Create")');
+    await page.locator('text=MyTestJob').waitFor();
+    await page.click('button:has-text("Reload")');
+    await page.locator('text=MyTestJob').waitFor();
+    const listViewSnapshot = 'list-view-completed.png';
+    expect(await page.screenshot()).toMatchSnapshot(listViewSnapshot);
   });
 });
