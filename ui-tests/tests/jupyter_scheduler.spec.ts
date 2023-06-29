@@ -14,7 +14,7 @@ test.describe('File selection for normal staging', () => {
     await page.goto();
   });
 
-  test('"Notebook Jobs" card is visible in JupyterLab launcher', async ({
+  test('"Notebook Jobs" card is visible in JupyterLab launcher and leads to "Notebook Jobs" page', async ({
     page
   }) => {
     const launcher = page.locator('div[role="main"] >> text=Launcher');
@@ -24,9 +24,10 @@ test.describe('File selection for normal staging', () => {
 
     await expect(launcherCard).toBeVisible();
     expect(await page.screenshot()).toMatchSnapshot(launcherSnapshot);
+
   });
 
-  test('"Create a notebook job" button is visible in notebook toolbar', async ({
+  test('"Create a notebook job" button is visible in notebook toolbar and leads to "Create a Job" page', async ({
     page
   }) => {
     await page.notebook.createNew();
@@ -34,12 +35,15 @@ test.describe('File selection for normal staging', () => {
     await page.locator('.jp-Notebook-ExecutionIndicator[data-status="idle"]').waitFor();
     const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
     const notebookSnapshot = 'notebook-with-createjob-button.png';
+    const createViewSnapshot = 'create-view-empty.png';
 
     await expect(createJobButton).toBeVisible();
     expect(await page.screenshot()).toMatchSnapshot(notebookSnapshot);
+    await createJobButton.click();
+    expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
-  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
+  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser and leads to "Create a Job" page', async ({
     page
   }) => {
     await page.notebook.createNew();
@@ -52,8 +56,11 @@ test.describe('File selection for normal staging', () => {
     const righClickMenu = page.locator('ul.lm-Menu-content[role="menu"]');
     const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
     const righClickMenuSnapshot = 'filebrowser-notebook-rightclick-menu.png';
+    const createViewSnapshot = 'create-view-empty.png';
     await expect(createJobItem).toBeVisible();
     expect(await righClickMenu.screenshot()).toMatchSnapshot(righClickMenuSnapshot);
+    await createJobItem.click()
+    expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
   test('Empty', async ({
