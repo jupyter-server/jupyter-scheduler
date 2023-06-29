@@ -82,7 +82,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.click('button:has-text("Create")');
     await page.locator('text=MyTestJob').waitFor();
     await page.click('button:has-text("Reload")');
-    await page.locator('text=MyTestJob').waitFor();
+    await new Promise(_ => setTimeout(_, 2000));
     const listViewSnapshot = 'list-view-completed.png';
     await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
     expect(await page.screenshot()).toMatchSnapshot(listViewSnapshot);
