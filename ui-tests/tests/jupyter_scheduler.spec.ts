@@ -20,10 +20,10 @@ test.describe('File selection for normal staging', () => {
     const launcher = page.locator('div[role="main"] >> text=Launcher');
     await launcher.waitFor();
     const launcherCard = schedulerHelper.launcherCardLocator;
-    const snapshotName = 'launcher-with-scheduler.png';
+    const launcherSnapshot = 'launcher-with-scheduler.png';
 
     await expect(launcherCard).toBeVisible();
-    expect(await page.screenshot()).toMatchSnapshot(snapshotName);
+    expect(await page.screenshot()).toMatchSnapshot(launcherSnapshot);
   });
 
   test('"Create a notebook job" button is visible in notebook toolbar', async ({
@@ -33,10 +33,10 @@ test.describe('File selection for normal staging', () => {
     await page.locator('.jp-DebuggerBugButton[aria-disabled="false"]').waitFor();
     await page.locator('.jp-Notebook-ExecutionIndicator[data-status="idle"]').waitFor();
     const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
-    const snapshotName = 'notebook-with-createjob-button.png';
+    const notebookSnapshot = 'notebook-with-createjob-button.png';
 
     await expect(createJobButton).toBeVisible();
-    expect(await page.screenshot()).toMatchSnapshot(snapshotName);
+    expect(await page.screenshot()).toMatchSnapshot(notebookSnapshot);
   });
 
   test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
@@ -51,8 +51,14 @@ test.describe('File selection for normal staging', () => {
     expect(await page.menu.isAnyOpen()).toBe(true);
     const righClickMenu = page.locator('ul.lm-Menu-content[role="menu"]');
     const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
-    const snapshotName = 'filebrowser-notebook-rightclick-menu.png';
+    const righClickMenuSnapshot = 'filebrowser-notebook-rightclick-menu.png';
     await expect(createJobItem).toBeVisible();
-    expect(await righClickMenu.screenshot()).toMatchSnapshot(snapshotName);
+    expect(await righClickMenu.screenshot()).toMatchSnapshot(righClickMenuSnapshot);
+  });
+
+  test('Empty', async ({
+    page
+  }) => {
+
   });
 });
