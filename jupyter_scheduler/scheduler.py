@@ -716,7 +716,7 @@ class ArchivingScheduler(Scheduler):
 
 
 class AllFilesArchivingScheduler(Scheduler):
-    """Scheduler that, for scheduled runs, captures all files in output directory in a zip file."""
+    """Scheduler that captures all files in output directory in an archive."""
 
     execution_manager_class = TType(
         klass="jupyter_scheduler.executors.ExecutionManager",
@@ -735,12 +735,17 @@ class AllFilesArchivingScheduler(Scheduler):
             filename = create_output_filename(
                 model.input_filename, model.create_time, output_format
             )
-            staging_paths[output_format] = filename
+            # Use the staging directory to capture output files
+            staging_paths[output_format] = os.path.join(
+                self.staging_path,
+                id,
+                filename
+            )
 
-        # Create an output zip file for automated runs
+        # Create an output archive file for automated runs
         if isinstance(model, DescribeJob) and model.job_definition_id is not None:
-            staging_paths["zip"] = create_output_filename(
-                model.input_filename, model.create_time, "zip"
+            staging_paths["tar.gz"] = create_output_filename(
+                model.input_filename, model.create_time, "tar.gz"
             )
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 

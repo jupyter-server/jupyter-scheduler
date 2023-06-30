@@ -1,6 +1,5 @@
 import io
 import os
-import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
@@ -226,8 +225,8 @@ class ArchivingExecutionManager(DefaultExecutionManager):
 
 
 class AllFilesArchivingExecutionManager(DefaultExecutionManager):
-    """Execution manager that, for automated runs, archives all output files
-    in and under the output directory into a single zip file
+    """Execution manager that archives all output files in and under the
+    output directory into a single archive file
 
     Notes
     -----
@@ -254,9 +253,9 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
         except CellExecutionError as e:
             pass
         finally:
-            # Create all desired output files, other than "input" and "zip"
+            # Create all desired output files, other than "input" and "tar.gz"
             for output_format in job.output_formats:
-                if output_format == "input" or output_format == "zip":
+                if output_format == "input" or output_format == "tar.gz":
                     pass
                 else:
                     cls = nbconvert.get_exporter(output_format)
@@ -266,12 +265,24 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
                     f.close()
                     print(f"Wrote file {self.staging_paths[output_format]}\n")
 
-            if "zip" in job.output_formats:
-                # For automated runs, create a zip file of the current directory
-                # and everything under it
-                staging_dir = "."
+            # Create an archive file of the staging directory for this run
+            # and everything under it
+            fh = io.BytesIO()
+            with tarfile.open(fileobj=fh, mode="w:gz") as tar:
+                # Get the directory of the input file
+                working_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
 
-                # Truncate '.zip' off the end of the filename
-                basename = self.staging_paths["zip"][:-4]
-                shutil.make_archive(basename, "zip", staging_dir)
-                print(f"Wrote zip file {basename}.zip\n")
+                for root, dirs, files in os.walk(working_dir):
+                    for file in files:
+                        with open(os.path.join(root, file)) as f:
+                            output = f.read()
+                        data = bytes(output, "utf-8")
+                        source_f = io.BytesIO(initial_bytes=data)
+                        # TODO: Include relative path?
+                        info = tarfile.TarInfo(file)
+                        info.size = len(data)
+                        tar.addfile(info, source_f)
+
+            archive_filepath = self.staging_paths["tar.gz"]
+            with fsspec.open(archive_filepath, "wb") as f:
+                f.write(fh.getvalue())
