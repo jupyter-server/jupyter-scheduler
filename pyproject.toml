@@ -32,7 +32,7 @@ dependencies = [
     "jupyter_server>=1.6,<3",
     "traitlets",
     "nbconvert",
-    "pydantic>=1,<2",
+    "pydantic~=1.10",
     "sqlalchemy<2",
     "croniter",
     "pytz",
