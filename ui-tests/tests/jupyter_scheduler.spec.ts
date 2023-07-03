@@ -35,7 +35,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.locator('.jp-Notebook-ExecutionIndicator[data-status="idle"]').waitFor();
     const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
     const notebookSnapshot = 'notebook-with-createjob-button.png';
-    const createViewSnapshot = 'create-view-empty.png';
+    const createViewSnapshot = 'create-view-from-toolbar.png';
 
     await expect(createJobButton).toBeVisible();
     expect(await page.screenshot()).toMatchSnapshot(notebookSnapshot);
@@ -44,8 +44,6 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await createJobButton.click();
 
     await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
-    await page.click('li[title*=Untitled.ipynb]', { button: 'right' });
-    await page.click('div:has-text("Close Tab")');
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
