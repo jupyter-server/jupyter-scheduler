@@ -26,12 +26,13 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
     "jupyter_server>=1.6,<3",
     "traitlets",
     "nbconvert",
-    "pydantic",
+    "pydantic>=1,<2",
     "sqlalchemy<2",
     "croniter",
     "pytz",
