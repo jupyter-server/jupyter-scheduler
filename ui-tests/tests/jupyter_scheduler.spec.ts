@@ -85,8 +85,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.click('button:has-text("Create")');
     await page.locator('text=MyTestJob').waitFor();
     await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
-    await page.click('button:has-text("Reload")');
-    const listViewSnapshot = 'list-view-completed.png';
+    const listViewSnapshot = 'list-view-in-progress.png';
     expect(await page.screenshot()).toMatchSnapshot(listViewSnapshot);
   });
 });
