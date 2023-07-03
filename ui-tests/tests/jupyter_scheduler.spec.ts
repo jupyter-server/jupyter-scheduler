@@ -42,7 +42,10 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.menu.clickMenuItem('File>Save Notebook');
     await page.click('button:has-text("Rename")');
     await createJobButton.click();
+
     await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+    await page.click('div:has-text("Untitled.ipynb")', { button: 'right' });
+    await page.click('div:has-text("Close Tab")');
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
