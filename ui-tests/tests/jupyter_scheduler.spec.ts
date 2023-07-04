@@ -94,7 +94,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     const emptyListViewSnapshot = 'list-view-in-empty.png';
     await page.click('button[title*="Delete"]');
     await page.click('text=Delete');
-    const job = page.locator('a:text("MyTestJob", exact=true)');
+    const job = page.locator('a:text("MyTestJob")');
     await job.waitFor({ state: 'hidden'});
     expect(await page.screenshot()).toMatchSnapshot(emptyListViewSnapshot);
   });
