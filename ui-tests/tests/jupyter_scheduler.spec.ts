@@ -43,7 +43,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.click('button:has-text("Rename")');
     await createJobButton.click();
 
-    await schedulerHelper.waitTextGone("Loading …");
+    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
@@ -63,7 +63,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await righClickMenu.screenshot()).toMatchSnapshot(righClickMenuSnapshot);
 
     await createJobItem.click();
-    await schedulerHelper.waitTextGone("Loading …");
+    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
     const createViewSnapshot = 'create-view-empty.png';
     await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
@@ -77,7 +77,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.click('.jp-DirListing-item[data-file-type="notebook"]', { button : 'right'});
     const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
     await createJobItem.click();
-    await schedulerHelper.waitTextGone("Loading");
+    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading"));
 
     await page.fill('input[name=jobName]', 'MyTestJob');
     await page.click('button:has-text("Create")');

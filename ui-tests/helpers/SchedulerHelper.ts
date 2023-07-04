@@ -61,11 +61,4 @@ export class SchedulerHelper {
   get timestampLocator() {
     return this.page.locator(this.timestampSelector);
   }
-
-  /**
-   * Wait until there is no inner text on the page
-   */
-  async waitTextGone(str: string) {
-    await this.page.waitForFunction(() => !document.documentElement.innerText.includes(str));
-  }
 }
