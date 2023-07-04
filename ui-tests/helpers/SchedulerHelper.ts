@@ -51,20 +51,6 @@ export class SchedulerHelper {
   /**
    *  Notebook jobs panel selector
    */
-  get jobsPanelSelector() {
-    return '#notebook-jobs-panel';
-  }
-
-  /**
-   * Notebook jobs panel locator
-   */
-  get jobsPanelLocator() {
-    return this.page.locator(this.jobsPanelSelector);
-  }
-
-  /**
-   *  Notebook jobs panel selector
-   */
   get timestampSelector() {
     return 'td.MuiTableCell-body:has-text(" AM"), td.MuiTableCell-body:has-text(" PM")';
   }
@@ -77,9 +63,9 @@ export class SchedulerHelper {
   }
 
   /**
-   * Wait until there is no "Loading ..." inner text on the page
+   * Wait until there is no inner text on the page
    */
-  waitForLoading() {
-    this.page.waitForFunction(() => !document.documentElement.innerText.includes("Loading"));
+  waitTextGone(str: string) {
+    this.page.waitForFunction(() => !document.documentElement.innerText.includes(str));
   }
 }
