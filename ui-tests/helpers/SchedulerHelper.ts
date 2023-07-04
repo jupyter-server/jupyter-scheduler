@@ -65,7 +65,7 @@ export class SchedulerHelper {
   /**
    * Wait until there is no inner text on the page
    */
-  waitTextGone(str: string) {
-    this.page.waitForFunction(() => !document.documentElement.innerText.includes(str));
+  async waitTextGone(str: string) {
+    await this.page.waitForFunction(() => !document.documentElement.innerText.includes(str));
   }
 }
