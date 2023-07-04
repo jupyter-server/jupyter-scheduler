@@ -92,6 +92,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await expect(contentPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp], maskColor: "white"});
 
     const emptyListViewSnapshot = 'list-view-in-empty.png';
+    await page.click('text=Reload');
     await page.click('button[title*="Delete"]');
     await page.click('text=Delete');
     const job = page.locator('a:text("MyTestJob")');
