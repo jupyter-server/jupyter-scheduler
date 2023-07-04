@@ -81,11 +81,14 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
 
     await page.fill('input[name=jobName]', 'MyTestJob');
     await page.click('button:has-text("Create")');
-    await page.getByText('MyTestJob', { exact: true }).waitFor();
+    const jobNameLink = page.getByText('MyTestJob', { exact: true });
+    jobNameLink.waitFor();
     await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
     const timeStamp = schedulerHelper.timestampLocator
     const listViewSnapshot = 'list-view-in-progress.png';
     const jobsPanel = schedulerHelper.jobsPanelLocator;
     await expect(jobsPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp], maskColor: "white"});
+    await jobNameLink.click();
+    schedulerHelper.waitForLoading();
   });
 });
