@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.3.4
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.3...aaa3a8922a3021b1158c668e50b17e2bf708b4e6))
+
+### Bugs fixed
+
+- Pins Pydantic to version 1, adds Python 3.11 [#391](https://github.com/jupyter-server/jupyter-scheduler/pull/391) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-06-27&to=2023-07-03&type=c))
+
+[@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-06-27..2023-07-03&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-06-27..2023-07-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.3.3
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.2...5cd14b538a656e8fd2318dbbb687f2bf4da8fd37))
@@ -18,8 +34,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-05-11&to=2023-06-27&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-05-11..2023-06-27&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-05-11..2023-06-27&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-05-11..2023-06-27&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2023-05-11..2023-06-27&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.3.2
 
