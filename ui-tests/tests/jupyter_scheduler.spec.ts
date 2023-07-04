@@ -63,7 +63,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await righClickMenu.screenshot()).toMatchSnapshot(righClickMenuSnapshot);
 
     await createJobItem.click();
-    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+    schedulerHelper.waitForLoading();
     const createViewSnapshot = 'create-view-empty.png';
     await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
