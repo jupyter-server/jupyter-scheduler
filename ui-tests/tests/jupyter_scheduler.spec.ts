@@ -88,7 +88,5 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     const listViewSnapshot = 'list-view-in-progress.png';
     const jobsPanel = schedulerHelper.jobsPanelLocator;
     await expect(jobsPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp], maskColor: "white"});
-    await jobNameLink.click();
-    schedulerHelper.waitForLoading();
   });
 });
