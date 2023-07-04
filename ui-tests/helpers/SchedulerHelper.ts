@@ -77,7 +77,7 @@ export class SchedulerHelper {
   }
 
   /**
-   * Funtion that waits until there is no "Loading ..." inner text on the page
+   * Wait until there is no "Loading ..." inner text on the page
    */
   waitForLoading() {
     this.page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
