@@ -31,7 +31,7 @@ dependencies = [
     "jupyter_server>=1.6,<3",
     "traitlets",
     "nbconvert",
-    "pydantic<2",
+    "pydantic",
     "sqlalchemy<2",
     "croniter",
     "pytz",
