@@ -77,14 +77,15 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.click('.jp-DirListing-item[data-file-type="notebook"]', { button : 'right'});
     const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
     await createJobItem.click();
-    await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+    schedulerHelper.waitForLoading();
 
     await page.fill('input[name=jobName]', 'MyTestJob');
     await page.click('button:has-text("Create")');
     await page.locator('text=MyTestJob').waitFor();
     await page.sidebar.close(await page.sidebar.getTabPosition('filebrowser') ?? undefined);
-    const timeStamp = page.locator(':has-text(" AM"), :has-text(" PM")')
+    const timeStamp = schedulerHelper.timestampLocator
     const listViewSnapshot = 'list-view-in-progress.png';
-    expect(page).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp]});
+    const jobsPanel = schedulerHelper.jobsPanelLocator;
+    await expect(jobsPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp]});
   });
 });

@@ -47,4 +47,39 @@ export class SchedulerHelper {
   get filebrowserMenuItemLocator() {
     return this.page.locator(this.filebrowserMenuItemSelector);
   }
+
+  /**
+   *  Notebook jobs panel selector
+   */
+  get jobsPanelSelector() {
+    return '#notebook-jobs-panel';
+  }
+
+  /**
+   * Notebook jobs panel locator
+   */
+  get jobsPanelLocator() {
+    return this.page.locator(this.jobsPanelSelector);
+  }
+
+  /**
+   *  Notebook jobs panel selector
+   */
+  get timestampSelector() {
+    return ':has-text(" AM"), :has-text(" PM")';
+  }
+
+  /**
+   * Notebook jobs panel locator
+   */
+  get timestampLocator() {
+    return this.page.locator(this.timestampSelector);
+  }
+
+  /**
+   * Funtion that waits until there is no "Loading ..." inner text on the page
+   */
+  waitForLoading() {
+    this.page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+  }
 }
