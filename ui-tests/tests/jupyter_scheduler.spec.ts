@@ -88,5 +88,10 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     const listViewSnapshot = 'list-view-in-progress.png';
     const contentPanel = page.locator('#jp-main-content-panel');
     await expect(contentPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp], maskColor: "white"});
+
+    const emptyListViewSnapshot = 'list-view-in-empty.png';
+    await page.click('button[title*="Delete"]');
+    await page.click('text=Delete');
+    expect(await page.screenshot()).toMatchSnapshot(emptyListViewSnapshot);
   });
 });
