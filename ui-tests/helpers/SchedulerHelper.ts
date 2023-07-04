@@ -66,7 +66,7 @@ export class SchedulerHelper {
    *  Notebook jobs panel selector
    */
   get timestampSelector() {
-    return ':has-text(" AM"), :has-text(" PM")';
+    return 'td.MuiTableCell-body:has-text(" AM"), td.MuiTableCell-body:has-text(" PM")';
   }
 
   /**
