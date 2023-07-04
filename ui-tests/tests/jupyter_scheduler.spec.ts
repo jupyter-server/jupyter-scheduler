@@ -44,6 +44,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await createJobButton.click();
 
     await page.waitForFunction(() => !document.documentElement.innerText.includes("Loading …"));
+    await page.waitForSelector('text=Saving Completed', { state: 'hidden'});
     expect(await page.screenshot()).toMatchSnapshot(createViewSnapshot);
   });
 
