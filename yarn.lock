@@ -1389,7 +1389,7 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.4.0.tgz#08d6c5e20cf7e4cc02fd181c4b0c225cd31dbb60"
   integrity sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==
 
-"@jupyterlab/application@^3.4.1", "@jupyterlab/application@^3.4.7":
+"@jupyterlab/application@^3.4.1":
   version "3.4.7"
   resolved "https://registry.yarnpkg.com/@jupyterlab/application/-/application-3.4.7.tgz#f97f9cc2cee105c9ad064f9531f1e5960b86b465"
   integrity sha512-lm+kHctu3aFs0NPtIpKhHpDrcdItJS6xfNpAyORWwncErs+SuMjw45s9NQeH3zmlzLad133P0KpcpXsMxNNPLg==
@@ -1689,30 +1689,6 @@
     moment "^2.24.0"
     path-browserify "^1.0.0"
     url-parse "~1.5.1"
-
-"@jupyterlab/docmanager-extension@^3.4.2":
-  version "3.4.7"
-  resolved "https://registry.yarnpkg.com/@jupyterlab/docmanager-extension/-/docmanager-extension-3.4.7.tgz#24c043bfc05f4bd37a0f1e0987a00f000de390fe"
-  integrity sha512-SSCO+N3b5QcKc/gVtPA+Gvd8374l8v7HjO2Op1Hi2P1QwHQPnVLgSSQdU+Dgz1idc/bm94hLCj16zX5OCTfUSw==
-  dependencies:
-    "@jupyterlab/application" "^3.4.7"
-    "@jupyterlab/apputils" "^3.4.7"
-    "@jupyterlab/coreutils" "^5.4.7"
-    "@jupyterlab/docmanager" "^3.4.7"
-    "@jupyterlab/docprovider" "^3.4.7"
-    "@jupyterlab/docregistry" "^3.4.7"
-    "@jupyterlab/services" "^6.4.7"
-    "@jupyterlab/settingregistry" "^3.4.7"
-    "@jupyterlab/statusbar" "^3.4.7"
-    "@jupyterlab/translation" "^3.4.7"
-    "@jupyterlab/ui-components" "^3.4.7"
-    "@lumino/algorithm" "^1.9.0"
-    "@lumino/commands" "^1.19.0"
-    "@lumino/coreutils" "^1.11.0"
-    "@lumino/disposable" "^1.10.0"
-    "@lumino/signaling" "^1.10.0"
-    "@lumino/widgets" "^1.33.0"
-    react "^17.0.1"
 
 "@jupyterlab/docmanager@^3.4.6":
   version "3.4.6"
