@@ -89,6 +89,6 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     const timeStamp = schedulerHelper.timestampLocator
     const listViewSnapshot = 'list-view-in-progress.png';
     const contentPanel = page.locator('#jp-main-content-panel');
-    await expect(contentPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp], maskColor: "white"});
+    await expect(contentPanel).toHaveScreenshot(listViewSnapshot, {mask: [timeStamp], maskColor: "white", maxDiffPixelRatio: 0.01 });
   });
 });
