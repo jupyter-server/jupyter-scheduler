@@ -13,6 +13,8 @@ installed locally. The `jlpm` command is JupyterLab's pinned version of
 [yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
 `yarn` or `npm` in lieu of `jlpm` below.
 
+We recommend using a `conda` environment or `pip` for managing your Python packages. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+
 ```bash
 # Clone the repo to your local environment
 git clone https://github.com/jupyter-server/jupyter-scheduler.git
