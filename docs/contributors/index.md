@@ -111,6 +111,22 @@ More precisely, the JupyterLab helper
 [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
 test the extension in JupyterLab.
 
+Install test dependencies (needed only once):
+
+```sh
+cd ./ui-tests
+jlpm install
+jlpm playwright install
+cd ..
+```
+
+To execute them, run:
+
+```sh
+cd ./ui-tests
+jlpm playwright test
+```
+
 You can find more information in the
 [ui-tests](https://github.com/jupyter-server/jupyter-scheduler/tree/main/ui-tests)
 README.
