@@ -35,7 +35,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await page.screenshot()).toMatchSnapshot(LAUNCHER_SNAPSHOT_FILENAME);
   });
 
-  test('"Create a notebook job" button is visible in notebook toolbar and leads to "Create a Job" page', async ({
+  test('"Create a notebook job" button in notebook toolbar is visible', async ({
     page
   }) => {
     await page.notebook.createNew();
@@ -60,6 +60,9 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
     await page.filebrowser.refresh();
     await page.dblclick('.jp-DirListing-item[data-file-type="notebook"]');
+    await page.sidebar.close(
+      (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
+    );
     const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
     await createJobButton.click();
     await page.waitForSelector('text=Loading …', { state: 'hidden' });
