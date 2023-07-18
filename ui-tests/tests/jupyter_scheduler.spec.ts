@@ -71,7 +71,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await page.screenshot()).toMatchSnapshot(CREATE_FROM_NOTEBOOK_SNAPSHOT_FILENAME);
   });
 
-  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser and leads to "Create a Job" page', async ({
+  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
     page
   }) => {
     await page.sidebar.openTab('filebrowser');
@@ -88,12 +88,25 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await righClickMenu.screenshot()).toMatchSnapshot(
       RIGHTCLICK_MENU_SNAPSHOT_FILENAME
     );
+  });
 
+  test('"Create Notebook Job" button from File Browser right-click menu leads to "Create a Job" page', async ({
+    page
+  }) => {
+    await page.sidebar.openTab('filebrowser');
+    expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
+    await page.filebrowser.refresh();
+    await page.click('.jp-DirListing-item[data-file-type="notebook"]', {
+      button: 'right'
+    });
+    expect(await page.menu.isAnyOpen()).toBe(true);
+    const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
     await createJobItem.click();
     await page.waitForSelector('text=Loading …', { state: 'hidden' });
     await page.sidebar.close(
       (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
     );
+
     expect(await page.screenshot()).toMatchSnapshot(CREATE_VIEW_SNAPSHOT_FILENAME);
   });
 
@@ -116,6 +129,7 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     );
     const timeStamp = schedulerHelper.timestampLocator;
     const contentPanel = page.locator('#jp-main-content-panel');
+
     await expect(contentPanel).toHaveScreenshot(LIST_VIEW_IN_PROGRESS_SNAPSHOT_FILENAME, {
       mask: [timeStamp],
       maskColor: 'white',
