@@ -4,7 +4,7 @@ import { Page } from '@playwright/test';
  * Helper class for Jupyter Scheduler testing in JupyterLab
  */
 export class SchedulerHelper {
-  constructor(readonly page: Page) { }
+  constructor(readonly page: Page) {}
 
   /**
    * JupyterLab launcher "Notebook Jobs" card selector
