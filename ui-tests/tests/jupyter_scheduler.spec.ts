@@ -51,8 +51,17 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     expect(await page.screenshot()).toMatchSnapshot(NOTEBOOK_SNAPSHOT_FILENAME);
     await page.menu.clickMenuItem('File>Save Notebook');
     await page.click('button:has-text("Rename")');
-    await createJobButton.click();
+  });
 
+  test('"Create a notebook job" button in notebook toolbar leads to "Create a Job" page', async ({
+    page
+  }) => {
+    await page.sidebar.openTab('filebrowser');
+    expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
+    await page.filebrowser.refresh();
+    await page.dblclick('.jp-DirListing-item[data-file-type="notebook"]');
+    const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
+    await createJobButton.click();
     await page.waitForSelector('text=Loading …', { state: 'hidden' });
 
     await page.waitForSelector('text=Saving Completed', { state: 'hidden' });
