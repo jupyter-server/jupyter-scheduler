@@ -125,3 +125,5 @@ dev/jobs
 
 # jupyter releaser local checkout
 .jupyter_releaser_checkout
+
+.yarn
