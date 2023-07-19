@@ -1,6 +1,7 @@
 /**
  * Configuration for Playwright using default from @jupyterlab/galata
  */
+
 const baseConfig = require('@jupyterlab/galata/lib/playwright-config');
 
 module.exports = {

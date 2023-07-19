@@ -6,10 +6,10 @@
   "scripts": {
     "start": "jupyter lab --config jupyter_server_test_config.py",
     "install-chromium": "jlpm playwright install chromium",
-    "playwright": "node ./node_modules/.bin/playwright",
     "test": "jlpm playwright test"
   },
   "devDependencies": {
-    "@jupyterlab/galata": "^5.0.0"
+    "@jupyterlab/galata": "^5.0.0",
+    "@playwright/test": "^1.32.0"
   }
 }
