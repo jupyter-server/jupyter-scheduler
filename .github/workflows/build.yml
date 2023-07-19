@@ -93,7 +93,7 @@ jobs:
 
           jupyter labextension list
           jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
-          python -m jupyterlab.browser_check --no-chrome-test
+          python -m jupyterlab.browser_check
 
   integration-tests:
     name: Integration tests
