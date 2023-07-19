@@ -137,7 +137,8 @@ filterwarnings = [
   "ignore:Passing a schema to Validator.iter_errors:DeprecationWarning",
   "ignore:unclosed <socket.socket:ResourceWarning",
   "ignore:unclosed event loop:ResourceWarning",
-  "ignore:run_pre_save_hook is deprecated:DeprecationWarning"
+  "ignore:run_pre_save_hook is deprecated:DeprecationWarning",
+  "ignore:jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the:DeprecationWarning"
 ]
 
 [tool.jupyter_releaser]
