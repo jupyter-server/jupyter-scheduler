@@ -38,6 +38,7 @@
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
     "clean:labextension": "rimraf jupyter_scheduler/labextension",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "dev-install": "pip install -e . && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_scheduler",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
     "install:extension": "jlpm build",
