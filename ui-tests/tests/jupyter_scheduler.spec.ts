@@ -5,8 +5,9 @@ const CREATE_FROM_NOTEBOOK_SNAPSHOT_FILENAME = 'create-view-from-toolbar.png';
 const CREATE_VIEW_SNAPSHOT_FILENAME = 'create-view-empty.png';
 const LAUNCHER_SNAPSHOT_FILENAME = 'launcher-with-scheduler.png';
 const LIST_VIEW_IN_PROGRESS_SNAPSHOT_FILENAME = 'list-view-in-progress.png';
-const NOTEBOOK_SNAPSHOT_FILENAME= 'notebook-with-createjob-button.png';
-const RIGHTCLICK_MENU_SNAPSHOT_FILENAME = 'filebrowser-notebook-rightclick-menu.png';
+const NOTEBOOK_SNAPSHOT_FILENAME = 'notebook-with-createjob-button.png';
+const RIGHTCLICK_MENU_SNAPSHOT_FILENAME =
+  'filebrowser-notebook-rightclick-menu.png';
 
 /**
  * Don't load JupyterLab webpage before running the tests.
@@ -68,7 +69,9 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     await page.waitForSelector('text=Loading …', { state: 'hidden' });
 
     await page.waitForSelector('text=Saving Completed', { state: 'hidden' });
-    expect(await page.screenshot()).toMatchSnapshot(CREATE_FROM_NOTEBOOK_SNAPSHOT_FILENAME);
+    expect(await page.screenshot()).toMatchSnapshot(
+      CREATE_FROM_NOTEBOOK_SNAPSHOT_FILENAME
+    );
   });
 
   test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
@@ -107,7 +110,9 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
       (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
     );
 
-    expect(await page.screenshot()).toMatchSnapshot(CREATE_VIEW_SNAPSHOT_FILENAME);
+    expect(await page.screenshot()).toMatchSnapshot(
+      CREATE_VIEW_SNAPSHOT_FILENAME
+    );
   });
 
   test('Create a job and see it in the list of jobs', async ({ page }) => {
@@ -130,10 +135,13 @@ test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
     const timeStamp = schedulerHelper.timestampLocator;
     const contentPanel = page.locator('#jp-main-content-panel');
 
-    await expect(contentPanel).toHaveScreenshot(LIST_VIEW_IN_PROGRESS_SNAPSHOT_FILENAME, {
-      mask: [timeStamp],
-      maskColor: 'white',
-      maxDiffPixelRatio: 0.01
-    });
+    await expect(contentPanel).toHaveScreenshot(
+      LIST_VIEW_IN_PROGRESS_SNAPSHOT_FILENAME,
+      {
+        mask: [timeStamp],
+        maskColor: 'white',
+        maxDiffPixelRatio: 0.01
+      }
+    );
   });
 });
