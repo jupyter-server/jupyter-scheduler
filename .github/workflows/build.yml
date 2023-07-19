@@ -22,7 +22,7 @@ jobs:
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Install dependencies
-        run: python -m pip install -U jupyterlab~=3.1
+        run: python -m pip install -U jupyterlab~=4.0
 
       - name: Lint the extension
         run: |
@@ -85,7 +85,7 @@ jobs:
           sudo rm -rf $(which node)
           sudo rm -rf $(which node)
 
-          pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
+          pip install "jupyterlab~=4.0" jupyter_scheduler*.whl
 
 
           jupyter server extension list
@@ -118,7 +118,7 @@ jobs:
       - name: Install the extension
         run: |
           set -eux
-          python -m pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
+          python -m pip install "jupyterlab~=4.0" jupyter_scheduler*.whl
 
       - name: Install dependencies
         working-directory: ui-tests

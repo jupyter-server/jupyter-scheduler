@@ -10,8 +10,6 @@ permissions:
   pull-requests: write
 
 jobs:
-
-
   update-snapshots:
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'please update playwright snapshots') }}
     runs-on: ubuntu-latest
@@ -36,7 +34,7 @@ jobs:
           python_version: '3.11'
 
       - name: Install dependencies
-        run: python -m pip install -U jupyterlab~=3.1 jupyter-archive
+        run: python -m pip install -U jupyterlab~=4.0 jupyter-archive
 
       - name: Install extension
         run: |
