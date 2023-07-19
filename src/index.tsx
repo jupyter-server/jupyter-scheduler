@@ -73,7 +73,7 @@ function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   }
 
   // Get the first selected item.
-  const firstItem = widget.selectedItems().next();
+  const firstItem = widget.selectedItems().next()?.value;
   if (firstItem === null || firstItem === undefined) {
     return null;
   }
