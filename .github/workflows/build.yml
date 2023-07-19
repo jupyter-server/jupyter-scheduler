@@ -127,13 +127,12 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
 
       - name: Install browser
-        run: jlpm playwright install chromium
         working-directory: ui-tests
+        run: jlpm install-chromium
 
       - name: Execute integration tests
         working-directory: ui-tests
-        run: |
-          jlpm playwright test
+        run: jlpm test
 
       - name: Upload Playwright Test report
         if: always()
