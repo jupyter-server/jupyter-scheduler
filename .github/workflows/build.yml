@@ -81,16 +81,9 @@ jobs:
       - name: Install and Test
         run: |
           set -eux
-          # Remove NodeJS, twice to take care of system and locally installed node versions.
-          sudo rm -rf $(which node)
-          sudo rm -rf $(which node)
-
           pip install "jupyterlab~=4.0" jupyter_scheduler*.whl
-
-
           jupyter server extension list
           jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
-
           jupyter labextension list
           jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
           python -m jupyterlab.browser_check
