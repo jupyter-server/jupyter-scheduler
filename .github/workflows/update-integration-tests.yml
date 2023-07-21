@@ -1,6 +1,7 @@
 name: Update Playwright Snapshots
 
 on:
+  workflow_dispatch:
   issue_comment:
     types: [created, edited]
 
