@@ -34,7 +34,7 @@ jobs:
           python_version: '3.11'
 
       - name: Install dependencies
-        run: python -m pip install -U jupyterlab~=4.0 jupyter-archive
+        run: python -m pip install -U jupyterlab~=4.0
 
       - name: Install extension
         run: |
