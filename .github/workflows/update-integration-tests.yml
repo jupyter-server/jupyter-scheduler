@@ -52,3 +52,5 @@ jobs:
           # Playwright knows how to start JupyterLab server
           start_server_script: 'null'
           test_folder: ui-tests
+          # use jlpm (not default yet)
+          npm_client: jlpm
