@@ -144,7 +144,7 @@ jobs:
             ui-tests/playwright-report
 
   integration-tests-macos:
-    name: Integration tests maOS
+    name: Integration tests macOS
     needs: build
     runs-on: macos-latest
 
