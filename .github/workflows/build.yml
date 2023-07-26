@@ -22,7 +22,7 @@ jobs:
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Install dependencies
-        run: python -m pip install -U jupyterlab~=3.1
+        run: python -m pip install -U jupyterlab~=4.0
 
       - name: Lint the extension
         run: |
@@ -81,19 +81,12 @@ jobs:
       - name: Install and Test
         run: |
           set -eux
-          # Remove NodeJS, twice to take care of system and locally installed node versions.
-          sudo rm -rf $(which node)
-          sudo rm -rf $(which node)
-
-          pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
-
-
+          pip install "jupyterlab~=4.0" jupyter_scheduler*.whl
           jupyter server extension list
           jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
-
           jupyter labextension list
           jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
-          python -m jupyterlab.browser_check --no-chrome-test
+          python -m jupyterlab.browser_check
 
   integration-tests:
     name: Integration tests
@@ -118,7 +111,7 @@ jobs:
       - name: Install the extension
         run: |
           set -eux
-          python -m pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
+          python -m pip install "jupyterlab~=4.0" jupyter_scheduler*.whl
 
       - name: Install dependencies
         working-directory: ui-tests
@@ -134,13 +127,12 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
 
       - name: Install browser
-        run: jlpm playwright install chromium
         working-directory: ui-tests
+        run: jlpm install-chromium
 
       - name: Execute integration tests
         working-directory: ui-tests
-        run: |
-          jlpm playwright test
+        run: jlpm test
 
       - name: Upload Playwright Test report
         if: always()
