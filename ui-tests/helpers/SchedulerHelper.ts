@@ -1,11 +1,15 @@
 import { expect, IJupyterLabPageFixture } from '@jupyterlab/galata';
 import type { Locator, TestInfo } from '@playwright/test';
 
-export enum SELECTORS {
+enum SELECTORS {
   // tbutton = toolbar button
   CREATE_JOB_TBUTTON = 'button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a notebook job"]',
   LAUNCHER_CARD = 'div.jp-LauncherCard[title="Notebook Jobs"]',
-  LIST_VIEW_TIMES = 'td.MuiTableCell-body:has-text(" AM"), td.MuiTableCell-body:has-text(" PM")'
+  LIST_VIEW_TIMES = 'td.MuiTableCell-body:has-text(" AM"), td.MuiTableCell-body:has-text(" PM")',
+  NOTEBOOK_TOOLBAR = '.jp-NotebookPanel-toolbar[aria-label="notebook actions"]',
+  ENABLE_DEBUGGER_TBUTTON = '.jp-DebuggerBugButton',
+  KERNEL_NAME_TBUTTON = '.jp-KernelName',
+  EXECUTION_INDICATOR_TBUTTON = 'jp-Notebook-ExecutionIndicator'
 }
 
 type SnapshotOptions = {
@@ -50,15 +54,46 @@ export class SchedulerHelper {
   ) {}
 
   /**
-   * JupyterLab launcher "Notebook Jobs" card selector
+   * JupyterLab launcher "Notebook Jobs" card locator
    */
   get launcherCard() {
     return this.page.locator(SELECTORS.LAUNCHER_CARD);
   }
 
+  /**
+   *  Locates notebook toolbar
+   */
+  get notebookToolbar() {
+    return this.page.locator(SELECTORS.NOTEBOOK_TOOLBAR);
+  }
+
+  /**
+   *  Locates "Create a notebook job" button in notebook toolbar
+   */
   get createJobTbutton() {
     return this.page.locator(SELECTORS.CREATE_JOB_TBUTTON);
   }
+
+  /**
+   *  Locates "Enable debugger" icon in notebook toolbar
+   */
+  get enableDebuggerTbutton() {
+    return this.page.locator(SELECTORS.ENABLE_DEBUGGER_TBUTTON);
+  }  
+
+  /**
+   *  Locates kernel name button in notebook toolbar
+   */
+  get kernelNameTbutton() {
+    return this.page.locator(SELECTORS.KERNEL_NAME_TBUTTON);
+  } 
+
+  /**
+   *  Locates execution indicator icon in notebook toolbar
+   */
+  get executionIndicatorTbutton() {
+    return this.page.locator(SELECTORS.EXECUTION_INDICATOR_TBUTTON);
+  } 
 
   /**
    * Locates the previously created notebook's listing in the filebrowser.

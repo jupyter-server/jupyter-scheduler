@@ -3,7 +3,7 @@ import { SchedulerHelper } from '../helpers/SchedulerHelper';
 
 enum FILENAMES {
   LAUNCHER = 'launcher.png',
-  NOTEBOOK = 'notebook-view.png',
+  NOTEBOOK_TOOLBAR = 'notebook-toolbar.png',
   FILEBROWSER_MENU = 'filebrowser-menu.png',
   // TODO: resolve this inconsistency in our frontend code. One entry point
   // includes the file extension in the job name, the other does not.
@@ -34,7 +34,10 @@ test.describe('Jupyter Scheduler', () => {
   test('shows notebook toolbar button', async () => {
     await scheduler.createNotebook();
     await expect(scheduler.createJobTbutton).toBeVisible();
-    await scheduler.assertSnapshot(FILENAMES.NOTEBOOK);
+    await scheduler.assertSnapshot(FILENAMES.NOTEBOOK_TOOLBAR, {
+      locator: scheduler.notebookToolbar,
+      mask: [scheduler.enableDebuggerTbutton, scheduler.kernelNameTbutton, scheduler.executionIndicatorTbutton]
+    });
   });
 
   test('opens create job view from notebook toolbar', async ({ page }) => {
