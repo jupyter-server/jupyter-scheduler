@@ -9,7 +9,7 @@ enum SELECTORS {
   NOTEBOOK_TOOLBAR = '.jp-NotebookPanel-toolbar[aria-label="notebook actions"]',
   ENABLE_DEBUGGER_TBUTTON = '.jp-DebuggerBugButton',
   KERNEL_NAME_TBUTTON = '.jp-KernelName',
-  EXECUTION_INDICATOR_TBUTTON = 'jp-Notebook-ExecutionIndicator'
+  EXECUTION_INDICATOR_TBUTTON = '.jp-Notebook-ExecutionIndicator'
 }
 
 type SnapshotOptions = {
