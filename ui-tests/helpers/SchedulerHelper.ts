@@ -79,21 +79,21 @@ export class SchedulerHelper {
    */
   get enableDebuggerTbutton() {
     return this.page.locator(SELECTORS.ENABLE_DEBUGGER_TBUTTON);
-  }  
+  }
 
   /**
    *  Locates kernel name button in notebook toolbar
    */
   get kernelNameTbutton() {
     return this.page.locator(SELECTORS.KERNEL_NAME_TBUTTON);
-  } 
+  }
 
   /**
    *  Locates execution indicator icon in notebook toolbar
    */
   get executionIndicatorTbutton() {
     return this.page.locator(SELECTORS.EXECUTION_INDICATOR_TBUTTON);
-  } 
+  }
 
   /**
    * Locates the previously created notebook's listing in the filebrowser.
