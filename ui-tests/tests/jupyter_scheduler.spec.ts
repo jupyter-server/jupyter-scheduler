@@ -36,7 +36,11 @@ test.describe('Jupyter Scheduler', () => {
     await expect(scheduler.createJobTbutton).toBeVisible();
     await scheduler.assertSnapshot(FILENAMES.NOTEBOOK_TOOLBAR, {
       locator: scheduler.notebookToolbar,
-      mask: [scheduler.enableDebuggerTbutton, scheduler.kernelNameTbutton, scheduler.executionIndicatorTbutton]
+      mask: [
+        scheduler.enableDebuggerTbutton,
+        scheduler.kernelNameTbutton,
+        scheduler.executionIndicatorTbutton
+      ]
     });
   });
 
