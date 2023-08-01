@@ -73,9 +73,8 @@ test.describe('Jupyter Scheduler', () => {
     await scheduler.createNotebook();
     await scheduler.createJobFromFilebrowser();
 
-    const timeStamp = scheduler.timestampLocator;
     await scheduler.assertSnapshot(FILENAMES.LIST_VIEW, {
-      mask: [timeStamp]
+      mask: [scheduler.timestamp]
     });
   });
 

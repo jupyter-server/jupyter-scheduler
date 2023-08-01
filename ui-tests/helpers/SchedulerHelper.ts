@@ -114,7 +114,7 @@ export class SchedulerHelper {
    * Locates the column of timestamps in the list view. Used to mask this column
    * during snapshot tests.
    */
-  get timestampLocator() {
+  get timestamp() {
     return this.page.locator(SELECTORS.LIST_VIEW_TIMES);
   }
 
