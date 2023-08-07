@@ -736,11 +736,7 @@ class AllFilesArchivingScheduler(Scheduler):
                 model.input_filename, model.create_time, output_format
             )
             # Use the staging directory to capture output files
-            staging_paths[output_format] = os.path.join(
-                self.staging_path,
-                id,
-                filename
-            )
+            staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
 
         # Create an output archive file for automated runs
         if isinstance(model, DescribeJob) and model.job_definition_id is not None:
