@@ -738,11 +738,14 @@ class AllFilesArchivingScheduler(Scheduler):
             # Use the staging directory to capture output files
             staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
 
-        # Create an output archive file for automated runs
-        if isinstance(model, DescribeJob) and model.job_definition_id is not None:
-            staging_paths["tar.gz"] = create_output_filename(
+        # Create an output archive file
+        staging_paths["tar.gz"] = os.path.join(
+            self.staging_path,
+            id,
+            create_output_filename(
                 model.input_filename, model.create_time, "tar.gz"
             )
+        )
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
