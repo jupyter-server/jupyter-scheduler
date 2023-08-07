@@ -248,8 +248,11 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
             store_widget_state=True,
         )
 
+        # Get the directory of the input file
+        working_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
+
         try:
-            ep.preprocess(nb)
+            ep.preprocess(nb, {'metadata': {'path': working_dir}})
         except CellExecutionError as e:
             pass
         finally:
@@ -263,15 +266,11 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
                     f = open(self.staging_paths[output_format], "wb")
                     f.write(bytes(output, "utf-8"))
                     f.close()
-                    print(f"Wrote file {self.staging_paths[output_format]}\n")
 
             # Create an archive file of the staging directory for this run
             # and everything under it
             fh = io.BytesIO()
             with tarfile.open(fileobj=fh, mode="w:gz") as tar:
-                # Get the directory of the input file
-                working_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
-
                 for root, dirs, files in os.walk(working_dir):
                     for file in files:
                         with open(os.path.join(root, file)) as f:
