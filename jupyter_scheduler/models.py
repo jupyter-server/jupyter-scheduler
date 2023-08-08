@@ -12,7 +12,7 @@ SCHEDULE_RE = ""
 
 
 class EventType(BaseModel):
-    name: str 
+    name: str
     parameters: Dict[str, Any]
 
 
@@ -306,6 +306,7 @@ class JobFeature(str, Enum):
     output_filename_template = "output_filename_template"
     stop_job = "stop_job"
     delete_job = "delete_job"
+
 
 class Event(BaseModel):
     event_id: str
