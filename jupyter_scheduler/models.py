@@ -223,7 +223,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
-    on_events: List[str] = None
+    on_events: List[EventType] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
