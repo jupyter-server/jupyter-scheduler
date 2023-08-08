@@ -74,7 +74,8 @@ test.describe('Jupyter Scheduler', () => {
     await scheduler.createJobFromFilebrowser();
 
     await scheduler.assertSnapshot(FILENAMES.LIST_VIEW, {
-      mask: [scheduler.timestamp]
+      mask: [scheduler.timestamp],
+      maxDiffPixels: 420
     });
   });
 

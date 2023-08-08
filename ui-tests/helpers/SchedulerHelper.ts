@@ -27,6 +27,11 @@ type SnapshotOptions = {
    * https://playwright.dev/docs/api/class-page#page-screenshot-option-mask.
    */
   mask?: Locator[];
+  /**
+   * An acceptable amount of pixels that could be different. See
+   * https://playwright.dev/docs/api/class-snapshotassertions#snapshot-assertions-to-match-snapshot-1-option-max-diff-pixels
+   */
+  maxDiffPixels?: number;
 };
 
 const DEFAULT_SNAPSHOT_OPTS: SnapshotOptions = {
@@ -214,7 +219,13 @@ export class SchedulerHelper {
     const screenshotArgs = {
       mask: opts.mask
     };
-    expect(await target.screenshot(screenshotArgs)).toMatchSnapshot(filename);
+    const snapshotArgs = {
+      maxDiffPixels: opts.maxDiffPixels
+    };
+    expect(await target.screenshot(screenshotArgs)).toMatchSnapshot(
+      filename,
+      snapshotArgs
+    );
   }
 
   protected async _waitForCreateJobLoaded() {
