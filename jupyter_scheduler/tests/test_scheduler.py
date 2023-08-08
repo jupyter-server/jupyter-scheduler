@@ -15,13 +15,14 @@ from jupyter_scheduler.models import (
 )
 from jupyter_scheduler.orm import JobDefinition
 
-test_job_definition_parameters = {
+test_job_def_params = {
     "input_uri": "helloworld.ipynb",
     "runtime_environment_name": "default",
     "name": "hello world",
     "output_formats": ["ipynb"],
 }
 
+<<<<<<< HEAD
 
 def test_create_job_definition(jp_scheduler):
     with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
@@ -30,6 +31,18 @@ def test_create_job_definition(jp_scheduler):
             job_definition_id = jp_scheduler.create_job_definition(
                 CreateJobDefinition(**test_job_definition_parameters)
             )
+=======
+def create_job_definition(jp_scheduler, job_def_params):
+    with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
+        with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
+            mock_file_exists.return_value = True
+            job_definition_id = jp_scheduler.create_job_definition(CreateJobDefinition(**job_def_params))
+
+            return job_definition_id
+
+def test_create_job_definition(jp_scheduler):
+    job_definition_id = create_job_definition(jp_scheduler, test_job_def_params)
+>>>>>>> fb76d81 (add and use create_job_definition helper function)
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
@@ -47,12 +60,8 @@ event_type_parameters = {"name": "type1", "parameters": {"param1": "value1"}}
 
 
 def test_create_job_definition_with_on_events(jp_scheduler):
-    with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
-        with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
-            mock_file_exists.return_value = True
-            event_type = EventType(**event_type_parameters)
-            params_with_on_events = {**test_job_definition_parameters, "on_events": [event_type]}
-            jp_scheduler.create_job_definition(CreateJobDefinition(**params_with_on_events))
+    params_with_on_events = {**test_job_def_params, "on_events": [EventType(**event_type_parameters)]}
+    create_job_definition(jp_scheduler, params_with_on_events)
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
