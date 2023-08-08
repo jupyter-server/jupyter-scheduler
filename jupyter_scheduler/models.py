@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, root_validator
 
@@ -12,14 +12,14 @@ SCHEDULE_RE = ""
 
 
 class EventType(BaseModel):
-    event_type: str 
-    parameters: Dict[str, str]
+    name: str 
+    parameters: Dict[str, Any]
 
 
 class Event(BaseModel):
     event_id: str
     event_type: str
-    parameters: Dict[str, str]
+    parameters: Dict[str, Any]
 
 
 class RuntimeEnvironment(BaseModel):
