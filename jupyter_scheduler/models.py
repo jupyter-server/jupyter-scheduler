@@ -11,6 +11,17 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
+class EventType(BaseModel):
+    event_type: str 
+    parameters: Dict[str, str]
+
+
+class Event(BaseModel):
+    event_id: str
+    event_type: str
+    parameters: Dict[str, str]
+
+
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda
@@ -26,6 +37,7 @@ class RuntimeEnvironment(BaseModel):
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
+    event_types: Optional[List[EventType]]
 
     def __str__(self):
         return self.json()
@@ -85,6 +97,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+    triggered_by: Optional[Event] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -145,6 +158,7 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
+    triggered_by: Optional[Event] = None
 
     class Config:
         orm_mode = True
@@ -209,6 +223,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
+    on_events: List[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -234,6 +249,7 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
+    on_events: List[str] = None
 
     class Config:
         orm_mode = True
@@ -253,6 +269,7 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
+    on_events: List[str] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):
@@ -289,3 +306,8 @@ class JobFeature(str, Enum):
     output_filename_template = "output_filename_template"
     stop_job = "stop_job"
     delete_job = "delete_job"
+
+class Event(BaseModel):
+    event_id: str
+    event_type: str
+    parameters: Dict[str, str]
