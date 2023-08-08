@@ -37,6 +37,7 @@ def test_create_job_definition(jp_scheduler):
         assert "helloworld.ipynb" == definition.input_filename
         assert "default" == definition.runtime_environment_name
         assert "hello world" == definition.name
+        assert [] == definition.on_events
 
 
 job_definition_1 = {
