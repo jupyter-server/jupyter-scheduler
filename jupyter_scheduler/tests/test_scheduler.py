@@ -49,7 +49,7 @@ job_definition_1 = {
     "update_time": 1,
     "create_time": 1,
     "active": True,
-    "on_events": []
+    "on_events": [],
 }
 
 job_definition_2 = {
@@ -63,7 +63,7 @@ job_definition_2 = {
     "create_time": 2,
     "active": True,
     "tags": ["tag_2"],
-    "on_events": []
+    "on_events": [],
 }
 
 job_definition_3 = {
@@ -77,7 +77,7 @@ job_definition_3 = {
     "create_time": 3,
     "active": False,
     "tags": ["tag_3"],
-    "on_events": []
+    "on_events": [],
 }
 
 
