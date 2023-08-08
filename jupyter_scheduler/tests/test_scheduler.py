@@ -19,14 +19,17 @@ test_job_definition_parameters = {
     "input_uri": "helloworld.ipynb",
     "runtime_environment_name": "default",
     "name": "hello world",
-    "output_formats": ["ipynb"]
+    "output_formats": ["ipynb"],
 }
+
 
 def test_create_job_definition(jp_scheduler):
     with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
         with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
             mock_file_exists.return_value = True
-            job_definition_id = jp_scheduler.create_job_definition(CreateJobDefinition(**test_job_definition_parameters))
+            job_definition_id = jp_scheduler.create_job_definition(
+                CreateJobDefinition(**test_job_definition_parameters)
+            )
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
@@ -40,10 +43,8 @@ def test_create_job_definition(jp_scheduler):
         assert [] == definition.on_events
 
 
-event_type_parameters = {
-    "name": 'type1', 
-    "parameters": {'param1': 'value1'}
-}
+event_type_parameters = {"name": "type1", "parameters": {"param1": "value1"}}
+
 
 def test_create_job_definition_with_on_events(jp_scheduler):
     with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
@@ -57,7 +58,7 @@ def test_create_job_definition_with_on_events(jp_scheduler):
         definitions = session.query(JobDefinition).all()
         definition = definitions[0]
         assert 1 == len(definition.on_events)
-        assert [{'name': 'type1', 'parameters': {'param1': 'value1'}}] == definition.on_events
+        assert [{"name": "type1", "parameters": {"param1": "value1"}}] == definition.on_events
 
 
 job_definition_1 = {
