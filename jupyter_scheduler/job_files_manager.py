@@ -68,9 +68,8 @@ class Downloader:
     def exclude_output_filepaths(self, members, filepaths):
         output_filepaths = [filepath[1] for filepath in filepaths]
         for tarinfo in members:
-            if (tarinfo.name not in output_filepaths):
+            if tarinfo.name not in output_filepaths:
                 yield tarinfo
-            
 
     def download_tar(self, archive_format: str = "tar"):
         archive_filepath = self.staging_paths[archive_format]
@@ -102,9 +101,8 @@ class Downloader:
                     tar.extractall(
                         side_effect_file_directory,
                         members=self.exclude_output_filepaths(tar, filepaths),
-                        filter="data"
+                        filter="data",
                     )
-
 
     def download(self):
         if not self.staging_paths:

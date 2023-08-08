@@ -252,7 +252,7 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
         working_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
 
         try:
-            ep.preprocess(nb, {'metadata': {'path': working_dir}})
+            ep.preprocess(nb, {"metadata": {"path": working_dir}})
         except CellExecutionError as e:
             pass
         finally:

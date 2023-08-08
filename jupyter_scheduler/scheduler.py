@@ -742,9 +742,7 @@ class AllFilesArchivingScheduler(Scheduler):
         staging_paths["tar.gz"] = os.path.join(
             self.staging_path,
             id,
-            create_output_filename(
-                model.input_filename, model.create_time, "tar.gz"
-            )
+            create_output_filename(model.input_filename, model.create_time, "tar.gz"),
         )
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
