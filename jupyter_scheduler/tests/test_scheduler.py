@@ -22,7 +22,7 @@ test_job_def_params = {
     "output_formats": ["ipynb"],
 }
 
-event_type_parameters = {"name": "type1", "parameters": {"param1": "value1"}}
+event_type_params = {"name": "type1", "parameters": {"param1": "value1"}}
 
 
 def create_job_definition(jp_scheduler, job_def_params):
@@ -54,7 +54,7 @@ def test_create_job_definition(jp_scheduler):
 def test_create_job_definition_with_on_events(jp_scheduler):
     params_with_on_events = {
         **test_job_def_params,
-        "on_events": [EventType(**event_type_parameters)],
+        "on_events": [EventType(**event_type_params)],
     }
     create_job_definition(jp_scheduler, params_with_on_events)
 
