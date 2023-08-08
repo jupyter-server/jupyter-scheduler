@@ -22,7 +22,7 @@ test_job_def_params = {
     "output_formats": ["ipynb"],
 }
 
-event_type_params = {"name": "type1", "parameters": {"param1": "value1"}}
+event_type_params = {"name": "a", "parameters": {"foo": "bar"}}
 
 
 def create_job_definition(jp_scheduler, job_def_params):
@@ -61,8 +61,7 @@ def test_create_job_definition_with_on_events(jp_scheduler):
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
         definition = definitions[0]
-        assert 1 == len(definition.on_events)
-        assert [{"name": "type1", "parameters": {"param1": "value1"}}] == definition.on_events
+        assert [{"name": "a", "parameters": {"foo": "bar"}}] == definition.on_events
 
 
 job_definition_1 = {
