@@ -215,7 +215,6 @@ export class SchedulerHelper {
       opts.locator ||
       this.page.locator('.jp-MainAreaWidget:not(.lm-mod-hidden)');
     await target.waitFor({ state: 'visible' });
-    await this.page.evaluate(() => document.fonts.ready);
     const screenshotArgs = {
       mask: opts.mask
     };
