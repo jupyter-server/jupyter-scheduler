@@ -97,7 +97,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
-    triggered_by: Optional[Event] = None
+    create_event: Optional[Event] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -158,7 +158,7 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
-    triggered_by: Optional[Event] = None
+    create_event: Optional[Event] = None
 
     class Config:
         orm_mode = True
@@ -223,7 +223,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
-    on_events: List[EventType] = []
+    events: List[EventType] = []
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -249,7 +249,7 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
-    on_events: List[EventType] = []
+    events: List[EventType] = []
 
     class Config:
         orm_mode = True
@@ -269,7 +269,7 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
-    on_events: List[EventType] = []
+    events: List[EventType] = []
 
 
 class ListJobDefinitionsQuery(BaseModel):
@@ -311,4 +311,4 @@ class JobFeature(str, Enum):
 class Event(BaseModel):
     event_id: str
     event_type: str
-    parameters: Dict[str, str]
+    parameters: Dict[str, Any]

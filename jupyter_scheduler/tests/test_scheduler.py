@@ -48,20 +48,20 @@ def test_create_job_definition(jp_scheduler):
         assert "helloworld.ipynb" == definition.input_filename
         assert "default" == definition.runtime_environment_name
         assert "hello world" == definition.name
-        assert [] == definition.on_events
+        assert [] == definition.events
 
 
-def test_create_job_definition_with_on_events(jp_scheduler):
-    params_with_on_events = {
+def test_create_job_definition_with_events(jp_scheduler):
+    params_with_events = {
         **test_job_def_params,
-        "on_events": [EventType(**event_type_params)],
+        "events": [EventType(**event_type_params)],
     }
-    create_job_definition(jp_scheduler, params_with_on_events)
+    create_job_definition(jp_scheduler, params_with_events)
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
         definition = definitions[0]
-        assert [{"name": "a", "parameters": {"foo": "bar"}}] == definition.on_events
+        assert [{"name": "a", "parameters": {"foo": "bar"}}] == definition.events
 
 
 job_definition_1 = {
@@ -74,7 +74,7 @@ job_definition_1 = {
     "update_time": 1,
     "create_time": 1,
     "active": True,
-    "on_events": [],
+    "events": [],
 }
 
 job_definition_2 = {
@@ -88,7 +88,7 @@ job_definition_2 = {
     "create_time": 2,
     "active": True,
     "tags": ["tag_2"],
-    "on_events": [],
+    "events": [],
 }
 
 job_definition_3 = {
@@ -102,7 +102,7 @@ job_definition_3 = {
     "create_time": 3,
     "active": False,
     "tags": ["tag_3"],
-    "on_events": [],
+    "events": [],
 }
 
 
