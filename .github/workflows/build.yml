@@ -88,8 +88,8 @@ jobs:
           jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
           python -m jupyterlab.browser_check
 
-  integration-tests-ubuntu:
-    name: Integration tests ubuntu
+  end-to-end-tests:
+    name: End-to-end tests
     needs: build
     runs-on: ubuntu-latest
 
