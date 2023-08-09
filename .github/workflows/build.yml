@@ -139,7 +139,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: jupyter_scheduler-playwright-tests-ubuntu
+          name: jupyter_scheduler-playwright-tests
           path: |
             ui-tests/test-results
             ui-tests/playwright-report
