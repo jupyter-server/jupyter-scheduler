@@ -111,7 +111,7 @@ jobs:
       - name: Install the extension
         run: |
           set -eux
-          python -m pip install "jupyterlab~=4.0" jupyter_scheduler*.whl
+          python -m pip install "jupyterlab==4.0.3" jupyter_scheduler*.whl
 
       - name: Install dependencies
         working-directory: ui-tests
@@ -166,7 +166,7 @@ jobs:
       - name: Install the extension
         run: |
           set -eux
-          python -m pip install "jupyterlab~=3.1" jupyter_scheduler*.whl
+          python -m pip install "jupyterlab==4.0.3" jupyter_scheduler*.whl
 
       - name: Install dependencies
         working-directory: ui-tests
