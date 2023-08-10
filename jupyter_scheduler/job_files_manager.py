@@ -77,7 +77,6 @@ class Downloader:
 
         # Use the notebook's output filepath for side effect files
         side_effect_file_directory = None
-        output_formats = self.output_formats
 
         filepaths = self.generate_filepaths()
 
