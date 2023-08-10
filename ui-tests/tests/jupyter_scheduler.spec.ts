@@ -69,14 +69,11 @@ test.describe('Jupyter Scheduler', () => {
     await scheduler.assertSnapshot(FILENAMES.CREATE_VIEW_FROM_FILEBROWSER);
   });
 
-  test('shows newly created job in job list view', async () => {
+  test('shows newly created job in job list view', async ({ page }) => {
     await scheduler.createNotebook();
     await scheduler.createJobFromFilebrowser();
-
-    await scheduler.assertSnapshot(FILENAMES.LIST_VIEW, {
-      mask: [scheduler.timestamp],
-      maxDiffPixels: 420
-    });
+    await scheduler.modifyListResponse({create_time: 0});
+    await scheduler.assertSnapshot(FILENAMES.LIST_VIEW, {mask: [scheduler.timestamp]});
   });
 
   test.afterEach(async () => {
