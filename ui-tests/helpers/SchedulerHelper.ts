@@ -216,7 +216,7 @@ export class SchedulerHelper {
     expect(await target.screenshot(screenshotArgs)).toMatchSnapshot(filename);
   }
 
-  async modifyListResponse(modifications: Record<string, any>) {
+  async setJobList(modifications: Record<string, any>) {
     await this.page.route('**/title.html', async (route, req) => {
       const url = new URL(req.url())
 
