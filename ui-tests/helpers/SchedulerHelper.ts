@@ -217,7 +217,7 @@ export class SchedulerHelper {
   }
 
   async setJobList(modifications: Record<string, any>) {
-    await this.page.route('**/title.html', async (route, req) => {
+    await this.page.route('**/scheduler/jobs?', async (route, req) => {
       const url = new URL(req.url())
 
       if (url.searchParams.has('max_items')) {
