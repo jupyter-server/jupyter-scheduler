@@ -25,17 +25,22 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
-      - name: Download extension package
-        uses: actions/download-artifact@v2
-        with:
-          name: extension-artifacts
+      - name: Install extension dependencies
+        run: python -m pip install -U jupyterlab~=4.0
 
-      - name: Install the extension
+      - name: Build the extension
         run: |
           set -eux
-          python -m pip install "jupyterlab==4.0.3" jupyter_scheduler*.whl
+          python -m pip install .
 
-      - name: Install dependencies
+          jupyter server extension list
+          jupyter server extension list 2>&1 | grep -ie "jupyter_scheduler.*OK"
+
+          jupyter labextension list
+          jupyter labextension list 2>&1 | grep -ie "@jupyterlab/scheduler.*OK"
+          python -m jupyterlab.browser_check
+
+      - name: Install ui-tests dependencies
         working-directory: ui-tests
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
