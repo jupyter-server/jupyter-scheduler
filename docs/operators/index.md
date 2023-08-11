@@ -86,6 +86,20 @@ jupyter lab --SchedulerApp.job_files_manager_class=jupyter_scheduler.job_files_m
 
 For more information on writing a custom implementation, please see the {doc}`developer's guide </developers/index>`.
 
+### Example: Capturing side effect files
+
+The default scheduler and execution manager classes do not capture
+**side effect files**, files that are created as a side effect of executing
+cells in a notebook. The `ArchivingScheduler` and `ArchivingExecutionManager`
+classes do capture side effect files. If you intend to run notebooks that produce
+side effect files, you can use these classes by running:
+
+```
+jupyter lab \
+  --SchedulerApp.scheduler_class=jupyter_scheduler.scheduler.ArchivingScheduler \
+  --Scheduler.execution_manager_class=jupyter_scheduler.executors.ArchivingExecutionManager
+```
+
 ## UI configuration
 
 You can configure the Jupyter Scheduler UI by installing a lab extension that both:

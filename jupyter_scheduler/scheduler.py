@@ -686,7 +686,7 @@ class Scheduler(BaseScheduler):
 
 
 class ArchivingScheduler(Scheduler):
-    """Scheduler that adds archive path to staging paths."""
+    """Scheduler that captures all files in output directory in an archive."""
 
     execution_manager_class = TType(
         klass="jupyter_scheduler.executors.ExecutionManager",
@@ -705,12 +705,16 @@ class ArchivingScheduler(Scheduler):
             filename = create_output_filename(
                 model.input_filename, model.create_time, output_format
             )
-            staging_paths[output_format] = filename
+            # Use the staging directory to capture output files
+            staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
 
-        output_format = "tar.gz"
-        filename = create_output_filename(model.input_filename, model.create_time, output_format)
-        staging_paths[output_format] = os.path.join(self.staging_path, model.job_id, filename)
-        staging_paths["input"] = os.path.join(self.staging_path, model.job_id, model.input_filename)
+        # Create an output archive file
+        staging_paths["tar.gz"] = os.path.join(
+            self.staging_path,
+            id,
+            create_output_filename(model.input_filename, model.create_time, "tar.gz"),
+        )
+        staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
 
