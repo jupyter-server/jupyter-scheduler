@@ -176,62 +176,12 @@ class DefaultExecutionManager(ExecutionManager):
 
 
 class ArchivingExecutionManager(DefaultExecutionManager):
-    """Execution manager that archives the output
-    files to a compressed tar file.
-
-    Notes
-    -----
-    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchivingScheduler`
-    as the `scheduler_class` during jupyter server start.
-    """
-
-    def execute(self):
-        job = self.model
-
-        with open(self.staging_paths["input"], encoding="utf-8") as f:
-            nb = nbformat.read(f, as_version=4)
-
-        if job.parameters:
-            nb = add_parameters(nb, job.parameters)
-
-        ep = ExecutePreprocessor(
-            kernel_name=nb.metadata.kernelspec["name"],
-            store_widget_state=True,
-        )
-
-        try:
-            ep.preprocess(nb)
-        except CellExecutionError as e:
-            pass
-        finally:
-            fh = io.BytesIO()
-            with tarfile.open(fileobj=fh, mode="w:gz") as tar:
-                output_formats = job.output_formats + ["input"]
-                for output_format in output_formats:
-                    if output_format == "input":
-                        with open(self.staging_paths["input"]) as f:
-                            output = f.read()
-                    else:
-                        cls = nbconvert.get_exporter(output_format)
-                        output, resources = cls().from_notebook_node(nb)
-                    data = bytes(output, "utf-8")
-                    source_f = io.BytesIO(initial_bytes=data)
-                    info = tarfile.TarInfo(self.staging_paths[output_format])
-                    info.size = len(data)
-                    tar.addfile(info, source_f)
-
-            archive_filepath = self.staging_paths["tar.gz"]
-            with fsspec.open(archive_filepath, "wb") as f:
-                f.write(fh.getvalue())
-
-
-class AllFilesArchivingExecutionManager(DefaultExecutionManager):
     """Execution manager that archives all output files in and under the
     output directory into a single archive file
 
     Notes
     -----
-    Should be used along with :class:`~jupyter_scheduler.scheduler.AllFilesArchivingScheduler`
+    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchivingScheduler`
     as the `scheduler_class` during jupyter server start.
     """
 

@@ -686,41 +686,11 @@ class Scheduler(BaseScheduler):
 
 
 class ArchivingScheduler(Scheduler):
-    """Scheduler that adds archive path to staging paths."""
-
-    execution_manager_class = TType(
-        klass="jupyter_scheduler.executors.ExecutionManager",
-        default_value="jupyter_scheduler.executors.ArchivingExecutionManager",
-        config=True,
-    )
-
-    def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
-        staging_paths = {}
-        if not model:
-            return staging_paths
-
-        id = model.job_id if isinstance(model, DescribeJob) else model.job_definition_id
-
-        for output_format in model.output_formats:
-            filename = create_output_filename(
-                model.input_filename, model.create_time, output_format
-            )
-            staging_paths[output_format] = filename
-
-        output_format = "tar.gz"
-        filename = create_output_filename(model.input_filename, model.create_time, output_format)
-        staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
-        staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
-
-        return staging_paths
-
-
-class AllFilesArchivingScheduler(Scheduler):
     """Scheduler that captures all files in output directory in an archive."""
 
     execution_manager_class = TType(
         klass="jupyter_scheduler.executors.ExecutionManager",
-        default_value="jupyter_scheduler.executors.AllFilesArchivingExecutionManager",
+        default_value="jupyter_scheduler.executors.ArchivingExecutionManager",
         config=True,
     )
 
