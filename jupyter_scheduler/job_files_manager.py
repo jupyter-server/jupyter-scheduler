@@ -68,16 +68,10 @@ class Downloader:
     def download_tar(self, archive_format: str = "tar"):
         archive_filepath = self.staging_paths[archive_format]
         read_mode = "r:gz" if archive_format == "tar.gz" else "tar"
+
         with fsspec.open(archive_filepath) as f:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
-                filepaths = self.generate_filepaths()
-                for input_filepath, output_filepath in filepaths:
-                    try:
-                        input_file = tar.extractfile(member=input_filepath)
-                        with fsspec.open(output_filepath, mode="wb") as output_file:
-                            output_file.write(input_file.read())
-                    except Exception as e:
-                        pass
+                tar.extractall(self.output_dir, filter="data")
 
     def download(self):
         if not self.staging_paths:
