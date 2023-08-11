@@ -1,5 +1,6 @@
 import io
 import os
+import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
@@ -249,10 +250,13 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
         )
 
         # Get the directory of the input file
-        working_dir = os.path.dirname(os.path.abspath(self.staging_paths["input"]))
+        local_staging_dir = os.path.dirname(self.staging_paths["input"])
+        # Directory where side-effect files are written
+        run_dir = os.path.join(local_staging_dir, "files")
+        os.mkdir(run_dir)
 
         try:
-            ep.preprocess(nb, {"metadata": {"path": working_dir}})
+            ep.preprocess(nb, {"metadata": {"path": run_dir}})
         except CellExecutionError as e:
             pass
         finally:
@@ -271,17 +275,15 @@ class AllFilesArchivingExecutionManager(DefaultExecutionManager):
             # and everything under it
             fh = io.BytesIO()
             with tarfile.open(fileobj=fh, mode="w:gz") as tar:
-                for root, dirs, files in os.walk(working_dir):
+                for root, dirs, files in os.walk(local_staging_dir):
                     for file in files:
-                        with open(os.path.join(root, file)) as f:
-                            output = f.read()
-                        data = bytes(output, "utf-8")
-                        source_f = io.BytesIO(initial_bytes=data)
-                        # TODO: Include relative path?
-                        info = tarfile.TarInfo(file)
-                        info.size = len(data)
-                        tar.addfile(info, source_f)
+                        # This flattens the directory structure, so that in the tar
+                        # file, output files and side-effect files are side-by-side
+                        tar.add(os.path.join(root, file), file)
 
             archive_filepath = self.staging_paths["tar.gz"]
             with fsspec.open(archive_filepath, "wb") as f:
                 f.write(fh.getvalue())
+
+            # Clean up the side-effect files in the run directory
+            shutil.rmtree(run_dir)

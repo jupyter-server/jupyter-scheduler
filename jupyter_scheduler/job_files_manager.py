@@ -65,43 +65,13 @@ class Downloader:
             if not os.path.exists(output_filepath) or self.redownload:
                 yield input_filepath, output_filepath
 
-    def exclude_output_filepaths(self, members, filepaths):
-        output_filepaths = [filepath[1] for filepath in filepaths]
-        for tarinfo in members:
-            if tarinfo.name not in output_filepaths:
-                yield tarinfo
-
     def download_tar(self, archive_format: str = "tar"):
         archive_filepath = self.staging_paths[archive_format]
         read_mode = "r:gz" if archive_format == "tar.gz" else "tar"
 
-        # Use the notebook's output filepath for side effect files
-        side_effect_file_directory = None
-
-        filepaths = self.generate_filepaths()
-
-        # Take the first output filepath
-        for _, output_filepath in filepaths:
-            side_effect_file_directory = os.path.dirname(os.path.abspath(output_filepath))
-            break
-
         with fsspec.open(archive_filepath) as f:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
-                for input_filepath, output_filepath in filepaths:
-                    try:
-                        input_file = tar.extractfile(member=input_filepath)
-                        with fsspec.open(output_filepath, mode="wb") as output_file:
-                            output_file.write(input_file.read())
-                    except Exception as e:
-                        pass
-                if side_effect_file_directory is not None:
-                    # Extract all files in the tar.gz file,
-                    # other than the output formats listed above
-                    tar.extractall(
-                        side_effect_file_directory,
-                        members=self.exclude_output_filepaths(tar, filepaths),
-                        filter="data",
-                    )
+                tar.extractall(self.output_dir, filter="data")
 
     def download(self):
         if not self.staging_paths:
