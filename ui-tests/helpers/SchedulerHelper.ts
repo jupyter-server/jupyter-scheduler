@@ -218,7 +218,7 @@ export class SchedulerHelper {
 
   async standardizeListCreateTime() {
     await this.page.route('**/scheduler/*', async (route, req) => {
-      if (req.url().includes("max_items")) {
+      if (req.url().includes('max_items')) {
         const res = await route.fetch();
         const json = await res.json();
         json.jobs[0].create_time = 1;
