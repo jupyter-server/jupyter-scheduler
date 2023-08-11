@@ -216,17 +216,17 @@ export class SchedulerHelper {
     expect(await target.screenshot(screenshotArgs)).toMatchSnapshot(filename);
   }
 
-  async setJobList(modifications: Record<string, any>) {
-    await this.page.route('**/scheduler/jobs?', async (route, req) => {
-      const url = new URL(req.url())
-
-      if (url.searchParams.has('max_items')) {
-        const response = await route.fetch();
-        const json = await response.json();
-        for (const [k, v] of Object.entries(modifications)){
-          json.jobs[0][k] = v;
-        }
-        route.fulfill({response, json});
+  async standardizeListCreateTime() {
+    await this.page.route('**/scheduler/*', async (route, req) => {
+      if (req.url().includes("max_items")) {
+        const res = await route.fetch();
+        const json = await res.json();
+        json.jobs[0].create_time = 1;
+        route.fulfill({
+          status: res.status(),
+          headers: res.headers(),
+          body: JSON.stringify(json)
+        });
       }
     });
   }

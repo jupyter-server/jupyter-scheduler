@@ -72,7 +72,7 @@ test.describe('Jupyter Scheduler', () => {
   test('shows newly created job in job list view', async ({ page }) => {
     await scheduler.createNotebook();
     await scheduler.createJobFromFilebrowser();
-    await scheduler.setJobList({create_time: 0});
+    await scheduler.standardizeListCreateTime();
     await scheduler.assertSnapshot(FILENAMES.LIST_VIEW);
   });
 
