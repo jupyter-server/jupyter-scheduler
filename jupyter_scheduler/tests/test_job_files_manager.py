@@ -88,7 +88,7 @@ def clear_outputs_dir():
             OUTPUTS_DIR,
             False,
         ),
-        
+
             ["ipynb", "html"],
             # When using tar.gz files for output, files are not renamed to output filenames
             {
