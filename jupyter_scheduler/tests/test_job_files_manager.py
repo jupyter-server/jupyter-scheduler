@@ -120,16 +120,9 @@ def test_downloader_download(
 
     assert os.path.exists(output_dir)
     for format in output_formats:
-        out_filepath = os.path.join(output_dir, output_filenames[format])
-
-        if "tar.gz" in staging_paths:
-            with tarfile.open(staging_paths["tar.gz"]) as tar:
-                tar.extractall(output_dir)
-
-        assert os.path.exists(out_filepath)
-
-        if "tar.gz" in staging_paths:
-            input_filepath = os.path.join(output_dir, os.path.basename(staging_paths[format]))
-            assert filecmp.cmp(out_filepath, input_filepath)
+        if format == "tar.gz":
+            pass  # Ignore the tarfile, which has been downloaded and extracted
         else:
+            out_filepath = os.path.join(output_dir, output_filenames[format])
+            assert os.path.exists(out_filepath)
             assert filecmp.cmp(out_filepath, staging_paths[format])
