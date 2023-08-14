@@ -88,12 +88,13 @@ def clear_outputs_dir():
             OUTPUTS_DIR,
             False,
         ),
-        (
+        
             ["ipynb", "html"],
+            # When using tar.gz files for output, files are not renamed to output filenames
             {
-                "ipynb": "helloworld-out.ipynb",
-                "html": "helloworld-out.html",
-                "input": "helloworld-input.ipynb",
+                "ipynb": "helloworld-1.ipynb",
+                "html": "helloworld-1.html",
+                "input": "helloworld.ipynb",
             },
             {
                 "tar.gz": os.path.join(HERE, "test_staging_dir", "job-2", "helloworld.tar.gz"),
@@ -103,7 +104,7 @@ def clear_outputs_dir():
             },
             OUTPUTS_DIR,
             False,
-        ),
+        ,
     ],
 )
 def test_downloader_download(
@@ -117,10 +118,6 @@ def test_downloader_download(
         redownload=redownload,
     )
     downloader.download()
-    # Print the contents of the output_dir
-    for path, dirs, files in os.walk(output_dir):
-        for filename in files:
-            print(os.path.join(path, filename))
 
     assert os.path.exists(output_dir)
     for format in output_formats:
