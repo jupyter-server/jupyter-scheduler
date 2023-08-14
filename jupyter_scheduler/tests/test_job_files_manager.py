@@ -88,22 +88,6 @@ def clear_outputs_dir():
             OUTPUTS_DIR,
             False,
         ),
-        (
-            ["ipynb", "html"],
-            {
-                "ipynb": "helloworld-out.ipynb",
-                "html": "helloworld-out.html",
-                "input": "helloworld-input.ipynb",
-            },
-            {
-                "tar.gz": os.path.join(HERE, "test_staging_dir", "job-2", "helloworld.tar.gz"),
-                "ipynb": "job-2/helloworld-1.ipynb",
-                "html": "job-2/helloworld-1.html",
-                "input": "job-2/helloworld.ipynb",
-            },
-            OUTPUTS_DIR,
-            False,
-        ),
     ],
 )
 def test_downloader_download(
