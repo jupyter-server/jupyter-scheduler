@@ -122,14 +122,14 @@ def test_downloader_download(
     for format in output_formats:
         out_filepath = os.path.join(output_dir, output_filenames[format])
 
+        if "tar.gz" in staging_paths:
+            with tarfile.open(staging_paths["tar.gz"]) as tar:
+                tar.extractall(output_dir)
+
         assert os.path.exists(out_filepath)
 
         if "tar.gz" in staging_paths:
-            with tarfile.open(staging_paths["tar.gz"]) as tar:
-                input_file = tar.extractfile(member=staging_paths[format])
-                input_filepath = os.path.join(output_dir, os.path.basename(staging_paths[format]))
-                with open(input_filepath, "wb") as f:
-                    f.write(input_file.read())
-                assert filecmp.cmp(out_filepath, input_filepath)
+            input_filepath = os.path.join(output_dir, os.path.basename(staging_paths[format]))
+            assert filecmp.cmp(out_filepath, input_filepath)
         else:
             assert filecmp.cmp(out_filepath, staging_paths[format])
