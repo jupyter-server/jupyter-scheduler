@@ -120,7 +120,7 @@ def test_downloader_download(
     # Print the contents of the output_dir
     for path, dirs, files in os.walk(output_dir):
         for filename in files:
-            print os.path.join(path,filename)
+            print(os.path.join(path,filename))
 
     assert os.path.exists(output_dir)
     for format in output_formats:
