@@ -306,9 +306,3 @@ class JobFeature(str, Enum):
     output_filename_template = "output_filename_template"
     stop_job = "stop_job"
     delete_job = "delete_job"
-
-
-class Event(BaseModel):
-    event_id: str
-    event_type: str
-    parameters: Dict[str, Any]
