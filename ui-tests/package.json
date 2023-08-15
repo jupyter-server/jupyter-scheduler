@@ -9,6 +9,5 @@
   },
   "devDependencies": {
     "@jupyterlab/galata": "^4.3.0",
-    "@playwright/test": "^1.32.0"
   }
 }
