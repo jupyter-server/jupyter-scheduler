@@ -67,6 +67,7 @@ OUTPUTS_DIR = os.path.join(HERE, "test_files_output")
 def clear_outputs_dir():
     yield
     shutil.rmtree(OUTPUTS_DIR)
+    # rmtree() is not synchronous; wait until it has finished running
     while os.path.isdir(OUTPUTS_DIR):
         time.sleep(0.01)
 
