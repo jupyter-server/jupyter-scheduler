@@ -2,9 +2,9 @@ import filecmp
 import os
 import shutil
 import tarfile
+import time
 from pathlib import Path
 from unittest.mock import patch
-import time
 
 import pytest
 
