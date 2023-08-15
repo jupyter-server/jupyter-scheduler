@@ -52,16 +52,11 @@ class Downloader:
 
     def generate_filepaths(self):
         """A generator that produces filepaths"""
-        output_dir = self.output_dir
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
         output_formats = self.output_formats + ["input"]
 
         for output_format in output_formats:
             input_filepath = self.staging_paths[output_format]
-            output_filename = self.output_filenames[output_format]
-            output_filepath = os.path.join(output_dir, output_filename)
+            output_filepath = os.path.join(self.output_dir, self.output_filenames[output_format])
             if not os.path.exists(output_filepath) or self.redownload:
                 yield input_filepath, output_filepath
 
@@ -74,8 +69,14 @@ class Downloader:
                 tar.extractall(self.output_dir)
 
     def download(self):
+        # ensure presence of staging paths
         if not self.staging_paths:
             return
+
+        # ensure presence of output dir
+        output_dir = self.output_dir
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
         if "tar" in self.staging_paths:
             self.download_tar()
