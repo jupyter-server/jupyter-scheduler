@@ -66,7 +66,7 @@ class Downloader:
 
         with fsspec.open(archive_filepath) as f:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
-                tar.extractall(self.output_dir, filter="data")
+                tar.extractall(self.output_dir)
 
     def download(self):
         # ensure presence of staging paths
