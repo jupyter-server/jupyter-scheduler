@@ -1,4 +1,6 @@
 import io
+import os
+import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
@@ -174,12 +176,12 @@ class DefaultExecutionManager(ExecutionManager):
 
 
 class ArchivingExecutionManager(DefaultExecutionManager):
-    """Execution manager that archives the output
-    files to a compressed tar file.
+    """Execution manager that archives all output files in and under the
+    output directory into a single archive file
 
     Notes
     -----
-    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchiveDownloadingScheduler`
+    Should be used along with :class:`~jupyter_scheduler.scheduler.ArchivingScheduler`
     as the `scheduler_class` during jupyter server start.
     """
 
@@ -197,27 +199,41 @@ class ArchivingExecutionManager(DefaultExecutionManager):
             store_widget_state=True,
         )
 
+        # Get the directory of the input file
+        local_staging_dir = os.path.dirname(self.staging_paths["input"])
+        # Directory where side-effect files are written
+        run_dir = os.path.join(local_staging_dir, "files")
+        os.mkdir(run_dir)
+
         try:
-            ep.preprocess(nb)
+            ep.preprocess(nb, {"metadata": {"path": run_dir}})
         except CellExecutionError as e:
             pass
         finally:
+            # Create all desired output files, other than "input" and "tar.gz"
+            for output_format in job.output_formats:
+                if output_format == "input" or output_format == "tar.gz":
+                    pass
+                else:
+                    cls = nbconvert.get_exporter(output_format)
+                    output, resources = cls().from_notebook_node(nb)
+                    f = open(self.staging_paths[output_format], "wb")
+                    f.write(bytes(output, "utf-8"))
+                    f.close()
+
+            # Create an archive file of the staging directory for this run
+            # and everything under it
             fh = io.BytesIO()
             with tarfile.open(fileobj=fh, mode="w:gz") as tar:
-                output_formats = job.output_formats + ["input"]
-                for output_format in output_formats:
-                    if output_format == "input":
-                        with open(self.staging_paths["input"]) as f:
-                            output = f.read()
-                    else:
-                        cls = nbconvert.get_exporter(output_format)
-                        output, resources = cls().from_notebook_node(nb)
-                    data = bytes(output, "utf-8")
-                    source_f = io.BytesIO(initial_bytes=data)
-                    info = tarfile.TarInfo(self.staging_paths[output_format])
-                    info.size = len(data)
-                    tar.addfile(info, source_f)
+                for root, dirs, files in os.walk(local_staging_dir):
+                    for file in files:
+                        # This flattens the directory structure, so that in the tar
+                        # file, output files and side-effect files are side-by-side
+                        tar.add(os.path.join(root, file), file)
 
             archive_filepath = self.staging_paths["tar.gz"]
             with fsspec.open(archive_filepath, "wb") as f:
                 f.write(fh.getvalue())
+
+            # Clean up the side-effect files in the run directory
+            shutil.rmtree(run_dir)
