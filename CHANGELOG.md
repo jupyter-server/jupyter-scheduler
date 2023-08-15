@@ -2,6 +2,33 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.1.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.0.0...a7bce768b5e95e7487ef4f5aac82ac0918d377d0))
+
+### Enhancements made
+
+- Add version specifiers for all dependencies [#422](https://github.com/jupyter-server/jupyter-scheduler/pull/422) ([@dlqqq](https://github.com/dlqqq))
+- Archiving all-files scheduler [#388](https://github.com/jupyter-server/jupyter-scheduler/pull/388) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Fix JFM tests [#424](https://github.com/jupyter-server/jupyter-scheduler/pull/424) ([@dlqqq](https://github.com/dlqqq))
+- Avoids "filter" option in tarfile [#419](https://github.com/jupyter-server/jupyter-scheduler/pull/419) ([@JasonWeill](https://github.com/JasonWeill))
+- Fix CI, run lint, reduce end-to-end tests flakiness [#417](https://github.com/jupyter-server/jupyter-scheduler/pull/417) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Fix CI, run lint, reduce end-to-end tests flakiness [#417](https://github.com/jupyter-server/jupyter-scheduler/pull/417) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-07-26&to=2023-08-15&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-07-26..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-07-26..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-07-26..2023-08-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.4...d423ede7a751dae2326f90095ddb4e444346d61a))
@@ -23,8 +50,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-07-03&to=2023-07-26&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-07-03..2023-07-26&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2023-07-03..2023-07-26&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-07-03..2023-07-26&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-07-03..2023-07-26&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2023-07-03..2023-07-26&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.3.4
 
