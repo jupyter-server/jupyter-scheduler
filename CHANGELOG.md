@@ -2,6 +2,28 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.4.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.4...51230951c3d865c6e6ce39c1623cf7d5e41d227d))
+
+### Enhancements made
+
+- \[1.x\] Add version specifiers for all dependencies [#427](https://github.com/jupyter-server/jupyter-scheduler/pull/427) ([@dlqqq](https://github.com/dlqqq))
+- \[1.x\] Fix CI, run lint, reduce end-to-end tests flakiness [#425](https://github.com/jupyter-server/jupyter-scheduler/pull/425) ([@andrii-i](https://github.com/andrii-i))
+- \[1.x\] Archiving scheduler, fix JFM tests [#418](https://github.com/jupyter-server/jupyter-scheduler/pull/418) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- \[1.x\] Fix JFM tests [#426](https://github.com/jupyter-server/jupyter-scheduler/pull/426) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-07-03&to=2023-08-15&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-07-03..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-07-03..2023-08-15&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-07-03..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-07-03..2023-08-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.3.4
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.3...aaa3a8922a3021b1158c668e50b17e2bf708b4e6))
@@ -15,8 +37,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-06-27&to=2023-07-03&type=c))
 
 [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-06-27..2023-07-03&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-06-27..2023-07-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.3.3
 
