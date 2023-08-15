@@ -55,7 +55,7 @@ jobs:
 
       - name: Install browser
         working-directory: ui-tests
-        run: jlpm install-chromium
+        run: jlpm playwright install chromium
 
       - name: Execute integration tests
         working-directory: ui-tests
