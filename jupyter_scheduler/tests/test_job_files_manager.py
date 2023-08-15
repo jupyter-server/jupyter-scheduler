@@ -2,7 +2,7 @@ import filecmp
 import os
 import shutil
 import tarfile
-import tempfile
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -10,7 +10,6 @@ import pytest
 
 from jupyter_scheduler.job_files_manager import Downloader, JobFilesManager
 from jupyter_scheduler.models import DescribeJob, JobFile
-from jupyter_scheduler.scheduler import BaseScheduler
 
 
 async def test_copy_from_staging():
@@ -68,6 +67,9 @@ OUTPUTS_DIR = os.path.join(HERE, "test_files_output")
 def clear_outputs_dir():
     yield
     shutil.rmtree(OUTPUTS_DIR)
+    # rmtree() is not synchronous; wait until it has finished running
+    while os.path.isdir(OUTPUTS_DIR):
+        time.sleep(0.01)
 
 
 @pytest.mark.parametrize(
@@ -76,9 +78,9 @@ def clear_outputs_dir():
         (
             ["ipynb", "html"],
             {
-                "ipynb": "helloworld-out.ipynb",
-                "html": "helloworld-out.html",
-                "input": "helloworld-input.ipynb",
+                "ipynb": "job-1/helloworld-out.ipynb",
+                "html": "job-1/helloworld-out.html",
+                "input": "job-1/helloworld-input.ipynb",
             },
             {
                 "ipynb": os.path.join(HERE, "test_staging_dir", "job-1", "helloworld-1.ipynb"),
@@ -91,9 +93,9 @@ def clear_outputs_dir():
         (
             ["ipynb", "html"],
             {
-                "ipynb": "helloworld-out.ipynb",
-                "html": "helloworld-out.html",
-                "input": "helloworld-input.ipynb",
+                "ipynb": "job-2/helloworld-1.ipynb",
+                "html": "job-2/helloworld-1.html",
+                "input": "job-2/helloworld.ipynb",
             },
             {
                 "tar.gz": os.path.join(HERE, "test_staging_dir", "job-2", "helloworld.tar.gz"),
@@ -120,10 +122,13 @@ def test_downloader_download(
 
     assert os.path.exists(output_dir)
     for format in output_formats:
+        # get path to output file corresponding to this format
         out_filepath = os.path.join(output_dir, output_filenames[format])
 
+        # assert each output file exists
         assert os.path.exists(out_filepath)
 
+        # assert integrity of each output file
         if "tar.gz" in staging_paths:
             with tarfile.open(staging_paths["tar.gz"]) as tar:
                 input_file = tar.extractfile(member=staging_paths[format])
