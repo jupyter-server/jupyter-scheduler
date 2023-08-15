@@ -1,12 +1,16 @@
 import { expect, test } from '@jupyterlab/galata';
 import { SchedulerHelper } from '../helpers/SchedulerHelper';
 
-const CREATE_FROM_NOTEBOOK_SNAPSHOT_FILENAME = 'create-view-from-toolbar.png';
-const CREATE_VIEW_SNAPSHOT_FILENAME = 'create-view-empty.png';
-const LAUNCHER_SNAPSHOT_FILENAME = 'launcher-with-scheduler.png';
-const LIST_VIEW_IN_PROGRESS_SNAPSHOT_FILENAME = 'list-view-in-progress.png';
-const NOTEBOOK_SNAPSHOT_FILENAME= 'notebook-with-createjob-button.png';
-const RIGHTCLICK_MENU_SNAPSHOT_FILENAME = 'filebrowser-notebook-rightclick-menu.png';
+enum FILENAMES {
+  LAUNCHER = 'launcher.png',
+  NOTEBOOK_TOOLBAR = 'notebook-toolbar.png',
+  FILEBROWSER_MENU = 'filebrowser-menu.png',
+  // TODO: resolve this inconsistency in our frontend code. One entry point
+  // includes the file extension in the job name, the other does not.
+  CREATE_VIEW_FROM_TOOLBAR = 'create-view-from-toolbar.png',
+  CREATE_VIEW_FROM_FILEBROWSER = 'create-view-from-filebrowser.png',
+  LIST_VIEW = 'list-view.png'
+}
 
 /**
  * Don't load JupyterLab webpage before running the tests.
@@ -14,126 +18,65 @@ const RIGHTCLICK_MENU_SNAPSHOT_FILENAME = 'filebrowser-notebook-rightclick-menu.
  */
 test.use({ autoGoto: false });
 
-test.describe('Jupyter Scheduler integration tests for JupyterLab', () => {
-  let schedulerHelper: SchedulerHelper;
-  test.beforeEach(async ({ page }) => {
-    schedulerHelper = new SchedulerHelper(page);
+test.describe('Jupyter Scheduler', () => {
+  let scheduler: SchedulerHelper;
+
+  test.beforeEach(async ({ page }, testInfo) => {
+    scheduler = new SchedulerHelper(page, testInfo);
     await page.goto();
-    await page.sidebar.close(
-      (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
-    );
   });
 
-  test('"Notebook Jobs" card is visible in JupyterLab launcher', async ({
-    page
-  }) => {
-    const launcher = page.locator('div[role="main"] >> text=Launcher');
-    await launcher.waitFor();
-    const launcherCard = schedulerHelper.launcherCardLocator;
-
-    await expect(launcherCard).toBeVisible();
-    expect(await page.screenshot()).toMatchSnapshot(LAUNCHER_SNAPSHOT_FILENAME);
+  test('shows card in launcher', async () => {
+    await expect(scheduler.launcherCard).toBeVisible();
+    await scheduler.assertSnapshot(FILENAMES.LAUNCHER);
   });
 
-  test('"Create a notebook job" button in notebook toolbar is visible', async ({
-    page
-  }) => {
-    await page.notebook.createNew();
-    await page
-      .locator('.jp-DebuggerBugButton[aria-disabled="false"]')
-      .waitFor();
-    await page
-      .locator('.jp-Notebook-ExecutionIndicator[data-status="idle"]')
-      .waitFor();
-    const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
-
-    await expect(createJobButton).toBeVisible();
-    expect(await page.screenshot()).toMatchSnapshot(NOTEBOOK_SNAPSHOT_FILENAME);
-    await page.menu.clickMenuItem('File>Save Notebook');
-    await page.click('button:has-text("Rename")');
+  test('shows notebook toolbar button', async () => {
+    await scheduler.createNotebook();
+    await expect(scheduler.createJobTbutton).toBeVisible();
+    await scheduler.assertSnapshot(FILENAMES.NOTEBOOK_TOOLBAR, {
+      locator: scheduler.notebookToolbar,
+      mask: [
+        scheduler.enableDebuggerTbutton,
+        scheduler.kernelNameTbutton,
+        scheduler.executionIndicatorTbutton
+      ]
+    });
   });
 
-  test('"Create a notebook job" button in notebook toolbar leads to "Create a Job" page', async ({
-    page
-  }) => {
-    await page.sidebar.openTab('filebrowser');
-    expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
-    await page.filebrowser.refresh();
-    await page.dblclick('.jp-DirListing-item[data-file-type="notebook"]');
-    await page.sidebar.close(
-      (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
-    );
-    const createJobButton = schedulerHelper.notebookToolbarButtonLocator;
-    await createJobButton.click();
+  test('opens create job view from notebook toolbar', async ({ page }) => {
+    await scheduler.createNotebook();
+    await scheduler.createJobTbutton.click();
     await page.waitForSelector('text=Loading …', { state: 'hidden' });
-
     await page.waitForSelector('text=Saving Completed', { state: 'hidden' });
-    expect(await page.screenshot()).toMatchSnapshot(CREATE_FROM_NOTEBOOK_SNAPSHOT_FILENAME);
+    await scheduler.assertSnapshot(FILENAMES.CREATE_VIEW_FROM_TOOLBAR);
   });
 
-  test('"Create Notebook Job" item is visible when right clicking a notebook in File Browser', async ({
-    page
-  }) => {
+  test('shows filebrowser menu item', async ({ page }) => {
+    await scheduler.createNotebook();
     await page.sidebar.openTab('filebrowser');
-    expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
-    await page.filebrowser.refresh();
-    await page.click('.jp-DirListing-item[data-file-type="notebook"]', {
-      button: 'right'
+    await scheduler.notebookFbListing.click({ button: 'right' });
+    const fbCtxMenu = page.locator('.lm-Menu');
+    await scheduler.assertSnapshot(FILENAMES.FILEBROWSER_MENU, {
+      locator: fbCtxMenu,
+      closeFb: false
     });
-
-    expect(await page.menu.isAnyOpen()).toBe(true);
-    const righClickMenu = page.locator('ul.lm-Menu-content[role="menu"]');
-    const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
-    await expect(createJobItem).toBeVisible();
-    expect(await righClickMenu.screenshot()).toMatchSnapshot(
-      RIGHTCLICK_MENU_SNAPSHOT_FILENAME
-    );
   });
 
-  test('"Create Notebook Job" button from File Browser right-click menu leads to "Create a Job" page', async ({
-    page
-  }) => {
-    await page.sidebar.openTab('filebrowser');
-    expect(await page.sidebar.isTabOpen('filebrowser')).toBeTruthy();
-    await page.filebrowser.refresh();
-    await page.click('.jp-DirListing-item[data-file-type="notebook"]', {
-      button: 'right'
-    });
-    expect(await page.menu.isAnyOpen()).toBe(true);
-    const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
-    await createJobItem.click();
-    await page.waitForSelector('text=Loading …', { state: 'hidden' });
-    await page.sidebar.close(
-      (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
-    );
-
-    expect(await page.screenshot()).toMatchSnapshot(CREATE_VIEW_SNAPSHOT_FILENAME);
+  test('opens create job view from filebrowser menu item', async () => {
+    await scheduler.createNotebook();
+    await scheduler.openCreateJobFromFilebrowser();
+    await scheduler.assertSnapshot(FILENAMES.CREATE_VIEW_FROM_FILEBROWSER);
   });
 
-  test('Create a job and see it in the list of jobs', async ({ page }) => {
-    await page.sidebar.openTab('filebrowser');
-    await page.filebrowser.refresh();
-    await page.click('.jp-DirListing-item[data-file-type="notebook"]', {
-      button: 'right'
-    });
-    const createJobItem = schedulerHelper.filebrowserMenuItemLocator;
-    await createJobItem.click();
-    await page.waitForSelector('text=Loading', { state: 'hidden' });
+  test('shows newly created job in job list view', async ({ page }) => {
+    await scheduler.createNotebook();
+    await scheduler.createJobFromFilebrowser();
+    await scheduler.standardizeListCreateTime();
+    await scheduler.assertSnapshot(FILENAMES.LIST_VIEW);
+  });
 
-    await page.fill('input[name=jobName]', 'MyTestJob');
-    await page.click('button:has-text("Create")');
-    const jobNameLink = page.getByText('MyTestJob', { exact: true });
-    jobNameLink.waitFor();
-    await page.sidebar.close(
-      (await page.sidebar.getTabPosition('filebrowser')) ?? undefined
-    );
-    const timeStamp = schedulerHelper.timestampLocator;
-    const contentPanel = page.locator('#jp-main-content-panel');
-
-    await expect(contentPanel).toHaveScreenshot(LIST_VIEW_IN_PROGRESS_SNAPSHOT_FILENAME, {
-      mask: [timeStamp],
-      maskColor: 'white',
-      maxDiffPixelRatio: 0.01
-    });
+  test.afterEach(async () => {
+    await scheduler.cleanup();
   });
 });
