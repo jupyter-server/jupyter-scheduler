@@ -125,10 +125,3 @@ dev/jobs
 
 # jupyter releaser local checkout
 .jupyter_releaser_checkout
-
-# Yarn 3 cache
-.yarn
-
-# Jest coverage reports and a side effect
-coverage
-junit.xml

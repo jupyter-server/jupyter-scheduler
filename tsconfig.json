@@ -13,7 +13,6 @@
     "noUnusedLocals": true,
     "preserveWatchOutput": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
