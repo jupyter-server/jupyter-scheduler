@@ -7,7 +7,7 @@ build:
     nodejs: "18"
 
 sphinx:
-  configuration: docs/source/conf.py
+  configuration: docs/conf.py
 
 python:
   install:
