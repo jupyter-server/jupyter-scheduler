@@ -37,7 +37,6 @@ dependencies = [
     "croniter~=1.4",
     "pytz==2023.3",
     "fsspec==2023.9.2",
-    "s3fs==2023.9.2",
     "psutil~=5.9"
 ]
 
