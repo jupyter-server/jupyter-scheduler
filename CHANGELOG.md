@@ -2,6 +2,23 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.5.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.4.0...ccaa72baeb3e5d135d48166073e415338c7bc1e9))
+
+### Maintenance and upkeep improvements
+
+- \[1.x\] Fix RTD CI workflow [#444](https://github.com/jupyter-server/jupyter-scheduler/pull/444) ([@andrii-i](https://github.com/andrii-i))
+- \[1.x\] Remove unused s3fs dependency [#443](https://github.com/jupyter-server/jupyter-scheduler/pull/443) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-08-15&to=2023-10-13&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-08-15..2023-10-13&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-08-15..2023-10-13&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.4.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.3.4...51230951c3d865c6e6ce39c1623cf7d5e41d227d))
@@ -21,8 +38,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-07-03&to=2023-08-15&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-07-03..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-07-03..2023-08-15&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2023-07-03..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-07-03..2023-08-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.3.4
 
