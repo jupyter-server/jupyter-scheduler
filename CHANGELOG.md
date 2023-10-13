@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.2.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.1.0...eab721a0d3f6b226dc4d074d817c8492dedb9ea0))
+
+### Maintenance and upkeep improvements
+
+- Bump systeminformation from 5.18.7 to 5.21.11 in /ui-tests [#442](https://github.com/jupyter-server/jupyter-scheduler/pull/442) ([@dependabot](https://github.com/dependabot))
+- Bump postcss from 8.4.26 to 8.4.31 in /ui-tests [#441](https://github.com/jupyter-server/jupyter-scheduler/pull/441) ([@dependabot](https://github.com/dependabot))
+- Bump postcss from 8.4.16 to 8.4.31 [#440](https://github.com/jupyter-server/jupyter-scheduler/pull/440) ([@dependabot](https://github.com/dependabot))
+- Fix RTD and E2E CI workflows [#438](https://github.com/jupyter-server/jupyter-scheduler/pull/438) ([@andrii-i](https://github.com/andrii-i), [@dlqqq](https://github.com/dlqqq))
+- Remove unused s3fs dependency [#437](https://github.com/jupyter-server/jupyter-scheduler/pull/437) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-08-15&to=2023-10-13&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-08-15..2023-10-13&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2023-08-15..2023-10-13&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-08-15..2023-10-13&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.1.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.0.0...a7bce768b5e95e7487ef4f5aac82ac0918d377d0))
@@ -26,8 +46,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-07-26&to=2023-08-15&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-07-26..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-07-26..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-07-26..2023-08-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.0
 
