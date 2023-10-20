@@ -1,5 +1,5 @@
 import os
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, root_validator
@@ -11,14 +11,11 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
-class NotificationEvent(Enum):
+class NotificationEvent(StrEnum):
     """Enum representing events that should trigger a notification.""" 
     SUCCESS = "Success"
     FAILURE = "Failure"
     STOPPED = "Stopped"
-
-    def __str__(self):
-        return self.value
 
 
 class Notification(BaseModel):
