@@ -12,14 +12,16 @@ SCHEDULE_RE = ""
 
 
 class NotificationEvent(StrEnum):
-    """Enum representing events that should trigger a notification.""" 
+    """Enum representing events that should trigger a notification."""
+
     SUCCESS = "Success"
     FAILURE = "Failure"
     STOPPED = "Stopped"
 
 
 class Notification(BaseModel):
-    """Represents a notification.""" 
+    """Represents a notification."""
+
     send_to: List[str]
     events: List[NotificationEvent]
     include_preview: bool = False
