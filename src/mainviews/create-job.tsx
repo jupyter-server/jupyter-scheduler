@@ -522,6 +522,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 envsByName[props.model.environment].notification_events
               }
               id={`${formPrefix}parameters`}
+              model={props.model}
+              handleModelChange={props.handleModelChange}
             />
           )}
           <ParametersPicker

@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 
-import { FormControl, InputLabel, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, TextField } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { ICreateJobModel } from '../model';
 import { Stack } from './stack';
+import { useTranslator } from '../hooks';
 
 export type NotificationsPickerProps = {
   notificationEvents: string[];
   id: string;
+  model: ICreateJobModel;
+  handleModelChange: (model: ICreateJobModel) => void;
 };
 
 export function NotificationsPicker(
@@ -15,18 +19,33 @@ export function NotificationsPicker(
   if (!props.notificationEvents.length) {
     return null;
   }
+  const trans = useTranslator('jupyterlab');
   const [selectedEvent, setSelectedEvent] = useState<string>('');
   const { notificationEvents, id } = props;
   const labelId = `${id}-label`;
-  const label = 'Notification Events';
+  const label = trans.__('Notification Events');
 
-  const handleSelectChange = (event: SelectChangeEvent) => {
-    setSelectedEvent(event.target.value as string);
+  const handleSendToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    props.handleModelChange({ ...props.model, [name]: value });
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent) => {
+    setSelectedEvent(e.target.value as string);
   };
 
   return (
     <Stack size={2}>
-      <InputLabel>{'Notifications'}</InputLabel>
+      <InputLabel>{trans.__('Notifications')}</InputLabel>
+
+      <TextField
+        label={trans.__('Send To')}
+        value={props.model.sendTo}
+        name="sendTo"
+        variant="outlined"
+        onChange={handleSendToChange}
+      />
 
       <FormControl>
         <InputLabel id={labelId}>{label}</InputLabel>

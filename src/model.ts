@@ -74,6 +74,12 @@ export type ModelWithScheduleFields = {
   scheduleMinute: string;
 };
 
+export type Notification = {
+  sendTo: string;
+  availableEvents?: string[];
+  selectedEvents?: string[];
+};
+
 export interface ICreateJobModel
   extends ModelWithScheduleFields,
     PartialJSONObject {
@@ -99,6 +105,7 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
+  notification?: Notification;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
