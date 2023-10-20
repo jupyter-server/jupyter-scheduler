@@ -225,6 +225,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
+    notification: Optional[Notification] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -250,6 +251,7 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
+    notification: Optional[Notification] = None
 
     class Config:
         orm_mode = True
@@ -269,6 +271,7 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
+    notification: Optional[Notification] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):
