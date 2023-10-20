@@ -11,6 +11,12 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
+class NotificationEvent(Enum):
+    """Represents events that should trigger a job-related notification.""" 
+    SUCCESS = "Success"
+    FAILURE = "Failure"
+    STOPPED = "Stopped"
+
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda
