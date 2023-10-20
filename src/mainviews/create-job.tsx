@@ -516,6 +516,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             environment={props.model.environment}
             value={props.model.computeType}
           />
+          {envsByName[props.model.environment]?.notifications_enabled && (
+            <NotificationsPicker
+              notificationEvents={
+                envsByName[props.model.environment].notification_events
+              }
+              id={`${formPrefix}parameters`}
+            />
+          )}
           <ParametersPicker
             label={trans.__('Parameters')}
             name={'parameters'}
@@ -528,13 +536,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             errors={errors}
             handleErrorsChange={setErrors}
           />
-          {envsByName[props.model.environment]?.notifications_enabled && (
-            <NotificationsPicker
-              notificationEvents={
-                envsByName[props.model.environment].notification_events
-              }
-            />
-          )}
           <Accordion
             defaultExpanded={false}
             expanded={advancedOptionsExpanded}
