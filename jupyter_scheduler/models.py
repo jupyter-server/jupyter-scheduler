@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, root_validator
 
@@ -11,19 +11,19 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
-
-
 class NotificationEvent(Enum):
     """Enum representing events that should trigger a notification.""" 
     SUCCESS = "Success"
     FAILURE = "Failure"
     STOPPED = "Stopped"
 
+
 class Notification:
     """Represents a notification.""" 
     send_to: List[str]
     events: List[NotificationEvent]
     include_preview: bool = False
+
 
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
@@ -40,6 +40,8 @@ class RuntimeEnvironment(BaseModel):
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
+    notifications_enabled: bool = False
+    notification_events: List[Type[NotificationEvent]] = [NotificationEvent.SUCCESS, NotificationEvent.FAILURE, NotificationEvent.STOPPED]
 
     def __str__(self):
         return self.json()
