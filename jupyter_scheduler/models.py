@@ -17,6 +17,9 @@ class NotificationEvent(Enum):
     FAILURE = "Failure"
     STOPPED = "Stopped"
 
+    def __str__(self):
+        return self.value
+
 
 class Notification:
     """Represents a notification.""" 
