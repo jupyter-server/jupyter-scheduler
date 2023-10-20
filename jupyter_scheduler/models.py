@@ -21,7 +21,7 @@ class NotificationEvent(Enum):
         return self.value
 
 
-class Notification:
+class Notification(BaseModel):
     """Represents a notification.""" 
     send_to: List[str]
     events: List[NotificationEvent]
