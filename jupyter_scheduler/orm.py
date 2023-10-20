@@ -98,6 +98,7 @@ class Job(CommonColumns, Base):
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
+    notification = Column(JsonType(1024), nullable=True)
 
 
 class JobDefinition(CommonColumns, Base):
@@ -108,6 +109,7 @@ class JobDefinition(CommonColumns, Base):
     url = Column(String(256), default=generate_job_definitions_url)
     create_time = Column(Integer, default=get_utc_timestamp)
     active = Column(Boolean, default=True)
+    notification = Column(JsonType(1024), nullable=True)
 
 
 def create_tables(db_url, drop_tables=False):
