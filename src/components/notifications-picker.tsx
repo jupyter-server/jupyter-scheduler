@@ -19,9 +19,11 @@ export function NotificationsPicker(
   if (!props.notificationEvents.length) {
     return null;
   }
-  const trans = useTranslator('jupyterlab');
-  const [selectedEvent, setSelectedEvent] = useState<string>('');
+
+  const [selectValue, setSelectValue] = useState<string>('');
+
   const { notificationEvents, id } = props;
+  const trans = useTranslator('jupyterlab');
   const labelId = `${id}-label`;
   const label = trans.__('Notification Events');
 
@@ -32,7 +34,7 @@ export function NotificationsPicker(
   };
 
   const handleSelectChange = (e: SelectChangeEvent) => {
-    setSelectedEvent(e.target.value as string);
+    setSelectValue(e.target.value as string);
   };
 
   return (
@@ -52,7 +54,7 @@ export function NotificationsPicker(
         <Select
           labelId={labelId}
           id={id}
-          value={selectedEvent}
+          value={selectValue}
           label={label}
           onChange={handleSelectChange}
         >
