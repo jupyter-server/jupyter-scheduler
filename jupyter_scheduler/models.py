@@ -11,8 +11,10 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
+
+
 class NotificationEvent(Enum):
-    """Represents events that should trigger a job-related notification.""" 
+    """Enum representing events that should trigger a job-related notification.""" 
     SUCCESS = "Success"
     FAILURE = "Failure"
     STOPPED = "Stopped"
