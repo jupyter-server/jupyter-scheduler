@@ -14,10 +14,16 @@ SCHEDULE_RE = ""
 
 
 class NotificationEvent(Enum):
-    """Enum representing events that should trigger a job-related notification.""" 
+    """Enum representing events that should trigger a notification.""" 
     SUCCESS = "Success"
     FAILURE = "Failure"
     STOPPED = "Stopped"
+
+class Notification:
+    """Represents a notification.""" 
+    send_to: List[str]
+    events: List[NotificationEvent]
+    include_preview: bool = False
 
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
