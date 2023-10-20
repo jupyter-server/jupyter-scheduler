@@ -41,7 +41,7 @@ class RuntimeEnvironment(BaseModel):
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
     notifications_enabled: bool = False
-    notification_events: List[Type[NotificationEvent]] = [NotificationEvent.SUCCESS, NotificationEvent.FAILURE, NotificationEvent.STOPPED]
+    notification_events: List[Type[NotificationEvent]] = [e for e in NotificationEvent]
 
     def __str__(self):
         return self.json()
