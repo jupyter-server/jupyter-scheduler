@@ -101,6 +101,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+    notification: Optional[Notification] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -161,6 +162,7 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
+    notification: Optional[Notification] = None
 
     class Config:
         orm_mode = True
