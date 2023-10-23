@@ -35,6 +35,7 @@ export function NotificationPicker({
   const [enableNotification, setEnableNotification] = useState<boolean>(
     model.notification?.enableNotification ?? true
   );
+  const sendToString = model.notification?.sendTo?.join(', ') || '';
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedEnableNotification = e.target.checked;
@@ -68,8 +69,12 @@ export function NotificationPicker({
 
   const sendToChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      const updatedNotification = { ...model.notification, [name]: value };
+      const { value } = e.target;
+      const sendToArray = value.split(',').map(sendToStr => sendToStr.trim());
+      const updatedNotification = {
+        ...model.notification,
+        sendTo: sendToArray
+      };
       modelChange({ ...model, notification: updatedNotification });
     },
     [model, modelChange]
@@ -108,7 +113,7 @@ export function NotificationPicker({
 
       <TextField
         label={trans.__('Send To')}
-        value={model.notification?.sendTo || ''}
+        value={sendToString}
         name="sendTo"
         variant="outlined"
         onChange={sendToChange}
