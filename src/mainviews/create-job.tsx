@@ -11,7 +11,7 @@ import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
 import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
-import { NotificationsPicker } from '../components/notifications-picker';
+import { NotificationPicker } from '../components/notification-picker';
 import {
   OutputFormatPicker,
   outputFormatsForEnvironment
@@ -517,7 +517,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.computeType}
           />
           {envsByName[props.model.environment]?.notifications_enabled && (
-            <NotificationsPicker
+            <NotificationPicker
               notificationEvents={
                 envsByName[props.model.environment].notification_events
               }
