@@ -35,7 +35,9 @@ export function NotificationPicker({
   const [enableNotification, setEnableNotification] = useState<boolean>(
     model.notification?.enableNotification ?? true
   );
-  const sendToString = model.notification?.sendTo?.join(', ') || '';
+  const [sendToInput, setSendToInput] = useState<string>(
+    model.notification?.sendTo?.join(', ') || ''
+  );
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedEnableNotification = e.target.checked;
@@ -67,17 +69,27 @@ export function NotificationPicker({
     [selectedEvents, model, modelChange]
   );
 
-  const sendToChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const sendToArray = value.split(',').map(sendToStr => sendToStr.trim());
-      const updatedNotification = {
-        ...model.notification,
-        sendTo: sendToArray
-      };
-      modelChange({ ...model, notification: updatedNotification });
+  const sendToChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSendToInput(e.target.value);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    const emailArray = sendToInput
+      .split(',')
+      .map(email => email.trim())
+      .filter(email => email);
+    const updatedNotification = { ...model.notification, sendTo: emailArray };
+    modelChange({ ...model, notification: updatedNotification });
+  }, [sendToInput, model, modelChange]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleBlur();
+      }
     },
-    [model, modelChange]
+    [handleBlur]
   );
 
   const deleteSelectedEvent = useCallback(
@@ -113,10 +125,12 @@ export function NotificationPicker({
 
       <TextField
         label={trans.__('Send To')}
-        value={sendToString}
+        value={sendToInput}
         name="sendTo"
         variant="outlined"
         onChange={sendToChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         disabled={!enableNotification}
       />
       <NotificationEventsSelect
