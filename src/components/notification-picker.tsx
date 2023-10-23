@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 
 import { Cluster } from './cluster';
 import {
+  Checkbox,
   Chip,
   FormControl,
   FormControlLabel,
@@ -38,6 +39,9 @@ export function NotificationPicker({
   const [sendToInput, setSendToInput] = useState<string>(
     model.notification?.sendTo?.join(', ') || ''
   );
+  const [includeOutput, setIncludeOutput] = useState<boolean>(
+    model.notification?.includeOutput || false
+  );
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedEnableNotification = e.target.checked;
@@ -73,7 +77,7 @@ export function NotificationPicker({
     setSendToInput(e.target.value);
   }, []);
 
-  const handleBlur = useCallback(() => {
+  const blur = useCallback(() => {
     const emailArray = sendToInput
       .split(',')
       .map(email => email.trim())
@@ -82,15 +86,27 @@ export function NotificationPicker({
     modelChange({ ...model, notification: updatedNotification });
   }, [sendToInput, model, modelChange]);
 
-  const handleKeyDown = useCallback(
+  const keyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        handleBlur();
+        blur();
       }
     },
-    [handleBlur]
+    [blur]
   );
+
+  const includeOutputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedValue = event.target.checked;
+    setIncludeOutput(updatedValue);
+    modelChange({
+      ...model,
+      notification: {
+        ...model.notification,
+        includeOutput: updatedValue
+      }
+    });
+  };
 
   const deleteSelectedEvent = useCallback(
     (eventToDelete: string) => () => {
@@ -122,15 +138,14 @@ export function NotificationPicker({
         }
         label={trans.__('Enable Notifications')}
       />
-
       <TextField
         label={trans.__('Send To')}
         value={sendToInput}
         name="sendTo"
         variant="outlined"
         onChange={sendToChange}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
+        onBlur={blur}
+        onKeyDown={keyDown}
         disabled={!enableNotification}
       />
       <NotificationEventsSelect
@@ -145,6 +160,16 @@ export function NotificationPicker({
         selectedEvents={selectedEvents}
         deleteSelectedEvent={deleteSelectedEvent}
         disabled={!enableNotification}
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={includeOutput}
+            onChange={includeOutputChange}
+            disabled={!enableNotification}
+          />
+        }
+        label={trans.__('Include Output')}
       />
     </Stack>
   );

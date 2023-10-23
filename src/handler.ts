@@ -404,7 +404,7 @@ export namespace Scheduler {
   export interface INotification {
     send_to: string[];
     events: string[];
-    include_preview: boolean;
+    include_output: boolean;
   }
 
   export interface ICreateJob {

@@ -24,7 +24,7 @@ class Notification(BaseModel):
 
     send_to: List[str]
     events: List[NotificationEvent]
-    include_preview: bool = False
+    include_output: bool
 
 
 class RuntimeEnvironment(BaseModel):

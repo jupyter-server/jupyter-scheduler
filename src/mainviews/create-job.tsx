@@ -327,6 +327,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
+    if (props.model.notification?.enableNotification) {
+      jobOptions.notification = {
+        send_to: props.model.notification.sendTo ?? [],
+        events: props.model.notification.selectedEvents ?? [],
+        include_output: props.model.notification.includeOutput ?? false
+      };
+    }
+
     props.handleModelChange({
       ...props.model,
       createError: undefined,
@@ -372,6 +380,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobDefinitionOptions.parameters = serializeParameters(
         props.model.parameters
       );
+    }
+
+    if (props.model.notification?.enableNotification) {
+      jobDefinitionOptions.notification = {
+        send_to: props.model.notification.sendTo ?? [],
+        events: props.model.notification.selectedEvents ?? [],
+        include_output: props.model.notification.includeOutput ?? false
+      };
     }
 
     props.handleModelChange({

@@ -76,6 +76,7 @@ export type ModelWithScheduleFields = {
 
 export type Notification = {
   sendTo?: string[];
+  includeOutput?: boolean;
   enableNotification?: boolean;
   availableEvents?: string[];
   selectedEvents?: string[];
