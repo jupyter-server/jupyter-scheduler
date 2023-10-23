@@ -41,7 +41,6 @@ export function NotificationPicker({
           ...model,
           notification: {
             ...model.notification,
-            sendTo: model.notification?.sendTo || '',
             selectedEvents: updatedEvents
           }
         });
@@ -52,8 +51,8 @@ export function NotificationPicker({
 
   const sendToChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const updatedNotification = { ...model.notification, sendTo: value };
+      const { name, value } = e.target;
+      const updatedNotification = { ...model.notification, [name]: value };
       modelChange({ ...model, notification: updatedNotification });
     },
     [model, modelChange]
