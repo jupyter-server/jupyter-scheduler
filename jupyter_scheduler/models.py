@@ -13,7 +13,7 @@ SCHEDULE_RE = ""
 
 class NotificationEvent(str, Enum):
     """
-    Enum for events triggering notifications. Implementers can extend
+    Enum that represents events triggering notifications. Implementers can extend 
     this enum to include additional notification events as needed.
 
     Attributes:
