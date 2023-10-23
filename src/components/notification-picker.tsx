@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { Cluster } from './cluster';
 import {
@@ -42,6 +42,18 @@ export function NotificationPicker({
   const [includeOutput, setIncludeOutput] = useState<boolean>(
     model.notification?.includeOutput || false
   );
+
+  useEffect(() => {
+    if (model.notification?.enableNotification === undefined) {
+      modelChange({
+        ...model,
+        notification: {
+          ...model.notification,
+          enableNotification: enableNotification
+        }
+      });
+    }
+  }, []);
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedEnableNotification = e.target.checked;
