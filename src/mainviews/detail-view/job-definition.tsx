@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from 'react';
 
-import { JupyterFrontEnd } from '@jupyterlab/application';
-
 import {
   Alert,
   Button,
@@ -10,27 +8,26 @@ import {
   FormLabel,
   Stack
 } from '@mui/material';
-
-import cronstrue from 'cronstrue';
-
 import { ButtonBar } from '../../components/button-bar';
 import { ConfirmDialogDeleteButton } from '../../components/confirm-dialog-buttons';
-import {
-  ILabeledValueProps,
-  LabeledValue
-} from '../../components/labeled-value';
-import { SchedulerService } from '../../handler';
-import { useEventLogger, useTranslator } from '../../hooks';
 import { ListJobsTable } from '../list-jobs';
+import cronstrue from 'cronstrue';
 import {
   IJobDefinitionModel,
   JobsView,
   ICreateJobModel,
   emptyCreateJobModel
 } from '../../model';
+import {
+  ILabeledValueProps,
+  LabeledValue
+} from '../../components/labeled-value';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { NotificationDetails } from '../../components/notification-detail';
 import { Scheduler as SchedulerTokens } from '../../tokens';
-
+import { SchedulerService } from '../../handler';
 import { timestampLocalize } from './job-detail';
+import { useEventLogger, useTranslator } from '../../hooks';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -292,6 +289,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       {DefinitionButtonBar}
       {JobDefinition}
       {JobsList}
+      {props.model.notification && (
+        <NotificationDetails notification={props.model.notification} />
+      )}
       {AdvancedOptions}
     </>
   );

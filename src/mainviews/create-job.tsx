@@ -122,12 +122,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           envList[0].name
         )?.map(format => format.name);
 
-        props.handleModelChange({
+        const newModel = {
           ...props.model,
           environment: envList[0].name,
           computeType: newComputeType,
           outputFormats: outputFormats
-        });
+        };
+
+        if (envList[0].notifications_enabled && !props.model.notification) {
+          newModel.notification = { enableNotification: true };
+        }
+
+        props.handleModelChange(newModel);
       }
     };
 
@@ -334,6 +340,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         include_output: props.model.notification.includeOutput ?? false
       };
     }
+
+    console.log('\n\n***\nHELLO WORLD!!!');
+    console.log(jobOptions);
+    console.log(props.model);
 
     props.handleModelChange({
       ...props.model,
