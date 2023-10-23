@@ -341,10 +341,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       };
     }
 
-    console.log('\n\n***\nHELLO WORLD!!!');
-    console.log(jobOptions);
-    console.log(props.model);
-
     props.handleModelChange({
       ...props.model,
       createError: undefined,
