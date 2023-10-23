@@ -128,7 +128,7 @@ export function NotificationPicker({
 
   return (
     <Stack size={2}>
-      <InputLabel>{trans.__('Notifications')}</InputLabel>
+      <InputLabel>{trans.__('Notification')}</InputLabel>
       <FormControlLabel
         control={
           <Switch
@@ -136,7 +136,7 @@ export function NotificationPicker({
             onChange={enableNotificationChange}
           />
         }
-        label={trans.__('Enable Notifications')}
+        label={trans.__('Enable Notification')}
       />
       <TextField
         label={trans.__('Send To')}
