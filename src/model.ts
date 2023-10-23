@@ -319,6 +319,7 @@ export interface IJobDetailModel {
   outputPrefix?: string;
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
+  notification?: Scheduler.INotification;
 }
 
 export interface IJobDefinitionModel {
@@ -345,6 +346,7 @@ export interface IJobDefinitionModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
+  notification?: Scheduler.INotification;
 }
 
 const convertParameters = (parameters: {
@@ -393,7 +395,8 @@ export function convertDescribeJobtoJobDetail(
     updateTime: describeJob.update_time,
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
-    downloaded: describeJob.downloaded
+    downloaded: describeJob.downloaded,
+    notification: describeJob.notification
   };
 }
 
@@ -421,7 +424,8 @@ export function convertDescribeDefinitiontoDefinition(
     createTime: describeDefinition.create_time,
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
-    timezone: describeDefinition.timezone
+    timezone: describeDefinition.timezone,
+    notification: describeDefinition.notification
   };
 }
 
