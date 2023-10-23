@@ -2,11 +2,13 @@ import React, { useState, useCallback } from 'react';
 
 import { Cluster } from './cluster';
 import {
+  Chip,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
-  TextField,
-  Chip
+  Switch,
+  TextField
 } from '@mui/material';
 import { ICreateJobModel } from '../model';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -30,6 +32,21 @@ export function NotificationPicker({
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
     model.notification?.selectedEvents || []
   );
+  const [enableNotification, setEnableNotification] = useState<boolean>(
+    model.notification?.enableNotification ?? true
+  );
+
+  const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedEnableNotification = e.target.checked;
+    setEnableNotification(updatedEnableNotification);
+    modelChange({
+      ...model,
+      notification: {
+        ...model.notification,
+        enableNotification: updatedEnableNotification
+      }
+    });
+  };
 
   const selectChange = useCallback(
     (e: SelectChangeEvent<string>) => {
@@ -79,12 +96,23 @@ export function NotificationPicker({
   return (
     <Stack size={2}>
       <InputLabel>{trans.__('Notifications')}</InputLabel>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={enableNotification}
+            onChange={enableNotificationChange}
+          />
+        }
+        label={trans.__('Enable Notifications')}
+      />
+
       <TextField
         label={trans.__('Send To')}
         value={model.notification?.sendTo || ''}
         name="sendTo"
         variant="outlined"
         onChange={sendToChange}
+        disabled={!enableNotification}
       />
       <NotificationEventsSelect
         id={id}
@@ -92,10 +120,12 @@ export function NotificationPicker({
           e => !selectedEvents.includes(e)
         )}
         selectChange={selectChange}
+        disabled={!enableNotification}
       />
       <SelectedEventsChips
         selectedEvents={selectedEvents}
         deleteSelectedEvent={deleteSelectedEvent}
+        disabled={!enableNotification}
       />
     </Stack>
   );
@@ -105,19 +135,23 @@ const NotificationEventsSelect: React.FC<{
   id: string;
   availableEvents: string[];
   selectChange: (e: SelectChangeEvent<string>) => void;
-}> = ({ id, availableEvents, selectChange: handleSelectChange }) => {
+  disabled: boolean;
+}> = ({ id, availableEvents, selectChange, disabled }) => {
   const trans = useTranslator('jupyterlab');
   const label = trans.__('Notification Events');
   const labelId = `${id}-label`;
 
   return (
     <FormControl>
-      <InputLabel id={labelId}>{label}</InputLabel>
+      <InputLabel id={labelId} disabled={disabled}>
+        {label}
+      </InputLabel>
       <Select
         labelId={labelId}
         id={id}
         label={label}
-        onChange={handleSelectChange}
+        onChange={selectChange}
+        disabled={disabled}
       >
         {availableEvents.map(e => (
           <MenuItem key={e} value={e}>
@@ -132,7 +166,8 @@ const NotificationEventsSelect: React.FC<{
 const SelectedEventsChips: React.FC<{
   selectedEvents: string[];
   deleteSelectedEvent: (eventToDelete: string) => () => void;
-}> = ({ selectedEvents, deleteSelectedEvent }) => (
+  disabled: boolean;
+}> = ({ selectedEvents, deleteSelectedEvent, disabled }) => (
   <Cluster gap={3} justifyContent="flex-start">
     {selectedEvents.map(e => (
       <Chip
@@ -140,6 +175,7 @@ const SelectedEventsChips: React.FC<{
         label={e}
         variant="outlined"
         onDelete={deleteSelectedEvent(e)}
+        disabled={disabled}
       />
     ))}
   </Cluster>
