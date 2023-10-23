@@ -13,7 +13,7 @@ SCHEDULE_RE = ""
 
 class NotificationEvent(str, Enum):
     """
-    Enum for events triggering notifications. Implementers can extend 
+    Enum for events triggering notifications. Implementers can extend
     this enum to include additional notification events as needed.
 
     Attributes:
@@ -21,6 +21,7 @@ class NotificationEvent(str, Enum):
         FAILURE (str): Sent on job failure.
         STOPPED (str): Sent when a job is manually stopped.
     """
+
     SUCCESS = "Success"
     FAILURE = "Failure"
     STOPPED = "Stopped"
@@ -28,12 +29,13 @@ class NotificationEvent(str, Enum):
 
 class Notification(BaseModel):
     """Represents a notification.
-    
+
     Attributes:
         send_to (List[str]): A list of symbols (e.g., email addresses) to which notifications should be sent.
         events (List[NotificationEvent]): A list of events that should trigger the sending of notifications.
         include_output (bool): A flag indicating whether a output should be included in the notification. Default is False.
     """
+
     send_to: List[str]
     events: List[NotificationEvent]
     include_output: bool
@@ -44,6 +46,7 @@ class RuntimeEnvironment(BaseModel):
     execution will happen. For example, conda
     environment.
     """
+
     name: str
     label: str
     description: str
