@@ -46,7 +46,7 @@ export const NotificationDetails: React.FC<INotificationDetailsProps> = ({
           {notification.send_to.map((email, idx) => (
             <NotificationItem
               key={idx}
-              label={trans.__(`Send To ${idx}`)}
+              label={trans.__(`Send To ${idx + 1}`)}
               value={email}
             />
           ))}
@@ -54,7 +54,7 @@ export const NotificationDetails: React.FC<INotificationDetailsProps> = ({
           {notification.events.map((event, idx) => (
             <NotificationItem
               key={idx}
-              label={trans.__(`Event ${idx}`)}
+              label={trans.__(`Event ${idx + 1}`)}
               value={event}
             />
           ))}

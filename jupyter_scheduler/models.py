@@ -42,7 +42,7 @@ class RuntimeEnvironment(BaseModel):
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
-    notifications_enabled: bool = False
+    notifications_enabled: bool = True
     notification_events: List[Type[NotificationEvent]] = [e for e in NotificationEvent]
 
     def __str__(self):
