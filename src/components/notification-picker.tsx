@@ -23,6 +23,13 @@ type INotificationsSettingsProps = {
   handleModelChange: (model: ICreateJobModel) => void;
 };
 
+type NotificationEventsSelect = {
+  id: string;
+  availableEvents: string[];
+  selectChange: (e: SelectChangeEvent<string>) => void;
+  disabled: boolean;
+};
+
 export function NotificationsSettings({
   notificationEvents,
   id,
@@ -181,29 +188,24 @@ export function NotificationsSettings({
   );
 }
 
-const NotificationEventsSelect: React.FC<{
-  id: string;
-  availableEvents: string[];
-  selectChange: (e: SelectChangeEvent<string>) => void;
-  disabled: boolean;
-}> = ({ id, availableEvents, selectChange, disabled }) => {
+function NotificationEventsSelect(props: NotificationEventsSelect) {
   const trans = useTranslator('jupyterlab');
   const label = trans.__('Notification Events');
-  const labelId = `${id}-label`;
+  const labelId = `${props.id}-label`;
 
   return (
     <FormControl>
-      <InputLabel id={labelId} disabled={disabled}>
+      <InputLabel id={labelId} disabled={props.disabled}>
         {label}
       </InputLabel>
       <Select
         labelId={labelId}
-        id={id}
+        id={props.id}
         label={label}
-        onChange={selectChange}
-        disabled={disabled}
+        onChange={props.selectChange}
+        disabled={props.disabled}
       >
-        {availableEvents.map(e => (
+        {props.availableEvents.map(e => (
           <MenuItem key={e} value={e}>
             {e}
           </MenuItem>
@@ -211,7 +213,7 @@ const NotificationEventsSelect: React.FC<{
       </Select>
     </FormControl>
   );
-};
+}
 
 const SelectedEventsChips: React.FC<{
   selectedEvents: string[];

@@ -14,25 +14,26 @@ type INotificationsSettingsDetailsProps = {
   notificationsSettings: Scheduler.INotificationsSettings;
 };
 
-const NotificationsSettingsItem: React.FC<INotificationsSettingsItemProps> = ({
-  label,
-  value
-}) => {
+function NotificationsSettingsItem(props: INotificationsSettingsItemProps) {
   const displayValue =
-    typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value;
+    typeof props.value === 'boolean'
+      ? props.value
+        ? 'Yes'
+        : 'No'
+      : props.value;
 
   return (
     <LabeledValue
-      label={label}
+      label={props.label}
       value={displayValue}
       style={{ flex: '1 1 100%' }}
     />
   );
-};
+}
 
-export const NotificationsSettingsDetails: React.FC<
-  INotificationsSettingsDetailsProps
-> = ({ notificationsSettings }) => {
+export function NotificationsSettingsDetails(
+  props: INotificationsSettingsDetailsProps
+): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
   return (
@@ -43,7 +44,7 @@ export const NotificationsSettingsDetails: React.FC<
         </FormLabel>
         <Stack spacing={2}>
           <FormLabel component="legend">{trans.__('Send to')}</FormLabel>
-          {notificationsSettings.send_to.map((email, idx) => (
+          {props.notificationsSettings.send_to.map((email, idx) => (
             <NotificationsSettingsItem
               key={idx}
               label={trans.__(`Send to ${idx + 1}`)}
@@ -53,7 +54,7 @@ export const NotificationsSettingsDetails: React.FC<
           <FormLabel component="legend">
             {trans.__('Notification Events')}
           </FormLabel>
-          {notificationsSettings.events.map((event, idx) => (
+          {props.notificationsSettings.events.map((event, idx) => (
             <NotificationsSettingsItem
               key={idx}
               label={trans.__(`Event ${idx + 1}`)}
@@ -62,10 +63,10 @@ export const NotificationsSettingsDetails: React.FC<
           ))}
           <NotificationsSettingsItem
             label={trans.__('Include output')}
-            value={notificationsSettings.include_output}
+            value={props.notificationsSettings.include_output}
           />
         </Stack>
       </CardContent>
     </Card>
   );
-};
+}
