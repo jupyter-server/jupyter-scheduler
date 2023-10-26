@@ -42,11 +42,11 @@ export const NotificationsSettingsDetails: React.FC<
           {trans.__('Notifications Settings')}
         </FormLabel>
         <Stack spacing={2}>
-          <FormLabel component="legend">{trans.__('Send To')}</FormLabel>
+          <FormLabel component="legend">{trans.__('Send to')}</FormLabel>
           {notificationsSettings.send_to.map((email, idx) => (
             <NotificationsSettingsItem
               key={idx}
-              label={trans.__(`Send To ${idx + 1}`)}
+              label={trans.__(`Send to ${idx + 1}`)}
               value={email}
             />
           ))}
@@ -61,7 +61,7 @@ export const NotificationsSettingsDetails: React.FC<
             />
           ))}
           <NotificationsSettingsItem
-            label={trans.__('Include Output')}
+            label={trans.__('Include output')}
             value={notificationsSettings.include_output}
           />
         </Stack>

@@ -142,10 +142,10 @@ export function NotificationsSettings({
             onChange={enableNotificationChange}
           />
         }
-        label={trans.__('Enable Notifications')}
+        label={trans.__('Enable notifications')}
       />
       <TextField
-        label={trans.__('Send To')}
+        label={trans.__('Send to')}
         value={sendToInput}
         name="sendTo"
         variant="outlined"
@@ -175,7 +175,7 @@ export function NotificationsSettings({
             disabled={!enableNotification}
           />
         }
-        label={trans.__('Include Output')}
+        label={trans.__('Include output')}
       />
     </Stack>
   );
