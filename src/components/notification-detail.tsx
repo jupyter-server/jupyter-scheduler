@@ -5,14 +5,14 @@ import { useTranslator } from '../hooks';
 import { Scheduler } from '../handler';
 import { LabeledValue } from '../components/labeled-value';
 
-interface INotificationsSettingsItemProps {
+type INotificationsSettingsItemProps = {
   label: string;
   value: string | boolean;
-}
+};
 
-interface INotificationsSettingsDetailsProps {
+type INotificationsSettingsDetailsProps = {
   notificationsSettings: Scheduler.INotificationsSettings;
-}
+};
 
 const NotificationsSettingsItem: React.FC<INotificationsSettingsItemProps> = ({
   label,

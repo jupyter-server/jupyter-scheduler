@@ -16,12 +16,12 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Stack } from './stack';
 import { useTranslator } from '../hooks';
 
-interface INotificationsSettingsProps {
+type INotificationsSettingsProps = {
   notificationEvents: string[];
   id: string;
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
-}
+};
 
 export function NotificationsSettings({
   notificationEvents,
