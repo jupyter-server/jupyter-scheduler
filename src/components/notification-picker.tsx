@@ -16,31 +16,31 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Stack } from './stack';
 import { useTranslator } from '../hooks';
 
-interface INotificationPickerProps {
+interface INotificationsSettingsProps {
   notificationEvents: string[];
   id: string;
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
 }
 
-export function NotificationPicker({
+export function NotificationsSettings({
   notificationEvents,
   id,
   model,
   handleModelChange: modelChange
-}: INotificationPickerProps): JSX.Element | null {
+}: INotificationsSettingsProps): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
-    model.notification?.selectedEvents || []
+    model.notificationsSettings?.selectedEvents || []
   );
   const [enableNotification, setEnableNotification] = useState<boolean>(
-    model.notification?.enableNotification ?? true
+    model.notificationsSettings?.enableNotification ?? true
   );
   const [sendToInput, setSendToInput] = useState<string>(
-    model.notification?.sendTo?.join(', ') || ''
+    model.notificationsSettings?.sendTo?.join(', ') || ''
   );
   const [includeOutput, setIncludeOutput] = useState<boolean>(
-    model.notification?.includeOutput || false
+    model.notificationsSettings?.includeOutput || false
   );
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,8 +48,8 @@ export function NotificationPicker({
     setEnableNotification(updatedEnableNotification);
     modelChange({
       ...model,
-      notification: {
-        ...model.notification,
+      notificationsSettings: {
+        ...model.notificationsSettings,
         enableNotification: updatedEnableNotification
       }
     });
@@ -63,8 +63,8 @@ export function NotificationPicker({
         setSelectedEvents(updatedEvents);
         modelChange({
           ...model,
-          notification: {
-            ...model.notification,
+          notificationsSettings: {
+            ...model.notificationsSettings,
             selectedEvents: updatedEvents
           }
         });
@@ -82,8 +82,11 @@ export function NotificationPicker({
       .split(',')
       .map(email => email.trim())
       .filter(email => email);
-    const updatedNotification = { ...model.notification, sendTo: emailArray };
-    modelChange({ ...model, notification: updatedNotification });
+    const updatedNotification = {
+      ...model.notificationsSettings,
+      sendTo: emailArray
+    };
+    modelChange({ ...model, notificationsSettings: updatedNotification });
   }, [sendToInput, model, modelChange]);
 
   const keyDown = useCallback(
@@ -101,8 +104,8 @@ export function NotificationPicker({
     setIncludeOutput(updatedValue);
     modelChange({
       ...model,
-      notification: {
-        ...model.notification,
+      notificationsSettings: {
+        ...model.notificationsSettings,
         includeOutput: updatedValue
       }
     });
@@ -116,7 +119,10 @@ export function NotificationPicker({
       setSelectedEvents(updatedEvents);
       modelChange({
         ...model,
-        notifications: { ...model.notification, selectedEvents: updatedEvents }
+        notifications: {
+          ...model.notificationsSettings,
+          selectedEvents: updatedEvents
+        }
       });
     },
     [selectedEvents, model, modelChange]
@@ -128,7 +134,7 @@ export function NotificationPicker({
 
   return (
     <Stack size={2}>
-      <InputLabel>{trans.__('Notification')}</InputLabel>
+      <InputLabel>{trans.__('Notifications Settings')}</InputLabel>
       <FormControlLabel
         control={
           <Switch
@@ -136,7 +142,7 @@ export function NotificationPicker({
             onChange={enableNotificationChange}
           />
         }
-        label={trans.__('Enable Notification')}
+        label={trans.__('Enable Notifications')}
       />
       <TextField
         label={trans.__('Send To')}

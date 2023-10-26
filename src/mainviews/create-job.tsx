@@ -11,7 +11,7 @@ import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
 import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
-import { NotificationPicker } from '../components/notification-picker';
+import { NotificationsSettings } from '../components/notification-picker';
 import {
   OutputFormatPicker,
   outputFormatsForEnvironment
@@ -129,8 +129,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           outputFormats: outputFormats
         };
 
-        if (envList[0].notifications_enabled && !props.model.notification) {
-          newModel.notification = { enableNotification: true };
+        if (
+          envList[0].notifications_enabled &&
+          !props.model.notificationsSettings
+        ) {
+          newModel.notificationsSettings = { enableNotification: true };
         }
 
         props.handleModelChange(newModel);
@@ -333,11 +336,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
-    if (props.model.notification?.enableNotification) {
-      jobOptions.notification = {
-        send_to: props.model.notification.sendTo ?? [],
-        events: props.model.notification.selectedEvents ?? [],
-        include_output: props.model.notification.includeOutput ?? false
+    if (props.model.notificationsSettings?.enableNotification) {
+      jobOptions.notifications_settings = {
+        send_to: props.model.notificationsSettings.sendTo ?? [],
+        events: props.model.notificationsSettings.selectedEvents ?? [],
+        include_output: props.model.notificationsSettings.includeOutput ?? false
       };
     }
 
@@ -388,11 +391,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
-    if (props.model.notification?.enableNotification) {
-      jobDefinitionOptions.notification = {
-        send_to: props.model.notification.sendTo ?? [],
-        events: props.model.notification.selectedEvents ?? [],
-        include_output: props.model.notification.includeOutput ?? false
+    if (props.model.notificationsSettings?.enableNotification) {
+      jobDefinitionOptions.notifications_settings = {
+        send_to: props.model.notificationsSettings.sendTo ?? [],
+        events: props.model.notificationsSettings.selectedEvents ?? [],
+        include_output: props.model.notificationsSettings.includeOutput ?? false
       };
     }
 
@@ -539,7 +542,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             value={props.model.computeType}
           />
           {envsByName[props.model.environment]?.notifications_enabled && (
-            <NotificationPicker
+            <NotificationsSettings
               notificationEvents={
                 envsByName[props.model.environment].notification_events
               }

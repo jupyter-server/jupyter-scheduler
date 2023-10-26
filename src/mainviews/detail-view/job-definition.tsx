@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { ButtonBar } from '../../components/button-bar';
 import { ConfirmDialogDeleteButton } from '../../components/confirm-dialog-buttons';
-import { ListJobsTable } from '../list-jobs';
 import cronstrue from 'cronstrue';
 import {
   IJobDefinitionModel,
@@ -23,7 +22,8 @@ import {
   LabeledValue
 } from '../../components/labeled-value';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { NotificationDetails } from '../../components/notification-detail';
+import { ListJobsTable } from '../list-jobs';
+import { NotificationsSettingsDetails } from '../../components/notification-detail';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { SchedulerService } from '../../handler';
 import { timestampLocalize } from './job-detail';
@@ -289,8 +289,8 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       {DefinitionButtonBar}
       {JobDefinition}
       {JobsList}
-      {props.model.notification && (
-        <NotificationDetails notification={props.model.notification} />
+      {props.model.notificationsSettings && (
+        <NotificationsSettingsDetails notification={props.model.notificationsSettings} />
       )}
       {AdvancedOptions}
     </>

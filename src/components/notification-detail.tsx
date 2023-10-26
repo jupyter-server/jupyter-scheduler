@@ -5,16 +5,16 @@ import { useTranslator } from '../hooks';
 import { Scheduler } from '../handler';
 import { LabeledValue } from '../components/labeled-value';
 
-interface INotificationItemProps {
+interface INotificationsSettingsItemProps {
   label: string;
   value: string | boolean;
 }
 
-interface INotificationDetailsProps {
+interface INotificationsSettingsDetailsProps {
   notification: Scheduler.INotification;
 }
 
-const NotificationItem: React.FC<INotificationItemProps> = ({
+const NotificationsSettingsItem: React.FC<INotificationsSettingsItemProps> = ({
   label,
   value
 }) => {
@@ -30,35 +30,37 @@ const NotificationItem: React.FC<INotificationItemProps> = ({
   );
 };
 
-export const NotificationDetails: React.FC<INotificationDetailsProps> = ({
-  notification
-}) => {
+export const NotificationsSettingsDetails: React.FC<
+  INotificationsSettingsDetailsProps
+> = ({ notification }) => {
   const trans = useTranslator('jupyterlab');
 
   return (
     <Card>
       <CardContent>
         <FormLabel component="legend" sx={{ mb: 2 }}>
-          {trans.__('Notification')}
+          {trans.__('Notifications Settings')}
         </FormLabel>
         <Stack spacing={2}>
           <FormLabel component="legend">{trans.__('Send To')}</FormLabel>
           {notification.send_to.map((email, idx) => (
-            <NotificationItem
+            <NotificationsSettingsItem
               key={idx}
               label={trans.__(`Send To ${idx + 1}`)}
               value={email}
             />
           ))}
-          <FormLabel component="legend">{trans.__('Events')}</FormLabel>
+          <FormLabel component="legend">
+            {trans.__('Notification Events')}
+          </FormLabel>
           {notification.events.map((event, idx) => (
-            <NotificationItem
+            <NotificationsSettingsItem
               key={idx}
               label={trans.__(`Event ${idx + 1}`)}
               value={event}
             />
           ))}
-          <NotificationItem
+          <NotificationsSettingsItem
             label={trans.__('Include Output')}
             value={notification.include_output}
           />
