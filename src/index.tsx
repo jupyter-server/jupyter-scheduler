@@ -69,9 +69,11 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
 };
 
 // Default Telemetry Handler
-const telemetryHandler = async (eventLog: Scheduler.EventLog): Promise<void> => {
-  console.log(eventLog)
-}
+const telemetryHandler = async (
+  eventLog: Scheduler.IEventLog
+): Promise<void> => {
+  console.log(JSON.stringify(eventLog, undefined, 4));
+};
 
 const telemetry: JupyterFrontEndPlugin<Scheduler.ITelemetryHandler> = {
   id: '@jupyterlab/scheduler:ITelemetryHandler',
@@ -81,7 +83,6 @@ const telemetry: JupyterFrontEndPlugin<Scheduler.ITelemetryHandler> = {
     return telemetryHandler;
   }
 };
-
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {

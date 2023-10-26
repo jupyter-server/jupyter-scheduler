@@ -530,12 +530,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleErrorsChange={setErrors}
           />
           <Accordion
-            telemetry-event-name={`create-job.advanced-options.${advancedOptionsExpanded ? 'expanded': 'collapsed'}`}
+            telemetry-event-name={`create-job.advanced-options.${
+              advancedOptionsExpanded ? 'expanded' : 'collapsed'
+            }`}
             defaultExpanded={false}
             expanded={advancedOptionsExpanded}
             onChange={(e: React.SyntheticEvent, expanded: boolean) => {
-              telemetryHandler(`create-job.advanced-options.${expanded ? 'expand': 'collapse'}`);
-              setAdvancedOptionsExpanded(expanded)
+              telemetryHandler(
+                `create-job.advanced-options.${
+                  expanded ? 'expand' : 'collapse'
+                }`
+              );
+              setAdvancedOptionsExpanded(expanded);
             }}
           >
             <AccordionSummary
@@ -580,8 +586,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="outlined"
                   onClick={e => {
-                    telemetryHandler("create-job.cancel")
-                    props.showListView(JobsView.ListJobs)
+                    telemetryHandler('create-job.cancel');
+                    props.showListView(JobsView.ListJobs);
                   }}
                 >
                   {trans.__('Cancel')}
@@ -590,7 +596,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
-                    telemetryHandler("create-job.create")
+                    telemetryHandler('create-job.create');
                     submitForm(e);
                     return false;
                   }}

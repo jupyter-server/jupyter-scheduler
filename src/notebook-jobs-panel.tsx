@@ -125,13 +125,13 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   };
 
   handleTelemetry(eventName: string): void {
-    if(eventName){
+    if (eventName) {
       const eventLog = {
         body: {
           name: `org.jupyter.jupyter-scheduler.${eventName}`
         },
-        timestamp: new Date()      
-      }
+        timestamp: new Date()
+      };
       this._telemetryHandler(eventLog).then();
     }
   }
