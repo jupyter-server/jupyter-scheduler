@@ -319,7 +319,7 @@ export interface IJobDetailModel {
   outputPrefix?: string;
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
-  notificationsSettings?: Scheduler.INotification;
+  notificationsSettings?: Scheduler.INotificationsSettings;
 }
 
 export interface IJobDefinitionModel {
@@ -346,7 +346,7 @@ export interface IJobDefinitionModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  notificationsSettings?: Scheduler.INotification;
+  notificationsSettings?: Scheduler.INotificationsSettings;
 }
 
 const convertParameters = (parameters: {

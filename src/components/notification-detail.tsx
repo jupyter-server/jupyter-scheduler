@@ -11,7 +11,7 @@ interface INotificationsSettingsItemProps {
 }
 
 interface INotificationsSettingsDetailsProps {
-  notification: Scheduler.INotification;
+  notification: Scheduler.INotificationsSettings;
 }
 
 const NotificationsSettingsItem: React.FC<INotificationsSettingsItemProps> = ({

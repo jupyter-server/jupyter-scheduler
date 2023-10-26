@@ -363,7 +363,7 @@ export namespace Scheduler {
     compute_type?: string;
     schedule?: string;
     timezone?: string;
-    notifications_settings?: INotification;
+    notifications_settings?: INotificationsSettings;
   }
 
   export interface IUpdateJobDefinition {
@@ -372,7 +372,7 @@ export namespace Scheduler {
     timezone?: string;
     active?: boolean;
     input_uri?: string;
-    notifications_settings?: INotification;
+    notifications_settings?: INotificationsSettings;
   }
 
   export interface IDescribeJobDefinition {
@@ -391,7 +391,7 @@ export namespace Scheduler {
     create_time: number;
     update_time: number;
     active: boolean;
-    notifications_settings?: INotification;
+    notifications_settings?: INotificationsSettings;
   }
 
   export interface IEmailNotifications {
@@ -401,7 +401,7 @@ export namespace Scheduler {
     no_alert_for_skipped_rows: boolean;
   }
 
-  export interface INotification {
+  export interface INotificationsSettings {
     send_to: string[];
     events: string[];
     include_output: boolean;
@@ -424,7 +424,7 @@ export namespace Scheduler {
     output_filename_template?: string;
     output_formats?: string[];
     compute_type?: string;
-    notifications_settings?: INotification;
+    notifications_settings?: INotificationsSettings;
   }
 
   export interface ICreateJobFromDefinition {
@@ -473,7 +473,7 @@ export namespace Scheduler {
     start_time?: number;
     end_time?: number;
     downloaded: boolean;
-    notifications_settings?: INotification;
+    notifications_settings?: INotificationsSettings;
   }
 
   export interface ICreateJobResponse {
