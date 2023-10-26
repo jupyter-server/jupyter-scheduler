@@ -45,4 +45,18 @@ export namespace Scheduler {
   export const IAdvancedOptions = new Token<IAdvancedOptions>(
     '@jupyterlab/scheduler:IAdvancedOptions'
   );
+
+  export interface Event {
+    name: string 
+  }
+  export interface EventLog {
+    body: Event 
+    timestamp: Date
+  }
+
+  export type ITelemetryHandler = (eventLog: EventLog) => Promise<void>;
+  
+  export const ITelemetryHandler = new Token<ITelemetryHandler>(
+    '@jupyterlab/scheduler:ITelemetryHandler'
+  );
 }

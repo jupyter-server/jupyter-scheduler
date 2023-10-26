@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 
 import { FormControlLabel, InputLabel, Radio, RadioGroup } from '@mui/material';
 import Stack from '@mui/system/Stack';
@@ -7,6 +7,7 @@ import { useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import { ScheduleInputs } from './schedule-inputs';
 import { Scheduler } from '../tokens';
+import { TelemetryContext } from '../context';
 
 export type CreateScheduleOptionsProps = {
   label: string;
@@ -26,10 +27,13 @@ export function CreateScheduleOptions(
 
   const labelId = `${props.id}-label`;
 
+  const telemetryHandler = useContext(TelemetryContext)
+
   const handleScheduleOptionsChange = (
     event: ChangeEvent<HTMLInputElement>,
     value: string
   ) => {
+    telemetryHandler(`create-job.job-type.${value === 'Job' ? 'run-now' : 'run-on-schedule'}`);
     const name = event.target.name;
     props.handleModelChange({ ...props.model, [name]: value });
   };
@@ -45,12 +49,12 @@ export function CreateScheduleOptions(
       >
         <FormControlLabel
           value="Job"
-          control={<Radio />}
+          control={<Radio/>}
           label={trans.__('Run now')}
         />
         <FormControlLabel
           value="JobDefinition"
-          control={<Radio />}
+          control={<Radio/>}
           label={trans.__('Run on a schedule')}
         />
       </RadioGroup>
@@ -67,3 +71,4 @@ export function CreateScheduleOptions(
     </Stack>
   );
 }
+

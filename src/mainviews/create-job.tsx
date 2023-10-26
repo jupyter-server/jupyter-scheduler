@@ -3,7 +3,8 @@ import React, {
   useEffect,
   useMemo,
   useState,
-  useRef
+  useRef,
+  useContext
 } from 'react';
 
 import { Heading } from '../components/heading';
@@ -41,6 +42,7 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
+import { TelemetryContext } from '../context';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -451,6 +453,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // Does the currently-selected environment accept times in UTC only?
   const utcOnly = envsByName[props.model.environment]?.utc_only;
 
+  const telemetryHandler = useContext(TelemetryContext);
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -526,11 +530,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleErrorsChange={setErrors}
           />
           <Accordion
+            telemetry-event-name={`create-job.advanced-options.${advancedOptionsExpanded ? 'expanded': 'collapsed'}`}
             defaultExpanded={false}
             expanded={advancedOptionsExpanded}
-            onChange={(_: React.SyntheticEvent, expanded: boolean) =>
+            onChange={(e: React.SyntheticEvent, expanded: boolean) => {
+              telemetryHandler(`create-job.advanced-options.${expanded ? 'expand': 'collapse'}`);
               setAdvancedOptionsExpanded(expanded)
-            }
+            }}
           >
             <AccordionSummary
               expandIcon={<caretDownIcon.react />}
@@ -573,7 +579,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               <>
                 <Button
                   variant="outlined"
-                  onClick={e => props.showListView(JobsView.ListJobs)}
+                  onClick={e => {
+                    telemetryHandler("create-job.cancel")
+                    props.showListView(JobsView.ListJobs)
+                  }}
                 >
                   {trans.__('Cancel')}
                 </Button>
@@ -581,6 +590,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
+                    telemetryHandler("create-job.create")
                     submitForm(e);
                     return false;
                   }}

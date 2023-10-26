@@ -18,7 +18,6 @@ import { NotebookJobsList } from './mainviews/list-jobs';
 import { Message } from '@lumino/messaging';
 import { IDragEvent } from '@lumino/dragdrop';
 
-import TranslatorContext from './context';
 import {
   defaultScheduleFields,
   ICreateJobModel,
@@ -28,6 +27,7 @@ import {
 } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
+import { TelemetryContext } from './context';
 
 /**
  * The mime type for a rich contents drag object.
@@ -41,6 +41,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _translator: ITranslator;
   readonly _trans: TranslationBundle;
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
+  readonly _telemetryHandler: Scheduler.ITelemetryHandler;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
   private _last_input_drop_target: Element | null;
@@ -67,6 +68,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._translator = options.translator;
     this._trans = this._translator.load('jupyterlab');
     this._advancedOptions = options.advancedOptions;
+    this._telemetryHandler = options.telemetryHandler;
     this._last_input_drop_target = null;
 
     this.node.setAttribute('role', 'region');
@@ -121,6 +123,18 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       }
     }
   };
+
+  handleTelemetry(eventName: string): void {
+    if(eventName){
+      const eventLog = {
+        body: {
+          name: `org.jupyter.jupyter-scheduler.${eventName}`
+        },
+        timestamp: new Date()      
+      }
+      this._telemetryHandler(eventLog).then();
+    }
+  }
 
   /**
    * Handle the DOM events for the directory listing.
@@ -219,7 +233,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
 
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
-        <TranslatorContext.Provider value={this._translator}>
+        <TelemetryContext.Provider value={this.handleTelemetry.bind(this)}>
           <ErrorBoundary
             alertTitle={this._trans.__('Internal error')}
             alertMessage={this._trans.__(
@@ -293,7 +307,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
               />
             )}
           </ErrorBoundary>
-        </TranslatorContext.Provider>
+        </TelemetryContext.Provider>
       </ThemeProvider>
     );
   }
@@ -307,6 +321,7 @@ namespace NotebookJobsPanel {
     app: JupyterFrontEnd;
     translator: ITranslator;
     advancedOptions: Scheduler.IAdvancedOptions;
+    telemetryHandler: Scheduler.ITelemetryHandler;
     model?: JobsModel;
   }
 }

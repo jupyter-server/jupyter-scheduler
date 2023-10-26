@@ -50,7 +50,8 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     INotebookTracker,
     ITranslator,
     ILayoutRestorer,
-    Scheduler.IAdvancedOptions
+    Scheduler.IAdvancedOptions,
+    Scheduler.ITelemetryHandler
   ],
   optional: [ILauncher],
   autoStart: true,
@@ -66,6 +67,21 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
     return AdvancedOptions;
   }
 };
+
+// Default Telemetry Handler
+const telemetryHandler = async (eventLog: Scheduler.EventLog): Promise<void> => {
+  console.log(eventLog)
+}
+
+const telemetry: JupyterFrontEndPlugin<Scheduler.ITelemetryHandler> = {
+  id: '@jupyterlab/scheduler:ITelemetryHandler',
+  autoStart: true,
+  provides: Scheduler.ITelemetryHandler,
+  activate: (app: JupyterFrontEnd) => {
+    return telemetryHandler;
+  }
+};
+
 
 function getSelectedItem(widget: FileBrowser | null): Contents.IModel | null {
   if (widget === null) {
@@ -127,6 +143,7 @@ async function activatePlugin(
   translator: ITranslator,
   restorer: ILayoutRestorer,
   advancedOptions: Scheduler.IAdvancedOptions,
+  telemetryHandler: Scheduler.ITelemetryHandler,
   launcher: ILauncher | null
 ): Promise<void> {
   const trans = translator.load('jupyterlab');
@@ -170,6 +187,7 @@ async function activatePlugin(
       jobsPanel = new NotebookJobsPanel({
         app,
         translator,
+        telemetryHandler,
         advancedOptions: advancedOptions
       });
       // Create new main area widget
@@ -290,7 +308,8 @@ async function activatePlugin(
 
 const plugins: JupyterFrontEndPlugin<any>[] = [
   schedulerPlugin,
-  advancedOptions
+  advancedOptions,
+  telemetry
 ];
 
 export { JobsView };
