@@ -291,7 +291,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       {JobsList}
       {props.model.notificationsSettings && (
         <NotificationsSettingsDetails
-          notification={props.model.notificationsSettings}
+          notificationsSettings={props.model.notificationsSettings}
         />
       )}
       {AdvancedOptions}

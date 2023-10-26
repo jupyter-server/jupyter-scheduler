@@ -11,7 +11,7 @@ interface INotificationsSettingsItemProps {
 }
 
 interface INotificationsSettingsDetailsProps {
-  notification: Scheduler.INotificationsSettings;
+  notificationsSettings: Scheduler.INotificationsSettings;
 }
 
 const NotificationsSettingsItem: React.FC<INotificationsSettingsItemProps> = ({
@@ -32,7 +32,7 @@ const NotificationsSettingsItem: React.FC<INotificationsSettingsItemProps> = ({
 
 export const NotificationsSettingsDetails: React.FC<
   INotificationsSettingsDetailsProps
-> = ({ notification }) => {
+> = ({ notificationsSettings }) => {
   const trans = useTranslator('jupyterlab');
 
   return (
@@ -43,7 +43,7 @@ export const NotificationsSettingsDetails: React.FC<
         </FormLabel>
         <Stack spacing={2}>
           <FormLabel component="legend">{trans.__('Send To')}</FormLabel>
-          {notification.send_to.map((email, idx) => (
+          {notificationsSettings.send_to.map((email, idx) => (
             <NotificationsSettingsItem
               key={idx}
               label={trans.__(`Send To ${idx + 1}`)}
@@ -53,7 +53,7 @@ export const NotificationsSettingsDetails: React.FC<
           <FormLabel component="legend">
             {trans.__('Notification Events')}
           </FormLabel>
-          {notification.events.map((event, idx) => (
+          {notificationsSettings.events.map((event, idx) => (
             <NotificationsSettingsItem
               key={idx}
               label={trans.__(`Event ${idx + 1}`)}
@@ -62,7 +62,7 @@ export const NotificationsSettingsDetails: React.FC<
           ))}
           <NotificationsSettingsItem
             label={trans.__('Include Output')}
-            value={notification.include_output}
+            value={notificationsSettings.include_output}
           />
         </Stack>
       </CardContent>

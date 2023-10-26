@@ -354,7 +354,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {Parameters}
       {props.model.notificationsSettings && (
         <NotificationsSettingsDetails
-          notification={props.model.notificationsSettings}
+          notificationsSettings={props.model.notificationsSettings}
         />
       )}
       {AdvancedOptions}
