@@ -16,17 +16,23 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Stack } from './stack';
 import { useTranslator } from '../hooks';
 
-type INotificationsSettingsProps = {
+type NotificationsSettingsProps = {
   notificationEvents: string[];
   id: string;
   model: ICreateJobModel;
   handleModelChange: (model: ICreateJobModel) => void;
 };
 
-type NotificationEventsSelect = {
+type NotificationEventsSelectProps = {
   id: string;
   availableEvents: string[];
   selectChange: (e: SelectChangeEvent<string>) => void;
+  disabled: boolean;
+};
+
+type SelectedEventsChipsProps = {
+  selectedEvents: string[];
+  deleteSelectedEvent: (eventToDelete: string) => () => void;
   disabled: boolean;
 };
 
@@ -35,7 +41,7 @@ export function NotificationsSettings({
   id,
   model,
   handleModelChange: modelChange
-}: INotificationsSettingsProps): JSX.Element | null {
+}: NotificationsSettingsProps): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
     model.notificationsSettings?.selectedEvents || []
@@ -188,7 +194,7 @@ export function NotificationsSettings({
   );
 }
 
-function NotificationEventsSelect(props: NotificationEventsSelect) {
+function NotificationEventsSelect(props: NotificationEventsSelectProps) {
   const trans = useTranslator('jupyterlab');
   const label = trans.__('Notification Events');
   const labelId = `${props.id}-label`;
@@ -215,20 +221,18 @@ function NotificationEventsSelect(props: NotificationEventsSelect) {
   );
 }
 
-const SelectedEventsChips: React.FC<{
-  selectedEvents: string[];
-  deleteSelectedEvent: (eventToDelete: string) => () => void;
-  disabled: boolean;
-}> = ({ selectedEvents, deleteSelectedEvent, disabled }) => (
-  <Cluster gap={3} justifyContent="flex-start">
-    {selectedEvents.map(e => (
-      <Chip
-        key={e}
-        label={e}
-        variant="outlined"
-        onDelete={deleteSelectedEvent(e)}
-        disabled={disabled}
-      />
-    ))}
-  </Cluster>
-);
+function SelectedEventsChips(props: SelectedEventsChipsProps) {
+  return (
+    <Cluster gap={3} justifyContent="flex-start">
+      {props.selectedEvents.map(e => (
+        <Chip
+          key={e}
+          label={e}
+          variant="outlined"
+          onDelete={props.deleteSelectedEvent(e)}
+          disabled={props.disabled}
+        />
+      ))}
+    </Cluster>
+  );
+}
