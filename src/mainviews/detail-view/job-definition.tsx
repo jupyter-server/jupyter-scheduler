@@ -20,7 +20,7 @@ import {
   LabeledValue
 } from '../../components/labeled-value';
 import { SchedulerService } from '../../handler';
-import { useLogger, useTranslator } from '../../hooks';
+import { useEventLogger, useTranslator } from '../../hooks';
 import { ListJobsTable } from '../list-jobs';
 import {
   IJobDefinitionModel,
@@ -48,7 +48,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const [displayError, setDisplayError] = useState<string | null>(null);
   const ss = useMemo(() => new SchedulerService({}), []);
-  const log = useLogger();
+  const log = useEventLogger();
 
   const ReloadButton = (
     <Button

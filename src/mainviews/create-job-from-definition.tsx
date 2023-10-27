@@ -4,7 +4,7 @@ import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useLogger, useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
@@ -198,7 +198,7 @@ export function CreateJobFromDefinition(
   const cantSubmit = trans.__('One or more of the fields has an error.');
   const createError: string | undefined = props.model.createError;
 
-  const log = useLogger();
+  const log = useEventLogger();
 
   return (
     <Box sx={{ p: 4 }}>

@@ -13,7 +13,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
 import { Scheduler, SchedulerService } from '../handler';
-import { useLogger, useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { TranslationBundle } from '@jupyterlab/translation';
 import { ConfirmDeleteButton } from './confirm-buttons';
 
@@ -94,7 +94,7 @@ export function buildJobDefinitionRow(
   ss: SchedulerService,
   handleApiError: (error: string | null) => void
 ): JSX.Element {
-  const log = useLogger();
+  const log = useEventLogger();
   const cellContents: React.ReactNode[] = [
     // name
     <Link

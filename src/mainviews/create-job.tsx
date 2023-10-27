@@ -17,7 +17,7 @@ import {
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useLogger, useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
@@ -451,7 +451,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // Does the currently-selected environment accept times in UTC only?
   const utcOnly = envsByName[props.model.environment]?.utc_only;
 
-  const log = useLogger();
+  const log = useEventLogger();
 
   return (
     <Box sx={{ p: 4 }}>

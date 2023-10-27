@@ -5,7 +5,7 @@ import { ConfirmDeleteButton, ConfirmButton } from './confirm-buttons';
 import { JobFileLink } from './job-file-link';
 import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
-import { useLogger, useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
@@ -16,7 +16,7 @@ function StopButton(props: {
   clickHandler: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
-  const log = useLogger();
+  const log = useEventLogger();
   const buttonTitle = props.job.name
     ? trans.__('Stop "%1"', props.job.name)
     : trans.__('Stop job');
@@ -84,7 +84,7 @@ type DownloadFilesButtonProps = {
 function DownloadFilesButton(props: DownloadFilesButtonProps) {
   const [downloading, setDownloading] = useState(false);
   const trans = useTranslator('jupyterlab');
-  const log = useLogger();
+  const log = useEventLogger();
 
   return (
     <IconButton
@@ -131,7 +131,7 @@ export function buildJobRow(
     jobFile => jobFile.file_format === 'input' && jobFile.file_path
   );
   const trans = useTranslator('jupyterlab');
-  const log = useLogger();
+  const log = useEventLogger();
 
   const cellContents: React.ReactNode[] = [
     <Link

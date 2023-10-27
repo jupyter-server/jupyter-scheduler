@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Scheduler } from '../handler';
-import { useLogger, useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
@@ -21,7 +21,7 @@ export function JobFileLink(props: IJobFileLinkProps): JSX.Element | null {
     return null;
   }
 
-  const log = useLogger();
+  const log = useEventLogger();
 
   const fileBaseName = props.jobFile.file_path.split('/').pop();
 

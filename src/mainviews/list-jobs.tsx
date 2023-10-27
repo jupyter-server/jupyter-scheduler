@@ -4,7 +4,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Alert, Button, Box, Stack, Tab, Tabs } from '@mui/material';
 
 import { Heading } from '../components/heading';
-import { useLogger, useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { buildJobRow } from '../components/job-row';
 import { buildJobDefinitionRow } from '../components/job-definition-row';
 import { ICreateJobModel, JobsView } from '../model';
@@ -45,7 +45,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
 
   const trans = useTranslator('jupyterlab');
 
-  const log = useLogger();
+  const log = useEventLogger();
 
   // Cache environment list — we need this for the output formats.
   const [environmentList, setEnvironmentList] = useState<
@@ -199,7 +199,7 @@ type ListJobDefinitionsTableProps = {
 
 function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const trans = useTranslator('jupyterlab');
-  const log = useLogger();
+  const log = useEventLogger();
   const [jobDefsQuery, setJobDefsQuery] =
     useState<Scheduler.IListJobDefinitionsQuery>({});
   const [deletedRows, setDeletedRows] = useState<

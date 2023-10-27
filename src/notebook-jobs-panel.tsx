@@ -124,7 +124,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     }
   };
 
-  log(eventName: string): void {
+  logEvent(eventName: string): void {
     if (!eventName) {
       return;
     }
@@ -235,7 +235,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
-          <LogContext.Provider value={this.log.bind(this)}>
+          <LogContext.Provider value={this.logEvent.bind(this)}>
             <ErrorBoundary
               alertTitle={this._trans.__('Internal error')}
               alertMessage={this._trans.__(

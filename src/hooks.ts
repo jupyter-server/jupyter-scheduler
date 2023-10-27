@@ -9,7 +9,7 @@ export function useTranslator(bundleId: string): TranslationBundle {
   return translator.load(bundleId);
 }
 
-export function useLogger(): Logger {
+export function useEventLogger(): Logger {
   const logger: Logger = useContext(LogContext);
   return logger;
 }
