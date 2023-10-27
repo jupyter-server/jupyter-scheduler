@@ -18,7 +18,6 @@ import { NotebookJobsList } from './mainviews/list-jobs';
 import { Message } from '@lumino/messaging';
 import { IDragEvent } from '@lumino/dragdrop';
 
-import TranslatorContext from './context';
 import {
   defaultScheduleFields,
   ICreateJobModel,
@@ -28,6 +27,7 @@ import {
 } from './model';
 import { getJupyterLabTheme } from './theme-provider';
 import { Scheduler } from './tokens';
+import TranslatorContext, { LogContext } from './context';
 
 /**
  * The mime type for a rich contents drag object.
@@ -41,6 +41,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _translator: ITranslator;
   readonly _trans: TranslationBundle;
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
+  readonly _telemetryHandler: Scheduler.TelemetryHandler;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
   private _last_input_drop_target: Element | null;
@@ -67,6 +68,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._translator = options.translator;
     this._trans = this._translator.load('jupyterlab');
     this._advancedOptions = options.advancedOptions;
+    this._telemetryHandler = options.telemetryHandler;
     this._last_input_drop_target = null;
 
     this.node.setAttribute('role', 'region');
@@ -121,6 +123,19 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
       }
     }
   };
+
+  logEvent(eventName: string): void {
+    if (!eventName) {
+      return;
+    }
+    const eventLog = {
+      body: {
+        name: `org.jupyter.jupyter-scheduler.${eventName}`
+      },
+      timestamp: new Date()
+    };
+    this._telemetryHandler(eventLog).then();
+  }
 
   /**
    * Handle the DOM events for the directory listing.
@@ -220,79 +235,82 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
-          <ErrorBoundary
-            alertTitle={this._trans.__('Internal error')}
-            alertMessage={this._trans.__(
-              'We encountered an internal error. Please try your command again.'
-            )}
-            detailTitle={this._trans.__('Error details')}
-          >
-            {this.model.jobsView === JobsView.CreateForm && (
-              <CreateJob
-                key={this.model.createJobModel.key}
-                model={this.model.createJobModel}
-                handleModelChange={newModel =>
-                  (this.model.createJobModel = newModel)
-                }
-                showListView={this.showListView.bind(this)}
-                advancedOptions={this._advancedOptions}
-              />
-            )}
-            {this.model.jobsView === JobsView.CreateFromJobDescriptionForm && (
-              <CreateJobFromDefinition
-                key={this.model.createJobModel.key}
-                model={this.model.createJobModel}
-                handleModelChange={newModel =>
-                  (this.model.createJobModel = newModel)
-                }
-                showListView={this.showListView.bind(this)}
-                advancedOptions={this._advancedOptions}
-              />
-            )}
-            {(this.model.jobsView === JobsView.ListJobs ||
-              this.model.jobsView === JobsView.ListJobDefinitions) && (
-              <NotebookJobsList
-                app={this._app}
-                listView={this.model.jobsView}
-                showListView={this.showListView.bind(this)}
-                showCreateJob={showCreateJob}
-                showJobDetail={this.showDetailView.bind(this)}
-                showJobDefinitionDetail={this.showJobDefinitionDetail.bind(
-                  this
-                )}
-                newlyCreatedId={this._newlyCreatedId}
-                newlyCreatedName={this._newlyCreatedName}
-              />
-            )}
-            {(this.model.jobsView === JobsView.JobDetail ||
-              this.model.jobsView === JobsView.JobDefinitionDetail) && (
-              <DetailView
-                app={this._app}
-                model={this.model.jobDetailModel}
-                setCreateJobModel={newModel =>
-                  (this.model.createJobModel = newModel)
-                }
-                jobsView={this.model.jobsView}
-                setJobsView={view => (this.model.jobsView = view)}
-                showCreateJob={showCreateJob}
-                showJobDetail={this.showDetailView.bind(this)}
-                editJobDefinition={this.editJobDefinition.bind(this)}
-                advancedOptions={this._advancedOptions}
-              />
-            )}
-            {this.model.jobsView === JobsView.EditJobDefinition && (
-              <EditJobDefinition
-                model={this.model.updateJobDefinitionModel}
-                handleModelChange={newModel =>
-                  (this.model.updateJobDefinitionModel = newModel)
-                }
-                showListView={this.showListView.bind(this)}
-                showJobDefinitionDetail={this.showJobDefinitionDetail.bind(
-                  this
-                )}
-              />
-            )}
-          </ErrorBoundary>
+          <LogContext.Provider value={this.logEvent.bind(this)}>
+            <ErrorBoundary
+              alertTitle={this._trans.__('Internal error')}
+              alertMessage={this._trans.__(
+                'We encountered an internal error. Please try your command again.'
+              )}
+              detailTitle={this._trans.__('Error details')}
+            >
+              {this.model.jobsView === JobsView.CreateForm && (
+                <CreateJob
+                  key={this.model.createJobModel.key}
+                  model={this.model.createJobModel}
+                  handleModelChange={newModel =>
+                    (this.model.createJobModel = newModel)
+                  }
+                  showListView={this.showListView.bind(this)}
+                  advancedOptions={this._advancedOptions}
+                />
+              )}
+              {this.model.jobsView ===
+                JobsView.CreateFromJobDescriptionForm && (
+                <CreateJobFromDefinition
+                  key={this.model.createJobModel.key}
+                  model={this.model.createJobModel}
+                  handleModelChange={newModel =>
+                    (this.model.createJobModel = newModel)
+                  }
+                  showListView={this.showListView.bind(this)}
+                  advancedOptions={this._advancedOptions}
+                />
+              )}
+              {(this.model.jobsView === JobsView.ListJobs ||
+                this.model.jobsView === JobsView.ListJobDefinitions) && (
+                <NotebookJobsList
+                  app={this._app}
+                  listView={this.model.jobsView}
+                  showListView={this.showListView.bind(this)}
+                  showCreateJob={showCreateJob}
+                  showJobDetail={this.showDetailView.bind(this)}
+                  showJobDefinitionDetail={this.showJobDefinitionDetail.bind(
+                    this
+                  )}
+                  newlyCreatedId={this._newlyCreatedId}
+                  newlyCreatedName={this._newlyCreatedName}
+                />
+              )}
+              {(this.model.jobsView === JobsView.JobDetail ||
+                this.model.jobsView === JobsView.JobDefinitionDetail) && (
+                <DetailView
+                  app={this._app}
+                  model={this.model.jobDetailModel}
+                  setCreateJobModel={newModel =>
+                    (this.model.createJobModel = newModel)
+                  }
+                  jobsView={this.model.jobsView}
+                  setJobsView={view => (this.model.jobsView = view)}
+                  showCreateJob={showCreateJob}
+                  showJobDetail={this.showDetailView.bind(this)}
+                  editJobDefinition={this.editJobDefinition.bind(this)}
+                  advancedOptions={this._advancedOptions}
+                />
+              )}
+              {this.model.jobsView === JobsView.EditJobDefinition && (
+                <EditJobDefinition
+                  model={this.model.updateJobDefinitionModel}
+                  handleModelChange={newModel =>
+                    (this.model.updateJobDefinitionModel = newModel)
+                  }
+                  showListView={this.showListView.bind(this)}
+                  showJobDefinitionDetail={this.showJobDefinitionDetail.bind(
+                    this
+                  )}
+                />
+              )}
+            </ErrorBoundary>
+          </LogContext.Provider>
         </TranslatorContext.Provider>
       </ThemeProvider>
     );
@@ -307,6 +325,7 @@ namespace NotebookJobsPanel {
     app: JupyterFrontEnd;
     translator: ITranslator;
     advancedOptions: Scheduler.IAdvancedOptions;
+    telemetryHandler: Scheduler.TelemetryHandler;
     model?: JobsModel;
   }
 }

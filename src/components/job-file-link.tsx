@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Scheduler } from '../handler';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
@@ -11,6 +11,7 @@ export interface IJobFileLinkProps {
   jobFile: Scheduler.IJobFile;
   app: JupyterFrontEnd;
   children?: React.ReactNode;
+  parentComponentName?: string;
 }
 
 export function JobFileLink(props: IJobFileLinkProps): JSX.Element | null {
@@ -19,6 +20,8 @@ export function JobFileLink(props: IJobFileLinkProps): JSX.Element | null {
   if (!props.jobFile.file_path) {
     return null;
   }
+
+  const log = useEventLogger();
 
   const fileBaseName = props.jobFile.file_path.split('/').pop();
 
@@ -38,6 +41,15 @@ export function JobFileLink(props: IJobFileLinkProps): JSX.Element | null {
           | React.MouseEvent<HTMLAnchorElement, MouseEvent>
       ) => {
         e.preventDefault();
+        if (props.parentComponentName) {
+          log(
+            `${props.parentComponentName}.${
+              props.jobFile.file_format === 'input'
+                ? 'open-input-file'
+                : 'open-output-file'
+            }`
+          );
+        }
         props.app.commands.execute('docmanager:open', {
           path: props.jobFile.file_path
         });
