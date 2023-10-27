@@ -131,9 +131,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
         if (
           envList[0].notifications_enabled &&
-          !props.model.notificationsSettings
+          !props.model.notificationsConfig
         ) {
-          newModel.notificationsSettings = { enableNotification: true };
+          newModel.notificationsConfig = { enableNotification: true };
         }
 
         props.handleModelChange(newModel);
@@ -336,11 +336,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
-    if (props.model.notificationsSettings?.enableNotification) {
+    if (props.model.notificationsConfig?.enableNotification) {
       jobOptions.notifications_settings = {
-        send_to: props.model.notificationsSettings.sendTo ?? [],
-        events: props.model.notificationsSettings.selectedEvents ?? [],
-        include_output: props.model.notificationsSettings.includeOutput ?? false
+        send_to: props.model.notificationsConfig.sendTo ?? [],
+        events: props.model.notificationsConfig.selectedEvents ?? [],
+        include_output: props.model.notificationsConfig.includeOutput ?? false
       };
     }
 
@@ -391,11 +391,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
-    if (props.model.notificationsSettings?.enableNotification) {
+    if (props.model.notificationsConfig?.enableNotification) {
       jobDefinitionOptions.notifications_settings = {
-        send_to: props.model.notificationsSettings.sendTo ?? [],
-        events: props.model.notificationsSettings.selectedEvents ?? [],
-        include_output: props.model.notificationsSettings.includeOutput ?? false
+        send_to: props.model.notificationsConfig.sendTo ?? [],
+        events: props.model.notificationsConfig.selectedEvents ?? [],
+        include_output: props.model.notificationsConfig.includeOutput ?? false
       };
     }
 

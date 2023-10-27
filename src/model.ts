@@ -74,7 +74,7 @@ export type ModelWithScheduleFields = {
   scheduleMinute: string;
 };
 
-export type NotificationsSettings = {
+export type NotificationsConfig = {
   sendTo?: string[];
   includeOutput?: boolean;
   enableNotification?: boolean;
@@ -107,7 +107,7 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
-  notificationsSettings?: NotificationsSettings;
+  notificationsConfig?: NotificationsConfig;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -319,7 +319,7 @@ export interface IJobDetailModel {
   outputPrefix?: string;
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
-  notificationsSettings?: Scheduler.INotificationsSettings;
+  notificationsConfig?: Scheduler.INotificationsConfig;
 }
 
 export interface IJobDefinitionModel {
@@ -346,7 +346,7 @@ export interface IJobDefinitionModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
-  notificationsSettings?: Scheduler.INotificationsSettings;
+  notificationsConfig?: Scheduler.INotificationsConfig;
 }
 
 const convertParameters = (parameters: {
@@ -396,7 +396,7 @@ export function convertDescribeJobtoJobDetail(
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
     downloaded: describeJob.downloaded,
-    notificationsSettings: describeJob.notifications_settings
+    notificationsConfig: describeJob.notifications_settings
   };
 }
 
@@ -425,7 +425,7 @@ export function convertDescribeDefinitiontoDefinition(
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
     timezone: describeDefinition.timezone,
-    notificationsSettings: describeDefinition.notifications_settings
+    notificationsConfig: describeDefinition.notifications_settings
   };
 }
 

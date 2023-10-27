@@ -41,16 +41,16 @@ export function NotificationsConfig(
 ): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
-    props.model.notificationsSettings?.selectedEvents || []
+    props.model.notificationsConfig?.selectedEvents || []
   );
   const [enableNotification, setEnableNotification] = useState<boolean>(
-    props.model.notificationsSettings?.enableNotification ?? true
+    props.model.notificationsConfig?.enableNotification ?? true
   );
   const [sendToInput, setSendToInput] = useState<string>(
-    props.model.notificationsSettings?.sendTo?.join(', ') || ''
+    props.model.notificationsConfig?.sendTo?.join(', ') || ''
   );
   const [includeOutput, setIncludeOutput] = useState<boolean>(
-    props.model.notificationsSettings?.includeOutput || false
+    props.model.notificationsConfig?.includeOutput || false
   );
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,8 +58,8 @@ export function NotificationsConfig(
     setEnableNotification(updatedEnableNotification);
     props.handleModelChange({
       ...props.model,
-      notificationsSettings: {
-        ...props.model.notificationsSettings,
+      notificationsConfig: {
+        ...props.model.notificationsConfig,
         enableNotification: updatedEnableNotification
       }
     });
@@ -73,8 +73,8 @@ export function NotificationsConfig(
         setSelectedEvents(updatedEvents);
         props.handleModelChange({
           ...props.model,
-          notificationsSettings: {
-            ...props.model.notificationsSettings,
+          notificationsConfig: {
+            ...props.model.notificationsConfig,
             selectedEvents: updatedEvents
           }
         });
@@ -93,12 +93,12 @@ export function NotificationsConfig(
       .map(email => email.trim())
       .filter(email => email);
     const updatedNotification = {
-      ...props.model.notificationsSettings,
+      ...props.model.notificationsConfig,
       sendTo: emailArray
     };
     props.handleModelChange({
       ...props.model,
-      notificationsSettings: updatedNotification
+      notificationsConfig: updatedNotification
     });
   }, [sendToInput, props.model, props.handleModelChange]);
 
@@ -117,8 +117,8 @@ export function NotificationsConfig(
     setIncludeOutput(updatedValue);
     props.handleModelChange({
       ...props.model,
-      notificationsSettings: {
-        ...props.model.notificationsSettings,
+      notificationsConfig: {
+        ...props.model.notificationsConfig,
         includeOutput: updatedValue
       }
     });
@@ -133,7 +133,7 @@ export function NotificationsConfig(
       props.handleModelChange({
         ...props.model,
         notifications: {
-          ...props.model.notificationsSettings,
+          ...props.model.notificationsConfig,
           selectedEvents: updatedEvents
         }
       });

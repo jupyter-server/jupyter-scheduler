@@ -23,7 +23,7 @@ import {
 } from '../../components/labeled-value';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ListJobsTable } from '../list-jobs';
-import { NotificationsSettingsDetails } from '../../components/notification-detail';
+import { NotificationsConfigDetails } from '../../components/notification-detail';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { SchedulerService } from '../../handler';
 import { timestampLocalize } from './job-detail';
@@ -289,9 +289,9 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       {DefinitionButtonBar}
       {JobDefinition}
       {JobsList}
-      {props.model.notificationsSettings && (
-        <NotificationsSettingsDetails
-          notificationsSettings={props.model.notificationsSettings}
+      {props.model.notificationsConfig && (
+        <NotificationsConfigDetails
+          notificationsConfig={props.model.notificationsConfig}
         />
       )}
       {AdvancedOptions}

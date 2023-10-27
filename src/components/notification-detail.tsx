@@ -5,16 +5,16 @@ import { useTranslator } from '../hooks';
 import { Scheduler } from '../handler';
 import { LabeledValue } from '../components/labeled-value';
 
-type INotificationsSettingsItemProps = {
+type INotificationsConfigItemProps = {
   label: string;
   value: string | boolean;
 };
 
-type INotificationsSettingsDetailsProps = {
-  notificationsSettings: Scheduler.INotificationsSettings;
+type INotificationsConfigDetailsProps = {
+  notificationsConfig: Scheduler.INotificationsConfig;
 };
 
-function NotificationsSettingsItem(props: INotificationsSettingsItemProps) {
+function NotificationsConfigItem(props: INotificationsConfigItemProps) {
   const displayValue =
     typeof props.value === 'boolean'
       ? props.value
@@ -31,8 +31,8 @@ function NotificationsSettingsItem(props: INotificationsSettingsItemProps) {
   );
 }
 
-export function NotificationsSettingsDetails(
-  props: INotificationsSettingsDetailsProps
+export function NotificationsConfigDetails(
+  props: INotificationsConfigDetailsProps
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
@@ -44,8 +44,8 @@ export function NotificationsSettingsDetails(
         </FormLabel>
         <Stack spacing={2}>
           <FormLabel component="legend">{trans.__('Send to')}</FormLabel>
-          {props.notificationsSettings.send_to.map((email, idx) => (
-            <NotificationsSettingsItem
+          {props.notificationsConfig.send_to.map((email, idx) => (
+            <NotificationsConfigItem
               key={idx}
               label={trans.__(`Send to ${idx + 1}`)}
               value={email}
@@ -54,16 +54,16 @@ export function NotificationsSettingsDetails(
           <FormLabel component="legend">
             {trans.__('Notification Events')}
           </FormLabel>
-          {props.notificationsSettings.events.map((event, idx) => (
-            <NotificationsSettingsItem
+          {props.notificationsConfig.events.map((event, idx) => (
+            <NotificationsConfigItem
               key={idx}
               label={trans.__(`Event ${idx + 1}`)}
               value={event}
             />
           ))}
-          <NotificationsSettingsItem
+          <NotificationsConfigItem
             label={trans.__('Include output')}
-            value={props.notificationsSettings.include_output}
+            value={props.notificationsConfig.include_output}
           />
         </Stack>
       </CardContent>

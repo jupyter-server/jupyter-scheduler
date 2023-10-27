@@ -23,7 +23,7 @@ import {
 } from '../../components/labeled-value';
 import { JobFileLink } from '../../components/job-file-link';
 import { JupyterFrontEnd } from '@jupyterlab/application';
-import { NotificationsSettingsDetails } from '../../components/notification-detail';
+import { NotificationsConfigDetails } from '../../components/notification-detail';
 import { Scheduler, SchedulerService } from '../../handler';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 import { useEventLogger, useTranslator } from '../../hooks';
@@ -352,9 +352,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {JobButtonBar}
       {CoreOptions}
       {Parameters}
-      {props.model.notificationsSettings && (
-        <NotificationsSettingsDetails
-          notificationsSettings={props.model.notificationsSettings}
+      {props.model.notificationsConfig && (
+        <NotificationsConfigDetails
+          notificationsConfig={props.model.notificationsConfig}
         />
       )}
       {AdvancedOptions}

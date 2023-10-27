@@ -27,8 +27,8 @@ class NotificationEvent(str, Enum):
     STOPPED = "Stopped"
 
 
-class NotificationsSettings(BaseModel):
-    """Represents settings for sending notifications.
+class NotificationsConfig(BaseModel):
+    """Represents configuration for notifications.
 
     Attributes:
         send_to (List[str]): A list of symbols (e.g., email addresses) to which notifications should be sent.
@@ -117,7 +117,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
-    notifications_settings: Optional[NotificationsSettings] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -178,7 +178,7 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
-    notifications_settings: Optional[NotificationsSettings] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
     class Config:
         orm_mode = True
@@ -243,7 +243,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
-    notifications_settings: Optional[NotificationsSettings] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -269,7 +269,7 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
-    notifications_settings: Optional[NotificationsSettings] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
     class Config:
         orm_mode = True
@@ -289,7 +289,7 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
-    notifications_settings: Optional[NotificationsSettings] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):
