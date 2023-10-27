@@ -50,7 +50,8 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     INotebookTracker,
     ITranslator,
     ILayoutRestorer,
-    Scheduler.IAdvancedOptions
+    Scheduler.IAdvancedOptions,
+    Scheduler.TelemetryHandler
   ],
   optional: [ILauncher],
   autoStart: true,
@@ -64,6 +65,22 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
   provides: Scheduler.IAdvancedOptions,
   activate: (app: JupyterFrontEnd) => {
     return AdvancedOptions;
+  }
+};
+
+// Default Telemetry Handler
+const telemetryHandler = async (
+  eventLog: Scheduler.IEventLog
+): Promise<void> => {
+  console.log(JSON.stringify(eventLog, undefined, 4));
+};
+
+const telemetry: JupyterFrontEndPlugin<Scheduler.TelemetryHandler> = {
+  id: '@jupyterlab/scheduler:TelemetryHandler',
+  autoStart: true,
+  provides: Scheduler.TelemetryHandler,
+  activate: (app: JupyterFrontEnd) => {
+    return telemetryHandler;
   }
 };
 
@@ -127,6 +144,7 @@ async function activatePlugin(
   translator: ITranslator,
   restorer: ILayoutRestorer,
   advancedOptions: Scheduler.IAdvancedOptions,
+  telemetryHandler: Scheduler.TelemetryHandler,
   launcher: ILauncher | null
 ): Promise<void> {
   const trans = translator.load('jupyterlab');
@@ -170,6 +188,7 @@ async function activatePlugin(
       jobsPanel = new NotebookJobsPanel({
         app,
         translator,
+        telemetryHandler,
         advancedOptions: advancedOptions
       });
       // Create new main area widget
@@ -290,7 +309,8 @@ async function activatePlugin(
 
 const plugins: JupyterFrontEndPlugin<any>[] = [
   schedulerPlugin,
-  advancedOptions
+  advancedOptions,
+  telemetry
 ];
 
 export { JobsView };
