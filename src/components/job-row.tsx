@@ -5,7 +5,7 @@ import { ConfirmDeleteButton, ConfirmButton } from './confirm-buttons';
 import { JobFileLink } from './job-file-link';
 import { CommandIDs } from '..';
 import { Scheduler } from '../handler';
-import { useTranslator } from '../hooks';
+import { useLogger, useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
@@ -16,6 +16,7 @@ function StopButton(props: {
   clickHandler: () => void;
 }): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
+  const log = useLogger();
   const buttonTitle = props.job.name
     ? trans.__('Stop "%1"', props.job.name)
     : trans.__('Stop job');
@@ -26,7 +27,10 @@ function StopButton(props: {
     >
       <ConfirmButton
         name={buttonTitle}
-        onConfirm={props.clickHandler}
+        onConfirm={() => {
+          log('job-list.stop-confirm');
+          props.clickHandler();
+        }}
         confirmationText={trans.__('Stop')}
         icon={<StopIcon fontSize="small" />}
         remainAfterConfirmation
@@ -60,7 +64,11 @@ function JobFiles(props: {
       {props.job.job_files
         .filter(jobFile => jobFile.file_format !== 'input' && jobFile.file_path)
         .map(jobFile => (
-          <JobFileLink jobFile={jobFile} app={props.app} />
+          <JobFileLink
+            jobFile={jobFile}
+            app={props.app}
+            parentComponentName="jobs-list"
+          />
         ))}
     </>
   );
@@ -76,6 +84,7 @@ type DownloadFilesButtonProps = {
 function DownloadFilesButton(props: DownloadFilesButtonProps) {
   const [downloading, setDownloading] = useState(false);
   const trans = useTranslator('jupyterlab');
+  const log = useLogger();
 
   return (
     <IconButton
@@ -84,6 +93,7 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
       disabled={downloading}
       onClick={async () => {
         setDownloading(true);
+        log('jobs-list.download');
         props.app.commands
           .execute(CommandIDs.downloadFiles, {
             id: props.job.job_id,
@@ -91,6 +101,7 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
           })
           .then(_ =>
             new Promise(res => setTimeout(res, 5000)).then(_ => {
+              log('jobs-list.download');
               setDownloading(false);
               props.reload();
             })
@@ -120,16 +131,24 @@ export function buildJobRow(
     jobFile => jobFile.file_format === 'input' && jobFile.file_path
   );
   const trans = useTranslator('jupyterlab');
+  const log = useLogger();
 
   const cellContents: React.ReactNode[] = [
     <Link
-      onClick={() => showDetailView(job.job_id)}
+      onClick={() => {
+        log('jobs-list.open-detail');
+        showDetailView(job.job_id);
+      }}
       title={trans.__('Open detail view for "%1"', job.name)}
     >
       {job.name}
     </Link>,
     inputFile ? (
-      <JobFileLink app={app} jobFile={inputFile}>
+      <JobFileLink
+        app={app}
+        jobFile={inputFile}
+        parentComponentName="jobs-list"
+      >
         {job.input_filename}
       </JobFileLink>
     ) : (
@@ -153,6 +172,7 @@ export function buildJobRow(
       <ConfirmDeleteButton
         name={job.name}
         clickHandler={() => {
+          log('jobs-list.delete');
           app.commands
             .execute(CommandIDs.deleteJob, {
               id: job.job_id
@@ -163,13 +183,14 @@ export function buildJobRow(
       />
       <StopButton
         job={job}
-        clickHandler={() =>
+        clickHandler={() => {
+          log('jobs-list.stop');
           app.commands
             .execute(CommandIDs.stopJob, {
               id: job.job_id
             })
-            .catch((e: Error) => setDisplayError(e.message))
-        }
+            .catch((e: Error) => setDisplayError(e.message));
+        }}
       />
     </Stack>
   ];

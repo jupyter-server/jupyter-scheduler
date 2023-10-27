@@ -3,8 +3,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
-  useRef,
-  useContext
+  useRef
 } from 'react';
 
 import { Heading } from '../components/heading';
@@ -18,7 +17,7 @@ import {
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
+import { useLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
@@ -42,7 +41,6 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
-import { TelemetryContext } from '../context';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -453,7 +451,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // Does the currently-selected environment accept times in UTC only?
   const utcOnly = envsByName[props.model.environment]?.utc_only;
 
-  const telemetryHandler = useContext(TelemetryContext);
+  const log = useLogger();
 
   return (
     <Box sx={{ p: 4 }}>
@@ -530,13 +528,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             handleErrorsChange={setErrors}
           />
           <Accordion
-            telemetry-event-name={`create-job.advanced-options.${
-              advancedOptionsExpanded ? 'expanded' : 'collapsed'
-            }`}
             defaultExpanded={false}
             expanded={advancedOptionsExpanded}
             onChange={(e: React.SyntheticEvent, expanded: boolean) => {
-              telemetryHandler(
+              log(
                 `create-job.advanced-options.${
                   expanded ? 'expand' : 'collapse'
                 }`
@@ -586,7 +581,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="outlined"
                   onClick={e => {
-                    telemetryHandler('create-job.cancel');
+                    log('create-job.cancel');
                     props.showListView(JobsView.ListJobs);
                   }}
                 >
@@ -596,7 +591,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
-                    telemetryHandler('create-job.create');
+                    log('create-job.create');
                     submitForm(e);
                     return false;
                   }}

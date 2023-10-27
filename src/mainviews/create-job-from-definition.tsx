@@ -4,7 +4,7 @@ import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
+import { useLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
@@ -198,6 +198,8 @@ export function CreateJobFromDefinition(
   const cantSubmit = trans.__('One or more of the fields has an error.');
   const createError: string | undefined = props.model.createError;
 
+  const log = useLogger();
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -227,7 +229,10 @@ export function CreateJobFromDefinition(
               <>
                 <Button
                   variant="outlined"
-                  onClick={e => props.showListView(JobsView.ListJobs)}
+                  onClick={e => {
+                    log('create-job-from-definition.cancel');
+                    props.showListView(JobsView.ListJobs);
+                  }}
                 >
                   {trans.__('Cancel')}
                 </Button>
@@ -235,6 +240,7 @@ export function CreateJobFromDefinition(
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
+                    log('create-job-from-definition.create');
                     submitCreateJobRequest(e);
                     return false;
                   }}

@@ -1,13 +1,12 @@
-import React, { ChangeEvent, useContext } from 'react';
+import React, { ChangeEvent } from 'react';
 
 import { FormControlLabel, InputLabel, Radio, RadioGroup } from '@mui/material';
 import Stack from '@mui/system/Stack';
 
-import { useTranslator } from '../hooks';
+import { useLogger, useTranslator } from '../hooks';
 import { ICreateJobModel } from '../model';
 import { ScheduleInputs } from './schedule-inputs';
 import { Scheduler } from '../tokens';
-import { TelemetryContext } from '../context';
 
 export type CreateScheduleOptionsProps = {
   label: string;
@@ -27,13 +26,13 @@ export function CreateScheduleOptions(
 
   const labelId = `${props.id}-label`;
 
-  const telemetryHandler = useContext(TelemetryContext);
+  const log = useLogger();
 
   const handleScheduleOptionsChange = (
     event: ChangeEvent<HTMLInputElement>,
     value: string
   ) => {
-    telemetryHandler(
+    log(
       `create-job.job-type.${value === 'Job' ? 'run-now' : 'run-on-schedule'}`
     );
     const name = event.target.name;

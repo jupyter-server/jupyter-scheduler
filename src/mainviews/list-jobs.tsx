@@ -4,7 +4,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Alert, Button, Box, Stack, Tab, Tabs } from '@mui/material';
 
 import { Heading } from '../components/heading';
-import { useTranslator } from '../hooks';
+import { useLogger, useTranslator } from '../hooks';
 import { buildJobRow } from '../components/job-row';
 import { buildJobDefinitionRow } from '../components/job-definition-row';
 import { ICreateJobModel, JobsView } from '../model';
@@ -45,6 +45,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
 
   const trans = useTranslator('jupyterlab');
 
+  const log = useLogger();
+
   // Cache environment list — we need this for the output formats.
   const [environmentList, setEnvironmentList] = useState<
     Scheduler.IRuntimeEnvironment[]
@@ -71,7 +73,14 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
 
   const reloadButton = (
     <Cluster justifyContent="flex-end">
-      <Button variant="contained" size="small" onClick={reload}>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={e => {
+          log('jobs-list.reload');
+          reload();
+        }}
+      >
         {trans.__('Reload')}
       </Button>
     </Cluster>
@@ -190,6 +199,7 @@ type ListJobDefinitionsTableProps = {
 
 function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const trans = useTranslator('jupyterlab');
+  const log = useLogger();
   const [jobDefsQuery, setJobDefsQuery] =
     useState<Scheduler.IListJobDefinitionsQuery>({});
   const [deletedRows, setDeletedRows] = useState<
@@ -242,6 +252,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
         variant="contained"
         size="small"
         onClick={() => {
+          log('jobs-definition-list.reload');
           setDisplayError(null);
           setJobDefsQuery(query => ({ ...query }));
         }}
