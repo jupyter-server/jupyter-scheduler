@@ -76,7 +76,7 @@ const telemetryHandler = async (
 };
 
 const telemetry: JupyterFrontEndPlugin<Scheduler.TelemetryHandler> = {
-  id: '@jupyterlab/scheduler:ITelemetryHandler',
+  id: '@jupyterlab/scheduler:TelemetryHandler',
   autoStart: true,
   provides: Scheduler.TelemetryHandler,
   activate: (app: JupyterFrontEnd) => {
