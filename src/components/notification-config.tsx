@@ -16,7 +16,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Stack } from './stack';
 import { useTranslator } from '../hooks';
 
-type NotificationsSettingsProps = {
+type NotificationsConfigProps = {
   notificationEvents: string[];
   id: string;
   model: ICreateJobModel;
@@ -36,33 +36,30 @@ type SelectedEventsChipsProps = {
   disabled: boolean;
 };
 
-export function NotificationsSettings({
-  notificationEvents,
-  id,
-  model,
-  handleModelChange: modelChange
-}: NotificationsSettingsProps): JSX.Element | null {
+export function NotificationsConfig(
+  props: NotificationsConfigProps
+): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
-    model.notificationsSettings?.selectedEvents || []
+    props.model.notificationsSettings?.selectedEvents || []
   );
   const [enableNotification, setEnableNotification] = useState<boolean>(
-    model.notificationsSettings?.enableNotification ?? true
+    props.model.notificationsSettings?.enableNotification ?? true
   );
   const [sendToInput, setSendToInput] = useState<string>(
-    model.notificationsSettings?.sendTo?.join(', ') || ''
+    props.model.notificationsSettings?.sendTo?.join(', ') || ''
   );
   const [includeOutput, setIncludeOutput] = useState<boolean>(
-    model.notificationsSettings?.includeOutput || false
+    props.model.notificationsSettings?.includeOutput || false
   );
 
   const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedEnableNotification = e.target.checked;
     setEnableNotification(updatedEnableNotification);
-    modelChange({
-      ...model,
+    props.handleModelChange({
+      ...props.model,
       notificationsSettings: {
-        ...model.notificationsSettings,
+        ...props.model.notificationsSettings,
         enableNotification: updatedEnableNotification
       }
     });
@@ -74,16 +71,16 @@ export function NotificationsSettings({
       if (!selectedEvents.includes(newEvent)) {
         const updatedEvents = [...selectedEvents, newEvent];
         setSelectedEvents(updatedEvents);
-        modelChange({
-          ...model,
+        props.handleModelChange({
+          ...props.model,
           notificationsSettings: {
-            ...model.notificationsSettings,
+            ...props.model.notificationsSettings,
             selectedEvents: updatedEvents
           }
         });
       }
     },
-    [selectedEvents, model, modelChange]
+    [selectedEvents, props.model, props.handleModelChange]
   );
 
   const sendToChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,11 +93,14 @@ export function NotificationsSettings({
       .map(email => email.trim())
       .filter(email => email);
     const updatedNotification = {
-      ...model.notificationsSettings,
+      ...props.model.notificationsSettings,
       sendTo: emailArray
     };
-    modelChange({ ...model, notificationsSettings: updatedNotification });
-  }, [sendToInput, model, modelChange]);
+    props.handleModelChange({
+      ...props.model,
+      notificationsSettings: updatedNotification
+    });
+  }, [sendToInput, props.model, props.handleModelChange]);
 
   const keyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -115,10 +115,10 @@ export function NotificationsSettings({
   const includeOutputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedValue = event.target.checked;
     setIncludeOutput(updatedValue);
-    modelChange({
-      ...model,
+    props.handleModelChange({
+      ...props.model,
       notificationsSettings: {
-        ...model.notificationsSettings,
+        ...props.model.notificationsSettings,
         includeOutput: updatedValue
       }
     });
@@ -130,18 +130,18 @@ export function NotificationsSettings({
         event => event !== eventToDelete
       );
       setSelectedEvents(updatedEvents);
-      modelChange({
-        ...model,
+      props.handleModelChange({
+        ...props.model,
         notifications: {
-          ...model.notificationsSettings,
+          ...props.model.notificationsSettings,
           selectedEvents: updatedEvents
         }
       });
     },
-    [selectedEvents, model, modelChange]
+    [selectedEvents, props.model, props.handleModelChange]
   );
 
-  if (!notificationEvents.length) {
+  if (!props.notificationEvents.length) {
     return null;
   }
 
@@ -168,8 +168,8 @@ export function NotificationsSettings({
         disabled={!enableNotification}
       />
       <NotificationEventsSelect
-        id={id}
-        availableEvents={notificationEvents.filter(
+        id={props.id}
+        availableEvents={props.notificationEvents.filter(
           e => !selectedEvents.includes(e)
         )}
         selectChange={selectChange}
