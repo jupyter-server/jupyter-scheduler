@@ -10,7 +10,7 @@ type INotificationsConfigItemProps = {
   value: string | boolean;
 };
 
-type INotificationsConfigDetailsProps = {
+type INotificationsConfigDetailProps = {
   notificationsConfig: Scheduler.INotificationsConfig;
 };
 
@@ -32,7 +32,7 @@ function NotificationsConfigItem(props: INotificationsConfigItemProps) {
 }
 
 export function NotificationsConfigDetail(
-  props: INotificationsConfigDetailsProps
+  props: INotificationsConfigDetailProps
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
