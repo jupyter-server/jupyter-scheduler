@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, Stack, FormLabel } from '@mui/material';
 import { useTranslator } from '../hooks';
 import { Scheduler } from '../handler';
-import { LabeledValue } from '../components/labeled-value';
+import { LabeledValue } from './labeled-value';
 
 type INotificationsConfigItemProps = {
   label: string;
@@ -31,7 +31,7 @@ function NotificationsConfigItem(props: INotificationsConfigItemProps) {
   );
 }
 
-export function NotificationsConfigDetails(
+export function NotificationsConfigDetail(
   props: INotificationsConfigDetailsProps
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');

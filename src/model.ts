@@ -396,7 +396,7 @@ export function convertDescribeJobtoJobDetail(
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
     downloaded: describeJob.downloaded,
-    notificationsConfig: describeJob.notifications_settings
+    notificationsConfig: describeJob.notifications_config
   };
 }
 
@@ -425,7 +425,7 @@ export function convertDescribeDefinitiontoDefinition(
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
     timezone: describeDefinition.timezone,
-    notificationsConfig: describeDefinition.notifications_settings
+    notificationsConfig: describeDefinition.notifications_config
   };
 }
 

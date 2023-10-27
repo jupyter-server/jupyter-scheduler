@@ -23,19 +23,6 @@ type NotificationsConfigProps = {
   handleModelChange: (model: ICreateJobModel) => void;
 };
 
-type NotificationEventsSelectProps = {
-  id: string;
-  availableEvents: string[];
-  selectChange: (e: SelectChangeEvent<string>) => void;
-  disabled: boolean;
-};
-
-type SelectedEventsChipsProps = {
-  selectedEvents: string[];
-  deleteSelectedEvent: (eventToDelete: string) => () => void;
-  disabled: boolean;
-};
-
 export function NotificationsConfig(
   props: NotificationsConfigProps
 ): JSX.Element | null {
@@ -169,15 +156,15 @@ export function NotificationsConfig(
       />
       <NotificationEventsSelect
         id={props.id}
-        availableEvents={props.notificationEvents.filter(
+        value={props.notificationEvents.filter(
           e => !selectedEvents.includes(e)
         )}
-        selectChange={selectChange}
+        onChange={selectChange}
         disabled={!enableNotification}
       />
       <SelectedEventsChips
-        selectedEvents={selectedEvents}
-        deleteSelectedEvent={deleteSelectedEvent}
+        value={selectedEvents}
+        onChange={deleteSelectedEvent}
         disabled={!enableNotification}
       />
       <FormControlLabel
@@ -194,6 +181,13 @@ export function NotificationsConfig(
   );
 }
 
+type NotificationEventsSelectProps = {
+  id: string;
+  value: string[];
+  onChange: (e: SelectChangeEvent<string>) => void;
+  disabled: boolean;
+};
+
 function NotificationEventsSelect(props: NotificationEventsSelectProps) {
   const trans = useTranslator('jupyterlab');
   const label = trans.__('Notification Events');
@@ -208,10 +202,10 @@ function NotificationEventsSelect(props: NotificationEventsSelectProps) {
         labelId={labelId}
         id={props.id}
         label={label}
-        onChange={props.selectChange}
+        onChange={props.onChange}
         disabled={props.disabled}
       >
-        {props.availableEvents.map(e => (
+        {props.value.map(e => (
           <MenuItem key={e} value={e}>
             {e}
           </MenuItem>
@@ -221,15 +215,21 @@ function NotificationEventsSelect(props: NotificationEventsSelectProps) {
   );
 }
 
+type SelectedEventsChipsProps = {
+  value: string[];
+  onChange: (eventToDelete: string) => () => void;
+  disabled: boolean;
+};
+
 function SelectedEventsChips(props: SelectedEventsChipsProps) {
   return (
     <Cluster gap={3} justifyContent="flex-start">
-      {props.selectedEvents.map(e => (
+      {props.value.map(e => (
         <Chip
           key={e}
           label={e}
           variant="outlined"
-          onDelete={props.deleteSelectedEvent(e)}
+          onDelete={props.onChange(e)}
           disabled={props.disabled}
         />
       ))}

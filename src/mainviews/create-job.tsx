@@ -11,7 +11,7 @@ import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
 import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
-import { NotificationsConfig } from '../components/notification-config';
+import { NotificationsConfig } from '../components/notifications-config';
 import {
   OutputFormatPicker,
   outputFormatsForEnvironment
@@ -337,7 +337,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
 
     if (props.model.notificationsConfig?.enableNotification) {
-      jobOptions.notifications_settings = {
+      jobOptions.notifications_config = {
         send_to: props.model.notificationsConfig.sendTo ?? [],
         events: props.model.notificationsConfig.selectedEvents ?? [],
         include_output: props.model.notificationsConfig.includeOutput ?? false
@@ -392,7 +392,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     }
 
     if (props.model.notificationsConfig?.enableNotification) {
-      jobDefinitionOptions.notifications_settings = {
+      jobDefinitionOptions.notifications_config = {
         send_to: props.model.notificationsConfig.sendTo ?? [],
         events: props.model.notificationsConfig.selectedEvents ?? [],
         include_output: props.model.notificationsConfig.includeOutput ?? false
