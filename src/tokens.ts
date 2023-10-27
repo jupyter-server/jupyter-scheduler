@@ -54,9 +54,9 @@ export namespace Scheduler {
     timestamp: Date;
   }
 
-  export type ITelemetryHandler = (eventLog: IEventLog) => Promise<void>;
+  export type TelemetryHandler = (eventLog: IEventLog) => Promise<void>;
 
-  export const ITelemetryHandler = new Token<ITelemetryHandler>(
+  export const TelemetryHandler = new Token<TelemetryHandler>(
     '@jupyterlab/scheduler:ITelemetryHandler'
   );
 }

@@ -51,7 +51,7 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     ITranslator,
     ILayoutRestorer,
     Scheduler.IAdvancedOptions,
-    Scheduler.ITelemetryHandler
+    Scheduler.TelemetryHandler
   ],
   optional: [ILauncher],
   autoStart: true,
@@ -75,10 +75,10 @@ const telemetryHandler = async (
   console.log(JSON.stringify(eventLog, undefined, 4));
 };
 
-const telemetry: JupyterFrontEndPlugin<Scheduler.ITelemetryHandler> = {
+const telemetry: JupyterFrontEndPlugin<Scheduler.TelemetryHandler> = {
   id: '@jupyterlab/scheduler:ITelemetryHandler',
   autoStart: true,
-  provides: Scheduler.ITelemetryHandler,
+  provides: Scheduler.TelemetryHandler,
   activate: (app: JupyterFrontEnd) => {
     return telemetryHandler;
   }
@@ -144,7 +144,7 @@ async function activatePlugin(
   translator: ITranslator,
   restorer: ILayoutRestorer,
   advancedOptions: Scheduler.IAdvancedOptions,
-  telemetryHandler: Scheduler.ITelemetryHandler,
+  telemetryHandler: Scheduler.TelemetryHandler,
   launcher: ILauncher | null
 ): Promise<void> {
   const trans = translator.load('jupyterlab');

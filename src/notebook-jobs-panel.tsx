@@ -41,7 +41,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _translator: ITranslator;
   readonly _trans: TranslationBundle;
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
-  readonly _telemetryHandler: Scheduler.ITelemetryHandler;
+  readonly _telemetryHandler: Scheduler.TelemetryHandler;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
   private _last_input_drop_target: Element | null;
@@ -325,7 +325,7 @@ namespace NotebookJobsPanel {
     app: JupyterFrontEnd;
     translator: ITranslator;
     advancedOptions: Scheduler.IAdvancedOptions;
-    telemetryHandler: Scheduler.ITelemetryHandler;
+    telemetryHandler: Scheduler.TelemetryHandler;
     model?: JobsModel;
   }
 }
