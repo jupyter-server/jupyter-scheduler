@@ -17,7 +17,7 @@ import {
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
@@ -451,6 +451,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // Does the currently-selected environment accept times in UTC only?
   const utcOnly = envsByName[props.model.environment]?.utc_only;
 
+  const log = useEventLogger();
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -528,9 +530,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <Accordion
             defaultExpanded={false}
             expanded={advancedOptionsExpanded}
-            onChange={(_: React.SyntheticEvent, expanded: boolean) =>
-              setAdvancedOptionsExpanded(expanded)
-            }
+            onChange={(e: React.SyntheticEvent, expanded: boolean) => {
+              log(
+                `create-job.advanced-options.${
+                  expanded ? 'expand' : 'collapse'
+                }`
+              );
+              setAdvancedOptionsExpanded(expanded);
+            }}
           >
             <AccordionSummary
               expandIcon={<caretDownIcon.react />}
@@ -573,7 +580,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               <>
                 <Button
                   variant="outlined"
-                  onClick={e => props.showListView(JobsView.ListJobs)}
+                  onClick={e => {
+                    log('create-job.cancel');
+                    props.showListView(JobsView.ListJobs);
+                  }}
                 >
                   {trans.__('Cancel')}
                 </Button>
@@ -581,6 +591,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
+                    log('create-job.create');
                     submitForm(e);
                     return false;
                   }}
