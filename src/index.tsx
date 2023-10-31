@@ -32,9 +32,10 @@ export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
   export const createJobFileBrowser = 'scheduling:create-from-filebrowser';
   export const createJobCurrentNotebook = 'scheduling:create-from-notebook';
-  export const showNotebookJobs = 'scheduling:show-notebook-jobs';
+  export const restoreLayout = 'scheduling:restore-layout';
   export const stopJob = 'scheduling:stop-job';
   export const downloadFiles = 'scheduling:download-files';
+  export const listJobsFromLauncher = 'scheduling:list-jobs-from-launcher';
 }
 
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
@@ -68,19 +69,14 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
   }
 };
 
-// Default Telemetry Handler
-const telemetryHandler = async (
-  eventLog: Scheduler.IEventLog
-): Promise<void> => {
-  console.log(JSON.stringify(eventLog, undefined, 4));
-};
-
 const telemetry: JupyterFrontEndPlugin<Scheduler.TelemetryHandler> = {
   id: '@jupyterlab/scheduler:TelemetryHandler',
   autoStart: true,
   provides: Scheduler.TelemetryHandler,
   activate: (app: JupyterFrontEnd) => {
-    return telemetryHandler;
+    return async (e: Scheduler.IEventLog) => {
+      /*noop*/
+    };
   }
 };
 
@@ -174,7 +170,7 @@ async function activatePlugin(
     namespace: 'jupyterlab-scheduler'
   });
   restorer.restore(widgetTracker, {
-    command: CommandIDs.showNotebookJobs,
+    command: CommandIDs.restoreLayout,
     args: widget => widget.content.model.toJson(),
     name: () => 'jupyterlab-scheduler'
   });
@@ -182,13 +178,26 @@ async function activatePlugin(
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
   let jobsPanel: NotebookJobsPanel | undefined;
 
+  const eventLogger: Scheduler.EventLogger = eventName => {
+    if (!eventName) {
+      return;
+    }
+    const eventLog = {
+      body: {
+        name: `org.jupyter.jupyter-scheduler.${eventName}`
+      },
+      timestamp: new Date()
+    };
+    telemetryHandler(eventLog).then();
+  };
+
   const showJobsPanel = async (data: IJobsModel) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
       // Create new jobs panel widget
       jobsPanel = new NotebookJobsPanel({
         app,
         translator,
-        telemetryHandler,
+        eventLogger,
         advancedOptions: advancedOptions
       });
       // Create new main area widget
@@ -222,14 +231,15 @@ async function activatePlugin(
 
   // Commands
 
-  commands.addCommand(CommandIDs.showNotebookJobs, {
-    execute: async args => showJobsPanel(args as IJobsModel),
-    label: trans.__('Notebook Jobs'),
-    icon: eventNoteIcon
+  commands.addCommand(CommandIDs.restoreLayout, {
+    execute: async args => {
+      showJobsPanel(args as IJobsModel);
+    }
   });
 
   commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
+      eventLogger('file-browser.create-job');
       const widget = fileBrowserTracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
 
@@ -252,6 +262,7 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
     execute: async () => {
+      eventLogger('notebook-header.create-job');
       // Get the current notebook's name and path
       const contentsModel =
         notebookTracker.currentWidget?.context?.contentsModel;
@@ -301,8 +312,22 @@ async function activatePlugin(
 
   // Add to launcher
   if (launcher) {
+    commands.addCommand(CommandIDs.listJobsFromLauncher, {
+      execute: async () => {
+        eventLogger('launcher.show-jobs');
+        showJobsPanel({
+          jobsView: JobsView.ListJobs
+        });
+      },
+      label: trans.__('Notebook Jobs'),
+      icon: eventNoteIcon
+    });
+
     launcher.add({
-      command: CommandIDs.showNotebookJobs
+      command: CommandIDs.listJobsFromLauncher,
+      args: {
+        launcher: true
+      }
     });
   }
 }
