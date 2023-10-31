@@ -5,7 +5,13 @@ from uuid import uuid4
 
 import sqlalchemy.types as types
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, declarative_mixin, registry, relationship, sessionmaker
+from sqlalchemy.orm import (
+    declarative_base,
+    declarative_mixin,
+    registry,
+    relationship,
+    sessionmaker,
+)
 
 from jupyter_scheduler.models import EmailNotifications, Status
 from jupyter_scheduler.utils import get_utc_timestamp
