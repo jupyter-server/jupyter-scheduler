@@ -59,4 +59,6 @@ export namespace Scheduler {
   export const TelemetryHandler = new Token<TelemetryHandler>(
     '@jupyterlab/scheduler:ITelemetryHandler'
   );
+
+  export type EventLogger = (eventName: string) => void;
 }
