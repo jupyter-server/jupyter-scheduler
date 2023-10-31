@@ -182,7 +182,7 @@ async function activatePlugin(
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
   let jobsPanel: NotebookJobsPanel | undefined;
 
-  const eventLogger: Scheduler.EventLogger = (eventName) => {
+  const eventLogger: Scheduler.EventLogger = eventName => {
     if (!eventName) {
       return;
     }
@@ -193,7 +193,7 @@ async function activatePlugin(
       timestamp: new Date()
     };
     telemetryHandler(eventLog).then();
-  }
+  };
 
   const showJobsPanel = async (data: IJobsModel) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
@@ -237,10 +237,10 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.showNotebookJobs, {
     execute: async args => {
-      if(args['launcher']){
-        eventLogger("launcher.show-jobs")
+      if (args['launcher']) {
+        eventLogger('launcher.show-jobs');
       }
-      showJobsPanel(args as IJobsModel)
+      showJobsPanel(args as IJobsModel);
     },
     label: trans.__('Notebook Jobs'),
     icon: eventNoteIcon
@@ -248,7 +248,7 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
-      eventLogger("file-browser.create-job");
+      eventLogger('file-browser.create-job');
       const widget = fileBrowserTracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
 
@@ -271,7 +271,7 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
     execute: async () => {
-      eventLogger("notebook-header.create-job");
+      eventLogger('notebook-header.create-job');
       // Get the current notebook's name and path
       const contentsModel =
         notebookTracker.currentWidget?.context?.contentsModel;

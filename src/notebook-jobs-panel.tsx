@@ -124,7 +124,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     }
   };
 
-
   /**
    * Handle the DOM events for the directory listing.
    *
