@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.6.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.5.0...9600bfb41a369181f411b321f9fb51d409465b76))
+
+### Enhancements made
+
+- Backport PRs 448, 457, 459 [#460](https://github.com/jupyter-server/jupyter-scheduler/pull/460) ([@3coins](https://github.com/3coins))
+
+### Bugs fixed
+
+- Backport PRs 448, 457, 459 [#460](https://github.com/jupyter-server/jupyter-scheduler/pull/460) ([@3coins](https://github.com/3coins))
+- Add test:update script to 1.x ui-tests [#456](https://github.com/jupyter-server/jupyter-scheduler/pull/456) ([@dlqqq](https://github.com/dlqqq))
+- \[1.x\] Fix "event loop is already running" bug on Linux [#454](https://github.com/jupyter-server/jupyter-scheduler/pull/454) ([@dlqqq](https://github.com/dlqqq))
+
+### Other merged PRs
+
+- \[1.x\] Migrate from hub to gh in workflows [#455](https://github.com/jupyter-server/jupyter-scheduler/pull/455) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-10-13&to=2023-10-31&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2023-10-13..2023-10-31&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-10-13..2023-10-31&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AZsailer+updated%3A2023-10-13..2023-10-31&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.5.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.4.0...ccaa72baeb3e5d135d48166073e415338c7bc1e9))
@@ -16,8 +42,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-08-15&to=2023-10-13&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-08-15..2023-10-13&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-08-15..2023-10-13&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.4.0
 
