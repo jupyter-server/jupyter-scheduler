@@ -42,15 +42,29 @@ class NotificationsConfig(BaseModel):
 
     @validator("send_to")
     def validate_send_to(cls, send_to):
-        if len(send_to) > 1000:
-            raise ValueError("Too many email addresses. Maximum allowed is 1000.")
+        if len(send_to) > 100:
+            raise ValueError("Too many 'Send to' addressee identifiers. Maximum allowed is 100.")
         return send_to
 
+    @validator("send_to", each_item=True)
+    def validate_send_to_items(cls, send_to_item):
+        if len(send_to_item) > 100:
+            raise ValueError(
+                "Each 'Send to' addressee identifier should be at most 100 characters long."
+            )
+        return send_to_item
+
     @validator("events")
-    def validate_events(cls, events):
-        if len(events) > 1000:
-            raise ValueError("Too many events. Maximum allowed is 1000.")
-        return events
+    def validate_send_to(cls, send_to):
+        if len(send_to) > 100:
+            raise ValueError("Too many notification events. Maximum allowed is 100.")
+        return send_to
+
+    @validator("events", each_item=True)
+    def validate_events_items(cls, events_item):
+        if len(events_item.value) > 100:
+            raise ValueError("Each notification event should be at most 100 characters long.")
+        return events_item
 
 
 class RuntimeEnvironment(BaseModel):
