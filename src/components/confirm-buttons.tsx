@@ -35,7 +35,6 @@ export function ConfirmButton(props: {
             color="error"
             title={props.name}
             onClick={clickHandler}
-            onMouseDown={clickHandler}
             onBlur={_ => setClicked(false)}
             style={{ visibility: clicked ? 'visible' : 'hidden' }}
             autoFocus
