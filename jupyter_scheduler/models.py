@@ -2,7 +2,7 @@ import os
 from enum import Enum
 from typing import Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, validator
 
 Tags = List[str]
 EnvironmentParameterValues = Union[int, float, bool, str]
@@ -38,7 +38,19 @@ class NotificationsConfig(BaseModel):
 
     send_to: List[str]
     events: List[NotificationEvent]
-    include_output: bool
+    include_output: bool = False
+
+    @validator("send_to")
+    def validate_send_to(self, send_to):
+        if len(send_to) > 1000:
+            raise ValueError("Too many email addresses. Maximum allowed is 1000.")
+        return send_to
+
+    @validator("events")
+    def validate_events(self, events):
+        if len(events) > 1000:
+            raise ValueError("Too many events. Maximum allowed is 1000.")
+        return events
 
 
 class RuntimeEnvironment(BaseModel):
