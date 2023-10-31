@@ -72,7 +72,7 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
 const telemetryHandler = async (
   eventLog: Scheduler.IEventLog
 ): Promise<void> => {
-  console.log(JSON.stringify(eventLog, undefined, 4));
+  // console.log(JSON.stringify(eventLog, undefined, 4));
 };
 
 const telemetry: JupyterFrontEndPlugin<Scheduler.TelemetryHandler> = {
@@ -182,13 +182,26 @@ async function activatePlugin(
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
   let jobsPanel: NotebookJobsPanel | undefined;
 
+  const eventLogger: Scheduler.EventLogger = (eventName) => {
+    if (!eventName) {
+      return;
+    }
+    const eventLog = {
+      body: {
+        name: `org.jupyter.jupyter-scheduler.${eventName}`
+      },
+      timestamp: new Date()
+    };
+    telemetryHandler(eventLog).then();
+  }
+
   const showJobsPanel = async (data: IJobsModel) => {
     if (!mainAreaWidget || mainAreaWidget.isDisposed) {
       // Create new jobs panel widget
       jobsPanel = new NotebookJobsPanel({
         app,
         translator,
-        telemetryHandler,
+        eventLogger,
         advancedOptions: advancedOptions
       });
       // Create new main area widget
@@ -223,13 +236,19 @@ async function activatePlugin(
   // Commands
 
   commands.addCommand(CommandIDs.showNotebookJobs, {
-    execute: async args => showJobsPanel(args as IJobsModel),
+    execute: async args => {
+      if(args['launcher']){
+        eventLogger("launcher.show-jobs")
+      }
+      showJobsPanel(args as IJobsModel)
+    },
     label: trans.__('Notebook Jobs'),
     icon: eventNoteIcon
   });
 
   commands.addCommand(CommandIDs.createJobFileBrowser, {
     execute: async () => {
+      eventLogger("file-browser.create-job");
       const widget = fileBrowserTracker.currentWidget;
       const filePath = getSelectedFilePath(widget) ?? '';
 
@@ -252,6 +271,7 @@ async function activatePlugin(
 
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
     execute: async () => {
+      eventLogger("notebook-header.create-job");
       // Get the current notebook's name and path
       const contentsModel =
         notebookTracker.currentWidget?.context?.contentsModel;
@@ -302,7 +322,10 @@ async function activatePlugin(
   // Add to launcher
   if (launcher) {
     launcher.add({
-      command: CommandIDs.showNotebookJobs
+      command: CommandIDs.showNotebookJobs,
+      args: {
+        launcher: true
+      }
     });
   }
 }

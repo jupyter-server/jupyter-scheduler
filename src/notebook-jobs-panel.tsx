@@ -41,7 +41,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
   readonly _translator: ITranslator;
   readonly _trans: TranslationBundle;
   readonly _advancedOptions: React.FunctionComponent<Scheduler.IAdvancedOptionsProps>;
-  readonly _telemetryHandler: Scheduler.TelemetryHandler;
+  readonly _eventLogger: Scheduler.EventLogger;
   private _newlyCreatedId: string | undefined;
   private _newlyCreatedName: string | undefined;
   private _last_input_drop_target: Element | null;
@@ -68,7 +68,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._translator = options.translator;
     this._trans = this._translator.load('jupyterlab');
     this._advancedOptions = options.advancedOptions;
-    this._telemetryHandler = options.telemetryHandler;
+    this._eventLogger = options.eventLogger;
     this._last_input_drop_target = null;
 
     this.node.setAttribute('role', 'region');
@@ -124,18 +124,6 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     }
   };
 
-  logEvent(eventName: string): void {
-    if (!eventName) {
-      return;
-    }
-    const eventLog = {
-      body: {
-        name: `org.jupyter.jupyter-scheduler.${eventName}`
-      },
-      timestamp: new Date()
-    };
-    this._telemetryHandler(eventLog).then();
-  }
 
   /**
    * Handle the DOM events for the directory listing.
@@ -235,7 +223,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     return (
       <ThemeProvider theme={getJupyterLabTheme()}>
         <TranslatorContext.Provider value={this._translator}>
-          <LogContext.Provider value={this.logEvent.bind(this)}>
+          <LogContext.Provider value={this._eventLogger.bind(this)}>
             <ErrorBoundary
               alertTitle={this._trans.__('Internal error')}
               alertMessage={this._trans.__(
@@ -325,7 +313,7 @@ namespace NotebookJobsPanel {
     app: JupyterFrontEnd;
     translator: ITranslator;
     advancedOptions: Scheduler.IAdvancedOptions;
-    telemetryHandler: Scheduler.TelemetryHandler;
+    eventLogger: Scheduler.EventLogger;
     model?: JobsModel;
   }
 }
