@@ -68,19 +68,13 @@ const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
   }
 };
 
-// Default Telemetry Handler
-const telemetryHandler = async (
-  eventLog: Scheduler.IEventLog
-): Promise<void> => {
-  // console.log(JSON.stringify(eventLog, undefined, 4));
-};
 
 const telemetry: JupyterFrontEndPlugin<Scheduler.TelemetryHandler> = {
   id: '@jupyterlab/scheduler:TelemetryHandler',
   autoStart: true,
   provides: Scheduler.TelemetryHandler,
   activate: (app: JupyterFrontEnd) => {
-    return telemetryHandler;
+    return async (e: Scheduler.IEventLog) => { /*noop*/ };
   }
 };
 
