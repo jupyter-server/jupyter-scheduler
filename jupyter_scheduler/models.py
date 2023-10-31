@@ -55,7 +55,7 @@ class NotificationsConfig(BaseModel):
         return send_to_item
 
     @validator("events")
-    def validate_send_to(cls, send_to):
+    def validate_events(cls, send_to):
         if len(send_to) > 100:
             raise ValueError("Too many notification events. Maximum allowed is 100.")
         return send_to
