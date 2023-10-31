@@ -74,7 +74,7 @@ export type ModelWithScheduleFields = {
   scheduleMinute: string;
 };
 
-export type NotificationsConfig = {
+export type INotificationsConfig = {
   sendTo?: string[];
   includeOutput?: boolean;
   enableNotification?: boolean;
@@ -107,7 +107,7 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
-  notificationsConfig?: NotificationsConfig;
+  notificationsConfig?: INotificationsConfig;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {

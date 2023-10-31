@@ -11,7 +11,6 @@ import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
 import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
-import { NotificationsConfig } from '../components/notifications-config';
 import {
   OutputFormatPicker,
   outputFormatsForEnvironment
@@ -19,7 +18,12 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useEventLogger, useTranslator } from '../hooks';
-import { ICreateJobModel, IJobParameter, JobsView } from '../model';
+import {
+  ICreateJobModel,
+  IJobParameter,
+  INotificationsConfig,
+  JobsView
+} from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
 
@@ -42,6 +46,7 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
+import { NotificationsConfig } from '../components/notifications-config';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -424,6 +429,19 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       });
   };
 
+  function notificationsConfigChange(
+    updatedFields: Partial<INotificationsConfig>
+  ) {
+    const newModel = {
+      ...props.model,
+      notificationsConfig: {
+        ...props.model.notificationsConfig,
+        ...updatedFields
+      }
+    };
+    props.handleModelChange(newModel);
+  }
+
   const removeParameter = (idx: number) => {
     const newParams = props.model.parameters || [];
     newParams.splice(idx, 1);
@@ -547,8 +565,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 envsByName[props.model.environment].notification_events
               }
               id={`${formPrefix}parameters`}
-              model={props.model}
-              handleModelChange={props.handleModelChange}
+              notificationsConfig={props.model.notificationsConfig}
+              notificationsConfigChange={notificationsConfigChange}
             />
           )}
           <ParametersPicker

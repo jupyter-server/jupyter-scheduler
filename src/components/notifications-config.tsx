@@ -11,7 +11,7 @@ import {
   Switch,
   TextField
 } from '@mui/material';
-import { ICreateJobModel } from '../model';
+import { INotificationsConfig } from '../model';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Stack } from './stack';
 import { useTranslator } from '../hooks';
@@ -19,8 +19,10 @@ import { useTranslator } from '../hooks';
 type NotificationsConfigProps = {
   notificationEvents: string[];
   id: string;
-  model: ICreateJobModel;
-  handleModelChange: (model: ICreateJobModel) => void;
+  notificationsConfig: INotificationsConfig | undefined;
+  notificationsConfigChange: (
+    updatedFields: Partial<INotificationsConfig>
+  ) => void;
 };
 
 export function NotificationsConfig(
@@ -28,29 +30,20 @@ export function NotificationsConfig(
 ): JSX.Element | null {
   const trans = useTranslator('jupyterlab');
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
-    props.model.notificationsConfig?.selectedEvents || []
-  );
-  const [enableNotification, setEnableNotification] = useState<boolean>(
-    props.model.notificationsConfig?.enableNotification ?? true
+    props.notificationsConfig?.selectedEvents || []
   );
   const [sendToInput, setSendToInput] = useState<string>(
-    props.model.notificationsConfig?.sendTo?.join(', ') || ''
+    props.notificationsConfig?.sendTo?.join(', ') || ''
   );
   const [includeOutput, setIncludeOutput] = useState<boolean>(
-    props.model.notificationsConfig?.includeOutput || false
+    props.notificationsConfig?.includeOutput || false
   );
 
-  const enableNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedEnableNotification = e.target.checked;
-    setEnableNotification(updatedEnableNotification);
-    props.handleModelChange({
-      ...props.model,
-      notificationsConfig: {
-        ...props.model.notificationsConfig,
-        enableNotification: updatedEnableNotification
-      }
+  function enableNotificationChange(e: React.ChangeEvent<HTMLInputElement>) {
+    props.notificationsConfigChange({
+      enableNotification: e.target.checked
     });
-  };
+  }
 
   const selectChange = useCallback(
     (e: SelectChangeEvent<string>) => {
@@ -58,36 +51,27 @@ export function NotificationsConfig(
       if (!selectedEvents.includes(newEvent)) {
         const updatedEvents = [...selectedEvents, newEvent];
         setSelectedEvents(updatedEvents);
-        props.handleModelChange({
-          ...props.model,
-          notificationsConfig: {
-            ...props.model.notificationsConfig,
-            selectedEvents: updatedEvents
-          }
+        props.notificationsConfigChange({
+          selectedEvents: updatedEvents
         });
       }
     },
-    [selectedEvents, props.model, props.handleModelChange]
+    [selectedEvents, props.notificationsConfig]
   );
 
-  const sendToChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  function sendToChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSendToInput(e.target.value);
-  }, []);
+  }
 
   const blur = useCallback(() => {
     const emailArray = sendToInput
       .split(',')
       .map(email => email.trim())
       .filter(email => email);
-    const updatedNotification = {
-      ...props.model.notificationsConfig,
+    props.notificationsConfigChange({
       sendTo: emailArray
-    };
-    props.handleModelChange({
-      ...props.model,
-      notificationsConfig: updatedNotification
     });
-  }, [sendToInput, props.model, props.handleModelChange]);
+  }, [sendToInput, props.notificationsConfigChange]);
 
   const keyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -99,17 +83,16 @@ export function NotificationsConfig(
     [blur]
   );
 
-  const includeOutputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedValue = event.target.checked;
-    setIncludeOutput(updatedValue);
-    props.handleModelChange({
-      ...props.model,
-      notificationsConfig: {
-        ...props.model.notificationsConfig,
+  const includeOutputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const updatedValue = event.target.checked;
+      setIncludeOutput(updatedValue);
+      props.notificationsConfigChange({
         includeOutput: updatedValue
-      }
-    });
-  };
+      });
+    },
+    [props.notificationsConfigChange]
+  );
 
   const deleteSelectedEvent = useCallback(
     (eventToDelete: string) => () => {
@@ -117,15 +100,11 @@ export function NotificationsConfig(
         event => event !== eventToDelete
       );
       setSelectedEvents(updatedEvents);
-      props.handleModelChange({
-        ...props.model,
-        notifications: {
-          ...props.model.notificationsConfig,
-          selectedEvents: updatedEvents
-        }
+      props.notificationsConfigChange({
+        selectedEvents: updatedEvents
       });
     },
-    [selectedEvents, props.model, props.handleModelChange]
+    [selectedEvents, props.notificationsConfigChange]
   );
 
   if (!props.notificationEvents.length) {
@@ -138,7 +117,7 @@ export function NotificationsConfig(
       <FormControlLabel
         control={
           <Switch
-            checked={enableNotification}
+            checked={props.notificationsConfig?.enableNotification ?? true}
             onChange={enableNotificationChange}
           />
         }
@@ -152,7 +131,7 @@ export function NotificationsConfig(
         onChange={sendToChange}
         onBlur={blur}
         onKeyDown={keyDown}
-        disabled={!enableNotification}
+        disabled={!props.notificationsConfig?.enableNotification}
       />
       <NotificationEventsSelect
         id={props.id}
@@ -160,19 +139,19 @@ export function NotificationsConfig(
           e => !selectedEvents.includes(e)
         )}
         onChange={selectChange}
-        disabled={!enableNotification}
+        disabled={!props.notificationsConfig?.enableNotification}
       />
       <SelectedEventsChips
         value={selectedEvents}
         onChange={deleteSelectedEvent}
-        disabled={!enableNotification}
+        disabled={!props.notificationsConfig?.enableNotification}
       />
       <FormControlLabel
         control={
           <Checkbox
             checked={includeOutput}
             onChange={includeOutputChange}
-            disabled={!enableNotification}
+            disabled={!props.notificationsConfig?.enableNotification}
           />
         }
         label={trans.__('Include output')}
