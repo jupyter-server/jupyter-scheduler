@@ -41,13 +41,13 @@ class NotificationsConfig(BaseModel):
     include_output: bool = False
 
     @validator("send_to")
-    def validate_send_to(self, send_to):
+    def validate_send_to(cls, send_to):
         if len(send_to) > 1000:
             raise ValueError("Too many email addresses. Maximum allowed is 1000.")
         return send_to
 
     @validator("events")
-    def validate_events(self, events):
+    def validate_events(cls, events):
         if len(events) > 1000:
             raise ValueError("Too many events. Maximum allowed is 1000.")
         return events
