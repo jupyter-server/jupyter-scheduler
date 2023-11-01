@@ -73,7 +73,7 @@ class EmailNotificationType(types.TypeDecorator):
 mapper_registry = registry()
 
 
-class NotificationsConfig(Base):
+class NotificationsConfigTable(Base):
     __tablename__ = "notifications_config"
     id = Column(String(36), primary_key=True, default=generate_uuid)
     include_output = Column(Boolean, default=False)
@@ -113,7 +113,7 @@ class Job(CommonColumns, Base):
     pid = Column(Integer)
     idempotency_token = Column(String(256))
     notifications_config_id = Column(String(36), ForeignKey("notifications_config.id"))
-    notifications_config = relationship("NotificationsConfig", lazy="joined")
+    notifications_config = relationship("NotificationsConfigTable", lazy="joined")
 
 
 class JobDefinition(CommonColumns, Base):
@@ -125,7 +125,7 @@ class JobDefinition(CommonColumns, Base):
     create_time = Column(Integer, default=get_utc_timestamp)
     active = Column(Boolean, default=True)
     notifications_config_id = Column(String(36), ForeignKey("notifications_config.id"))
-    notifications_config = relationship("NotificationsConfig", lazy="joined")
+    notifications_config = relationship("NotificationsConfigTable", lazy="joined")
 
 
 def create_tables(db_url, drop_tables=False):

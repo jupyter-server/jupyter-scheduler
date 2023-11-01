@@ -38,7 +38,7 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, JobDefinition, create_session
+from jupyter_scheduler.orm import Job, JobDefinition, NotificationsConfigTable, create_session
 from jupyter_scheduler.utils import create_output_directory, create_output_filename
 
 
@@ -396,7 +396,17 @@ class Scheduler(BaseScheduler):
             if not model.output_formats:
                 model.output_formats = []
 
-            job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
+            orm_notifications_config = None
+            if model.notifications_config:
+                orm_notifications_config = NotificationsConfigTable(
+                    **model.notifications_config.dict()
+                )
+                session.add(orm_notifications_config)
+
+            job_data = model.dict(exclude={"input_uri", "notifications_config"})
+            job_data["notifications_config"] = orm_notifications_config
+
+            job = Job(**job_data)
             session.add(job)
             session.commit()
 

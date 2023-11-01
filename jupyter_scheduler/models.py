@@ -40,8 +40,8 @@ class NotificationsConfig(BaseModel):
     events: List[NotificationEvent] = []
     include_output: bool = False
 
-    def to_dict(self):
-        return self.dict(exclude_none=True)
+    class Config:
+        orm_mode = True
 
     @validator("send_to")
     def validate_send_to(cls, v):
@@ -154,12 +154,6 @@ class CreateJob(BaseModel):
             values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values
-
-    @validator("notifications_config", pre=True, always=True)
-    def convert_notifications_config(cls, v):
-        if isinstance(v, NotificationsConfig):
-            return v.to_dict()
-        return v
 
 
 class JobFile(BaseModel):
