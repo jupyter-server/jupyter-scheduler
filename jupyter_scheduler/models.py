@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, root_validator, validator
 
@@ -36,35 +36,38 @@ class NotificationsConfig(BaseModel):
         include_output (bool): A flag indicating whether a output should be included in the notification. Default is False.
     """
 
-    send_to: List[str]
-    events: List[NotificationEvent]
+    send_to: List[str] = []
+    events: List[NotificationEvent] = []
     include_output: bool = False
 
+    def to_dict(self):
+        return self.dict(exclude_none=True)
+
     @validator("send_to")
-    def validate_send_to(cls, send_to):
-        if len(send_to) > 100:
+    def validate_send_to(cls, v):
+        if len(v) > 100:
             raise ValueError("Too many 'Send to' addressee identifiers. Maximum allowed is 100.")
-        return send_to
+        return v
 
     @validator("send_to", each_item=True)
-    def validate_send_to_items(cls, send_to_item):
-        if len(send_to_item) > 100:
+    def validate_send_to_items(cls, v):
+        if len(v) > 100:
             raise ValueError(
                 "Each 'Send to' addressee identifier should be at most 100 characters long."
             )
-        return send_to_item
+        return v
 
     @validator("events")
-    def validate_events(cls, send_to):
-        if len(send_to) > 100:
+    def validate_events(cls, v):
+        if len(v) > 100:
             raise ValueError("Too many notification events. Maximum allowed is 100.")
-        return send_to
+        return v
 
     @validator("events", each_item=True)
-    def validate_events_items(cls, events_item):
-        if len(events_item.value) > 100:
+    def validate_events_items(cls, v):
+        if len(v.value) > 100:
             raise ValueError("Each notification event should be at most 100 characters long.")
-        return events_item
+        return v
 
 
 class RuntimeEnvironment(BaseModel):
@@ -82,8 +85,8 @@ class RuntimeEnvironment(BaseModel):
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
-    notifications_enabled: bool = False
-    notification_events: List[Type[NotificationEvent]] = []
+    notifications_enabled: bool = True
+    notification_events: List[Type[NotificationEvent]] = [e for e in NotificationEvent]
 
     def __str__(self):
         return self.json()
@@ -151,6 +154,12 @@ class CreateJob(BaseModel):
             values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values
+
+    @validator("notifications_config", pre=True, always=True)
+    def convert_notifications_config(cls, v):
+        if isinstance(v, NotificationsConfig):
+            return v.to_dict()
+        return v
 
 
 class JobFile(BaseModel):
