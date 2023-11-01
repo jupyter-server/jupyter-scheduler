@@ -38,7 +38,12 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, JobDefinition, NotificationsConfigTable, create_session
+from jupyter_scheduler.orm import (
+    Job,
+    JobDefinition,
+    NotificationsConfigTable,
+    create_session,
+)
 from jupyter_scheduler.utils import create_output_directory, create_output_filename
 
 
