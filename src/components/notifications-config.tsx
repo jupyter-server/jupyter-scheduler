@@ -183,7 +183,7 @@ function NotificationEventsSelect(props: NotificationEventsSelectProps) {
 
 type SelectedEventsChipsProps = {
   value: string[];
-  onChange: (eventToDelete: string) => () => void;
+  onChange: (eventToDelete: string) => void;
   disabled: boolean;
 };
 
@@ -195,7 +195,7 @@ function SelectedEventsChips(props: SelectedEventsChipsProps) {
           key={e}
           label={e}
           variant="outlined"
-          onDelete={props.onChange(e)}
+          onDelete={props.onChange}
           disabled={props.disabled}
         />
       ))}
