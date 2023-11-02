@@ -22,20 +22,28 @@ export function NotificationsConfigDetail(
           {trans.__('Notifications Settings')}
         </FormLabel>
         <Stack spacing={2}>
-          <FormLabel component="legend">{trans.__('Send to')}</FormLabel>
-          <Cluster gap={3} justifyContent="flex-start">
-            {props.notificationsConfig.send_to.map((email, idx) => (
-              <Chip key={idx} label={email} variant="outlined" />
-            ))}
-          </Cluster>
-          <FormLabel component="legend">
-            {trans.__('Notification events')}
-          </FormLabel>
-          <Cluster gap={3} justifyContent="flex-start">
-            {props.notificationsConfig.events.map((event, idx) => (
-              <Chip key={idx} label={event} variant="outlined" />
-            ))}
-          </Cluster>
+          <LabeledValue
+            label={trans.__('Send to')}
+            value={
+              <Cluster gap={3} justifyContent="flex-start">
+                {props.notificationsConfig.send_to.map((email, idx) => (
+                  <Chip key={idx} label={email} variant="outlined" />
+                ))}
+              </Cluster>
+            }
+            style={{ flex: '1 1 100%' }}
+          />
+          <LabeledValue
+            label={trans.__('Notification events')}
+            value={
+              <Cluster gap={3} justifyContent="flex-start">
+                {props.notificationsConfig.events.map((event, idx) => (
+                  <Chip key={idx} label={event} variant="outlined" />
+                ))}
+              </Cluster>
+            }
+            style={{ flex: '1 1 100%' }}
+          />
           <LabeledValue
             label={trans.__('Include output')}
             value={props.notificationsConfig.include_output ? 'True' : 'False'}
