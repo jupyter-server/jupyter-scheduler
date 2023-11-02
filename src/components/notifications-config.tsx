@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Cluster } from './cluster';
 import {
@@ -40,71 +40,59 @@ export function NotificationsConfig(
     });
   }
 
-  const selectChange = useCallback(
-    (e: SelectChangeEvent<string>) => {
-      const newEvent = e.target.value;
-      if (!props.notificationsConfig.selectedEvents?.includes(newEvent)) {
-        const updatedEvents = [
-          ...(props.notificationsConfig.selectedEvents ?? []),
-          newEvent
-        ];
-        props.notificationsConfigChange({
-          ...props.notificationsConfig,
-          selectedEvents: updatedEvents
-        });
-      }
-    },
-    [props.notificationsConfig.selectedEvents]
-  );
+  function selectChange(e: SelectChangeEvent<string>) {
+    const newEvent = e.target.value;
+    if (!props.notificationsConfig.selectedEvents?.includes(newEvent)) {
+      const updatedEvents = [
+        ...(props.notificationsConfig.selectedEvents ?? []),
+        newEvent
+      ];
+      props.notificationsConfigChange({
+        ...props.notificationsConfig,
+        selectedEvents: updatedEvents
+      });
+    }
+  }
 
   function sendToChange(e: React.ChangeEvent<HTMLInputElement>) {
     setSendToInput(e.target.value);
   }
 
-  const blur = useCallback(() => {
-    const emailArray = sendToInput
+  function blur() {
+    const sendToArray = sendToInput
       .split(',')
       .map(email => email.trim())
       .filter(email => email);
     props.notificationsConfigChange({
       ...props.notificationsConfig,
-      sendTo: emailArray
+      sendTo: sendToArray
     });
-  }, [sendToInput, props.notificationsConfigChange]);
+  }
 
-  const keyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        blur();
-      }
-    },
-    [blur]
-  );
+  function keyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      blur();
+    }
+  }
 
-  const includeOutputChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const updatedValue = event.target.checked;
-      props.notificationsConfigChange({
-        ...props.notificationsConfig,
-        includeOutput: updatedValue
-      });
-    },
-    [props.notificationsConfigChange]
-  );
+  function includeOutputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const updatedValue = event.target.checked;
+    props.notificationsConfigChange({
+      ...props.notificationsConfig,
+      includeOutput: updatedValue
+    });
+  }
 
-  const deleteSelectedEvent = useCallback(
-    (eventToDelete: string) => () => {
-      const updatedEvents = props.notificationsConfig.selectedEvents?.filter(
-        event => event !== eventToDelete
-      );
-      props.notificationsConfigChange({
-        ...props.notificationsConfig,
-        selectedEvents: updatedEvents
-      });
-    },
-    [props.notificationsConfig.selectedEvents, props.notificationsConfigChange]
-  );
+  function deleteSelectedEvent(eventToDelete: string) {
+    const updatedEvents = props.notificationsConfig.selectedEvents?.filter(
+      event => event !== eventToDelete
+    );
+    props.notificationsConfigChange({
+      ...props.notificationsConfig,
+      selectedEvents: updatedEvents
+    });
+  }
 
   if (!props.notificationEvents.length) {
     return null;
