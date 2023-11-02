@@ -14,6 +14,7 @@ export function NotificationsConfigDetail(
   props: INotificationsConfigDetailProps
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');
+  const events = props.notificationsConfig.events.join(', ');
 
   return (
     <Card>
@@ -35,13 +36,7 @@ export function NotificationsConfigDetail(
           />
           <LabeledValue
             label={trans.__('Notification events')}
-            value={
-              <Cluster gap={3} justifyContent="flex-start">
-                {props.notificationsConfig.events.map((event, idx) => (
-                  <Chip key={idx} label={event} variant="outlined" />
-                ))}
-              </Cluster>
-            }
+            value={events}
             style={{ flex: '1 1 100%' }}
           />
           <LabeledValue
