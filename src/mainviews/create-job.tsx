@@ -21,8 +21,9 @@ import { useEventLogger, useTranslator } from '../hooks';
 import {
   ICreateJobModel,
   IJobParameter,
-  INotificationsConfig,
-  JobsView
+  NotificationsConfigModel,
+  JobsView,
+  emptyNotificationsConfigModel
 } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
@@ -100,6 +101,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     useState<SchedulerTokens.ErrorsType>({});
 
   const api = useMemo(() => new SchedulerService({}), []);
+  const emptyNotifConfigModel = emptyNotificationsConfigModel();
 
   // Retrieve the environment list once.
   useEffect(() => {
@@ -134,13 +136,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           outputFormats: outputFormats
         };
 
-        if (
-          envList[0].notifications_enabled &&
-          !props.model.notificationsConfig
-        ) {
-          newModel.notificationsConfig = { enableNotification: true };
-        }
-
         props.handleModelChange(newModel);
       }
     };
@@ -174,6 +169,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           ? 'UTC'
           : Intl.DateTimeFormat().resolvedOptions().timeZone
       });
+      if (currEnv.notifications_enabled && !props.model.notificationsConfig) {
+        notificationsConfigChange(emptyNotifConfigModel);
+      }
     }
 
     prevEnvName.current = props.model.environment;
@@ -430,13 +428,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   function notificationsConfigChange(
-    updatedFields: Partial<INotificationsConfig>
+    updatedConfig: Partial<NotificationsConfigModel>
   ) {
     const newModel = {
       ...props.model,
       notificationsConfig: {
-        ...props.model.notificationsConfig,
-        ...updatedFields
+        ...updatedConfig
       }
     };
     props.handleModelChange(newModel);
@@ -565,7 +562,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 envsByName[props.model.environment].notification_events
               }
               id={`${formPrefix}parameters`}
-              notificationsConfig={props.model.notificationsConfig}
+              notificationsConfig={
+                props.model.notificationsConfig ?? emptyNotifConfigModel
+              }
               notificationsConfigChange={notificationsConfigChange}
             />
           )}
