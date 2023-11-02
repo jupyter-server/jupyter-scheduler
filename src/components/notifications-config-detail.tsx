@@ -6,31 +6,9 @@ import { Scheduler } from '../handler';
 import { LabeledValue } from './labeled-value';
 import { Cluster } from './cluster';
 
-type INotificationsConfigItemProps = {
-  label: string;
-  value: string | boolean;
-};
-
 type INotificationsConfigDetailProps = {
   notificationsConfig: Scheduler.INotificationsConfig;
 };
-
-function NotificationsConfigItem(props: INotificationsConfigItemProps) {
-  const displayValue =
-    typeof props.value === 'boolean'
-      ? props.value
-        ? 'Yes'
-        : 'No'
-      : props.value;
-
-  return (
-    <LabeledValue
-      label={props.label}
-      value={displayValue}
-      style={{ flex: '1 1 100%' }}
-    />
-  );
-}
 
 export function NotificationsConfigDetail(
   props: INotificationsConfigDetailProps
@@ -58,9 +36,10 @@ export function NotificationsConfigDetail(
               <Chip key={idx} label={event} variant="outlined" />
             ))}
           </Cluster>
-          <NotificationsConfigItem
+          <LabeledValue
             label={trans.__('Include output')}
-            value={props.notificationsConfig.include_output}
+            value={props.notificationsConfig.include_output ? 'True' : 'False'}
+            style={{ flex: '1 1 100%' }}
           />
         </Stack>
       </CardContent>
