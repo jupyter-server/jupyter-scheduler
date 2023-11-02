@@ -88,6 +88,7 @@ export function NotificationsConfig(
     const updatedEvents = props.notificationsConfig.selectedEvents?.filter(
       event => event !== eventToDelete
     );
+
     props.notificationsConfigChange({
       ...props.notificationsConfig,
       selectedEvents: updatedEvents
@@ -195,7 +196,7 @@ function SelectedEventsChips(props: SelectedEventsChipsProps) {
           key={e}
           label={e}
           variant="outlined"
-          onDelete={props.onChange}
+          onDelete={() => props.onChange(e)}
           disabled={props.disabled}
         />
       ))}
