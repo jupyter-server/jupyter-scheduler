@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { Card, CardContent, Stack, FormLabel } from '@mui/material';
+import { Card, CardContent, Chip, Stack, FormLabel } from '@mui/material';
 import { useTranslator } from '../hooks';
 import { Scheduler } from '../handler';
 import { LabeledValue } from './labeled-value';
+import { Cluster } from './cluster';
 
 type INotificationsConfigItemProps = {
   label: string;
@@ -44,23 +45,19 @@ export function NotificationsConfigDetail(
         </FormLabel>
         <Stack spacing={2}>
           <FormLabel component="legend">{trans.__('Send to')}</FormLabel>
-          {props.notificationsConfig.send_to.map((email, idx) => (
-            <NotificationsConfigItem
-              key={idx}
-              label={trans.__(`Send to ${idx + 1}`)}
-              value={email}
-            />
-          ))}
+          <Cluster gap={3} justifyContent="flex-start">
+            {props.notificationsConfig.send_to.map((email, idx) => (
+              <Chip key={idx} label={email} variant="outlined" />
+            ))}
+          </Cluster>
           <FormLabel component="legend">
-            {trans.__('Notification Events')}
+            {trans.__('Notification events')}
           </FormLabel>
-          {props.notificationsConfig.events.map((event, idx) => (
-            <NotificationsConfigItem
-              key={idx}
-              label={trans.__(`Event ${idx + 1}`)}
-              value={event}
-            />
-          ))}
+          <Cluster gap={3} justifyContent="flex-start">
+            {props.notificationsConfig.events.map((event, idx) => (
+              <Chip key={idx} label={event} variant="outlined" />
+            ))}
+          </Cluster>
           <NotificationsConfigItem
             label={trans.__('Include output')}
             value={props.notificationsConfig.include_output}
