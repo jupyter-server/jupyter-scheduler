@@ -1,7 +1,6 @@
 import json
 import re
 
-from jupyter_scheduler.pydantic_v1 import ValidationError
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
@@ -28,6 +27,7 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
+from jupyter_scheduler.pydantic_v1 import ValidationError
 
 
 class JobHandlersMixin:

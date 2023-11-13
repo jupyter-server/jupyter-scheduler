@@ -10,7 +10,6 @@ from jupyter_scheduler.exceptions import (
     SchedulerError,
 )
 from jupyter_scheduler.handlers import compute_sort_model
-from jupyter_scheduler.pydantic_v1 import ValidationError
 from jupyter_scheduler.models import (
     CountJobsQuery,
     DescribeJob,
@@ -21,6 +20,7 @@ from jupyter_scheduler.models import (
     Status,
     UpdateJob,
 )
+from jupyter_scheduler.pydantic_v1 import ValidationError
 from jupyter_scheduler.tests.utils import expected_http_error
 
 
