@@ -2,7 +2,6 @@ import json
 from unittest.mock import patch
 
 import pytest
-from pydantic import ValidationError
 from tornado.httpclient import HTTPClientError
 
 from jupyter_scheduler.exceptions import (
@@ -11,6 +10,7 @@ from jupyter_scheduler.exceptions import (
     SchedulerError,
 )
 from jupyter_scheduler.handlers import compute_sort_model
+from jupyter_scheduler.pydantic_v1 import ValidationError
 from jupyter_scheduler.models import (
     CountJobsQuery,
     DescribeJob,

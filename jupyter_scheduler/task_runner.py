@@ -5,8 +5,8 @@ from heapq import heappop, heappush
 from typing import List, Optional
 
 import traitlets
+from jupyter_scheduler.pydantic_v1 import BaseModel
 from jupyter_server.transutils import _i18n
-from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config import LoggingConfigurable

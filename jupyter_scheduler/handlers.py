@@ -1,10 +1,10 @@
 import json
 import re
 
+from jupyter_scheduler.pydantic_v1 import ValidationError
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
-from pydantic import ValidationError
 from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.environments import EnvironmentRetrievalError
