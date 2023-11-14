@@ -1,18 +1,5 @@
 import React, { useCallback, useState } from 'react';
 
-import { JupyterFrontEnd } from '@jupyterlab/application';
-
-import { ButtonBar } from '../../components/button-bar';
-import {
-  ConfirmDialogDeleteButton,
-  ConfirmDialogStopButton
-} from '../../components/confirm-dialog-buttons';
-import { JobFileLink } from '../../components/job-file-link';
-import { Scheduler, SchedulerService } from '../../handler';
-import { useEventLogger, useTranslator } from '../../hooks';
-import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
-import { Scheduler as SchedulerTokens } from '../../tokens';
-
 import {
   Alert,
   Button,
@@ -23,7 +10,23 @@ import {
   TextField,
   TextFieldProps
 } from '@mui/material';
+import { ButtonBar } from '../../components/button-bar';
 import { CommandIDs } from '../..';
+import {
+  ConfirmDialogDeleteButton,
+  ConfirmDialogStopButton
+} from '../../components/confirm-dialog-buttons';
+import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
+import {
+  ILabeledValueProps,
+  LabeledValue
+} from '../../components/labeled-value';
+import { JobFileLink } from '../../components/job-file-link';
+import { JupyterFrontEnd } from '@jupyterlab/application';
+import { NotificationsConfigDetail } from '../../components/notifications-config-detail';
+import { Scheduler, SchedulerService } from '../../handler';
+import { Scheduler as SchedulerTokens } from '../../tokens';
+import { useEventLogger, useTranslator } from '../../hooks';
 
 export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
   <TextField
@@ -33,11 +36,6 @@ export const TextFieldStyled = (props: TextFieldProps): JSX.Element => (
     FormHelperTextProps={{ sx: { maxWidth: 'fit-content' } }}
   />
 );
-
-import {
-  ILabeledValueProps,
-  LabeledValue
-} from '../../components/labeled-value';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -354,6 +352,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {JobButtonBar}
       {CoreOptions}
       {Parameters}
+      {props.model.notificationsConfig && (
+        <NotificationsConfigDetail
+          notificationsConfig={props.model.notificationsConfig}
+        />
+      )}
       {AdvancedOptions}
     </>
   );

@@ -1,14 +1,73 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, validator
 
 Tags = List[str]
 EnvironmentParameterValues = Union[int, float, bool, str]
 
 EMAIL_RE = ""
 SCHEDULE_RE = ""
+
+
+class NotificationEvent(str, Enum):
+    """
+    Enum that represents events triggering notifications. Implementers can extend
+    this enum to include additional notification events as needed.
+
+    Attributes:
+        SUCCESS (str): Sent when a job completes successfully.
+        FAILURE (str): Sent on job failure.
+        STOPPED (str): Sent when a job is manually stopped.
+    """
+
+    SUCCESS = "Success"
+    FAILURE = "Failure"
+    STOPPED = "Stopped"
+
+
+class NotificationsConfig(BaseModel):
+    """Represents configuration for notifications.
+
+    Attributes:
+        send_to (List[str]): A list of symbols (e.g., email addresses) to which notifications should be sent.
+        events (List[NotificationEvent]): A list of events that should trigger the sending of notifications.
+        include_output (bool): A flag indicating whether a output should be included in the notification. Default is False.
+    """
+
+    send_to: List[str] = []
+    events: List[NotificationEvent] = []
+    include_output: bool = False
+
+    class Config:
+        orm_mode = True
+
+    @validator("send_to")
+    def validate_send_to(cls, v):
+        if len(v) > 100:
+            raise ValueError("Too many 'Send to' addressee identifiers. Maximum allowed is 100.")
+        return v
+
+    @validator("send_to", each_item=True)
+    def validate_send_to_items(cls, v):
+        if len(v) > 100:
+            raise ValueError(
+                "Each 'Send to' addressee identifier should be at most 100 characters long."
+            )
+        return v
+
+    @validator("events")
+    def validate_events(cls, v):
+        if len(v) > 100:
+            raise ValueError("Too many notification events. Maximum allowed is 100.")
+        return v
+
+    @validator("events", each_item=True)
+    def validate_events_items(cls, v):
+        if len(v.value) > 100:
+            raise ValueError("Each notification event should be at most 100 characters long.")
+        return v
 
 
 class RuntimeEnvironment(BaseModel):
@@ -26,6 +85,8 @@ class RuntimeEnvironment(BaseModel):
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
+    notifications_enabled: bool = False
+    notification_events: List[Type[NotificationEvent]] = []
 
     def __str__(self):
         return self.json()
@@ -85,6 +146,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -145,6 +207,7 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
+    notifications_config: Optional[NotificationsConfig] = None
 
     class Config:
         orm_mode = True
@@ -209,6 +272,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -234,6 +298,7 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
+    notifications_config: Optional[NotificationsConfig] = None
 
     class Config:
         orm_mode = True
@@ -253,6 +318,7 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
+    notifications_config: Optional[NotificationsConfig] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):

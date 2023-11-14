@@ -4,8 +4,14 @@ from sqlite3 import OperationalError
 from uuid import uuid4
 
 import sqlalchemy.types as types
-from sqlalchemy import Boolean, Column, Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, create_engine
+from sqlalchemy.orm import (
+    declarative_base,
+    declarative_mixin,
+    registry,
+    relationship,
+    sessionmaker,
+)
 
 from jupyter_scheduler.models import EmailNotifications, Status
 from jupyter_scheduler.utils import get_utc_timestamp
@@ -67,6 +73,14 @@ class EmailNotificationType(types.TypeDecorator):
 mapper_registry = registry()
 
 
+class NotificationsConfigTable(Base):
+    __tablename__ = "notifications_config"
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    include_output = Column(Boolean, default=False)
+    send_to = Column(JsonType, nullable=False)
+    events = Column(JsonType, nullable=False)
+
+
 @declarative_mixin
 class CommonColumns:
     runtime_environment_name = Column(String(256), nullable=False)
@@ -98,6 +112,8 @@ class Job(CommonColumns, Base):
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
+    notifications_config_id = Column(String(36), ForeignKey("notifications_config.id"))
+    notifications_config = relationship("NotificationsConfigTable", lazy="joined")
 
 
 class JobDefinition(CommonColumns, Base):
@@ -108,6 +124,8 @@ class JobDefinition(CommonColumns, Base):
     url = Column(String(256), default=generate_job_definitions_url)
     create_time = Column(Integer, default=get_utc_timestamp)
     active = Column(Boolean, default=True)
+    notifications_config_id = Column(String(36), ForeignKey("notifications_config.id"))
+    notifications_config = relationship("NotificationsConfigTable", lazy="joined")
 
 
 def create_tables(db_url, drop_tables=False):

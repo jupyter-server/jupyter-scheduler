@@ -74,6 +74,24 @@ export type ModelWithScheduleFields = {
   scheduleMinute: string;
 };
 
+export type NotificationsConfigModel = {
+  sendTo?: string[];
+  includeOutput?: boolean;
+  enableNotification?: boolean;
+  availableEvents?: string[];
+  selectedEvents?: string[];
+};
+
+export function emptyNotificationsConfigModel(): NotificationsConfigModel {
+  return {
+    sendTo: [],
+    includeOutput: false,
+    enableNotification: true,
+    availableEvents: [],
+    selectedEvents: []
+  };
+}
+
 export interface ICreateJobModel
   extends ModelWithScheduleFields,
     PartialJSONObject {
@@ -99,6 +117,7 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
+  notificationsConfig?: NotificationsConfigModel;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -310,6 +329,7 @@ export interface IJobDetailModel {
   outputPrefix?: string;
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
+  notificationsConfig?: Scheduler.INotificationsConfig;
 }
 
 export interface IJobDefinitionModel {
@@ -336,6 +356,7 @@ export interface IJobDefinitionModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
+  notificationsConfig?: Scheduler.INotificationsConfig;
 }
 
 const convertParameters = (parameters: {
@@ -384,7 +405,8 @@ export function convertDescribeJobtoJobDetail(
     updateTime: describeJob.update_time,
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
-    downloaded: describeJob.downloaded
+    downloaded: describeJob.downloaded,
+    notificationsConfig: describeJob.notifications_config
   };
 }
 
@@ -412,7 +434,8 @@ export function convertDescribeDefinitiontoDefinition(
     createTime: describeDefinition.create_time,
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
-    timezone: describeDefinition.timezone
+    timezone: describeDefinition.timezone,
+    notificationsConfig: describeDefinition.notifications_config
   };
 }
 

@@ -18,7 +18,13 @@ import {
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
 import { useEventLogger, useTranslator } from '../hooks';
-import { ICreateJobModel, IJobParameter, JobsView } from '../model';
+import {
+  ICreateJobModel,
+  IJobParameter,
+  NotificationsConfigModel,
+  JobsView,
+  emptyNotificationsConfigModel
+} from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
 
@@ -41,6 +47,7 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
+import { NotificationsConfig } from '../components/notifications-config';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -94,6 +101,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     useState<SchedulerTokens.ErrorsType>({});
 
   const api = useMemo(() => new SchedulerService({}), []);
+  const emptyNotifConfigModel = emptyNotificationsConfigModel();
 
   // Retrieve the environment list once.
   useEffect(() => {
@@ -121,12 +129,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           envList[0].name
         )?.map(format => format.name);
 
-        props.handleModelChange({
+        const newModel = {
           ...props.model,
           environment: envList[0].name,
           computeType: newComputeType,
           outputFormats: outputFormats
-        });
+        };
+
+        props.handleModelChange(newModel);
       }
     };
 
@@ -159,6 +169,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           ? 'UTC'
           : Intl.DateTimeFormat().resolvedOptions().timeZone
       });
+      if (currEnv.notifications_enabled && !props.model.notificationsConfig) {
+        notificationsConfigChange(emptyNotifConfigModel);
+      }
     }
 
     prevEnvName.current = props.model.environment;
@@ -326,6 +339,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       jobOptions.parameters = serializeParameters(props.model.parameters);
     }
 
+    if (props.model.notificationsConfig?.enableNotification) {
+      jobOptions.notifications_config = {
+        send_to: props.model.notificationsConfig.sendTo ?? [],
+        events: props.model.notificationsConfig.selectedEvents ?? [],
+        include_output: props.model.notificationsConfig.includeOutput ?? false
+      };
+    }
+
     props.handleModelChange({
       ...props.model,
       createError: undefined,
@@ -373,6 +394,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       );
     }
 
+    if (props.model.notificationsConfig?.enableNotification) {
+      jobDefinitionOptions.notifications_config = {
+        send_to: props.model.notificationsConfig.sendTo ?? [],
+        events: props.model.notificationsConfig.selectedEvents ?? [],
+        include_output: props.model.notificationsConfig.includeOutput ?? false
+      };
+    }
+
     props.handleModelChange({
       ...props.model,
       createError: undefined,
@@ -397,6 +426,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         });
       });
   };
+
+  function notificationsConfigChange(
+    updatedConfig: Partial<NotificationsConfigModel>
+  ) {
+    const newModel = {
+      ...props.model,
+      notificationsConfig: {
+        ...updatedConfig
+      }
+    };
+    props.handleModelChange(newModel);
+  }
 
   const removeParameter = (idx: number) => {
     const newParams = props.model.parameters || [];
@@ -515,6 +556,18 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             environment={props.model.environment}
             value={props.model.computeType}
           />
+          {envsByName[props.model.environment]?.notifications_enabled && (
+            <NotificationsConfig
+              notificationEvents={
+                envsByName[props.model.environment].notification_events
+              }
+              id={`${formPrefix}parameters`}
+              notificationsConfig={
+                props.model.notificationsConfig ?? emptyNotifConfigModel
+              }
+              notificationsConfigChange={notificationsConfigChange}
+            />
+          )}
           <ParametersPicker
             label={trans.__('Parameters')}
             name={'parameters'}
