@@ -216,9 +216,7 @@ export function AdvancedTable<
   }
 
   const tableDiv = (
-    <div
-      style={height === 'auto' ? { flex: 1, height: 0 } : { maxHeight: height }}
-    >
+    <div style={height === 'auto' ? { flex: 1 } : { maxHeight: height }}>
       <TableContainer
         component={Paper}
         sx={{
