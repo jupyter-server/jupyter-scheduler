@@ -1,17 +1,6 @@
 from importlib import metadata
 
-## Create namespaces for pydantic v1 and v2.
-# Adapted from LangChain's langchain.pydantic_v1 module.
-#
-# This code must stay at the top of the file before other modules may
-# attempt to import pydantic since it adds pydantic_v1 and pydantic_v2 to sys.modules.
-#
-# This hack is done for the following reasons:
-# * Code will attempt to remain compatible with both pydantic v1 and v2 since
-#   both dependencies and dependents may be stuck on either version of v1 or v2.
-# * Creating namespaces for pydantic v1 and v2 should allow us to write code that
-#   unambiguously uses either v1 or v2 API.
-# * This change is easier to roll out and roll back.
+# expose Pydantic v1 API, regardless of Pydantic version in current env
 
 try:
     from pydantic.v1 import *
