@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.7.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.6.0...242ff36d4ba22ebfebf42b9b68a170af16c2e6f1))
+
+### Enhancements made
+
+- \[1.x\] Add `dev-install` script [#467](https://github.com/jupyter-server/jupyter-scheduler/pull/467) ([@dlqqq](https://github.com/dlqqq))
+- Backport 463 to 1.x [#465](https://github.com/jupyter-server/jupyter-scheduler/pull/465) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Backport PR 461 to 1.x [#466](https://github.com/jupyter-server/jupyter-scheduler/pull/466) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-10-31&to=2023-11-16&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-10-31..2023-11-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-10-31..2023-11-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.6.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.5.0...9600bfb41a369181f411b321f9fb51d409465b76))
@@ -25,8 +46,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-10-13&to=2023-10-31&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2023-10-13..2023-10-31&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-10-13..2023-10-31&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AZsailer+updated%3A2023-10-13..2023-10-31&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.5.0
 
