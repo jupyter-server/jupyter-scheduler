@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.4.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.3.0...caa3c1c75d6d03498972aec5bad0b67095a22f62))
+
+### Enhancements made
+
+- Pydantic v1 and v2 compatibility, add `pydantic_v1` module [#463](https://github.com/jupyter-server/jupyter-scheduler/pull/463) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Removes zero-height style rule, which broke table display in Safari [#461](https://github.com/jupyter-server/jupyter-scheduler/pull/461) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-11-01&to=2023-11-16&type=c))
+
+[@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-11-01..2023-11-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.3.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.2.0...e4986ce481a4b7626179bd264cd2523c3c32dee7))
@@ -22,8 +42,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-10-13&to=2023-11-01&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2023-10-13..2023-11-01&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-10-13..2023-11-01&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AZsailer+updated%3A2023-10-13..2023-11-01&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.2.0
 
