@@ -139,6 +139,7 @@ export function CreateJobFromDefinition(
         createJobFromDefinitionModel
       )
       .then(response => {
+        log('create-job-from-definition.create-job.success');
         // Switch to the list view with "Job List" active
         props.showListView(
           JobsView.ListJobs,
@@ -147,6 +148,7 @@ export function CreateJobFromDefinition(
         );
       })
       .catch((error: Error) => {
+        log('create-job-from-definition.create-job.failure');
         props.handleModelChange({
           ...props.model,
           createError: error.message,
@@ -240,7 +242,7 @@ export function CreateJobFromDefinition(
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
-                    log('create-job-from-definition.create');
+                    log('create-job-from-definition.create-job');
                     submitCreateJobRequest(e);
                     return false;
                   }}

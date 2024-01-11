@@ -335,10 +335,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     api
       .createJob(jobOptions)
       .then(response => {
+        log('create-job.create-job.success');
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs, response.job_id, jobOptions.name);
       })
       .catch((error: Error) => {
+        log('create-job.create-job.failure');
         props.handleModelChange({
           ...props.model,
           createError: error.message,
@@ -382,6 +384,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     api
       .createJobDefinition(jobDefinitionOptions)
       .then(response => {
+        log('create-job.create-job-definition.success');
         // Switch to the list view with "Job Definition List" active
         props.showListView(
           JobsView.ListJobDefinitions,
@@ -390,6 +393,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         );
       })
       .catch((error: Error) => {
+        log('create-job.create-job-definition.failure');
         props.handleModelChange({
           ...props.model,
           createError: error.message,
@@ -591,7 +595,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
-                    log('create-job.create');
+                    const eventType =
+                      props.model.createType === 'Job'
+                        ? 'create-job'
+                        : 'create-job-definition';
+                    log(`create-job.${eventType}.create`);
                     submitForm(e);
                     return false;
                   }}
