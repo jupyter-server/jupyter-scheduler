@@ -599,7 +599,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                       props.model.createType === 'Job'
                         ? 'create-job'
                         : 'create-job-definition';
-                    log(`create-job.${eventType}.create`);
+                    log(`create-job.${eventType}`);
                     submitForm(e);
                     return false;
                   }}
