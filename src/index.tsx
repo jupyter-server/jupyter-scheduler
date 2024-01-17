@@ -41,6 +41,11 @@ export namespace CommandIDs {
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
 export { Scheduler } from './tokens';
 
+type EventLog = {
+  body: { name: string; error?: { message?: string; httpStatusCode?: number } };
+  timestamp: Date;
+};
+
 /**
  * Initialization data for the jupyterlab-scheduler extension.
  */
@@ -178,16 +183,24 @@ async function activatePlugin(
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
   let jobsPanel: NotebookJobsPanel | undefined;
 
-  const eventLogger: Scheduler.EventLogger = eventName => {
+  const eventLogger: Scheduler.EventLogger = (eventName, e?: Error) => {
     if (!eventName) {
       return;
     }
-    const eventLog = {
+    const eventLog: EventLog = {
       body: {
         name: `org.jupyter.jupyter-scheduler.${eventName}`
       },
       timestamp: new Date()
     };
+
+    if (e) {
+      eventLog.body.error = { message: e.message };
+      if (e instanceof ServerConnection.ResponseError) {
+        eventLog.body.error.httpStatusCode = e.response.status;
+      }
+    }
+
     telemetryHandler(eventLog).then();
   };
 
