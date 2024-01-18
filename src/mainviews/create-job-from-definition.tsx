@@ -148,7 +148,7 @@ export function CreateJobFromDefinition(
         );
       })
       .catch((error: Error) => {
-        log('create-job-from-definition.create-job.failure', error);
+        log('create-job-from-definition.create-job.failure', error.message);
         props.handleModelChange({
           ...props.model,
           createError: error.message,

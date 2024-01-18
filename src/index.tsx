@@ -42,7 +42,7 @@ export const NotebookJobsPanelId = 'notebook-jobs-panel';
 export { Scheduler } from './tokens';
 
 type EventLog = {
-  body: { name: string; detail?: string } };
+  body: { name: string; detail?: string };
   timestamp: Date;
 };
 
@@ -183,7 +183,7 @@ async function activatePlugin(
   let mainAreaWidget: MainAreaWidget<NotebookJobsPanel> | undefined;
   let jobsPanel: NotebookJobsPanel | undefined;
 
-  const eventLogger: Scheduler.EventLogger = (eventName, e?: Error) => {
+  const eventLogger: Scheduler.EventLogger = (eventName, eventDetail) => {
     if (!eventName) {
       return;
     }
@@ -194,11 +194,8 @@ async function activatePlugin(
       timestamp: new Date()
     };
 
-    if (e) {
-      eventLog.body.error = { message: e.message };
-      if (e instanceof ServerConnection.ResponseError) {
-        eventLog.body.error.httpStatusCode = e.response.status;
-      }
+    if (eventDetail) {
+      eventLog.body.detail = eventDetail;
     }
 
     telemetryHandler(eventLog).then();

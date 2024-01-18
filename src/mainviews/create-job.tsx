@@ -340,7 +340,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         props.showListView(JobsView.ListJobs, response.job_id, jobOptions.name);
       })
       .catch((error: Error) => {
-        log('create-job.create-job.failure', error);
+        log('create-job.create-job.failure', error.message);
         props.handleModelChange({
           ...props.model,
           createError: error.message,
@@ -393,7 +393,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         );
       })
       .catch((error: Error) => {
-        log('create-job.create-job-definition.failure', error);
+        log('create-job.create-job-definition.failure', error.message);
         props.handleModelChange({
           ...props.model,
           createError: error.message,
