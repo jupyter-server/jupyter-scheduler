@@ -3,7 +3,7 @@ import React from 'react';
 
 export type Logger = (eventName: string, error?: Error) => void;
 export const LogContext = React.createContext<Logger>(
-  (eventName: string, error?: Error) => {
+  (eventName: string, eventDetail?: string) => {
     /*noop*/
   }
 );
