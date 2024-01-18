@@ -42,7 +42,7 @@ export const NotebookJobsPanelId = 'notebook-jobs-panel';
 export { Scheduler } from './tokens';
 
 type EventLog = {
-  body: { name: string; error?: { message?: string; httpStatusCode?: number } };
+  body: { name: string; detail?: string } };
   timestamp: Date;
 };
 
