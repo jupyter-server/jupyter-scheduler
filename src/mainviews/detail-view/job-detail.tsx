@@ -38,6 +38,7 @@ import {
   ILabeledValueProps,
   LabeledValue
 } from '../../components/labeled-value';
+import { getErrorMessage } from '../../util/errors';
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -103,7 +104,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     setDisplayError(null);
     ss.deleteJob(props.model?.jobId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobs))
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const handleStopJob = async () => {
@@ -114,7 +118,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         id: props.model?.jobId
       })
       .then(_ => props.handleModelChange())
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const downloadFiles = async () => {
@@ -130,8 +137,9 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           props.handleModelChange().then(_ => setDownloading(false))
         );
       })
-      .catch((e: Error) => {
-        setDisplayError(e.message);
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
         setDownloading(false);
       });
   };

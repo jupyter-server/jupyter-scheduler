@@ -13,6 +13,7 @@ import { Alert, Button, CircularProgress } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 
 import { LabeledValue } from '../components/labeled-value';
+import { getErrorMessage } from '../util/errors';
 
 export interface ICreateJobFromDefinitionProps {
   model: ICreateJobModel;
@@ -147,11 +148,12 @@ export function CreateJobFromDefinition(
           props.model.jobName
         );
       })
-      .catch((error: Error) => {
-        log('create-job-from-definition.create-job.failure', error.message);
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job-from-definition.create-job.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });

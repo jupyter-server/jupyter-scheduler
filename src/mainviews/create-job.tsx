@@ -41,6 +41,7 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
+import { getErrorMessage } from '../util/errors';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -339,11 +340,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs, response.job_id, jobOptions.name);
       })
-      .catch((error: Error) => {
-        log('create-job.create-job.failure', error.message);
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job.create-job.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });
@@ -392,11 +394,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           jobDefinitionOptions.name
         );
       })
-      .catch((error: Error) => {
-        log('create-job.create-job-definition.failure', error.message);
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job.create-job-definition.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });
