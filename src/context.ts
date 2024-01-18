@@ -1,7 +1,7 @@
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
 import React from 'react';
 
-export type Logger = (eventName: string, error?: Error) => void;
+export type Logger = (eventName: string, eventDetail?: string) => void;
 export const LogContext = React.createContext<Logger>(
   (eventName: string, eventDetail?: string) => {
     /*noop*/
