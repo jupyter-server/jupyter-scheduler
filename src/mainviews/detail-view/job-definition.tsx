@@ -31,6 +31,7 @@ import {
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import { timestampLocalize } from './job-detail';
+import { getErrorMessage } from '../../util/errors';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -79,21 +80,30 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const handleDeleteJobDefinition = async () => {
     ss.deleteJobDefinition(model.definitionId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobDefinitions))
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const pauseJobDefinition = async () => {
     setDisplayError(null);
     ss.pauseJobDefinition(model.definitionId)
       .then(_ => props.refresh())
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const resumeJobDefinition = async () => {
     setDisplayError(null);
     ss.resumeJobDefinition(model.definitionId)
       .then(_ => props.refresh())
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const runJobDefinition = () => {

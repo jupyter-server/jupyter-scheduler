@@ -10,6 +10,7 @@ import { ICreateJobModel } from '../model';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopIcon from '@mui/icons-material/Stop';
 import { IconButton, Stack, Link, TableCell, TableRow } from '@mui/material';
+import { getErrorMessage } from '../util/errors';
 
 function StopButton(props: {
   job: Scheduler.IDescribeJob;
@@ -106,8 +107,9 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
               props.reload();
             })
           )
-          .catch((e: Error) => {
-            props.setDisplayError(e.message);
+          .catch((e: unknown) => {
+            const message = getErrorMessage(e);
+            props.setDisplayError(message);
           });
       }}
     >
@@ -178,7 +180,10 @@ export function buildJobRow(
               id: job.job_id
             })
             .then(_ => deleteRow(job.job_id))
-            .catch((e: Error) => setDisplayError(e.message));
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              setDisplayError(message);
+            });
         }}
       />
       <StopButton
@@ -189,7 +194,10 @@ export function buildJobRow(
             .execute(CommandIDs.stopJob, {
               id: job.job_id
             })
-            .catch((e: Error) => setDisplayError(e.message));
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              setDisplayError(message);
+            });
         }}
       />
     </Stack>

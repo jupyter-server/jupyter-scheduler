@@ -13,6 +13,7 @@ import { Alert, Button, CircularProgress } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 
 import { LabeledValue } from '../components/labeled-value';
+import { getErrorMessage } from '../util/errors';
 
 export interface ICreateJobFromDefinitionProps {
   model: ICreateJobModel;
@@ -139,6 +140,7 @@ export function CreateJobFromDefinition(
         createJobFromDefinitionModel
       )
       .then(response => {
+        log('create-job-from-definition.create-job.success');
         // Switch to the list view with "Job List" active
         props.showListView(
           JobsView.ListJobs,
@@ -146,10 +148,12 @@ export function CreateJobFromDefinition(
           props.model.jobName
         );
       })
-      .catch((error: Error) => {
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job-from-definition.create-job.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });
@@ -240,7 +244,7 @@ export function CreateJobFromDefinition(
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
-                    log('create-job-from-definition.create');
+                    log('create-job-from-definition.create-job');
                     submitCreateJobRequest(e);
                     return false;
                   }}

@@ -26,3 +26,9 @@ export const SERVER_EXTENSION_404_JSX = (
     </p>
   </div>
 );
+
+export function getErrorMessage(e: unknown): string {
+  return e instanceof Error
+    ? e.message
+    : 'An error occurred. Please try again.';
+}

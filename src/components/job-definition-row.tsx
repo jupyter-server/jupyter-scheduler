@@ -16,6 +16,7 @@ import { Scheduler, SchedulerService } from '../handler';
 import { useEventLogger, useTranslator } from '../hooks';
 import { TranslationBundle } from '@jupyterlab/translation';
 import { ConfirmDeleteButton } from './confirm-buttons';
+import { getErrorMessage } from '../util/errors';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -120,8 +121,9 @@ export function buildJobDefinitionRow(
             .then(_ => {
               forceReload();
             })
-            .catch((error: Error) => {
-              handleApiError(error.message);
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              handleApiError(message);
             });
         }}
       />
@@ -134,8 +136,9 @@ export function buildJobDefinitionRow(
             .then(_ => {
               forceReload();
             })
-            .catch((error: Error) => {
-              handleApiError(error.message);
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              handleApiError(message);
             });
         }}
       />
@@ -148,8 +151,9 @@ export function buildJobDefinitionRow(
             .then(_ => {
               deleteRow(jobDef.job_definition_id);
             })
-            .catch((error: Error) => {
-              handleApiError(error.message);
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              handleApiError(message);
             });
         }}
       />
