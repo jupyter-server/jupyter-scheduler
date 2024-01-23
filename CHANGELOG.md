@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.8.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.7.0...4447c3ba6d53dd73b13be2b376163935a9ac1d15))
+
+### Enhancements made
+
+- \[1.x\] Emit telemetry events on success and failure of the Create Job, Create Job Definition, Create Job from Job Definition hooks (#472) [#475](https://github.com/jupyter-server/jupyter-scheduler/pull/475) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-11-16&to=2024-01-23&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-11-16..2024-01-23&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.7.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.6.0...242ff36d4ba22ebfebf42b9b68a170af16c2e6f1))
@@ -20,8 +36,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-10-31&to=2023-11-16&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2023-10-31..2023-11-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-10-31..2023-11-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.6.0
 
