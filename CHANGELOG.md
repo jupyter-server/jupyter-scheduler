@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.5.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.4.0...675dba6adaa4cec879c9b4c4e85c07020ee88519))
+
+### Enhancements made
+
+- Emit telemetry events on success and failure of the Create Job, Create Job Definition, Create Job from Job Definition hooks [#472](https://github.com/jupyter-server/jupyter-scheduler/pull/472) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Bump @babel/traverse from 7.19.0 to 7.23.7 [#474](https://github.com/jupyter-server/jupyter-scheduler/pull/474) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-11-16&to=2024-01-23&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-11-16..2024-01-23&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2023-11-16..2024-01-23&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2023-11-16..2024-01-23&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.4.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.3.0...caa3c1c75d6d03498972aec5bad0b67095a22f62))
@@ -19,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-11-01&to=2023-11-16&type=c))
 
 [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2023-11-01..2023-11-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.3.0
 
