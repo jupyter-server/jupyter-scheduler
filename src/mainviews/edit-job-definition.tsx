@@ -15,12 +15,13 @@ import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ScheduleInputs } from '../components/schedule-inputs';
 import { IUpdateJobDefinitionModel, JobsView } from '../model';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { SchedulerService } from '../handler';
 import { Scheduler } from '../tokens';
 import { InputFileSnapshot } from '../components/input-file-snapshot';
 import { LabeledValue } from '../components/labeled-value';
 import { timestampLocalize } from './detail-view/job-detail';
+import { getErrorMessage } from '../util/errors';
 
 export type EditJobDefinitionProps = {
   model: IUpdateJobDefinitionModel;
@@ -31,6 +32,7 @@ export type EditJobDefinitionProps = {
 
 function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
+  const log = useEventLogger();
   const ss = useMemo(() => new SchedulerService({}), []);
   const [loading, setLoading] = useState(false);
   const [utcOnly, setUtcOnly] = useState(false);
@@ -76,9 +78,10 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
       .then(() => {
         props.showJobDefinitionDetail(props.model.definitionId);
       })
-      .catch((e: Error) => {
+      .catch((e: unknown) => {
         setSaving(false);
-        setDisplayError(e.message);
+        const message = getErrorMessage(e);
+        setDisplayError(message);
       });
   };
 
@@ -113,16 +116,20 @@ function EditJobDefinitionBody(props: EditJobDefinitionProps): JSX.Element {
           <>
             <Button
               variant="outlined"
-              onClick={() =>
-                props.showJobDefinitionDetail(props.model.definitionId)
-              }
+              onClick={() => {
+                log('job-definition-edit.cancel');
+                props.showJobDefinitionDetail(props.model.definitionId);
+              }}
             >
               {trans.__('Cancel')}
             </Button>
             <Button
               color="primary"
               variant="contained"
-              onClick={handleSubmit}
+              onClick={e => {
+                log('job-definition-edit.save');
+                handleSubmit();
+              }}
               disabled={hasErrors}
             >
               {trans.__('Save Changes')}

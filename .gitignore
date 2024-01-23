@@ -123,6 +123,9 @@ dmypy.json
 # job outputs in local development env
 dev/jobs
 
+# Notebook files created in dev folder
+dev/*.ipynb
+
 # jupyter releaser local checkout
 .jupyter_releaser_checkout
 

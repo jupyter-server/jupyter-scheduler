@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_scheduler"
-version = "2.2.0"
+version = "2.4.0"
 description = "A JupyterLab extension for running notebook jobs"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -32,7 +32,7 @@ dependencies = [
     "jupyter_server>=1.6,<3",
     "traitlets~=5.0",
     "nbconvert~=7.0",
-    "pydantic~=1.10",
+    "pydantic>=1.10,<3",
     "sqlalchemy~=1.0",
     "croniter~=1.4",
     "pytz==2023.3",
@@ -93,7 +93,7 @@ source_dir = "src"
 build_dir = "jupyter_scheduler/labextension"
 
 [tool.tbump.version]
-current = "2.2.0"
+current = "2.4.0"
 regex = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)((?P<channel>a|b|rc|.dev)(?P<release>\\d+))?"
 
 [[tool.tbump.file]]

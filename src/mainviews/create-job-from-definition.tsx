@@ -4,7 +4,7 @@ import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 
@@ -13,6 +13,7 @@ import { Alert, Button, CircularProgress } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 
 import { LabeledValue } from '../components/labeled-value';
+import { getErrorMessage } from '../util/errors';
 
 export interface ICreateJobFromDefinitionProps {
   model: ICreateJobModel;
@@ -139,6 +140,7 @@ export function CreateJobFromDefinition(
         createJobFromDefinitionModel
       )
       .then(response => {
+        log('create-job-from-definition.create-job.success');
         // Switch to the list view with "Job List" active
         props.showListView(
           JobsView.ListJobs,
@@ -146,10 +148,12 @@ export function CreateJobFromDefinition(
           props.model.jobName
         );
       })
-      .catch((error: Error) => {
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job-from-definition.create-job.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });
@@ -198,6 +202,8 @@ export function CreateJobFromDefinition(
   const cantSubmit = trans.__('One or more of the fields has an error.');
   const createError: string | undefined = props.model.createError;
 
+  const log = useEventLogger();
+
   return (
     <Box sx={{ p: 4 }}>
       <form className={`${formPrefix}form`} onSubmit={e => e.preventDefault()}>
@@ -227,7 +233,10 @@ export function CreateJobFromDefinition(
               <>
                 <Button
                   variant="outlined"
-                  onClick={e => props.showListView(JobsView.ListJobs)}
+                  onClick={e => {
+                    log('create-job-from-definition.cancel');
+                    props.showListView(JobsView.ListJobs);
+                  }}
                 >
                   {trans.__('Cancel')}
                 </Button>
@@ -235,6 +244,7 @@ export function CreateJobFromDefinition(
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
+                    log('create-job-from-definition.create-job');
                     submitCreateJobRequest(e);
                     return false;
                   }}

@@ -13,6 +13,7 @@ import { Scheduler } from '../../handler';
 import { AdvancedTableHeader } from './advanced-table-header';
 import { useTranslator } from '../../hooks';
 import { Alert } from '@mui/material';
+import { getErrorMessage } from '../../util/errors';
 
 const PAGE_SIZE = 25;
 
@@ -102,8 +103,9 @@ export function AdvancedTable<
         setNextToken(payload?.next_token);
         setTotalCount(payload?.total_count);
       })
-      .catch((e: Error) => {
-        setDisplayError(e.message);
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
       });
   };
 
@@ -152,8 +154,9 @@ export function AdvancedTable<
         setPage(newPage);
         setMaxPage(newPage);
       })
-      .catch((e: Error) => {
-        setDisplayError(e.message);
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
       });
   };
 
@@ -216,9 +219,7 @@ export function AdvancedTable<
   }
 
   const tableDiv = (
-    <div
-      style={height === 'auto' ? { flex: 1, height: 0 } : { maxHeight: height }}
-    >
+    <div style={height === 'auto' ? { flex: 1 } : { maxHeight: height }}>
       <TableContainer
         component={Paper}
         sx={{

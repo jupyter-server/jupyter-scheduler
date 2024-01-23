@@ -20,7 +20,7 @@ import {
   LabeledValue
 } from '../../components/labeled-value';
 import { SchedulerService } from '../../handler';
-import { useTranslator } from '../../hooks';
+import { useEventLogger, useTranslator } from '../../hooks';
 import { ListJobsTable } from '../list-jobs';
 import {
   IJobDefinitionModel,
@@ -31,6 +31,7 @@ import {
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import { timestampLocalize } from './job-detail';
+import { getErrorMessage } from '../../util/errors';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -48,9 +49,16 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const [displayError, setDisplayError] = useState<string | null>(null);
   const ss = useMemo(() => new SchedulerService({}), []);
+  const log = useEventLogger();
 
   const ReloadButton = (
-    <Button variant="contained" onClick={props.reload}>
+    <Button
+      variant="contained"
+      onClick={e => {
+        log('job-definition-detail.reload');
+        props.reload();
+      }}
+    >
       {trans.__('Reload Job Definition')}
     </Button>
   );
@@ -72,21 +80,30 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const handleDeleteJobDefinition = async () => {
     ss.deleteJobDefinition(model.definitionId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobDefinitions))
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const pauseJobDefinition = async () => {
     setDisplayError(null);
     ss.pauseJobDefinition(model.definitionId)
       .then(_ => props.refresh())
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const resumeJobDefinition = async () => {
     setDisplayError(null);
     ss.resumeJobDefinition(model.definitionId)
       .then(_ => props.refresh())
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const runJobDefinition = () => {
@@ -119,23 +136,50 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
   const DefinitionButtonBar = (
     <ButtonBar>
       {ReloadButton}
-      <Button variant="outlined" onClick={runJobDefinition}>
+      <Button
+        variant="outlined"
+        onClick={e => {
+          log('job-definition-detail.run');
+          runJobDefinition();
+        }}
+      >
         {trans.__('Run Job')}
       </Button>
       {model.active ? (
-        <Button variant="outlined" onClick={pauseJobDefinition}>
+        <Button
+          variant="outlined"
+          onClick={e => {
+            log('job-definition-detail.pause');
+            pauseJobDefinition();
+          }}
+        >
           {trans.__('Pause')}
         </Button>
       ) : (
-        <Button variant="outlined" onClick={resumeJobDefinition}>
+        <Button
+          variant="outlined"
+          onClick={e => {
+            log('job-definition-detail.resume');
+            resumeJobDefinition();
+          }}
+        >
           {trans.__('Resume')}
         </Button>
       )}
-      <Button variant="outlined" onClick={() => props.editJobDefinition(model)}>
+      <Button
+        variant="outlined"
+        onClick={() => {
+          log('job-definition-detail.edit');
+          props.editJobDefinition(model);
+        }}
+      >
         {trans.__('Edit Job Definition')}
       </Button>
       <ConfirmDialogDeleteButton
-        handleDelete={handleDeleteJobDefinition}
+        handleDelete={async () => {
+          log('job-definition-detail.delete');
+          handleDeleteJobDefinition();
+        }}
         title={trans.__('Delete Job Definition')}
         dialogText={trans.__(
           'Are you sure that you want to delete this job definition?'

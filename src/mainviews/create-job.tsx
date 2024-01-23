@@ -17,7 +17,7 @@ import {
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
@@ -41,6 +41,7 @@ import {
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
+import { getErrorMessage } from '../util/errors';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -335,13 +336,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     api
       .createJob(jobOptions)
       .then(response => {
+        log('create-job.create-job.success');
         // Switch to the list view with "Job List" active
         props.showListView(JobsView.ListJobs, response.job_id, jobOptions.name);
       })
-      .catch((error: Error) => {
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job.create-job.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });
@@ -382,6 +386,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     api
       .createJobDefinition(jobDefinitionOptions)
       .then(response => {
+        log('create-job.create-job-definition.success');
         // Switch to the list view with "Job Definition List" active
         props.showListView(
           JobsView.ListJobDefinitions,
@@ -389,10 +394,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           jobDefinitionOptions.name
         );
       })
-      .catch((error: Error) => {
+      .catch((e: unknown) => {
+        const detail = getErrorMessage(e);
+        log('create-job.create-job-definition.failure', detail);
         props.handleModelChange({
           ...props.model,
-          createError: error.message,
+          createError: detail,
           createInProgress: false
         });
       });
@@ -450,6 +457,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   // Does the currently-selected environment accept times in UTC only?
   const utcOnly = envsByName[props.model.environment]?.utc_only;
+
+  const log = useEventLogger();
 
   return (
     <Box sx={{ p: 4 }}>
@@ -528,9 +537,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           <Accordion
             defaultExpanded={false}
             expanded={advancedOptionsExpanded}
-            onChange={(_: React.SyntheticEvent, expanded: boolean) =>
-              setAdvancedOptionsExpanded(expanded)
-            }
+            onChange={(e: React.SyntheticEvent, expanded: boolean) => {
+              log(
+                `create-job.advanced-options.${
+                  expanded ? 'expand' : 'collapse'
+                }`
+              );
+              setAdvancedOptionsExpanded(expanded);
+            }}
           >
             <AccordionSummary
               expandIcon={<caretDownIcon.react />}
@@ -573,7 +587,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               <>
                 <Button
                   variant="outlined"
-                  onClick={e => props.showListView(JobsView.ListJobs)}
+                  onClick={e => {
+                    log('create-job.cancel');
+                    props.showListView(JobsView.ListJobs);
+                  }}
                 >
                   {trans.__('Cancel')}
                 </Button>
@@ -581,6 +598,11 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
                 <Button
                   variant="contained"
                   onClick={(e: React.MouseEvent) => {
+                    const eventType =
+                      props.model.createType === 'Job'
+                        ? 'create-job'
+                        : 'create-job-definition';
+                    log(`create-job.${eventType}`);
                     submitForm(e);
                     return false;
                   }}

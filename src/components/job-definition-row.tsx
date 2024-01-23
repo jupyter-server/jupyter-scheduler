@@ -13,9 +13,10 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 
 import { Scheduler, SchedulerService } from '../handler';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 import { TranslationBundle } from '@jupyterlab/translation';
 import { ConfirmDeleteButton } from './confirm-buttons';
+import { getErrorMessage } from '../util/errors';
 
 function CreatedAt(props: {
   job: Scheduler.IDescribeJobDefinition;
@@ -94,10 +95,14 @@ export function buildJobDefinitionRow(
   ss: SchedulerService,
   handleApiError: (error: string | null) => void
 ): JSX.Element {
+  const log = useEventLogger();
   const cellContents: React.ReactNode[] = [
     // name
     <Link
-      onClick={() => openJobDefinitionDetail(jobDef.job_definition_id)}
+      onClick={() => {
+        log('job-definition-list.open-detail');
+        openJobDefinitionDetail(jobDef.job_definition_id);
+      }}
       title={`Open detail view for "${jobDef.name}"`}
     >
       {jobDef.name}
@@ -110,39 +115,45 @@ export function buildJobDefinitionRow(
       <PauseButton
         jobDef={jobDef}
         clickHandler={async () => {
+          log('job-definition-list.pause');
           handleApiError(null);
           ss.pauseJobDefinition(jobDef.job_definition_id)
             .then(_ => {
               forceReload();
             })
-            .catch((error: Error) => {
-              handleApiError(error.message);
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              handleApiError(message);
             });
         }}
       />
       <ResumeButton
         jobDef={jobDef}
         clickHandler={async () => {
+          log('job-definition-list.resume');
           handleApiError(null);
           ss.resumeJobDefinition(jobDef.job_definition_id)
             .then(_ => {
               forceReload();
             })
-            .catch((error: Error) => {
-              handleApiError(error.message);
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              handleApiError(message);
             });
         }}
       />
       <ConfirmDeleteButton
         name={jobDef.name}
         clickHandler={async () => {
+          log('job-definition-list.delete');
           handleApiError(null);
           ss.deleteJobDefinition(jobDef.job_definition_id)
             .then(_ => {
               deleteRow(jobDef.job_definition_id);
             })
-            .catch((error: Error) => {
-              handleApiError(error.message);
+            .catch((e: unknown) => {
+              const message = getErrorMessage(e);
+              handleApiError(message);
             });
         }}
       />

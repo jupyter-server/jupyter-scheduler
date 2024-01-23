@@ -9,7 +9,7 @@ import {
 } from '../../components/confirm-dialog-buttons';
 import { JobFileLink } from '../../components/job-file-link';
 import { Scheduler, SchedulerService } from '../../handler';
-import { useTranslator } from '../../hooks';
+import { useEventLogger, useTranslator } from '../../hooks';
 import { ICreateJobModel, IJobDetailModel, JobsView } from '../../model';
 import { Scheduler as SchedulerTokens } from '../../tokens';
 
@@ -38,6 +38,8 @@ import {
   ILabeledValueProps,
   LabeledValue
 } from '../../components/labeled-value';
+import { getErrorMessage } from '../../util/errors';
+
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
   model: IJobDetailModel | null;
@@ -95,24 +97,35 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     [trans]
   );
 
+  const log = useEventLogger();
+
   const handleDeleteJob = async () => {
+    log('job-detail.delete');
     setDisplayError(null);
     ss.deleteJob(props.model?.jobId ?? '')
       .then(_ => props.setJobsView(JobsView.ListJobs))
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const handleStopJob = async () => {
+    log('job-detail.stop');
     setDisplayError(null);
     props.app.commands
       .execute('scheduling:stop-job', {
         id: props.model?.jobId
       })
       .then(_ => props.handleModelChange())
-      .catch((e: Error) => setDisplayError(e.message));
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
+      });
   };
 
   const downloadFiles = async () => {
+    log('job-detail.download');
     setDownloading(true);
     props.app.commands
       .execute(CommandIDs.downloadFiles, {
@@ -124,15 +137,22 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
           props.handleModelChange().then(_ => setDownloading(false))
         );
       })
-      .catch((e: Error) => {
-        setDisplayError(e.message);
+      .catch((e: unknown) => {
+        const message = getErrorMessage(e);
+        setDisplayError(message);
         setDownloading(false);
       });
   };
 
   const JobButtonBar = (
     <ButtonBar>
-      <Button variant="contained" onClick={props.reload}>
+      <Button
+        variant="contained"
+        onClick={e => {
+          log('job-detail.reload');
+          props.reload();
+        }}
+      >
         {trans.__('Reload Job')}
       </Button>
       {props.model !== null &&
@@ -189,7 +209,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {
         label: trans.__('Input file'),
         value: inputJobFile ? (
-          <JobFileLink app={props.app} jobFile={inputJobFile}>
+          <JobFileLink
+            app={props.app}
+            jobFile={inputJobFile}
+            parentComponentName="job-detail"
+          >
             {props.model.inputFile}
           </JobFileLink>
         ) : (
@@ -262,7 +286,11 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
                     jobFile.file_format !== 'input' && jobFile.file_path
                 )
                 .map(jobFile => (
-                  <JobFileLink jobFile={jobFile} app={props.app} />
+                  <JobFileLink
+                    jobFile={jobFile}
+                    app={props.app}
+                    parentComponentName="job-detail"
+                  />
                 ))}
             </>
           )}
