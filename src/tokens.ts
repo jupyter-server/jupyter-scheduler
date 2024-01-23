@@ -60,5 +60,5 @@ export namespace Scheduler {
     '@jupyterlab/scheduler:ITelemetryHandler'
   );
 
-  export type EventLogger = (eventName: string) => void;
+  export type EventLogger = (eventName: string, eventDetail?: string) => void;
 }
