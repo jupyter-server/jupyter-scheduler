@@ -1,4 +1,5 @@
 """Scheduling API for JupyterLab"""
+
 from ._version import __version__
 from .extension import SchedulerApp
 
