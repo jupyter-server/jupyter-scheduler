@@ -12,6 +12,7 @@ import {
 import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { INotebookTracker } from '@jupyterlab/notebook';
+import { IRenderMime } from '@jupyterlab/rendermime-interfaces';
 import { Contents, ServerConnection } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
 
@@ -45,6 +46,33 @@ type EventLog = {
   body: { name: string; detail?: string };
   timestamp: Date;
 };
+
+type verifyServExtProps = {
+  api: SchedulerService;
+  trans: IRenderMime.TranslationBundle;
+};
+
+/**
+ * Call API to verify that the server extension is actually installed.
+ */
+async function verifyServExt(props: verifyServExtProps) {
+  try {
+    await props.api.getJobs({ max_items: 0 });
+  } catch (e: unknown) {
+    // in case of 404, show missing server extension dialog and return
+    if (
+      e instanceof ServerConnection.ResponseError &&
+      e.response.status === 404
+    ) {
+      showDialog({
+        title: props.trans.__('Jupyter Scheduler server extension not found'),
+        body: SERVER_EXTENSION_404_JSX,
+        buttons: [Dialog.okButton()]
+      }).catch(console.warn);
+      return;
+    }
+  }
+}
 
 /**
  * Initialization data for the jupyterlab-scheduler extension.
@@ -150,24 +178,7 @@ async function activatePlugin(
 ): Promise<void> {
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
-
-  // Call API to verify that the server extension is actually installed
-  try {
-    await api.getJobs({ max_items: 0 });
-  } catch (e: unknown) {
-    // in case of 404, show missing server extension dialog and return
-    if (
-      e instanceof ServerConnection.ResponseError &&
-      e.response.status === 404
-    ) {
-      showDialog({
-        title: trans.__('Jupyter Scheduler server extension not found'),
-        body: SERVER_EXTENSION_404_JSX,
-        buttons: [Dialog.okButton()]
-      }).catch(console.warn);
-      return;
-    }
-  }
+  verifyServExt({ api, trans });
 
   const { commands } = app;
   const fileBrowserTracker = browserFactory.tracker;
