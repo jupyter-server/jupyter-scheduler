@@ -47,7 +47,7 @@ type EventLog = {
   timestamp: Date;
 };
 
-type verifyServExtProps = {
+type verifyServerExtensiontProps = {
   api: SchedulerService;
   trans: IRenderMime.TranslationBundle;
 };
@@ -55,7 +55,7 @@ type verifyServExtProps = {
 /**
  * Call API to verify that the server extension is actually installed.
  */
-async function verifyServExt(props: verifyServExtProps) {
+async function verifyServerExtension(props: verifyServerExtensiontProps) {
   try {
     await props.api.getJobs({ max_items: 0 });
   } catch (e: unknown) {
@@ -178,7 +178,7 @@ async function activatePlugin(
 ): Promise<void> {
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
-  verifyServExt({ api, trans });
+  verifyServerExtension({ api, trans });
 
   const { commands } = app;
   const fileBrowserTracker = browserFactory.tracker;
