@@ -55,7 +55,10 @@ type verifyServerExtensiontProps = {
 /**
  * Call API to verify that the server extension is actually installed.
  */
-async function verifyServerExtension(props: verifyServerExtensiontProps) {
+async function verifyServerExtension(props: {
+  api: SchedulerService;
+  trans: IRenderMime.TranslationBundle;
+}) {
   try {
     await props.api.getJobs({ max_items: 0 });
   } catch (e: unknown) {
