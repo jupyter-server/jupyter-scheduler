@@ -64,3 +64,65 @@ export function NameError(name: string, trans: TranslationBundle): string {
     'Name must contain only letters, numbers, spaces, periods, hyphens, and underscores'
   );
 }
+
+export function MaxRetryAttemptsError(maxRetryAttempts: string, trans: TranslationBundle): string {
+  // Check for blank
+  if (maxRetryAttempts === '') {
+    return trans.__('You must specify max retry attempts');
+  }
+
+  const integerValue = parseInt(maxRetryAttempts)
+  if (isNaN(integerValue)) {
+    return trans.__(
+      'Max retry attempts must be an integer'
+    );
+  }
+
+  // Check for length.
+  if (integerValue < 1 || integerValue > 30) {
+    return trans.__('Max retry attempts must be between 1 and 30');
+  }
+
+  return '';
+}
+
+export function MaxRunTimeError(maxRunTime: string, trans: TranslationBundle): string {
+  // Check for blank
+  if (maxRunTime === '') {
+    return trans.__('You must specify max run time');
+  }
+
+  const integerValue = parseInt(maxRunTime)
+  if (isNaN(integerValue)) {
+    return trans.__(
+      'Max run time must be an integer'
+    );
+  }
+
+  // Check for length.
+  if (integerValue < 1) {
+    return trans.__('Max run time must be greater than 1');
+  }
+
+  return '';
+}
+
+export function MaxWaitTimeError(maxWaitTime: string, trans: TranslationBundle): string {
+  // Check for blank
+  if (maxWaitTime === '') {
+    return trans.__('You must specify max run time');
+  }
+  const integerValue = parseInt(maxWaitTime)
+  if (isNaN(integerValue)) {
+    return trans.__(
+      'Max wait time must be an integer'
+    );
+  }
+
+  // Check for length.
+  if (integerValue < 1) {
+    return trans.__('Max wait time must be greater than 1');
+  }
+
+  return '';
+}
