@@ -47,11 +47,6 @@ type EventLog = {
   timestamp: Date;
 };
 
-type verifyServerExtensiontProps = {
-  api: SchedulerService;
-  trans: IRenderMime.TranslationBundle;
-};
-
 /**
  * Call API to verify that the server extension is actually installed.
  */
