@@ -3775,6 +3775,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jupyterlab/rendermime-interfaces@npm:^3.8.0":
+  version: 3.9.0
+  resolution: "@jupyterlab/rendermime-interfaces@npm:3.9.0"
+  dependencies:
+    "@lumino/coreutils": ^1.11.0 || ^2.1.2
+    "@lumino/widgets": ^1.37.2 || ^2.3.1
+  checksum: 462f5d034cd636caf9322245a50045ddaac55e05e056e7c6579e2db55088e724c8054a51a959aa284c44b108a9e0f0053707b50d6d8a9caed5825eeaf715b245
+  languageName: node
+  linkType: hard
+
 "@jupyterlab/rendermime-interfaces@npm:^3.8.3":
   version: 3.8.3
   resolution: "@jupyterlab/rendermime-interfaces@npm:3.8.3"
@@ -3782,16 +3792,6 @@ __metadata:
     "@lumino/coreutils": ^1.11.0 || ^2.1.1
     "@lumino/widgets": ^1.37.2 || ^2.1.1
   checksum: aeb055196099e29eff78e98e904e3dac10255ac4693ed0d99022d08fe3de4dd792e66c06f6e11f110be2276e9ba36ae15b8a08e6fb1b4c25e774d5525199b5d3
-  languageName: node
-  linkType: hard
-
-"@jupyterlab/rendermime-interfaces@npm:^3.9.0":
-  version: 3.9.0
-  resolution: "@jupyterlab/rendermime-interfaces@npm:3.9.0"
-  dependencies:
-    "@lumino/coreutils": ^1.11.0 || ^2.1.2
-    "@lumino/widgets": ^1.37.2 || ^2.3.1
-  checksum: 462f5d034cd636caf9322245a50045ddaac55e05e056e7c6579e2db55088e724c8054a51a959aa284c44b108a9e0f0053707b50d6d8a9caed5825eeaf715b245
   languageName: node
   linkType: hard
 
@@ -3829,7 +3829,7 @@ __metadata:
     "@jupyterlab/coreutils": ^6
     "@jupyterlab/filebrowser": ^4
     "@jupyterlab/launcher": ^4
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
+    "@jupyterlab/rendermime-interfaces": ^3.8.0
     "@jupyterlab/services": ^7
     "@jupyterlab/testutils": ^4
     "@jupyterlab/translation": ^4

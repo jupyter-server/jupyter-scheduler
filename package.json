@@ -62,7 +62,7 @@
     "@jupyterlab/coreutils": "^6",
     "@jupyterlab/filebrowser": "^4",
     "@jupyterlab/launcher": "^4",
-    "@jupyterlab/rendermime-interfaces": "^3.9.0",
+    "@jupyterlab/rendermime-interfaces": "^3.8.0",
     "@jupyterlab/services": "^7",
     "@jupyterlab/translation": "^4",
     "@jupyterlab/ui-components": "^4",
