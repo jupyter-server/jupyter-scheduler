@@ -164,7 +164,7 @@ function getDirectoryFromPath(path: string | null): string | null {
   return directories.join('/') + (directories.length > 0 ? '/' : '');
 }
 
-async function activatePlugin(
+function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
   notebookTracker: INotebookTracker,
@@ -173,7 +173,7 @@ async function activatePlugin(
   advancedOptions: Scheduler.IAdvancedOptions,
   telemetryHandler: Scheduler.TelemetryHandler,
   launcher: ILauncher | null
-): Promise<void> {
+): void {
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
   verifyServerExtension({ api, trans });
