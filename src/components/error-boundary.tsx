@@ -27,7 +27,7 @@ export class ErrorBoundary extends React.Component<
     this.setState({ hasError: true, error });
   }
 
-  render(): React.ReactNode {
+  render(): JSX.Element {
     let errorDetail;
     if (typeof this.state.error === 'string') {
       errorDetail = this.state.error;
@@ -53,6 +53,6 @@ export class ErrorBoundary extends React.Component<
         </div>
       );
     }
-    return this.props.children;
+    return <> {this.props.children} </>;
   }
 }
