@@ -47,6 +47,32 @@ type EventLog = {
 };
 
 /**
+ * Call API to verify that the server extension is actually installed.
+ */
+async function verifyServerExtension(props: {
+  api: SchedulerService;
+  translator: ITranslator;
+}) {
+  const trans = props.translator.load('jupyterlab');
+  try {
+    await props.api.getJobs({ max_items: 0 });
+  } catch (e: unknown) {
+    // in case of 404, show missing server extension dialog and return
+    if (
+      e instanceof ServerConnection.ResponseError &&
+      e.response.status === 404
+    ) {
+      showDialog({
+        title: trans.__('Jupyter Scheduler server extension not found'),
+        body: SERVER_EXTENSION_404_JSX,
+        buttons: [Dialog.okButton()]
+      }).catch(console.warn);
+      return;
+    }
+  }
+}
+
+/**
  * Initialization data for the jupyterlab-scheduler extension.
  */
 const schedulerPlugin: JupyterFrontEndPlugin<void> = {
@@ -138,7 +164,7 @@ function getDirectoryFromPath(path: string | null): string | null {
   return directories.join('/') + (directories.length > 0 ? '/' : '');
 }
 
-async function activatePlugin(
+function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
   notebookTracker: INotebookTracker,
@@ -147,27 +173,10 @@ async function activatePlugin(
   advancedOptions: Scheduler.IAdvancedOptions,
   telemetryHandler: Scheduler.TelemetryHandler,
   launcher: ILauncher | null
-): Promise<void> {
+): void {
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
-
-  // Call API to verify that the server extension is actually installed
-  try {
-    await api.getJobs({ max_items: 0 });
-  } catch (e: unknown) {
-    // in case of 404, show missing server extension dialog and return
-    if (
-      e instanceof ServerConnection.ResponseError &&
-      e.response.status === 404
-    ) {
-      showDialog({
-        title: trans.__('Jupyter Scheduler server extension not found'),
-        body: SERVER_EXTENSION_404_JSX,
-        buttons: [Dialog.okButton()]
-      }).catch(console.warn);
-      return;
-    }
-  }
+  verifyServerExtension({ api, translator });
 
   const { commands } = app;
   const fileBrowserTracker = browserFactory.tracker;
