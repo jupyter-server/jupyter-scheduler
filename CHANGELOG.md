@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.5.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.5.0...01fc2dca2a01673311abbaf970e0a80ee1368299))
+
+### Bugs fixed
+
+- Fix translator usage, remove @jupyterlab/rendermime-interfaces dependency [#483](https://github.com/jupyter-server/jupyter-scheduler/pull/483) ([@andrii-i](https://github.com/andrii-i))
+- Make server extension verification call during extension startup non-blocking [#480](https://github.com/jupyter-server/jupyter-scheduler/pull/480) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-01-23&to=2024-02-15&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-01-23..2024-02-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2024-01-23..2024-02-15&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2024-01-23..2024-02-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.5.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.4.0...675dba6adaa4cec879c9b4c4e85c07020ee88519))
@@ -19,8 +38,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-11-16&to=2024-01-23&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-11-16..2024-01-23&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2023-11-16..2024-01-23&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2023-11-16..2024-01-23&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.4.0
 
