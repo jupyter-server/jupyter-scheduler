@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.8.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.8.0...2e3ccf021dba582464fbab33c4bec129c0380cc2))
+
+### Bugs fixed
+
+- \[1.x\] Make server extension verification call during extension startup non-blocking (#480) [#481](https://github.com/jupyter-server/jupyter-scheduler/pull/481) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-01-23&to=2024-02-15&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-01-23..2024-02-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2024-01-23..2024-02-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.8.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.7.0...4447c3ba6d53dd73b13be2b376163935a9ac1d15))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2023-11-16&to=2024-01-23&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2023-11-16..2024-01-23&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.7.0
 
