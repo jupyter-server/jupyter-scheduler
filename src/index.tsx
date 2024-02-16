@@ -3,11 +3,16 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
+import {
+  Dialog,
+  MainAreaWidget,
+  showDialog,
+  WidgetTracker
+} from '@jupyterlab/apputils';
 import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { ILauncher } from '@jupyterlab/launcher';
 import { INotebookTracker } from '@jupyterlab/notebook';
-import { Contents } from '@jupyterlab/services';
+import { Contents, ServerConnection } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
 
 import AdvancedOptions from './advanced-options';
@@ -20,6 +25,7 @@ import { SchedulerService } from './handler';
 import { IJobsModel, emptyCreateJobModel, JobsView } from './model';
 import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
+import { SERVER_EXTENSION_404_JSX } from './util/errors';
 import { MakeNameValid } from './util/job-name-validation';
 
 export namespace CommandIDs {
@@ -33,6 +39,32 @@ export namespace CommandIDs {
 
 export const NotebookJobsPanelId = 'notebook-jobs-panel';
 export { Scheduler } from './tokens';
+
+/**
+ * Call API to verify that the server extension is actually installed.
+ */
+async function verifyServerExtension(props: {
+  api: SchedulerService;
+  translator: ITranslator;
+}) {
+  const trans = props.translator.load('jupyterlab');
+  try {
+    await props.api.getJobs({ max_items: 0 });
+  } catch (e: unknown) {
+    // in case of 404, show missing server extension dialog and return
+    if (
+      e instanceof ServerConnection.ResponseError &&
+      e.response.status === 404
+    ) {
+      showDialog({
+        title: trans.__('Jupyter Scheduler server extension not found'),
+        body: SERVER_EXTENSION_404_JSX,
+        buttons: [Dialog.okButton()]
+      }).catch(console.warn);
+      return;
+    }
+  }
+}
 
 /**
  * Initialization data for the jupyterlab-scheduler extension.
@@ -114,7 +146,7 @@ function getDirectoryFromPath(path: string | null): string | null {
   return directories.join('/') + (directories.length > 0 ? '/' : '');
 }
 
-async function activatePlugin(
+function activatePlugin(
   app: JupyterFrontEnd,
   browserFactory: IFileBrowserFactory,
   notebookTracker: INotebookTracker,
@@ -122,11 +154,12 @@ async function activatePlugin(
   restorer: ILayoutRestorer,
   advancedOptions: Scheduler.IAdvancedOptions,
   launcher: ILauncher | null
-): Promise<void> {
+): void {
   const { commands } = app;
   const trans = translator.load('jupyterlab');
   const fileBrowserTracker = browserFactory.tracker;
   const api = new SchedulerService({});
+  verifyServerExtension({ api, translator });
   const widgetTracker = new WidgetTracker<MainAreaWidget<NotebookJobsPanel>>({
     namespace: 'jupyterlab-scheduler'
   });

@@ -8,6 +8,12 @@ node_modules/
 *.tsbuildinfo
 jupyter_scheduler/labextension
 
+# Yarn 3 cache
+.yarn
+
+# Pytest files
+coverage
+
 # Integration tests
 ui-tests/test-results/
 ui-tests/playwright-report/
