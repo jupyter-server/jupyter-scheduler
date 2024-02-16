@@ -53,6 +53,9 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
 
+[tool.check-wheel-contents]
+ignore = ["W002"]
+
 [tool.hatch.build]
 artifacts = ["jupyter_scheduler/labextension"]
 
