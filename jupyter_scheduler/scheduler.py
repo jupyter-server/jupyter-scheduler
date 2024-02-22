@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 from typing import Dict, List, Optional, Type, Union
+import subprocess
 
 import fsspec
 import psutil
@@ -399,6 +400,22 @@ class Scheduler(BaseScheduler):
 
     task_runner = Instance(allow_none=True, klass="jupyter_scheduler.task_runner.BaseTaskRunner")
 
+    def start_mlflow_server(self):
+        subprocess.Popen(
+            [
+                "mlflow",
+                "server",
+                "--backend-store-uri",
+                "./mlruns",
+                "--default-artifact-root",
+                "./mlartifacts",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "5000",
+            ]
+        )
+
     def __init__(
         self,
         root_dir: str,
@@ -413,6 +430,8 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+
+        self.start_mlflow_server()
 
     @property
     def db_session(self):
