@@ -176,7 +176,6 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
-
     const parameterNameIdx = parameterNameMatch(target.name);
     const parameterValueIdx = parameterValueMatch(target.name);
     const newParams = props.model.parameters || [];
@@ -323,7 +322,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      mlflow_logging: props.model.mlflowLogging,
+      mlflow_experiment_id: props.model.mlflowExperimentId,
+      mlflow_run_id: props.model.mlflowRunId
     };
 
     if (props.model.parameters !== undefined) {
@@ -372,7 +374,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
       timezone: props.model.timezone,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      mlflow_logging: props.model.mlflowLogging,
+      mlflow_experiment_id: props.model.mlflowExperimentId
     };
 
     if (props.model.parameters !== undefined) {
