@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 import fsspec
+import mlflow
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
@@ -14,6 +15,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
+from jupyter_scheduler.scheduler import MLFLOW_SERVER_URI
 from jupyter_scheduler.utils import get_utc_timestamp
 
 
@@ -136,13 +138,17 @@ class DefaultExecutionManager(ExecutionManager):
             kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=staging_dir
         )
 
-        try:
-            ep.preprocess(nb, {"metadata": {"path": staging_dir}})
-        except CellExecutionError as e:
-            raise e
-        finally:
-            self.add_side_effects_files(staging_dir)
-            self.create_output_files(job, nb)
+        mlflow.set_tracking_uri(MLFLOW_SERVER_URI)
+        with mlflow.start_run(run_id=job.mlflow_run_id):
+            try:
+                ep.preprocess(nb, {"metadata": {"path": staging_dir}})
+                if job.parameters:
+                    mlflow.log_params(job.parameters)
+            except CellExecutionError as e:
+                raise e
+            finally:
+                self.add_side_effects_files(staging_dir)
+                self.create_output_files(job, nb)
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
@@ -170,8 +176,10 @@ class DefaultExecutionManager(ExecutionManager):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)
             output, _ = cls().from_notebook_node(notebook_node)
-            with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
+            output_path = self.staging_paths[output_format]
+            with fsspec.open(output_path, "w", encoding="utf-8") as f:
                 f.write(output)
+            mlflow.log_artifact(output_path)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {

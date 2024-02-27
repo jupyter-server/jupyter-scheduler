@@ -100,6 +100,9 @@ export interface ICreateJobModel
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
   packageInputFolder?: boolean;
+  mlflowLogging?: boolean;
+  mlflowExperimentId?: string;
+  mlflowRunId?: string;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -312,6 +315,9 @@ export interface IJobDetailModel {
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
   packageInputFolder?: boolean;
+  mlflowLogging?: boolean;
+  mlflowExperimentId?: string;
+  mlflowRunId?: string;
 }
 
 export interface IJobDefinitionModel {
@@ -339,6 +345,8 @@ export interface IJobDefinitionModel {
   endTime?: number;
   outputPrefix?: string;
   packageInputFolder?: boolean;
+  mlflowLogging?: boolean;
+  mlflowExperimentId?: string;
 }
 
 const convertParameters = (parameters: {
@@ -388,7 +396,10 @@ export function convertDescribeJobtoJobDetail(
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
     downloaded: describeJob.downloaded,
-    packageInputFolder: describeJob.package_input_folder
+    packageInputFolder: describeJob.package_input_folder,
+    mlflowLogging: describeJob.mlflow_logging,
+    mlflowExperimentId: describeJob.mlflow_experiment_id,
+    mlflowRunId: describeJob.mlflow_run_id
   };
 }
 
@@ -417,7 +428,9 @@ export function convertDescribeDefinitiontoDefinition(
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
     timezone: describeDefinition.timezone,
-    packageInputFolder: describeDefinition.package_input_folder
+    packageInputFolder: describeDefinition.package_input_folder,
+    mlflowLogging: describeDefinition.mlflow_logging,
+    mlflowExperimentId: describeDefinition.mlflow_experiment_id
   };
 }
 

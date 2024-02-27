@@ -2,15 +2,13 @@ import React, { ChangeEvent } from 'react';
 
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
-export type MLFlowCheckboxProps = {
+export function MLFlowLoggingControl(props: {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
-};
-
-export function MLFlowCheckbox(props: MLFlowCheckboxProps): JSX.Element {
+}): JSX.Element {
   return (
     <FormGroup>
       <FormControlLabel
-        control={<Checkbox onChange={props.onChange} value={'mlflowLogging'} />}
+        control={<Checkbox onChange={props.onChange} name={'mlflowLogging'} />}
         label="Log with MLFlow"
       />
     </FormGroup>

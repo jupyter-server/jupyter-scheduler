@@ -89,6 +89,8 @@ class CommonColumns:
     # Any default values specified for new columns will be ignored during the migration process.
     package_input_folder = Column(Boolean)
     packaged_files = Column(JsonType, default=[])
+    mlflow_logging = Column(Boolean)
+    mlflow_experiment_id = Column(String(256), nullable=True)
 
 
 class Job(CommonColumns, Base):
@@ -105,6 +107,7 @@ class Job(CommonColumns, Base):
     idempotency_token = Column(String(256))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
+    mlflow_run_id = Column(String(256), nullable=True)
 
 
 class JobDefinition(CommonColumns, Base):

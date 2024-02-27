@@ -32,6 +32,7 @@ import { Scheduler as SchedulerTokens } from '../../tokens';
 
 import { timestampLocalize } from './job-detail';
 import { getErrorMessage } from '../../util/errors';
+import { OpenInNew } from '@mui/icons-material';
 
 export interface IJobDefinitionProps {
   app: JupyterFrontEnd;
@@ -175,6 +176,18 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       >
         {trans.__('Edit Job Definition')}
       </Button>
+      {model.mlflowLogging === true && (
+        <Button
+          variant="outlined"
+          onClick={() => {
+            const mlFlowUrl = `http://127.0.0.1:5000/#/experiments/${props.model?.mlflowExperimentId}`;
+            window.open(mlFlowUrl);
+          }}
+          endIcon={<OpenInNew />}
+        >
+          {trans.__('Open in MLFlow')}
+        </Button>
+      )}
       <ConfirmDialogDeleteButton
         handleDelete={async () => {
           log('job-definition-detail.delete');
@@ -229,6 +242,16 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
       {
         value: model.timezone ?? '',
         label: trans.__('Time zone')
+      }
+    ],
+    [
+      {
+        value: model.mlflowLogging ? trans.__('Yes') : trans.__('No'),
+        label: trans.__('MLFlow Logging')
+      },
+      {
+        value: props.model.mlflowExperimentId,
+        label: trans.__('MLFLow Experiment Id')
       }
     ],
     [
