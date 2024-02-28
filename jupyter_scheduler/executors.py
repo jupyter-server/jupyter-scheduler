@@ -145,14 +145,14 @@ class DefaultExecutionManager(ExecutionManager):
                 if job.parameters:
                     mlflow.log_params(job.parameters)
 
-                for index, cell in enumerate(nb.cells):
+                for idx, cell in enumerate(nb.cells):
                     if "tags" in cell.metadata and "mlflow_log" in cell.metadata["tags"]:
-                        mlflow.log_text(cell.source, f"source_cell_{index}.txt")
+                        mlflow.log_text(cell.source, f"source_cell_{idx}.txt")
                         if cell.cell_type == "code" and cell.outputs:
                             for output in cell.outputs:
                                 if "text/plain" in output.data:
                                     mlflow.log_text(
-                                        output.data["text/plain"], f"output_cell_{cell.cell_id}.txt"
+                                        output.data["text/plain"], f"output_cell_{idx}.txt"
                                     )
 
             except CellExecutionError as e:
