@@ -144,6 +144,17 @@ class DefaultExecutionManager(ExecutionManager):
                 ep.preprocess(nb, {"metadata": {"path": staging_dir}})
                 if job.parameters:
                     mlflow.log_params(job.parameters)
+
+                for index, cell in enumerate(nb.cells):
+                    if "tags" in cell.metadata and "mlflow_log" in cell.metadata["tags"]:
+                        mlflow.log_text(cell.source, f"source_cell_{index}.txt")
+                        if cell.cell_type == "code" and cell.outputs:
+                            for output in cell.outputs:
+                                if "text/plain" in output.data:
+                                    mlflow.log_text(
+                                        output.data["text/plain"], f"output_cell_{cell.cell_id}.txt"
+                                    )
+
             except CellExecutionError as e:
                 raise e
             finally:
