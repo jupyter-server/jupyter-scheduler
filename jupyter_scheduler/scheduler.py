@@ -507,12 +507,12 @@ class Scheduler(BaseScheduler):
             if model.job_definition_id and model.mlflow_experiment_id:
                 experiment_id = model.mlflow_experiment_id
             else:
-                experiment_id = mlflow_client.create_experiment(f"{model.name}-{uuid4()}")
+                experiment_id = mlflow_client.create_experiment(f"{model.input_filename}-{uuid4()}")
                 model.mlflow_experiment_id = experiment_id
                 input_file_path = os.path.join(self.root_dir, model.input_uri)
                 mlflow.log_artifact(input_file_path, "input")
 
-            mlflow_run = mlflow_client.create_run(experiment_id=experiment_id, run_name=model.name)
+            mlflow_run = mlflow_client.create_run(experiment_id=experiment_id, run_name=model.input_filename)
             model.mlflow_run_id = mlflow_run.info.run_id
 
             job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
@@ -663,7 +663,7 @@ class Scheduler(BaseScheduler):
                 raise InputUriError(model.input_uri)
 
             mlflow_client = mlflow.MlflowClient()
-            experiment_id = mlflow_client.create_experiment(f"{model.name}-{uuid4()}")
+            experiment_id = mlflow_client.create_experiment(f"{model.input_filename}-{uuid4()}")
             model.mlflow_experiment_id = experiment_id
             input_file_path = os.path.join(self.root_dir, model.input_uri)
             mlflow.log_artifact(input_file_path, "input")
