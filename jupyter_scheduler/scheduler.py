@@ -512,7 +512,9 @@ class Scheduler(BaseScheduler):
                 input_file_path = os.path.join(self.root_dir, model.input_uri)
                 mlflow.log_artifact(input_file_path, "input")
 
-            mlflow_run = mlflow_client.create_run(experiment_id=experiment_id, run_name=model.input_filename)
+            mlflow_run = mlflow_client.create_run(
+                experiment_id=experiment_id, run_name=model.input_filename
+            )
             model.mlflow_run_id = mlflow_run.info.run_id
 
             job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
