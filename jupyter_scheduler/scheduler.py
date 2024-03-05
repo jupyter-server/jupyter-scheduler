@@ -513,7 +513,7 @@ class Scheduler(BaseScheduler):
                 mlflow.log_artifact(input_file_path, "input")
 
             mlflow_run = mlflow_client.create_run(
-                experiment_id=experiment_id, run_name=model.input_filename
+                experiment_id=experiment_id, run_name=f"{model.input_filename}-{uuid4()}"
             )
             model.mlflow_run_id = mlflow_run.info.run_id
 
