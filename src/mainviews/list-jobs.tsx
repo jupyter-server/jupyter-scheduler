@@ -119,7 +119,7 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     },
     {
       sortField: 'input_filename',
-      name: trans.__('Input file')
+      name: trans.__('Input filename')
     },
     {
       sortField: null,
