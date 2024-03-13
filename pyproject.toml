@@ -37,7 +37,8 @@ dependencies = [
     "croniter~=1.4",
     "pytz==2023.3",
     "fsspec==2023.6.0",
-    "psutil~=5.9"
+    "psutil~=5.9",
+    "mlflow"
 ]
 
 [project.optional-dependencies]

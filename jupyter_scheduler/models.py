@@ -85,6 +85,9 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+    mlflow_logging: Optional[bool] = None
+    mlflow_experiment_id: Optional[str] = None
+    mlflow_run_id: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -145,6 +148,9 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
+    mlflow_logging: Optional[bool] = None
+    mlflow_experiment_id: Optional[str] = None
+    mlflow_run_id: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -209,6 +215,8 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
+    mlflow_logging: Optional[bool] = None
+    mlflow_experiment_id: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -234,6 +242,8 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
+    mlflow_logging: Optional[bool] = None
+    mlflow_experiment_id: Optional[str] = None
 
     class Config:
         orm_mode = True

@@ -363,6 +363,8 @@ export namespace Scheduler {
     compute_type?: string;
     schedule?: string;
     timezone?: string;
+    mlflow_logging?: boolean;
+    mlflow_experiment_id?: string;
   }
 
   export interface IUpdateJobDefinition {
@@ -389,6 +391,8 @@ export namespace Scheduler {
     create_time: number;
     update_time: number;
     active: boolean;
+    mlflow_logging: boolean;
+    mlflow_experiment_id?: string;
   }
 
   export interface IEmailNotifications {
@@ -415,6 +419,9 @@ export namespace Scheduler {
     output_filename_template?: string;
     output_formats?: string[];
     compute_type?: string;
+    mlflow_logging?: boolean;
+    mlflow_experiment_id?: string;
+    mlflow_run_id?: string;
   }
 
   export interface ICreateJobFromDefinition {
@@ -463,6 +470,9 @@ export namespace Scheduler {
     start_time?: number;
     end_time?: number;
     downloaded: boolean;
+    mlflow_logging?: boolean;
+    mlflow_experiment_id?: string;
+    mlflow_run_id?: string;
   }
 
   export interface ICreateJobResponse {

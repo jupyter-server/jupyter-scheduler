@@ -226,7 +226,7 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
     },
     {
       sortField: 'input_filename',
-      name: trans.__('Input filename')
+      name: trans.__('Input file')
     },
     {
       sortField: 'create_time',

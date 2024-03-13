@@ -85,6 +85,8 @@ class CommonColumns:
     output_filename_template = Column(String(256))
     update_time = Column(Integer, default=get_utc_timestamp, onupdate=get_utc_timestamp)
     create_time = Column(Integer, default=get_utc_timestamp)
+    mlflow_logging = Column(Boolean)
+    mlflow_experiment_id = Column(String(256), nullable=True)
 
 
 class Job(CommonColumns, Base):
@@ -98,6 +100,7 @@ class Job(CommonColumns, Base):
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
+    mlflow_run_id = Column(String(256), nullable=True)
 
 
 class JobDefinition(CommonColumns, Base):
