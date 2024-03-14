@@ -99,6 +99,7 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
+  packageInputFolder?: boolean;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -310,6 +311,7 @@ export interface IJobDetailModel {
   outputPrefix?: string;
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
+  packageInputFolder?: boolean;
 }
 
 export interface IJobDefinitionModel {
@@ -336,6 +338,7 @@ export interface IJobDefinitionModel {
   startTime?: number;
   endTime?: number;
   outputPrefix?: string;
+  packageInputFolder?: boolean;
 }
 
 const convertParameters = (parameters: {
@@ -384,7 +387,8 @@ export function convertDescribeJobtoJobDetail(
     updateTime: describeJob.update_time,
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
-    downloaded: describeJob.downloaded
+    downloaded: describeJob.downloaded,
+    packageInputFolder: describeJob.packageInputFolder
   };
 }
 
@@ -412,7 +416,8 @@ export function convertDescribeDefinitiontoDefinition(
     createTime: describeDefinition.create_time,
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
-    timezone: describeDefinition.timezone
+    timezone: describeDefinition.timezone,
+    packageInputFolder: describeDefinition.packageInputFolder
   };
 }
 
