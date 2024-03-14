@@ -715,10 +715,6 @@ class Scheduler(BaseScheduler):
 
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
-        if model.package_input_folder:
-            notebook_dir = os.path.dirname(staging_paths["input"])
-            staging_paths["input_dir"] = notebook_dir
-
         return staging_paths
 
 
