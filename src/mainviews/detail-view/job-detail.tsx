@@ -249,6 +249,12 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {
         value: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
+      },
+      {
+        value: props.model.packageInputFolder
+          ? trans.__('Yes')
+          : trans.__('No'),
+        label: trans.__('Package input folder')
       }
     ]
   ];
