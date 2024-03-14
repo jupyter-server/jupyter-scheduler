@@ -371,6 +371,25 @@ class Scheduler(BaseScheduler):
             with fsspec.open(copy_to_path, "wb") as output_file:
                 output_file.write(input_file.read())
 
+    def copy_input_folder(self, input_uri: str, nb_copy_to_path: str):
+        """Copies the input file along with the input directory to the staging directory"""
+        input_dir_path = os.path.dirname(os.path.join(self.root_dir, input_uri))
+        staging_dir = os.path.dirname(nb_copy_to_path)
+
+        # Copy the input file
+        self.copy_input_file(input_uri, nb_copy_to_path)
+
+        # Copy the rest of the input folder excluding the input file
+        for item in os.listdir(input_dir_path):
+            source = os.path.join(input_dir_path, item)
+            destination = os.path.join(staging_dir, item)
+            if os.path.isdir(source):
+                shutil.copytree(source, destination)
+            elif os.path.isfile(source) and item != os.path.basename(input_uri):
+                with fsspec.open(source) as src_file:
+                    with fsspec.open(destination, "wb") as output_file:
+                        output_file.write(src_file.read())
+
     def create_job(self, model: CreateJob) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
@@ -401,7 +420,10 @@ class Scheduler(BaseScheduler):
             session.commit()
 
             staging_paths = self.get_staging_paths(DescribeJob.from_orm(job))
-            self.copy_input_file(model.input_uri, staging_paths["input"])
+            if model.package_input_folder:
+                self.copy_input_folder(model.input_uri, staging_paths["input"])
+            else:
+                self.copy_input_file(model.input_uri, staging_paths["input"])
 
             # The MP context forces new processes to not be forked on Linux.
             # This is necessary because `asyncio.get_event_loop()` is bugged in
@@ -541,7 +563,10 @@ class Scheduler(BaseScheduler):
             job_definition_id = job_definition.job_definition_id
 
             staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
-            self.copy_input_file(model.input_uri, staging_paths["input"])
+            if model.package_input_folder:
+                self.copy_input_folder(model.input_uri, staging_paths["input"])
+            else:
+                self.copy_input_file(model.input_uri, staging_paths["input"])
 
         if self.task_runner and job_definition.schedule:
             self.task_runner.add_job_definition(job_definition_id)
@@ -689,6 +714,10 @@ class Scheduler(BaseScheduler):
             staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
 
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
+
+        if model.package_input_folder:
+            notebook_dir = os.path.dirname(staging_paths["input"])
+            staging_paths["input_dir"] = notebook_dir
 
         return staging_paths
 
