@@ -85,6 +85,7 @@ class CommonColumns:
     output_filename_template = Column(String(256))
     update_time = Column(Integer, default=get_utc_timestamp, onupdate=get_utc_timestamp)
     create_time = Column(Integer, default=get_utc_timestamp)
+    package_input_folder = Column(Boolean)
 
 
 class Job(CommonColumns, Base):
