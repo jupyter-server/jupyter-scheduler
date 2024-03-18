@@ -131,19 +131,19 @@ class DefaultExecutionManager(ExecutionManager):
         if job.parameters:
             nb = add_parameters(nb, job.parameters)
 
+        notebook_dir = os.path.dirname(self.staging_paths["input"])
         ep = ExecutePreprocessor(
-            kernel_name=nb.metadata.kernelspec["name"],
-            store_widget_state=True,
+            kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=notebook_dir
         )
 
         try:
-            ep.preprocess(nb)
+            ep.preprocess(nb, {"metadata": {"path": notebook_dir}})
         except CellExecutionError as e:
             raise e
         finally:
             for output_format in job.output_formats:
                 cls = nbconvert.get_exporter(output_format)
-                output, resources = cls().from_notebook_node(nb)
+                output, _ = cls().from_notebook_node(nb)
                 with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
                     f.write(output)
 
