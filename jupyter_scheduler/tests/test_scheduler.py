@@ -7,6 +7,7 @@ import pytest
 
 from jupyter_scheduler.models import (
     CreateJobDefinition,
+    EventType,
     ListJobDefinitionsQuery,
     SortDirection,
     SortField,
@@ -14,19 +15,29 @@ from jupyter_scheduler.models import (
 )
 from jupyter_scheduler.orm import JobDefinition
 
+test_job_def_params = {
+    "input_uri": "helloworld.ipynb",
+    "runtime_environment_name": "default",
+    "name": "hello world",
+    "output_formats": ["ipynb"],
+}
 
-def test_create_job_definition(jp_scheduler):
+event_type_params = {"name": "a", "parameters": {"foo": "bar"}}
+
+
+def create_job_definition(jp_scheduler, job_def_params):
     with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
         with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
             mock_file_exists.return_value = True
             job_definition_id = jp_scheduler.create_job_definition(
-                CreateJobDefinition(
-                    input_uri="helloworld.ipynb",
-                    runtime_environment_name="default",
-                    name="hello world",
-                    output_formats=["ipynb"],
-                )
+                CreateJobDefinition(**job_def_params)
             )
+
+            return job_definition_id
+
+
+def test_create_job_definition(jp_scheduler):
+    job_definition_id = create_job_definition(jp_scheduler, test_job_def_params)
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
@@ -37,6 +48,20 @@ def test_create_job_definition(jp_scheduler):
         assert "helloworld.ipynb" == definition.input_filename
         assert "default" == definition.runtime_environment_name
         assert "hello world" == definition.name
+        assert [] == definition.events
+
+
+def test_create_job_definition_with_events(jp_scheduler):
+    params_with_events = {
+        **test_job_def_params,
+        "events": [EventType(**event_type_params)],
+    }
+    create_job_definition(jp_scheduler, params_with_events)
+
+    with jp_scheduler.db_session() as session:
+        definitions = session.query(JobDefinition).all()
+        definition = definitions[0]
+        assert [{"name": "a", "parameters": {"foo": "bar"}}] == definition.events
 
 
 job_definition_1 = {
@@ -49,6 +74,7 @@ job_definition_1 = {
     "update_time": 1,
     "create_time": 1,
     "active": True,
+    "events": [],
 }
 
 job_definition_2 = {
@@ -62,6 +88,7 @@ job_definition_2 = {
     "create_time": 2,
     "active": True,
     "tags": ["tag_2"],
+    "events": [],
 }
 
 job_definition_3 = {
@@ -75,6 +102,7 @@ job_definition_3 = {
     "create_time": 3,
     "active": False,
     "tags": ["tag_3"],
+    "events": [],
 }
 
 

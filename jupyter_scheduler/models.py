@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from jupyter_scheduler.pydantic_v1 import BaseModel, root_validator
 
@@ -9,6 +9,17 @@ EnvironmentParameterValues = Union[int, float, bool, str]
 
 EMAIL_RE = ""
 SCHEDULE_RE = ""
+
+
+class EventType(BaseModel):
+    name: str
+    parameters: Dict[str, Any]
+
+
+class Event(BaseModel):
+    event_id: str
+    event_type: str
+    parameters: Dict[str, Any]
 
 
 class RuntimeEnvironment(BaseModel):
@@ -26,6 +37,7 @@ class RuntimeEnvironment(BaseModel):
     compute_types: Optional[List[str]]
     default_compute_type: Optional[str]  # Should be a member of the compute_types list
     utc_only: Optional[bool]
+    event_types: Optional[List[EventType]]
 
     def __str__(self):
         return self.json()
@@ -85,6 +97,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+    create_event: Optional[Event] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -145,6 +158,7 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
+    create_event: Optional[Event] = None
 
     class Config:
         orm_mode = True
@@ -209,6 +223,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
+    events: List[EventType] = []
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -234,6 +249,7 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
+    events: List[EventType] = []
 
     class Config:
         orm_mode = True
@@ -253,6 +269,7 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
+    events: List[EventType] = []
 
 
 class ListJobDefinitionsQuery(BaseModel):
