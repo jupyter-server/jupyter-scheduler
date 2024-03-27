@@ -11,10 +11,10 @@ import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
-from jupyter_scheduler.models import DescribeJob, JobFeature, Status
+from jupyter_scheduler.models import DescribeJob, JobFeature, JobFile, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
-from jupyter_scheduler.utils import get_utc_timestamp
+from jupyter_scheduler.utils import copy_directory, get_utc_timestamp
 
 
 class ExecutionManager(ABC):
@@ -29,11 +29,19 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
+    def __init__(
+        self,
+        job_id: str,
+        root_dir: str,
+        db_url: str,
+        staging_paths: Dict[str, str],
+        output_dir: str,
+    ):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
+        self.output_dir = output_dir
 
     @property
     def model(self):
@@ -131,13 +139,13 @@ class DefaultExecutionManager(ExecutionManager):
         if job.parameters:
             nb = add_parameters(nb, job.parameters)
 
-        notebook_dir = os.path.dirname(self.staging_paths["input"])
+        staging_dir = os.path.dirname(self.staging_paths["input"])
         ep = ExecutePreprocessor(
-            kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=notebook_dir
+            kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=staging_dir
         )
 
         try:
-            ep.preprocess(nb, {"metadata": {"path": notebook_dir}})
+            ep.preprocess(nb, {"metadata": {"path": staging_dir}})
         except CellExecutionError as e:
             raise e
         finally:
@@ -146,6 +154,22 @@ class DefaultExecutionManager(ExecutionManager):
                 output, _ = cls().from_notebook_node(nb)
                 with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
                     f.write(output)
+
+        self.copy_staged_files_to_output()
+
+    def copy_staged_files_to_output(self):
+        """Copies snapshot of the original notebook and staged input files from the staging directory to the output directory and includes them into job_files."""
+        staging_dir = os.path.dirname(self.staging_paths["input"])
+        copied_files = copy_directory(
+            source_dir=staging_dir, destination_dir=self.output_dir, base_dir=self.root_dir
+        )
+
+        if copied_files:
+            for rel_path in copied_files:
+                if not any(job_file.file_path == rel_path for job_file in self.model.job_files):
+                    self.model.job_files.append(
+                        JobFile(display_name="File", file_format="File", file_path=rel_path)
+                    )
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
