@@ -388,7 +388,7 @@ export function convertDescribeJobtoJobDetail(
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
     downloaded: describeJob.downloaded,
-    packageInputFolder: describeJob.packageInputFolder
+    packageInputFolder: describeJob.package_input_folder
   };
 }
 
