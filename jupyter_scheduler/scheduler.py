@@ -39,7 +39,11 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.orm import Job, JobDefinition, create_session
-from jupyter_scheduler.utils import copy_directory, create_output_directory, create_output_filename
+from jupyter_scheduler.utils import (
+    copy_directory,
+    create_output_directory,
+    create_output_filename,
+)
 
 
 class BaseScheduler(LoggingConfigurable):
