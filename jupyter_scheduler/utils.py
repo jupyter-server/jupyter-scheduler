@@ -90,11 +90,10 @@ def get_localized_timestamp(timezone) -> int:
 def copy_directory(
     source_dir: str,
     destination_dir: str,
-    base_dir: Optional[str] = None,
     exclude_files: Optional[List[str]] = [],
 ) -> List[str]:
     """Copies content of source_dir to destination_dir excluding exclude_files.
-    Returns a list of relative paths to copied files, relative to base_dir if provided.
+    Returns a list of relative paths to copied files from destination_dir.
     """
     copied_files = []
     for item in os.listdir(source_dir):
@@ -104,15 +103,13 @@ def copy_directory(
             shutil.copytree(source, destination, ignore=shutil.ignore_patterns(*exclude_files))
             for dirpath, _, filenames in os.walk(destination):
                 for filename in filenames:
-                    rel_path = os.path.relpath(
-                        os.path.join(dirpath, filename), base_dir if base_dir else destination_dir
-                    )
+                    rel_path = os.path.relpath(os.path.join(dirpath, filename), destination_dir)
                     copied_files.append(rel_path)
         elif os.path.isfile(source) and item not in exclude_files:
             with fsspec.open(source, "rb") as source_file:
                 with fsspec.open(destination, "wb") as output_file:
                     output_file.write(source_file.read())
-            rel_path = os.path.relpath(destination, base_dir if base_dir else destination_dir)
+            rel_path = os.path.relpath(destination, destination_dir)
             copied_files.append(rel_path)
 
     return copied_files

@@ -149,27 +149,41 @@ class DefaultExecutionManager(ExecutionManager):
         except CellExecutionError as e:
             raise e
         finally:
+            self.add_side_effects_files(staging_dir)
             for output_format in job.output_formats:
                 cls = nbconvert.get_exporter(output_format)
                 output, _ = cls().from_notebook_node(nb)
                 with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
                     f.write(output)
+            self.copy_staged_files_to_output()
 
-        self.copy_staged_files_to_output()
+    def add_side_effects_files(self, staging_dir):
+        """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
+        input_notebook = os.path.relpath(self.staging_paths["input"])
+        new_files_set = set()
+        for root, _, files in os.walk(staging_dir):
+            for file in files:
+                file_rel_path = os.path.relpath(os.path.join(root, file), staging_dir)
+                if file_rel_path != input_notebook:
+                    new_files_set.add(file_rel_path)
 
+        if new_files_set:
+            with self.db_session() as session:
+                current_packaged_files_set = set(
+                    session.query(Job.packaged_files).filter(Job.job_id == self.job_id).scalar()
+                    or []
+                )
+                updated_packaged_files = list(current_packaged_files_set.union(new_files_set))
+                session.query(Job).filter(Job.job_id == self.job_id).update(
+                    {"packaged_files": updated_packaged_files}
+                )
+                session.commit()
+
+    # TODO: copy via downloader and remove this function or use this function and utilize return for putting side efects into packaged_files
     def copy_staged_files_to_output(self):
         """Copies snapshot of the original notebook and staged input files from the staging directory to the output directory and includes them into job_files."""
         staging_dir = os.path.dirname(self.staging_paths["input"])
-        copied_files = copy_directory(
-            source_dir=staging_dir, destination_dir=self.output_dir, base_dir=self.root_dir
-        )
-
-        if copied_files:
-            for rel_path in copied_files:
-                if not any(job_file.file_path == rel_path for job_file in self.model.job_files):
-                    self.model.job_files.append(
-                        JobFile(display_name="File", file_format="File", file_path=rel_path)
-                    )
+        copy_directory(source_dir=staging_dir, destination_dir=self.output_dir)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {

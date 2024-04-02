@@ -467,7 +467,6 @@ export namespace Scheduler {
     end_time?: number;
     downloaded: boolean;
     package_input_folder?: boolean;
-    output_folder?: string;
   }
 
   export interface ICreateJobResponse {

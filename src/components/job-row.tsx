@@ -75,33 +75,6 @@ function JobFiles(props: {
   );
 }
 
-function FilesDirectoryLink(props: {
-  job: Scheduler.IDescribeJob;
-  app: JupyterFrontEnd;
-}): JSX.Element | null {
-  if (!props.job.package_input_folder || !props.job.output_folder) {
-    return null;
-  }
-  const trans = useTranslator('jupyterlab');
-  return (
-    <Link
-      href={`/lab/tree/${props.job.output_folder}`}
-      title={trans.__(
-        'Open output directory with files for "%1"',
-        props.job.name
-      )}
-      onClick={e => {
-        e.preventDefault();
-        props.app.commands.execute('filebrowser:open-path', {
-          path: props.job.output_folder
-        });
-      }}
-    >
-      {trans.__('Files')}
-    </Link>
-  );
-}
-
 type DownloadFilesButtonProps = {
   app: JupyterFrontEnd;
   job: Scheduler.IDescribeJob;
@@ -194,9 +167,6 @@ export function buildJobRow(
           />
         )}
       <JobFiles job={job} app={app} />
-      {(job.status === 'COMPLETED' || job.status === 'FAILED') && (
-        <FilesDirectoryLink job={job} app={app} />
-      )}
     </>,
     <Timestamp job={job} />,
     translateStatus(job.status),

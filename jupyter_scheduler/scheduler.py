@@ -2,7 +2,7 @@ import multiprocessing as mp
 import os
 import random
 import shutil
-from typing import Dict, Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
@@ -252,7 +252,29 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.isfile(os_path)
 
-    def get_job_filenames(self, model: DescribeJob) -> Dict[str, str]:
+    def dir_exists(self, path: str):
+        """Returns True if the directory exists, else returns False.
+
+        API-style wrapper for os.path.isdir
+
+        Parameters
+        ----------
+        path : string
+            The relative path to the directory (with '/' as separator)
+
+        Returns
+        -------
+        exists : bool
+            Whether the directory exists.
+        """
+        root = os.path.abspath(self.root_dir)
+        os_path = to_os_path(path, root)
+        if not (os.path.abspath(os_path) + os.path.sep).startswith(root):
+            return False
+        else:
+            return os.path.isdir(os_path)
+
+    def get_job_filenames(self, model: DescribeJob) -> Dict[str, Union[str, List[str]]]:
         """Returns dictionary mapping output formats to
         the job filenames in the JupyterLab workspace.
 
@@ -269,7 +291,8 @@ class BaseScheduler(LoggingConfigurable):
         {
             'ipynb': 'helloworld-2022-10-10.ipynb',
             'html': 'helloworld-2022-10-10.html',
-            'input': 'helloworld.ipynb'
+            'input': 'helloworld.ipynb',
+            'files': ['data/helloworld.csv', 'images/helloworld.png']
         }
 
         """
@@ -281,6 +304,9 @@ class BaseScheduler(LoggingConfigurable):
             )
 
         filenames["input"] = model.input_filename
+
+        if model.package_input_folder and model.packaged_files:
+            filenames["files"] = [relative_path for relative_path in model.packaged_files]
 
         return filenames
 
@@ -320,8 +346,27 @@ class BaseScheduler(LoggingConfigurable):
             )
         )
 
+        # Add link to output folder with packaged input files and side effects
+        if model.package_input_folder and model.packaged_files:
+            job_files.append(
+                JobFile(
+                    display_name="Files",
+                    file_format="files",
+                    file_path=output_dir if self.dir_exists(output_dir) else None,
+                )
+            )
+
         model.job_files = job_files
-        model.downloaded = all(job_file.file_path for job_file in job_files)
+
+        packaged_files = []
+        if model.package_input_folder and model.packaged_files:
+            packaged_files = [
+                os.path.join(output_dir, packaged_file_rel_path)
+                for packaged_file_rel_path in model.packaged_files
+            ]
+        model.downloaded = all(job_file.file_path for job_file in job_files) and all(
+            self.file_exists(file_path) for file_path in packaged_files
+        )
 
     def get_local_output_path(
         self, input_filename: str, job_id: str, root_dir_relative: Optional[bool] = False
@@ -385,11 +430,11 @@ class Scheduler(BaseScheduler):
             with fsspec.open(copy_to_path, "wb") as output_file:
                 output_file.write(input_file.read())
 
-    def copy_input_folder(self, input_uri: str, nb_copy_to_path: str):
-        """Copies the input file along with the input directory to the staging directory"""
+    def copy_input_folder(self, input_uri: str, nb_copy_to_path: str) -> List[str]:
+        """Copies the input file along with the input directory to the staging directory, returns the list of copied files relative to the staging directory"""
         input_dir_path = os.path.dirname(os.path.join(self.root_dir, input_uri))
         staging_dir = os.path.dirname(nb_copy_to_path)
-        copy_directory(
+        return copy_directory(
             source_dir=input_dir_path,
             destination_dir=staging_dir,
         )
@@ -420,12 +465,18 @@ class Scheduler(BaseScheduler):
                 model.output_formats = []
 
             job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
+
             session.add(job)
             session.commit()
 
             staging_paths = self.get_staging_paths(DescribeJob.from_orm(job))
             if model.package_input_folder:
-                self.copy_input_folder(model.input_uri, staging_paths["input"])
+                copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
+                input_notebook_filename = os.path.basename(model.input_uri)
+                job.packaged_files = [
+                    file for file in copied_files if file != input_notebook_filename
+                ]
+                session.commit()
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
@@ -497,10 +548,6 @@ class Scheduler(BaseScheduler):
         for job in jobs:
             model = DescribeJob.from_orm(job)
             self.add_job_files(model=model)
-            if model.package_input_folder:
-                model.output_folder = self.get_local_output_path(
-                    input_filename=model.input_filename, job_id=model.job_id, root_dir_relative=True
-                )
             jobs_list.append(model)
 
         list_jobs_response = ListJobsResponse(

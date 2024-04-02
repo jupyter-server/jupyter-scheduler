@@ -147,7 +147,7 @@ class DescribeJob(BaseModel):
     status_message: Optional[str] = None
     downloaded: bool = False
     package_input_folder: Optional[bool] = None
-    output_folder: Optional[str] = None
+    packaged_files: Optional[List[str]] = []
 
     class Config:
         orm_mode = True

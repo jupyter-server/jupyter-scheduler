@@ -57,21 +57,17 @@ class Downloader:
 
     def generate_filepaths(self):
         """A generator that produces filepaths"""
+        output_formats = self.output_formats + ["input"]
+        for output_format in output_formats:
+            input_filepath = self.staging_paths[output_format]
+            output_filepath = os.path.join(self.output_dir, self.output_filenames[output_format])
+            if not os.path.exists(output_filepath) or self.redownload:
+                yield input_filepath, output_filepath
         if self.include_staging_files:
             staging_dir = os.path.dirname(self.staging_paths["input"])
-            for root, _, files in os.walk(staging_dir):
-                for file in files:
-                    input_filepath = os.path.join(root, file)
-                    relative_path = os.path.relpath(input_filepath, staging_dir)
-                    output_filepath = os.path.join(self.output_dir, relative_path)
-                    yield input_filepath, output_filepath
-        else:
-            output_formats = self.output_formats + ["input"]
-            for output_format in output_formats:
-                input_filepath = self.staging_paths[output_format]
-                output_filepath = os.path.join(
-                    self.output_dir, self.output_filenames[output_format]
-                )
+            for file_relative_path in self.output_filenames["files"]:
+                input_filepath = os.path.join(staging_dir, file_relative_path)
+                output_filepath = os.path.join(self.output_dir, file_relative_path)
                 if not os.path.exists(output_filepath) or self.redownload:
                     yield input_filepath, output_filepath
 
