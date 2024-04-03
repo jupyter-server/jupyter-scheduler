@@ -72,11 +72,17 @@ export type ModelWithScheduleFields = {
    * Value of input field for past the hour.
    */
   scheduleMinute: string;
+
+  maxRetryAttempts: number;
+
+  maxRunTime: number;
+
+  maxWaitTime: number;
 };
 
 export interface ICreateJobModel
   extends ModelWithScheduleFields,
-    PartialJSONObject {
+  PartialJSONObject {
   /**
    * Key of the CreateJob component. When changed, this forces a re-mount.
    */
@@ -99,6 +105,9 @@ export interface ICreateJobModel
   tags?: string[];
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
+  maxRetryAttempts: number;
+  maxRunTime: number;
+  maxWaitTime: number;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -108,7 +117,10 @@ export const defaultScheduleFields: ModelWithScheduleFields = {
   scheduleMinute: '0',
   scheduleMonthDay: '1',
   scheduleWeekDay: '1',
-  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  maxRetryAttempts: 1,
+  maxRunTime: 172800,
+  maxWaitTime: 172800,
 };
 
 export function emptyCreateJobModel(): ICreateJobModel {
@@ -125,7 +137,7 @@ export function emptyCreateJobModel(): ICreateJobModel {
 
 export interface IUpdateJobDefinitionModel
   extends ModelWithScheduleFields,
-    PartialJSONObject {
+  PartialJSONObject {
   definitionId: string;
   name: string;
   environment: string;
@@ -267,7 +279,7 @@ export class JobsModel extends VDomModel {
 
   fromJson(data: IJobsModel): void {
     this._jobsView = data.jobsView ?? JobsView.ListJobs;
-    this._createJobModel = data.createJobModel ?? emptyCreateJobModel();
+    this._createJobModel = data.createJobModel ? { ...defaultScheduleFields, ...data.createJobModel } : emptyCreateJobModel();
     this._listJobsModel = data.listJobsModel ?? emptyListJobsModel();
     this._jobDetailModel = data.jobDetailModel ?? emptyDetailViewModel();
     this._updateJobDefinitionModel =

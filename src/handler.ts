@@ -363,6 +363,9 @@ export namespace Scheduler {
     compute_type?: string;
     schedule?: string;
     timezone?: string;
+    maxRetryAttempts: number;
+    maxRunTime: number;
+    maxWaitTime: number;
   }
 
   export interface IUpdateJobDefinition {
@@ -389,6 +392,9 @@ export namespace Scheduler {
     create_time: number;
     update_time: number;
     active: boolean;
+    maxRetryAttempts: number;
+    maxRunTime: number;
+    maxWaitTime: number;
   }
 
   export interface IEmailNotifications {
@@ -415,6 +421,9 @@ export namespace Scheduler {
     output_filename_template?: string;
     output_formats?: string[];
     compute_type?: string;
+    maxRetryAttempts: number;
+    maxRunTime: number;
+    maxWaitTime: number;
   }
 
   export interface ICreateJobFromDefinition {
