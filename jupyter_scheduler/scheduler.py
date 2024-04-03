@@ -319,9 +319,7 @@ class BaseScheduler(LoggingConfigurable):
         mapping = self.environments_manager.output_formats_mapping()
         job_files = []
         output_filenames = self.get_job_filenames(model)
-        output_dir = self.get_local_output_path(
-            input_filename=model.input_filename, job_id=model.job_id, root_dir_relative=True
-        )
+        output_dir = self.get_local_output_path(model, root_dir_relative=True)
 
         for output_format in model.output_formats:
             filename = output_filenames[output_format]
@@ -369,13 +367,13 @@ class BaseScheduler(LoggingConfigurable):
         )
 
     def get_local_output_path(
-        self, input_filename: str, job_id: str, root_dir_relative: Optional[bool] = False
+        self, model: DescribeJob, root_dir_relative: Optional[bool] = False
     ) -> str:
         """Returns the local output directory path
         where all the job files will be downloaded
         from the staging location.
         """
-        output_dir_name = create_output_directory(input_filename, job_id)
+        output_dir_name = create_output_directory(model.input_filename, model.job_id)
         if root_dir_relative:
             return os.path.relpath(
                 os.path.join(self.root_dir, self.output_directory, output_dir_name), self.root_dir
@@ -494,10 +492,6 @@ class Scheduler(BaseScheduler):
                     staging_paths=staging_paths,
                     root_dir=self.root_dir,
                     db_url=self.db_url,
-                    output_dir=self.get_local_output_path(
-                        input_filename=model.input_filename,
-                        job_id=job.job_id,
-                    ),
                 ).process
             )
             p.start()

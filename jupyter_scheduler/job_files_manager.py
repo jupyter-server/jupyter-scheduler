@@ -21,9 +21,7 @@ class JobFilesManager:
         job = await ensure_async(self.scheduler.get_job(job_id, False))
         staging_paths = await ensure_async(self.scheduler.get_staging_paths(job))
         output_filenames = self.scheduler.get_job_filenames(job)
-        output_dir = self.scheduler.get_local_output_path(
-            input_filename=job.input_filename, job_id=job.job_id, root_dir_relative=True
-        )
+        output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
         p = Process(
             target=Downloader(
