@@ -5,6 +5,8 @@ from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
+from jupyter_scheduler.download_manager import DownloadManager
+from jupyter_scheduler.download_runner import DownloadRunner
 from jupyter_scheduler.orm import create_tables
 
 from .handlers import (
@@ -73,21 +75,33 @@ class SchedulerApp(ExtensionApp):
 
         environments_manager = self.environment_manager_class()
 
+        download_manager = DownloadManager(db_url=self.db_url)
+
         scheduler = self.scheduler_class(
             root_dir=self.serverapp.root_dir,
             environments_manager=environments_manager,
             db_url=self.db_url,
             config=self.config,
+            download_queue=download_manager.queue,
         )
 
         job_files_manager = self.job_files_manager_class(scheduler=scheduler)
+
+        download_runner = DownloadRunner(
+            download_manager=download_manager, job_files_manager=job_files_manager
+        )
 
         self.settings.update(
             environments_manager=environments_manager,
             scheduler=scheduler,
             job_files_manager=job_files_manager,
+            download_from_staging=download_manager.download_from_staging,
         )
 
         if scheduler.task_runner:
             loop = asyncio.get_event_loop()
             loop.create_task(scheduler.task_runner.start())
+
+        if download_runner:
+            loop = asyncio.get_event_loop()
+            loop.create_task(download_runner.start())
