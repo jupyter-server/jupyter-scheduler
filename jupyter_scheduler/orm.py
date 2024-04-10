@@ -111,7 +111,7 @@ class JobDefinition(CommonColumns, Base):
     active = Column(Boolean, default=True)
 
 
-class Downloads(Base):
+class Download(Base):
     __tablename__ = "downloads"
     job_id = Column(String(36), primary_key=True)
     download_id = Column(String(36), primary_key=True)

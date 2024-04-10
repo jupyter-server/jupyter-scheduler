@@ -1,5 +1,4 @@
 import io
-import multiprocessing
 import os
 import shutil
 import tarfile
@@ -14,11 +13,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
-from jupyter_scheduler.download_manager import (
-    DescribeDownload,
-    Downloads,
-    DownloadTask,
-)
+from jupyter_scheduler.download_manager import DescribeDownload, Download
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session, generate_uuid
 from jupyter_scheduler.parameterize import add_parameters
@@ -159,25 +154,21 @@ class DefaultExecutionManager(ExecutionManager):
         finally:
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
+            self._download_from_staging(job.job_id)
 
-    def download_from_staging(self, job_id: str):
+    def _download_from_staging(self, job_id: str):
         download_initiated_time = get_utc_timestamp()
         download_id = generate_uuid()
-        download_cache = DescribeDownload(
+        download = DescribeDownload(
             job_id=job_id,
             download_id=download_id,
             download_initiated_time=download_initiated_time,
         )
         with self.db_session() as session:
-            new_download = Downloads(**download_cache.dict())
-            session.add(new_download)
+            download_record = Download(**download.dict())
+            session.add(download_record)
             session.commit()
-        download_task = DownloadTask(
-            job_id=job_id,
-            download_id=download_id,
-            download_initiated_time=download_initiated_time,
-        )
-        self.download_queue.put(download_task)
+        self.download_queue.put(download)
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
