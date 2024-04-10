@@ -11,7 +11,7 @@ import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
-from jupyter_scheduler.models import DescribeJob, JobFeature, JobFile, Status
+from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp
@@ -142,13 +142,9 @@ class DefaultExecutionManager(ExecutionManager):
             raise e
         finally:
             self.add_side_effects_files(staging_dir)
-            for output_format in job.output_formats:
-                cls = nbconvert.get_exporter(output_format)
-                output, _ = cls().from_notebook_node(nb)
-                with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
-                    f.write(output)
+            self.create_output_files(job, nb)
 
-    def add_side_effects_files(self, staging_dir):
+    def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
         input_notebook = os.path.relpath(self.staging_paths["input"])
         new_files_set = set()
@@ -169,6 +165,13 @@ class DefaultExecutionManager(ExecutionManager):
                     {"packaged_files": updated_packaged_files}
                 )
                 session.commit()
+
+    def create_output_files(self, job: DescribeJob, notebook_node):
+        for output_format in job.output_formats:
+            cls = nbconvert.get_exporter(output_format)
+            output, _ = cls().from_notebook_node(notebook_node)
+            with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
+                f.write(output)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
