@@ -11,9 +11,9 @@ import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
-from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.download_manager import initiate_download_standalone
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
+from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp
 
