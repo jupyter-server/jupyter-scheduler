@@ -7,6 +7,24 @@ from jupyter_scheduler.utils import get_utc_timestamp
 from jupyter_scheduler.pydantic_v1 import BaseModel
 
 
+def initiate_download_standalone(job_id: str, queue: Queue, db_session, redownload: bool = False):
+    """
+    This static method initiates a download in a standalone manner independent of the DownloadManager instance. It is suitable for use in multiprocessing environment where a direct reference to DownloadManager instance is not feasible.
+    """
+    download_initiated_time = get_utc_timestamp()
+    download_id = generate_uuid()
+    download = DescribeDownload(
+        job_id=job_id,
+        download_id=download_id,
+        download_initiated_time=download_initiated_time,
+        redownload=redownload,
+    )
+    download_record = Download(**download.dict())
+    db_session.add(download_record)
+    db_session.commit()
+    queue.put(download)
+
+
 class DownloadRecordManager:
     def __init__(self, db_url):
         self.session = create_session(db_url)
@@ -46,17 +64,11 @@ class DownloadManager:
         self.record_manager = DownloadRecordManager(db_url=db_url)
         self.queue = Queue()
 
-    def download_from_staging(self, job_id: str, redownload: bool):
-        download_initiated_time = get_utc_timestamp()
-        download_id = generate_uuid()
-        download = DescribeDownload(
-            job_id=job_id,
-            download_id=download_id,
-            download_initiated_time=download_initiated_time,
-            redownload=redownload,
-        )
-        self.record_manager.put(download)
-        self.queue.put(download)
+    def initiate_download(self, job_id: str, redownload: bool):
+        with self.record_manager.session() as session:
+            initiate_download_standalone(
+                job_id=job_id, queue=self.queue, db_session=session, redownload=redownload
+            )
 
     def delete_download(self, download_id: str):
         self.record_manager.delete_download(download_id)

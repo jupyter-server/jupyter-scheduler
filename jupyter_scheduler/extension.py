@@ -81,8 +81,8 @@ class SchedulerApp(ExtensionApp):
             root_dir=self.serverapp.root_dir,
             environments_manager=environments_manager,
             db_url=self.db_url,
-            config=self.config,
             download_queue=download_manager.queue,
+            config=self.config,
         )
 
         job_files_manager = self.job_files_manager_class(scheduler=scheduler)
@@ -95,7 +95,7 @@ class SchedulerApp(ExtensionApp):
             environments_manager=environments_manager,
             scheduler=scheduler,
             job_files_manager=job_files_manager,
-            download_from_staging=download_manager.download_from_staging,
+            initiate_download=download_manager.initiate_download,
         )
 
         if scheduler.task_runner:

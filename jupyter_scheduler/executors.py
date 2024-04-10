@@ -11,11 +11,9 @@ import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
-from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
-from jupyter_scheduler.download_manager import DescribeDownload, Download
+from jupyter_scheduler.download_manager import initiate_download_standalone
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
-from jupyter_scheduler.orm import Job, create_session, generate_uuid
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp
 
@@ -154,22 +152,13 @@ class DefaultExecutionManager(ExecutionManager):
         finally:
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
-            self._download_from_staging(job.job_id)
-
-    def _download_from_staging(self, job_id: str):
-        download_initiated_time = get_utc_timestamp()
-        download_id = generate_uuid()
-        download = DescribeDownload(
-            job_id=job_id,
-            download_id=download_id,
-            download_initiated_time=download_initiated_time,
-            redownload=True,
-        )
-        with self.db_session() as session:
-            download_record = Download(**download.dict())
-            session.add(download_record)
-            session.commit()
-        self.download_queue.put(download)
+            with self.db_session() as session:
+                initiate_download_standalone(
+                    job_id=job.job_id,
+                    queue=self.download_queue,
+                    db_session=session,
+                    redownload=True,
+                )
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
