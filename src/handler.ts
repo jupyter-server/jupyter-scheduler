@@ -390,7 +390,7 @@ export namespace Scheduler {
     create_time: number;
     update_time: number;
     active: boolean;
-    packageInputFolder?: boolean;
+    package_input_folder?: boolean;
   }
 
   export interface IEmailNotifications {

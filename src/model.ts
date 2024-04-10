@@ -417,7 +417,7 @@ export function convertDescribeDefinitiontoDefinition(
     updateTime: describeDefinition.update_time,
     schedule: describeDefinition.schedule,
     timezone: describeDefinition.timezone,
-    packageInputFolder: describeDefinition.packageInputFolder
+    packageInputFolder: describeDefinition.package_input_folder
   };
 }
 
