@@ -15,6 +15,7 @@ from traitlets import Type as TType
 from traitlets import Unicode, default
 from traitlets.config import LoggingConfigurable
 
+from jupyter_scheduler.download_manager import DownloadManager
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
@@ -404,7 +405,7 @@ class Scheduler(BaseScheduler):
         root_dir: str,
         environments_manager: Type[EnvironmentManager],
         db_url: str,
-        download_queue: mp.Queue,
+        download_manager: DownloadManager,
         config=None,
         **kwargs,
     ):
@@ -414,7 +415,7 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
-        self.download_queue = download_queue
+        self.download_manager = download_manager
 
     @property
     def db_session(self):
@@ -494,7 +495,7 @@ class Scheduler(BaseScheduler):
                     staging_paths=staging_paths,
                     root_dir=self.root_dir,
                     db_url=self.db_url,
-                    download_queue=self.download_queue,
+                    download_queue=self.download_manager.queue,
                 ).process
             )
             p.start()
@@ -586,6 +587,7 @@ class Scheduler(BaseScheduler):
 
             session.query(Job).filter(Job.job_id == job_id).delete()
             session.commit()
+            self.download_manager.delete_job_downloads(job_id)
 
     def stop_job(self, job_id):
         with self.db_session() as session:

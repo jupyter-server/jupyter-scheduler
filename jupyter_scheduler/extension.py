@@ -81,7 +81,7 @@ class SchedulerApp(ExtensionApp):
             root_dir=self.serverapp.root_dir,
             environments_manager=environments_manager,
             db_url=self.db_url,
-            download_queue=download_manager.queue,
+            download_manager=download_manager,
             config=self.config,
         )
 
