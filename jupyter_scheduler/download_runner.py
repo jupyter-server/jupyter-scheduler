@@ -23,11 +23,11 @@ class DownloadRunner(BaseDownloadRunner):
     async def process_download_queue(self):
         while not self.download_manager.queue.empty():
             download = self.download_manager.queue.get()
-            cache = self.download_manager.record_manager.get(download.job_id)
-            if not cache or not download:
+            download_record = self.download_manager.record_manager.get(download.download_id)
+            if not download_record:
                 continue
-            await self.job_files_manager.copy_from_staging(cache.job_id)
-            self.download_manager.record_manager.delete_download(cache.download_id)
+            await self.job_files_manager.copy_from_staging(download.job_id, download.redownload)
+            self.download_manager.delete_download(download.download_id)
 
     async def start(self):
         self.download_manager.populate_queue()

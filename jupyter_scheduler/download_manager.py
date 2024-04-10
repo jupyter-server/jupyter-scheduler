@@ -17,9 +17,9 @@ class DownloadRecordManager:
             session.add(download)
             session.commit()
 
-    def get(self, job_id: str) -> Optional[DescribeDownload]:
+    def get(self, download_id: str) -> Optional[DescribeDownload]:
         with self.session() as session:
-            download = session.query(Download).filter(Download.job_id == job_id).first()
+            download = session.query(Download).filter(Download.download_id == download_id).first()
 
         if download:
             return DescribeDownload.from_orm(download)
@@ -46,13 +46,14 @@ class DownloadManager:
         self.record_manager = DownloadRecordManager(db_url=db_url)
         self.queue = Queue()
 
-    def download_from_staging(self, job_id: str):
+    def download_from_staging(self, job_id: str, redownload: bool):
         download_initiated_time = get_utc_timestamp()
         download_id = generate_uuid()
         download = DescribeDownload(
             job_id=job_id,
             download_id=download_id,
             download_initiated_time=download_initiated_time,
+            redownload=redownload,
         )
         self.record_manager.put(download)
         self.queue.put(download)

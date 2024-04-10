@@ -163,6 +163,7 @@ class DefaultExecutionManager(ExecutionManager):
             job_id=job_id,
             download_id=download_id,
             download_initiated_time=download_initiated_time,
+            redownload=True,
         )
         with self.db_session() as session:
             download_record = Download(**download.dict())

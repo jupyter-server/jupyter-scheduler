@@ -116,6 +116,7 @@ class Download(Base):
     job_id = Column(String(36), primary_key=True)
     download_id = Column(String(36), primary_key=True)
     download_initiated_time = Column(Integer)
+    redownload = Column(Boolean, default=False)
 
 
 def create_tables(db_url, drop_tables=False):
