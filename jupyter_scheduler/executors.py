@@ -15,8 +15,8 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.download_manager import (
-    DescribeDownloadCache,
-    DownloadCacheRecord,
+    DescribeDownload,
+    Downloads,
     DownloadTask,
 )
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
@@ -163,13 +163,13 @@ class DefaultExecutionManager(ExecutionManager):
     def download_from_staging(self, job_id: str):
         download_initiated_time = get_utc_timestamp()
         download_id = generate_uuid()
-        download_cache = DescribeDownloadCache(
+        download_cache = DescribeDownload(
             job_id=job_id,
             download_id=download_id,
             download_initiated_time=download_initiated_time,
         )
         with self.db_session() as session:
-            new_download = DownloadCacheRecord(**download_cache.dict())
+            new_download = Downloads(**download_cache.dict())
             session.add(new_download)
             session.commit()
         download_task = DownloadTask(
@@ -178,11 +178,6 @@ class DefaultExecutionManager(ExecutionManager):
             download_initiated_time=download_initiated_time,
         )
         self.download_queue.put(download_task)
-        # print(
-        #     "\n\n***\n ExecutionManager.download_from_staging uuid and task being put on a qeueue"
-        # )
-        # print(download_id)
-        # print(download_task)
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""

@@ -111,8 +111,8 @@ class JobDefinition(CommonColumns, Base):
     active = Column(Boolean, default=True)
 
 
-class DownloadCacheRecord(Base):
-    __tablename__ = "download_cache"
+class Downloads(Base):
+    __tablename__ = "downloads"
     job_id = Column(String(36), primary_key=True)
     download_id = Column(String(36), primary_key=True)
     download_initiated_time = Column(Integer)

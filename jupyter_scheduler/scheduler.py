@@ -15,7 +15,6 @@ from traitlets import Type as TType
 from traitlets import Unicode, default
 from traitlets.config import LoggingConfigurable
 
-from jupyter_scheduler.download_manager import MultiprocessQueue
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
@@ -405,7 +404,7 @@ class Scheduler(BaseScheduler):
         root_dir: str,
         environments_manager: Type[EnvironmentManager],
         db_url: str,
-        download_queue: MultiprocessQueue,
+        download_queue: mp.Queue,
         config=None,
         **kwargs,
     ):
@@ -495,7 +494,7 @@ class Scheduler(BaseScheduler):
                     staging_paths=staging_paths,
                     root_dir=self.root_dir,
                     db_url=self.db_url,
-                    download_queue=self.download_queue.queue,
+                    download_queue=self.download_queue,
                 ).process
             )
             p.start()
