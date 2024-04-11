@@ -239,6 +239,7 @@ class DescribeJobDefinition(BaseModel):
     update_time: int
     active: bool
     package_input_folder: Optional[bool] = None
+    packaged_files: Optional[List[str]] = []
 
     class Config:
         orm_mode = True

@@ -613,15 +613,22 @@ class Scheduler(BaseScheduler):
             session.add(job_definition)
             session.commit()
 
+            # copy values for use after session is closed to avoid DetachedInstanceError
             job_definition_id = job_definition.job_definition_id
+            job_definition_schedule = job_definition.schedule
 
             staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
             if model.package_input_folder:
-                self.copy_input_folder(model.input_uri, staging_paths["input"])
+                copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
+                input_notebook_filename = os.path.basename(model.input_uri)
+                job_definition.packaged_files = [
+                    file for file in copied_files if file != input_notebook_filename
+                ]
+                session.commit()
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-        if self.task_runner and job_definition.schedule:
+        if self.task_runner and job_definition_schedule:
             self.task_runner.add_job_definition(job_definition_id)
 
         return job_definition_id
