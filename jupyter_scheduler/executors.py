@@ -155,7 +155,7 @@ class DefaultExecutionManager(ExecutionManager):
             with self.db_session() as session:
                 initiate_download_standalone(
                     job_id=job.job_id,
-                    queue=self.download_queue,
+                    download_queue=self.download_queue,
                     db_session=session,
                     redownload=True,
                 )

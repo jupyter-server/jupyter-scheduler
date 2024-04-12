@@ -7,9 +7,11 @@ from jupyter_scheduler.utils import get_utc_timestamp
 from jupyter_scheduler.pydantic_v1 import BaseModel
 
 
-def initiate_download_standalone(job_id: str, queue: Queue, db_session, redownload: bool = False):
+def initiate_download_standalone(
+    job_id: str, download_queue: Queue, db_session, redownload: bool = False
+):
     """
-    This static method initiates a download in a standalone manner independent of the DownloadManager instance. It is suitable for use in multiprocessing environment where a direct reference to DownloadManager instance is not feasible.
+    This method initiates a download in a standalone manner independent of the DownloadManager instance. It is suitable for use in multiprocessing environment where a direct reference to DownloadManager instance is not feasible.
     """
     download_initiated_time = get_utc_timestamp()
     download_id = generate_uuid()
@@ -22,7 +24,7 @@ def initiate_download_standalone(job_id: str, queue: Queue, db_session, redownlo
     download_record = Download(**download.dict())
     db_session.add(download_record)
     db_session.commit()
-    queue.put(download)
+    download_queue.put(download)
 
 
 class DownloadRecordManager:
@@ -67,7 +69,7 @@ class DownloadManager:
     def initiate_download(self, job_id: str, redownload: bool):
         with self.record_manager.session() as session:
             initiate_download_standalone(
-                job_id=job_id, queue=self.queue, db_session=session, redownload=redownload
+                job_id=job_id, download_queue=self.queue, db_session=session, redownload=redownload
             )
 
     def delete_download(self, download_id: str):
