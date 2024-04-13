@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from jupyter_scheduler.download_manager import DownloadManager
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.executors import ExecutionManager
 from jupyter_scheduler.models import JobFeature, RuntimeEnvironment, UpdateJobDefinition
@@ -72,4 +73,9 @@ class MockTaskRunner(BaseTaskRunner):
         pass
 
     def resume_jobs(self, job_definition_id: str):
+        pass
+
+
+class MockDownloadManager(DownloadManager):
+    def __init__(self, db_url: str):
         pass
