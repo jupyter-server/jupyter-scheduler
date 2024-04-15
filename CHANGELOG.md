@@ -2,6 +2,12 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.1.6
+
+No merged PRs
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.1.5
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.4...f2d5b63946031a2fcc2dc3c143bb4c6e82c23d24))
@@ -16,8 +22,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-12&to=2024-02-16&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-12..2024-02-16&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-11-12..2024-02-16&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-12..2024-02-16&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aellisonbg+updated%3A2022-11-12..2024-02-16&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-12..2024-02-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2022-11-12..2024-02-16&type=Issues) | [@rubenvarela](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Arubenvarela+updated%3A2022-11-12..2024-02-16&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2022-11-12..2024-02-16&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AZsailer+updated%3A2022-11-12..2024-02-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.1.4
 
