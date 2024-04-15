@@ -2,6 +2,28 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.5.2
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.5.1...b01c76088bb9acfac846727681a94c6e58493b9e))
+
+### Bugs fixed
+
+- Changed column header to "Input file" in Notebook Job Definitions [#496](https://github.com/jupyter-server/jupyter-scheduler/pull/496) ([@srdas](https://github.com/srdas))
+
+### Maintenance and upkeep improvements
+
+- Update Release Scripts [#502](https://github.com/jupyter-server/jupyter-scheduler/pull/502) ([@blink1073](https://github.com/blink1073))
+- Bump ip from 2.0.0 to 2.0.1 [#491](https://github.com/jupyter-server/jupyter-scheduler/pull/491) ([@dependabot](https://github.com/dependabot))
+- Bump ip from 2.0.0 to 2.0.1 in /ui-tests [#490](https://github.com/jupyter-server/jupyter-scheduler/pull/490) ([@dependabot](https://github.com/dependabot))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-02-15&to=2024-04-15&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-02-15..2024-04-15&type=Issues) | [@blink1073](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ablink1073+updated%3A2024-02-15..2024-04-15&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2024-02-15..2024-04-15&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-02-15..2024-04-15&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2024-02-15..2024-04-15&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Asrdas+updated%3A2024-02-15..2024-04-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2024-02-15..2024-04-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.5.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.5.0...01fc2dca2a01673311abbaf970e0a80ee1368299))
@@ -18,8 +40,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-01-23&to=2024-02-15&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-01-23..2024-02-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2024-01-23..2024-02-15&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2024-01-23..2024-02-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.5.0
 
