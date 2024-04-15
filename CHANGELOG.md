@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.8.2
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.8.1...95138f9b4d7aed5a356aee1e03b79f26c8470af0))
+
+### Bugs fixed
+
+- \[1.x\] Changed column header to "Input file" in Notebook Job Definitions (#496) [#501](https://github.com/jupyter-server/jupyter-scheduler/pull/501) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-02-15&to=2024-04-15&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-02-15..2024-04-15&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-02-15..2024-04-15&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Asrdas+updated%3A2024-02-15..2024-04-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2024-02-15..2024-04-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.8.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.8.0...2e3ccf021dba582464fbab33c4bec129c0380cc2))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-01-23&to=2024-02-15&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-01-23..2024-02-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2024-01-23..2024-02-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.8.0
 
