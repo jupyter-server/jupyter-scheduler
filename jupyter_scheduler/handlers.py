@@ -299,6 +299,7 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
 
 class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    @tornado.web.authenticated
     async def get(self):
         """Returns names of available runtime environments and output formats mappings"""
         try:
