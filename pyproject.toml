@@ -43,6 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "pytest-cov",
     "jupyter_server[test]>=1.6,<3"
 ]
 dev = [
