@@ -2,7 +2,7 @@ import os
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel, root_validator
+from jupyter_scheduler.pydantic_v1 import BaseModel, root_validator
 
 Tags = List[str]
 EnvironmentParameterValues = Union[int, float, bool, str]

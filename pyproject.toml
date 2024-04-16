@@ -31,7 +31,7 @@ dependencies = [
     "jupyter_server>=1.6,<3",
     "traitlets",
     "nbconvert",
-    "pydantic",
+    "pydantic>=1.10,<3",
     "sqlalchemy<2",
     "croniter",
     "pytz",
@@ -43,6 +43,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "pytest-cov",
     "jupyter_server[test]>=1.6,<3"
 ]
 dev = [
@@ -56,6 +57,9 @@ docs = [
 
 [project.urls]
 Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
 
 [tool.hatch.build]
 artifacts = ["jupyter_scheduler/labextension"]
