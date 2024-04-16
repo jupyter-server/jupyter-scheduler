@@ -1,4 +1,5 @@
 """Scheduling API for JupyterLab"""
+
 import json
 from pathlib import Path
 
