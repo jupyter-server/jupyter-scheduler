@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.2.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.2.0...9ab368761bbf232ebb499dacd6f18e28cd4db979))
+
+### Bugs fixed
+
+- \[1.2.x\] Ignore check-wheel-contents W002 duplciate files error, add pydantic_v1 module, add pytest-cov dependency [#507](https://github.com/jupyter-server/jupyter-scheduler/pull/507) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-12-20&to=2024-04-16&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-12-20..2024-04-16&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-12-20..2024-04-16&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-12-20..2024-04-16&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-12-20..2024-04-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AJasonWeill+updated%3A2022-12-20..2024-04-16&type=Issues) | [@rubenvarela](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Arubenvarela+updated%3A2022-12-20..2024-04-16&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2022-12-20..2024-04-16&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3AZsailer+updated%3A2022-12-20..2024-04-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.2.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.1.4...211c92b26eecc701f4e108fd18ddc38c5dea38ef))
@@ -31,8 +47,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2022-11-12&to=2022-12-20&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3A3coins+updated%3A2022-11-12..2022-12-20&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2022-11-12..2022-12-20&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2022-11-12..2022-12-20&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2022-11-12..2022-12-20&type=Issues) | [@jweill-aws](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ajweill-aws+updated%3A2022-11-12..2022-12-20&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2022-11-12..2022-12-20&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.1.4
 
