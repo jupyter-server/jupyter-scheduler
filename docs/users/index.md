@@ -26,6 +26,11 @@ jupyter labextension list
 and checking that both the `jupyter_scheduler` server extension and the
 `@jupyterlab/scheduler` prebuilt lab extension are enabled.
 
+:::{attention}
+:name: jupyter-lab-3-end-of-maintenance
+JupyterLab 3 will reach its end of maintenance date on May 15, 2024, anywhere on Earth. As a result, we will not backport new features to the v1 branch supporting JupyterLab 3 after this date. Fixes for critical issues will still be backported until December 31, 2024. If you are still using JupyterLab 3, we strongly encourage you to **upgrade to JupyterLab 4 as soon as possible**. For more information, see [JupyterLab 3 end of maintenance](https://blog.jupyter.org/jupyterlab-3-end-of-maintenance-879778927db2) on the Jupyter Blog.
+:::
+
 ## Use
 
 Jupyter Scheduler runs Jupyter notebooks in the background, either once or on a schedule. You can create _jobs_ (single run of an individual notebook) and _job definitions_ (scheduled recurring notebook jobs). When the scheduler runs your notebook, it makes a copy of the input file. The scheduler uses unique names for the input and output files so that rerunning the same notebook produces new files every time.
