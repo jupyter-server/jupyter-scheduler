@@ -1,4 +1,5 @@
 import asyncio
+import multiprocessing
 
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.extension.application import ExtensionApp
@@ -69,6 +70,15 @@ class SchedulerApp(ExtensionApp):
     )
 
     def initialize_settings(self):
+        # Forces new processes to not be forked on Linux.
+        # This is necessary because `asyncio.get_event_loop()` is bugged in
+        # forked processes in Python versions below 3.12. This method is
+        # called by `jupyter_core` by `nbconvert` in the default executor.
+
+        # See: https://github.com/python/cpython/issues/66285
+        # See also: https://github.com/jupyter/jupyter_core/pull/362
+        multiprocessing.set_start_method("spawn", force=True)
+
         super().initialize_settings()
 
         create_tables(self.db_url, self.drop_tables)

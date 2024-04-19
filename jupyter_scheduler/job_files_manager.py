@@ -1,7 +1,8 @@
+from multiprocessing import Process
 import os
 import random
 import tarfile
-import multiprocessing as mp
+
 from typing import Dict, List, Optional, Type
 
 import fsspec
@@ -23,15 +24,7 @@ class JobFilesManager:
         output_filenames = self.scheduler.get_job_filenames(job)
         output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
-        # The MP context forces new processes to not be forked on Linux.
-        # This is necessary because `asyncio.get_event_loop()` is bugged in
-        # forked processes in Python versions below 3.12. This method is
-        # called by `jupyter_core` by `nbconvert` in the default executor.
-        #
-        # See: https://github.com/python/cpython/issues/66285
-        # See also: https://github.com/jupyter/jupyter_core/pull/362
-        mp_ctx = mp.get_context("spawn")
-        p = mp_ctx.Process(
+        p = Process(
             target=Downloader(
                 output_formats=job.output_formats,
                 output_filenames=output_filenames,
