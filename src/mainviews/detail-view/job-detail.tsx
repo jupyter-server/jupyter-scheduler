@@ -254,7 +254,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         value: props.model.packageInputFolder
           ? trans.__('Yes')
           : trans.__('No'),
-        label: trans.__('Package input folder')
+        label: trans.__('Files included')
       }
     ]
   ];
