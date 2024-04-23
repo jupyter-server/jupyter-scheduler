@@ -507,7 +507,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             environmentList={environmentList}
             value={props.model.environment}
           />
-          <PackageInputFolderControl onChange={handleInputChange} />
+          <PackageInputFolderControl
+            onChange={handleInputChange}
+            inputFile={props.model.inputFile}
+          />
           <OutputFormatPicker
             label={trans.__('Output formats')}
             name="outputFormat"
