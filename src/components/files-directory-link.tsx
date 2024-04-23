@@ -12,7 +12,7 @@ export function FilesDirectoryLink(props: {
   return (
     <Link
       href={`/lab/tree/${props.jobFile.file_path}`}
-      title={trans.__('Open output directory with files')}
+      title={trans.__('Open output folder in file browser')}
       onClick={e => {
         e.preventDefault();
         props.app.commands.execute('filebrowser:open-path', {
