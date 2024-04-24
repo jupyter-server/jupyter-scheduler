@@ -56,6 +56,7 @@ async def test_copy_from_staging():
                     staging_paths=staging_paths,
                     output_dir=output_dir,
                     redownload=False,
+                    include_staging_files=None,
                 )
 
 
