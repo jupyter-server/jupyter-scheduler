@@ -1,30 +1,46 @@
 import React, { ChangeEvent } from 'react';
+import { useTranslator } from '../hooks';
 
-import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
+import {
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  FormHelperText
+} from '@mui/material';
 
 export function PackageInputFolderControl(props: {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   inputFile: string;
 }): JSX.Element {
+  const trans = useTranslator('jupyterlab');
   const inputFilePath = props.inputFile.split('/');
   inputFilePath.pop();
-  const inputFolder = inputFilePath.join('/');
+
+  let helperText: string;
+  if (inputFilePath.length) {
+    const inputFolder = `/${inputFilePath.join('/')}`;
+    helperText = trans.__(
+      'Make all files under %1 available to input file when this job runs',
+      inputFolder
+    );
+  } else {
+    helperText = trans.__(
+      'Make all files under input file’s folder available to input file when this job runs'
+    );
+  }
+
   return (
     <FormGroup>
       <FormControlLabel
         control={
           <Checkbox onChange={props.onChange} name={'packageInputFolder'} />
         }
-        label={
-          <Box display="flex" alignItems="center" gap={1}>
-            <span>Include all files under</span>
-            <FolderIcon fontSize="small" sx={{ color: 'action.active' }} />
-            <span>/</span>
-            <span>{inputFolder}</span>
-          </Box>
-        }
+        label={trans.__('Package input folder')}
+        aria-describedby="jp-package-input-folder-helper-text"
       />
+      <FormHelperText id="jp-package-input-folder-helper-text">
+        {helperText}
+      </FormHelperText>
     </FormGroup>
   );
 }
