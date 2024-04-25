@@ -1,15 +1,14 @@
-from contextlib import contextmanager
 import os
-import pytest
+from contextlib import contextmanager
+from pathlib import Path
+from unittest.mock import PropertyMock, patch
 
-from unittest.mock import patch, PropertyMock
+import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from pathlib import Path
 
 from jupyter_scheduler.executors import DefaultExecutionManager
 from jupyter_scheduler.orm import Base, Job
-
 
 NOTEBOOK_DIR = Path(__file__).resolve().parent / "test_staging_dir" / "job-3"
 NOTEBOOK_NAME = "side_effects.ipynb"
