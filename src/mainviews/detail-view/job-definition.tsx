@@ -234,7 +234,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     [
       {
         value: model.packageInputFolder ? trans.__('Yes') : trans.__('No'),
-        label: trans.__('Files included')
+        label: trans.__('Ran with input folder')
       }
     ]
   ];
