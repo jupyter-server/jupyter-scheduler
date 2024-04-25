@@ -20,12 +20,12 @@ export function PackageInputFolderControl(props: {
   if (inputFilePath.length) {
     const inputFolder = `/${inputFilePath.join('/')}`;
     helperText = trans.__(
-      'Make all files under %1 available to input file when this job runs',
+      'The scheduled job will have access to all files under %1',
       inputFolder
     );
   } else {
     helperText = trans.__(
-      'Make all files under input file’s folder available to input file when this job runs'
+      'The scheduled job will have access to all files under input file’s folder'
     );
   }
 
@@ -35,7 +35,7 @@ export function PackageInputFolderControl(props: {
         control={
           <Checkbox onChange={props.onChange} name={'packageInputFolder'} />
         }
-        label={trans.__('Package input folder')}
+        label={trans.__('Run job with input folder')}
         aria-describedby="jp-package-input-folder-helper-text"
       />
       <FormHelperText id="jp-package-input-folder-helper-text">
