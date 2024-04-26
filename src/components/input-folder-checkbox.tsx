@@ -25,7 +25,7 @@ export function PackageInputFolderControl(props: {
     );
   } else {
     helperText = trans.__(
-      "The scheduled job will have access to all files under input file's folder"
+      "The scheduled job will have access to all files under the input file's folder"
     );
   }
 
