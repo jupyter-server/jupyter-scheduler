@@ -6,6 +6,7 @@ import { useEventLogger, useTranslator } from '../hooks';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { Link } from '@mui/material';
+import { FilesDirectoryLink } from './files-directory-link';
 
 export interface IJobFileLinkProps {
   jobFile: Scheduler.IJobFile;
@@ -30,6 +31,9 @@ export function JobFileLink(props: IJobFileLinkProps): JSX.Element | null {
       ? trans.__('Open input file "%1"', fileBaseName)
       : trans.__('Open output file "%1"', fileBaseName);
 
+  if (props.jobFile.file_format === 'files') {
+    return <FilesDirectoryLink jobFile={props.jobFile} app={props.app} />;
+  }
   return (
     <Link
       key={props.jobFile.file_format}

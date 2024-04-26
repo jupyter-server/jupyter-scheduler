@@ -131,21 +131,47 @@ class DefaultExecutionManager(ExecutionManager):
         if job.parameters:
             nb = add_parameters(nb, job.parameters)
 
+        staging_dir = os.path.dirname(self.staging_paths["input"])
         ep = ExecutePreprocessor(
-            kernel_name=nb.metadata.kernelspec["name"],
-            store_widget_state=True,
+            kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=staging_dir
         )
 
         try:
-            ep.preprocess(nb)
+            ep.preprocess(nb, {"metadata": {"path": staging_dir}})
         except CellExecutionError as e:
             raise e
         finally:
-            for output_format in job.output_formats:
-                cls = nbconvert.get_exporter(output_format)
-                output, resources = cls().from_notebook_node(nb)
-                with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
-                    f.write(output)
+            self.add_side_effects_files(staging_dir)
+            self.create_output_files(job, nb)
+
+    def add_side_effects_files(self, staging_dir: str):
+        """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
+        input_notebook = os.path.relpath(self.staging_paths["input"])
+        new_files_set = set()
+        for root, _, files in os.walk(staging_dir):
+            for file in files:
+                file_rel_path = os.path.relpath(os.path.join(root, file), staging_dir)
+                if file_rel_path != input_notebook:
+                    new_files_set.add(file_rel_path)
+
+        if new_files_set:
+            with self.db_session() as session:
+                current_packaged_files_set = set(
+                    session.query(Job.packaged_files).filter(Job.job_id == self.job_id).scalar()
+                    or []
+                )
+                updated_packaged_files = list(current_packaged_files_set.union(new_files_set))
+                session.query(Job).filter(Job.job_id == self.job_id).update(
+                    {"packaged_files": updated_packaged_files}
+                )
+                session.commit()
+
+    def create_output_files(self, job: DescribeJob, notebook_node):
+        for output_format in job.output_formats:
+            cls = nbconvert.get_exporter(output_format)
+            output, _ = cls().from_notebook_node(notebook_node)
+            with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
+                f.write(output)
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {

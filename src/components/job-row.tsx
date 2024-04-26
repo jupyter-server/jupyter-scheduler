@@ -90,7 +90,7 @@ function DownloadFilesButton(props: DownloadFilesButtonProps) {
   return (
     <IconButton
       aria-label="download"
-      title={trans.__('Download job files for "%1"', props.job.name)}
+      title={trans.__('Download output files for "%1"', props.job.name)}
       disabled={downloading}
       onClick={async () => {
         setDownloading(true);

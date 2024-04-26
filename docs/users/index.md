@@ -49,6 +49,10 @@ To create a _job_ or _job definition_ from an open notebook, click on a “Creat
 
 Give your notebook job or job definition a name, choose an environment to run it in, select its output formats, and provide parameters that are set as local variables when your notebook gets executed. This parameterized execution is similar to the one used in [Papermill](https://papermill.readthedocs.io/en/latest/).
 
+If you check "Run job with input folder", the scheduled job will have access to all files within the same folder as the input file.
+The scheduler will copy all files from the input file to a staging directory at runtime, and will make these files and any side effect files created during the job run available for download after the job has finished.
+Use caution with this option if your input file's directory has many large files in it.
+
 To create a _job_ that runs once, select "Run now" in the "Schedule" section, and click "Create".
 !["Create Job Form"](./images/create_job_form.png)
 

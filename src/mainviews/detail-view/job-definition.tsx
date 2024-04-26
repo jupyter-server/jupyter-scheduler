@@ -230,6 +230,12 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
         value: model.timezone ?? '',
         label: trans.__('Time zone')
       }
+    ],
+    [
+      {
+        value: model.packageInputFolder ? trans.__('Yes') : trans.__('No'),
+        label: trans.__('Ran with input folder')
+      }
     ]
   ];
 
