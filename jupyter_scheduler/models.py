@@ -85,6 +85,7 @@ class CreateJob(BaseModel):
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
+    package_input_folder: Optional[bool] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -145,6 +146,8 @@ class DescribeJob(BaseModel):
     status: Status = Status.CREATED
     status_message: Optional[str] = None
     downloaded: bool = False
+    package_input_folder: Optional[bool] = None
+    packaged_files: Optional[List[str]] = []
 
     class Config:
         orm_mode = True
@@ -209,6 +212,7 @@ class CreateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
+    package_input_folder: Optional[bool] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -234,6 +238,8 @@ class DescribeJobDefinition(BaseModel):
     create_time: int
     update_time: int
     active: bool
+    package_input_folder: Optional[bool] = None
+    packaged_files: Optional[List[str]] = []
 
     class Config:
         orm_mode = True

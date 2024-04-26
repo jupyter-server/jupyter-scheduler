@@ -21,7 +21,7 @@ class JobFilesManager:
         job = await ensure_async(self.scheduler.get_job(job_id, False))
         staging_paths = await ensure_async(self.scheduler.get_staging_paths(job))
         output_filenames = self.scheduler.get_job_filenames(job)
-        output_dir = self.scheduler.get_local_output_path(job)
+        output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
         p = Process(
             target=Downloader(
@@ -30,6 +30,7 @@ class JobFilesManager:
                 staging_paths=staging_paths,
                 output_dir=output_dir,
                 redownload=redownload,
+                include_staging_files=job.package_input_folder,
             ).download
         )
         p.start()
@@ -43,22 +44,30 @@ class Downloader:
         staging_paths: Dict[str, str],
         output_dir: str,
         redownload: bool,
+        include_staging_files: bool = False,
     ):
         self.output_formats = output_formats
         self.output_filenames = output_filenames
         self.staging_paths = staging_paths
         self.output_dir = output_dir
         self.redownload = redownload
+        self.include_staging_files = include_staging_files
 
     def generate_filepaths(self):
         """A generator that produces filepaths"""
         output_formats = self.output_formats + ["input"]
-
         for output_format in output_formats:
             input_filepath = self.staging_paths[output_format]
             output_filepath = os.path.join(self.output_dir, self.output_filenames[output_format])
             if not os.path.exists(output_filepath) or self.redownload:
                 yield input_filepath, output_filepath
+        if self.include_staging_files:
+            staging_dir = os.path.dirname(self.staging_paths["input"])
+            for file_relative_path in self.output_filenames["files"]:
+                input_filepath = os.path.join(staging_dir, file_relative_path)
+                output_filepath = os.path.join(self.output_dir, file_relative_path)
+                if not os.path.exists(output_filepath) or self.redownload:
+                    yield input_filepath, output_filepath
 
     def download_tar(self, archive_format: str = "tar"):
         archive_filepath = self.staging_paths[archive_format]

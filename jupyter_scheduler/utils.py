@@ -1,10 +1,11 @@
 import json
 import os
-import pathlib
+import shutil
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
+import fsspec
 import pytz
 from croniter import croniter
 from nbformat import NotebookNode
@@ -84,3 +85,31 @@ def get_localized_timestamp(timezone) -> int:
     tz = pytz.timezone(timezone)
     local_date = datetime.now(tz=tz)
     return int(local_date.timestamp() * 1000)
+
+
+def copy_directory(
+    source_dir: str,
+    destination_dir: str,
+    exclude_files: Optional[List[str]] = [],
+) -> List[str]:
+    """Copies content of source_dir to destination_dir excluding exclude_files.
+    Returns a list of relative paths to copied files from destination_dir.
+    """
+    copied_files = []
+    for item in os.listdir(source_dir):
+        source = os.path.join(source_dir, item)
+        destination = os.path.join(destination_dir, item)
+        if os.path.isdir(source):
+            shutil.copytree(source, destination, ignore=shutil.ignore_patterns(*exclude_files))
+            for dirpath, _, filenames in os.walk(destination):
+                for filename in filenames:
+                    rel_path = os.path.relpath(os.path.join(dirpath, filename), destination_dir)
+                    copied_files.append(rel_path)
+        elif os.path.isfile(source) and item not in exclude_files:
+            with fsspec.open(source, "rb") as source_file:
+                with fsspec.open(destination, "wb") as output_file:
+                    output_file.write(source_file.read())
+            rel_path = os.path.relpath(destination, destination_dir)
+            copied_files.append(rel_path)
+
+    return copied_files
