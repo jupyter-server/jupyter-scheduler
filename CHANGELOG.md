@@ -2,6 +2,23 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.9.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.8.2...d3734fd6d3fab582712058e8bf627508d8470909))
+
+### Enhancements made
+
+- \[1.x\] Add tests for Scheduler job and job definition creation with input folder, refactor execution manager test (#513) [#515](https://github.com/jupyter-server/jupyter-scheduler/pull/515) ([@andrii-i](https://github.com/andrii-i))
+- \[1.x\] Package input files (no autodownload, no multiprocessing DownloadManager) (#510)  [#512](https://github.com/jupyter-server/jupyter-scheduler/pull/512) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-04-15&to=2024-04-30&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-04-15..2024-04-30&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-04-15..2024-04-30&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.8.2
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v1.8.1...95138f9b4d7aed5a356aee1e03b79f26c8470af0))
@@ -15,8 +32,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-02-15&to=2024-04-15&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-02-15..2024-04-15&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-02-15..2024-04-15&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Asrdas+updated%3A2024-02-15..2024-04-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2024-02-15..2024-04-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.8.1
 
