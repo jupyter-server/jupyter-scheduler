@@ -89,9 +89,9 @@ For more information on writing a custom implementation, please see the {doc}`de
 ### Example: Capturing side effect files
 
 The default scheduler and execution manager classes do not capture
-**side effect files**, files that are created as a side effect of executing
-cells in a notebook. The `ArchivingScheduler` and `ArchivingExecutionManager`
-classes do capture side effect files. If you intend to run notebooks that produce
+**side effect files** (files that are created as a side effect of executing
+cells in a notebook) unless “Run job with input folder” is checked. The `ArchivingScheduler` and `ArchivingExecutionManager`
+classes do capture side effect files by default. If you intend to run notebooks that produce
 side effect files, you can use these classes by running:
 
 ```

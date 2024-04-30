@@ -42,6 +42,7 @@ import {
 
 import { Box, Stack } from '@mui/system';
 import { getErrorMessage } from '../util/errors';
+import { PackageInputFolderControl } from '../components/input-folder-checkbox';
 
 export interface ICreateJobProps {
   model: ICreateJobModel;
@@ -320,7 +321,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       compute_type: props.model.computeType,
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
-      runtime_environment_parameters: props.model.runtimeEnvironmentParameters
+      runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
+      package_input_folder: props.model.packageInputFolder
     };
 
     if (props.model.parameters !== undefined) {
@@ -368,7 +370,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
-      timezone: props.model.timezone
+      timezone: props.model.timezone,
+      package_input_folder: props.model.packageInputFolder
     };
 
     if (props.model.parameters !== undefined) {
@@ -503,6 +506,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             onChange={handleSelectChange}
             environmentList={environmentList}
             value={props.model.environment}
+          />
+          <PackageInputFolderControl
+            onChange={handleInputChange}
+            inputFile={props.model.inputFile}
           />
           <OutputFormatPicker
             label={trans.__('Output formats')}
