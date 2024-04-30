@@ -3,13 +3,10 @@ from pathlib import Path
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import pytest
-
-from jupyter_scheduler.executors import DefaultExecutionManager
-from jupyter_scheduler.orm import Job
-from pathlib import Path
 
 from conftest import DB_URL
+from jupyter_scheduler.executors import DefaultExecutionManager
+from jupyter_scheduler.orm import Job
 
 JOB_ID = "69856f4e-ce94-45fd-8f60-3a587457fce7"
 NOTEBOOK_NAME = "side_effects.ipynb"
