@@ -29,18 +29,6 @@ def load_job(jp_scheduler_db):
         session.commit()
 
 
-@pytest.fixture
-def load_job(jp_scheduler_db):
-    with jp_scheduler_db() as session:
-        job = Job(
-            runtime_environment_name="abc",
-            input_filename=NOTEBOOK_NAME,
-            job_id=JOB_ID,
-        )
-        session.add(job)
-        session.commit()
-
-
 def test_add_side_effects_files(jp_scheduler_db, load_job):
     manager = DefaultExecutionManager(
         job_id=JOB_ID,
