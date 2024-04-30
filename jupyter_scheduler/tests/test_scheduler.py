@@ -6,13 +6,14 @@ from unittest.mock import patch
 import pytest
 
 from jupyter_scheduler.models import (
+    CreateJob,
     CreateJobDefinition,
     ListJobDefinitionsQuery,
     SortDirection,
     SortField,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import JobDefinition
+from jupyter_scheduler.orm import Job, JobDefinition
 
 
 def test_create_job_definition(jp_scheduler):
@@ -37,6 +38,49 @@ def test_create_job_definition(jp_scheduler):
         assert "helloworld.ipynb" == definition.input_filename
         assert "default" == definition.runtime_environment_name
         assert "hello world" == definition.name
+
+
+def test_create_job_definition_with_input_folder(jp_scheduler):
+    job_definition_id = jp_scheduler.create_job_definition(
+        CreateJobDefinition(
+            input_uri="job-5/import-helloworld.ipynb",
+            runtime_environment_name="default",
+            name="import hello world",
+            output_formats=["ipynb"],
+            package_input_folder=True,
+        )
+    )
+
+    with jp_scheduler.db_session() as session:
+        definitions = session.query(JobDefinition).all()
+        assert 1 == len(definitions)
+        definition = definitions[0]
+        assert job_definition_id
+        assert job_definition_id == definition.job_definition_id
+        assert "import hello world" == definition.name
+        assert "a/b/helloworld.txt" in definition.packaged_files
+
+
+def test_create_job_with_input_folder(jp_scheduler):
+    job_id = jp_scheduler.create_job(
+        CreateJob(
+            input_uri="job-5/import-helloworld.ipynb",
+            runtime_environment_name="default",
+            name="import hello world",
+            output_formats=["ipynb"],
+            package_input_folder=True,
+        )
+    )
+
+    with jp_scheduler.db_session() as session:
+        jobs = session.query(Job).all()
+        assert 1 == len(jobs)
+        job = jobs[0]
+        assert job_id
+        assert job_id == job.job_id
+        assert "import hello world" == job.name
+        assert "default" == job.runtime_environment_name
+        assert "a/b/helloworld.txt" in job.packaged_files
 
 
 job_definition_1 = {
