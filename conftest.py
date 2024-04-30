@@ -13,6 +13,8 @@ HERE = Path(__file__).parent.resolve()
 DB_FILE_PATH = f"{HERE}/jupyter_scheduler/tests/testdb.sqlite"
 DB_URL = f"sqlite:///{DB_FILE_PATH}"
 
+TEST_ROOT_DIR = f"{HERE}/jupyter_scheduler/tests/test_root_dir"
+
 
 @pytest.fixture
 def jp_server_config(jp_server_config):
@@ -44,7 +46,7 @@ def jp_scheduler_db():
 
 
 @pytest.fixture
-def jp_scheduler(jp_data_dir):
+def jp_scheduler():
     return Scheduler(
-        db_url=DB_URL, root_dir=str(jp_data_dir), environments_manager=MockEnvironmentManager()
+        db_url=DB_URL, root_dir=str(TEST_ROOT_DIR), environments_manager=MockEnvironmentManager()
     )
