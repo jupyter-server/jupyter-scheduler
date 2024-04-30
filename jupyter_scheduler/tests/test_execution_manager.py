@@ -55,6 +55,4 @@ def test_add_side_effects_files(jp_scheduler_db, load_job):
 
     with jp_scheduler_db() as session:
         job = session.query(Job).filter(Job.job_id == JOB_ID).one()
-        assert (
-            SIDE_EFECT_FILE_NAME in job.packaged_files
-        ), "Side effect file was not added to packaged_files"
+        assert SIDE_EFECT_FILE_NAME in job.packaged_files
