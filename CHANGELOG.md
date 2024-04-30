@@ -2,6 +2,31 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.6.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.5.2...51a5ee4cb5681844ee4d6d2577545fb973ad7890))
+
+### Enhancements made
+
+- Add tests for Scheduler job and job definition creation with input folder, refactor execution manager test [#513](https://github.com/jupyter-server/jupyter-scheduler/pull/513) ([@andrii-i](https://github.com/andrii-i))
+- Package input files (no autodownload, no multiprocessing DownloadManager) [#510](https://github.com/jupyter-server/jupyter-scheduler/pull/510) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Clarify support lifecycle after JupyterLab 3 end of maintenance [#508](https://github.com/jupyter-server/jupyter-scheduler/pull/508) ([@andrii-i](https://github.com/andrii-i))
+
+### Documentation improvements
+
+- Clarify support lifecycle after JupyterLab 3 end of maintenance [#508](https://github.com/jupyter-server/jupyter-scheduler/pull/508) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-04-15&to=2024-04-30&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-04-15..2024-04-30&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-04-15..2024-04-30&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.5.2
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.5.1...b01c76088bb9acfac846727681a94c6e58493b9e))
@@ -21,8 +46,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-02-15&to=2024-04-15&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-02-15..2024-04-15&type=Issues) | [@blink1073](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Ablink1073+updated%3A2024-02-15..2024-04-15&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adependabot+updated%3A2024-02-15..2024-04-15&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-02-15..2024-04-15&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Apre-commit-ci+updated%3A2024-02-15..2024-04-15&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Asrdas+updated%3A2024-02-15..2024-04-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Awelcome+updated%3A2024-02-15..2024-04-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.5.1
 
