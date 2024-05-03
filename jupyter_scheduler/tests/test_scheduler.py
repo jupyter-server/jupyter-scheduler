@@ -127,11 +127,10 @@ job_definition_3 = {
 
 @pytest.fixture
 def load_job_definitions(jp_scheduler_db):
-    with jp_scheduler_db() as session:
-        session.add(JobDefinition(**job_definition_1))
-        session.add(JobDefinition(**job_definition_2))
-        session.add(JobDefinition(**job_definition_3))
-        session.commit()
+    jp_scheduler_db.add(JobDefinition(**job_definition_1))
+    jp_scheduler_db.add(JobDefinition(**job_definition_2))
+    jp_scheduler_db.add(JobDefinition(**job_definition_3))
+    jp_scheduler_db.commit()
 
 
 @pytest.mark.parametrize(
@@ -182,14 +181,13 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
         jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=False))
 
-    with jp_scheduler_db() as session:
-        active = (
-            session.query(JobDefinition.active)
-            .filter(JobDefinition.job_definition_id == job_definition_id)
-            .one()
-            .active
-        )
-        assert not active
+    active = (
+        jp_scheduler_db.query(JobDefinition.active)
+        .filter(JobDefinition.job_definition_id == job_definition_id)
+        .one()
+        .active
+    )
+    assert not active
 
 
 def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
@@ -197,14 +195,13 @@ def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
         jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=True))
 
-    with jp_scheduler_db() as session:
-        active = (
-            session.query(JobDefinition.active)
-            .filter(JobDefinition.job_definition_id == job_definition_id)
-            .one()
-            .active
-        )
-        assert active
+    active = (
+        jp_scheduler_db.query(JobDefinition.active)
+        .filter(JobDefinition.job_definition_id == job_definition_id)
+        .one()
+        .active
+    )
+    assert active
 
 
 def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
@@ -217,15 +214,13 @@ def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_
         )
         jp_scheduler.update_job_definition(job_definition_id, update)
 
-    with jp_scheduler_db() as session:
-        definition = session.get(JobDefinition, job_definition_id)
-        assert schedule == definition.schedule
-        assert timezone == definition.timezone
+    definition = jp_scheduler_db.get(JobDefinition, job_definition_id)
+    assert schedule == definition.schedule
+    assert timezone == definition.timezone
 
 
 def test_delete_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_1["job_definition_id"]
     jp_scheduler.delete_job_definition(job_definition_id)
-    with jp_scheduler_db() as session:
-        definition = session.get(JobDefinition, job_definition_id)
-        assert not definition
+    definition = jp_scheduler_db.get(JobDefinition, job_definition_id)
+    assert not definition
