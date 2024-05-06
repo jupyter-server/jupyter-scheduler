@@ -16,6 +16,11 @@ TEST_ROOT_DIR = f"{HERE}/jupyter_scheduler/tests/test_root_dir"
 
 
 @pytest.fixture
+def static_test_files_dir():
+    return HERE / "jupyter_scheduler" / "tests" / "static"
+
+
+@pytest.fixture
 def jp_scheduler_root_dir(tmp_path):
     root_dir = tmp_path / "workspace_root"
     root_dir.mkdir()
