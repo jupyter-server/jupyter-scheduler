@@ -1,5 +1,7 @@
 """Tests for scheduler"""
 
+from pathlib import Path
+import shutil
 from unittest import mock
 from unittest.mock import patch
 
@@ -14,6 +16,20 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.orm import Job, JobDefinition
+
+
+@pytest.fixture
+def root_dir_with_input_folder(static_test_files_dir, jp_scheduler_root_dir):
+    notebook_file_path = static_test_files_dir / "import-helloworld.ipynb"
+    dependency_file_path = static_test_files_dir / "helloworld.txt"
+    job_root_dir = jp_scheduler_root_dir / "job-5"
+    dependency_root_dir = job_root_dir / "a" / "b"
+
+    dependency_root_dir.mkdir(parents=True)
+    shutil.copy2(notebook_file_path, job_root_dir)
+    shutil.copy2(dependency_file_path, dependency_root_dir)
+
+    return Path(job_root_dir.name) / notebook_file_path.name
 
 
 def test_create_job_definition(jp_scheduler):
@@ -40,10 +56,10 @@ def test_create_job_definition(jp_scheduler):
         assert "hello world" == definition.name
 
 
-def test_create_job_definition_with_input_folder(jp_scheduler):
+def test_create_job_definition_with_input_folder(jp_scheduler, root_dir_with_input_folder):
     job_definition_id = jp_scheduler.create_job_definition(
         CreateJobDefinition(
-            input_uri="job-5/import-helloworld.ipynb",
+            input_uri=str(root_dir_with_input_folder),
             runtime_environment_name="default",
             name="import hello world",
             output_formats=["ipynb"],
@@ -61,10 +77,10 @@ def test_create_job_definition_with_input_folder(jp_scheduler):
         assert "a/b/helloworld.txt" in definition.packaged_files
 
 
-def test_create_job_with_input_folder(jp_scheduler):
+def test_create_job_with_input_folder(jp_scheduler, root_dir_with_input_folder):
     job_id = jp_scheduler.create_job(
         CreateJob(
-            input_uri="job-5/import-helloworld.ipynb",
+            input_uri=str(root_dir_with_input_folder),
             runtime_environment_name="default",
             name="import hello world",
             output_formats=["ipynb"],

@@ -11,13 +11,9 @@ from jupyter_scheduler.tests.mocks import MockEnvironmentManager
 pytest_plugins = ("jupyter_server.pytest_plugin", "pytest_jupyter.jupyter_server")
 
 
-HERE = Path(__file__).parent.resolve()
-TEST_ROOT_DIR = f"{HERE}/jupyter_scheduler/tests/test_root_dir"
-
-
 @pytest.fixture
 def static_test_files_dir():
-    return HERE / "jupyter_scheduler" / "tests" / "static"
+    return Path(__file__).parent.resolve() / "jupyter_scheduler" / "tests" / "static"
 
 
 @pytest.fixture
@@ -49,16 +45,16 @@ def jp_scheduler_db(jp_scheduler_db_url):
 
 
 @pytest.fixture
-def jp_scheduler(jp_scheduler_db_url, jp_scheduler_db):
+def jp_scheduler(jp_scheduler_db_url, jp_scheduler_root_dir, jp_scheduler_db):
     return Scheduler(
         db_url=jp_scheduler_db_url,
-        root_dir=str(TEST_ROOT_DIR),
+        root_dir=str(jp_scheduler_root_dir),
         environments_manager=MockEnvironmentManager(),
     )
 
 
 @pytest.fixture
-def jp_server_config(jp_server_config, jp_scheduler_db_url):
+def jp_server_config(jp_scheduler_db_url, jp_server_config):
     return {
         "ServerApp": {"jpserver_extensions": {"jupyter_scheduler": True}},
         "SchedulerApp": {
