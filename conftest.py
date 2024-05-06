@@ -16,15 +16,22 @@ TEST_ROOT_DIR = f"{HERE}/jupyter_scheduler/tests/test_root_dir"
 
 
 @pytest.fixture
-def jp_scheduler_staging(jp_data_dir):
+def jp_scheduler_root_dir(tmp_path):
+    root_dir = tmp_path / "workspace_root"
+    root_dir.mkdir()
+    return root_dir
+
+
+@pytest.fixture
+def jp_scheduler_staging_dir(jp_data_dir):
     staging_area = jp_data_dir / "scheduler_staging_area"
     staging_area.mkdir()
     return staging_area
 
 
 @pytest.fixture
-def jp_scheduler_db_url(jp_scheduler_staging):
-    db_file_path = jp_scheduler_staging / "scheduler.sqlite"
+def jp_scheduler_db_url(jp_scheduler_staging_dir):
+    db_file_path = jp_scheduler_staging_dir / "scheduler.sqlite"
     return f"sqlite:///{db_file_path}"
 
 

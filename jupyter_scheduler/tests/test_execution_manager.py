@@ -16,21 +16,29 @@ SIDE_EFFECT_FILE = NOTEBOOK_DIR / SIDE_EFECT_FILE_NAME
 
 
 @pytest.fixture
-def create_job(jp_scheduler_db):
+def staging_dir_with_side_effects(jp_scheduler_staging_dir):
+    return ("side_effects.ipynb", "output_side_effect.txt")
+
+
+@pytest.fixture
+def side_effects_job_record(jp_scheduler_db, staging_dir_with_side_effects):
+    notebook_name = staging_dir_with_side_effects[0]
     job = Job(
         runtime_environment_name="abc",
-        input_filename=NOTEBOOK_NAME,
+        input_filename=notebook_name,
     )
     jp_scheduler_db.add(job)
     jp_scheduler_db.commit()
     return job.job_id
 
 
-def test_add_side_effects_files(jp_scheduler_db, create_job, jp_scheduler_db_url):
-    job_id = create_job
+def test_add_side_effects_files(
+    jp_scheduler_db, side_effects_job_record, jp_scheduler_db_url, jp_scheduler_root_dir
+):
+    job_id = side_effects_job_record
     manager = DefaultExecutionManager(
         job_id=job_id,
-        root_dir=str(NOTEBOOK_DIR),
+        root_dir=jp_scheduler_root_dir,
         db_url=jp_scheduler_db_url,
         staging_paths={"input": str(NOTEBOOK_PATH)},
     )
