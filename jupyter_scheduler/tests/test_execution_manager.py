@@ -1,4 +1,5 @@
 import shutil
+
 import pytest
 
 from jupyter_scheduler.executors import DefaultExecutionManager

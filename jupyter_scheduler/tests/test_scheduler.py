@@ -1,7 +1,7 @@
 """Tests for scheduler"""
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from unittest import mock
 from unittest.mock import patch
 
