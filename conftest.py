@@ -11,7 +11,7 @@ from jupyter_scheduler.tests.mocks import MockEnvironmentManager
 pytest_plugins = ("jupyter_server.pytest_plugin", "pytest_jupyter.jupyter_server")
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def static_test_files_dir():
     return Path(__file__).parent.resolve() / "jupyter_scheduler" / "tests" / "static"
 
