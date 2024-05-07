@@ -24,6 +24,13 @@ def jp_scheduler_root_dir(tmp_path):
 
 
 @pytest.fixture
+def jp_scheduler_output_dir(jp_scheduler_root_dir):
+    output_dir = jp_scheduler_root_dir / "jobs"
+    output_dir.mkdir()
+    return output_dir
+
+
+@pytest.fixture
 def jp_scheduler_staging_dir(jp_data_dir):
     staging_area = jp_data_dir / "scheduler_staging_area"
     staging_area.mkdir()
