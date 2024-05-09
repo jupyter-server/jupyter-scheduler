@@ -1,8 +1,9 @@
 import asyncio
+
 import traitlets
+from jupyter_server.transutils import _i18n
 from traitlets.config import LoggingConfigurable
 
-from jupyter_server.transutils import _i18n
 from jupyter_scheduler.download_manager import DownloadManager
 from jupyter_scheduler.job_files_manager import JobFilesManager
 
