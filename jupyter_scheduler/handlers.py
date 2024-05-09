@@ -395,20 +395,20 @@ class ConfigHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
 
 class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
-    _job_files_manager = None
+    _initiate_download = None
 
     @property
-    def job_files_manager(self):
-        if not self._job_files_manager:
-            self._job_files_manager = self.settings.get("job_files_manager", None)
+    def initiate_download(self):
+        if not self._initiate_download:
+            self._initiate_download = self.settings.get("initiate_download", None)
 
-        return self._job_files_manager
+        return self._initiate_download
 
     @authenticated
     async def get(self, job_id):
         redownload = self.get_query_argument("redownload", False)
         try:
-            await self.job_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
+            self.initiate_download(job_id, redownload)
         except Exception as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e

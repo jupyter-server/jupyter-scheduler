@@ -58,6 +58,7 @@ async def test_copy_from_staging():
                     redownload=False,
                     include_staging_files=None,
                 )
+                mock_process.assert_called_once()
 
 
 HERE = Path(__file__).parent.resolve()

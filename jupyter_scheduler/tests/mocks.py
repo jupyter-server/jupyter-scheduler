@@ -1,5 +1,8 @@
+from multiprocessing import Queue
 from typing import Dict, List
+from unittest.mock import Mock
 
+from jupyter_scheduler.download_manager import DownloadManager
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.executors import ExecutionManager
 from jupyter_scheduler.models import JobFeature, RuntimeEnvironment, UpdateJobDefinition
@@ -73,3 +76,8 @@ class MockTaskRunner(BaseTaskRunner):
 
     def resume_jobs(self, job_definition_id: str):
         pass
+
+
+class MockDownloadManager(DownloadManager):
+    def __init__(self, db_url: str):
+        self.queue = Queue()

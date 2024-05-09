@@ -11,6 +11,7 @@ import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
+from jupyter_scheduler.download_manager import initiate_download_standalone
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
@@ -29,11 +30,19 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
+    def __init__(
+        self,
+        job_id: str,
+        root_dir: str,
+        db_url: str,
+        staging_paths: Dict[str, str],
+        download_queue,
+    ):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
+        self.download_queue = download_queue
 
     @property
     def model(self):
@@ -143,6 +152,13 @@ class DefaultExecutionManager(ExecutionManager):
         finally:
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
+            with self.db_session() as session:
+                initiate_download_standalone(
+                    job_id=job.job_id,
+                    download_queue=self.download_queue,
+                    db_session=session,
+                    redownload=True,
+                )
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""

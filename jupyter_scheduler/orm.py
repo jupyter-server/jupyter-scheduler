@@ -1,5 +1,4 @@
 import json
-import os
 from sqlite3 import OperationalError
 from uuid import uuid4
 
@@ -110,6 +109,14 @@ class JobDefinition(CommonColumns, Base):
     url = Column(String(256), default=generate_job_definitions_url)
     create_time = Column(Integer, default=get_utc_timestamp)
     active = Column(Boolean, default=True)
+
+
+class Download(Base):
+    __tablename__ = "downloads"
+    job_id = Column(String(36), primary_key=True)
+    download_id = Column(String(36), primary_key=True)
+    download_initiated_time = Column(Integer)
+    redownload = Column(Boolean, default=False)
 
 
 def create_tables(db_url, drop_tables=False):

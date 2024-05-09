@@ -1,7 +1,7 @@
-import multiprocessing as mp
 import os
 import random
 import shutil
+from multiprocessing import Process
 from typing import Dict, List, Optional, Type, Union
 
 import fsspec
@@ -15,6 +15,7 @@ from traitlets import Type as TType
 from traitlets import Unicode, default
 from traitlets.config import LoggingConfigurable
 
+from jupyter_scheduler.download_manager import DownloadManager
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
@@ -404,6 +405,7 @@ class Scheduler(BaseScheduler):
         root_dir: str,
         environments_manager: Type[EnvironmentManager],
         db_url: str,
+        download_manager: DownloadManager,
         config=None,
         **kwargs,
     ):
@@ -413,6 +415,7 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+        self.download_manager = download_manager
 
     @property
     def db_session(self):
@@ -478,20 +481,13 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-            # The MP context forces new processes to not be forked on Linux.
-            # This is necessary because `asyncio.get_event_loop()` is bugged in
-            # forked processes in Python versions below 3.12. This method is
-            # called by `jupyter_core` by `nbconvert` in the default executor.
-            #
-            # See: https://github.com/python/cpython/issues/66285
-            # See also: https://github.com/jupyter/jupyter_core/pull/362
-            mp_ctx = mp.get_context("spawn")
-            p = mp_ctx.Process(
+            p = Process(
                 target=self.execution_manager_class(
                     job_id=job.job_id,
                     staging_paths=staging_paths,
                     root_dir=self.root_dir,
                     db_url=self.db_url,
+                    download_queue=self.download_manager.queue,
                 ).process
             )
             p.start()
@@ -583,6 +579,7 @@ class Scheduler(BaseScheduler):
 
             session.query(Job).filter(Job.job_id == job_id).delete()
             session.commit()
+            self.download_manager.delete_job_downloads(job_id)
 
     def stop_job(self, job_id):
         with self.db_session() as session:

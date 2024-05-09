@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from conftest import DB_URL
 from jupyter_scheduler.executors import DefaultExecutionManager
 from jupyter_scheduler.orm import Job
+from jupyter_scheduler.tests.mocks import MockDownloadManager
 
 JOB_ID = "69856f4e-ce94-45fd-8f60-3a587457fce7"
 NOTEBOOK_NAME = "side_effects.ipynb"
@@ -30,11 +31,13 @@ def load_job(jp_scheduler_db):
 
 
 def test_add_side_effects_files(jp_scheduler_db, load_job):
+    download_manager = MockDownloadManager(DB_URL)
     manager = DefaultExecutionManager(
         job_id=JOB_ID,
         root_dir=str(NOTEBOOK_DIR),
         db_url=DB_URL,
         staging_paths={"input": str(NOTEBOOK_PATH)},
+        download_queue=download_manager.queue,
     )
     manager.add_side_effects_files(str(NOTEBOOK_DIR))
 

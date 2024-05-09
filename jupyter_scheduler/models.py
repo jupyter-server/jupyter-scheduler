@@ -295,3 +295,16 @@ class JobFeature(str, Enum):
     output_filename_template = "output_filename_template"
     stop_job = "stop_job"
     delete_job = "delete_job"
+
+
+class DescribeDownload(BaseModel):
+    job_id: str
+    download_id: str
+    download_initiated_time: int
+    redownload: bool
+
+    class Config:
+        orm_mode = True
+
+    def __str__(self) -> str:
+        return self.json()
