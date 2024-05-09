@@ -1,4 +1,6 @@
+from multiprocessing import Queue
 from typing import Dict, List
+from unittest.mock import Mock
 
 from jupyter_scheduler.download_manager import DownloadManager
 from jupyter_scheduler.environments import EnvironmentManager
@@ -78,4 +80,4 @@ class MockTaskRunner(BaseTaskRunner):
 
 class MockDownloadManager(DownloadManager):
     def __init__(self, db_url: str):
-        pass
+        self.queue = Queue()
