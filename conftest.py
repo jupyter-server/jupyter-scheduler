@@ -44,11 +44,13 @@ def jp_scheduler_db_url(jp_scheduler_staging_dir) -> str:
 
 
 @pytest.fixture
-def jp_scheduler_db(jp_scheduler_db_url) -> Session:
+def jp_scheduler_db(jp_scheduler_db_url):
     engine = create_engine(jp_scheduler_db_url, echo=False)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
-    return Session()
+    session = Session()
+    yield session
+    session.close()
 
 
 @pytest.fixture
