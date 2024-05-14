@@ -17,28 +17,28 @@ def static_test_files_dir() -> Path:
 
 
 @pytest.fixture
-def jp_scheduler_root_dir(tmp_path) -> Path:
+def jp_scheduler_root_dir(tmp_path: Path) -> Path:
     root_dir = tmp_path / "workspace_root"
     root_dir.mkdir()
     return root_dir
 
 
 @pytest.fixture
-def jp_scheduler_output_dir(jp_scheduler_root_dir) -> Path:
+def jp_scheduler_output_dir(jp_scheduler_root_dir: Path) -> Path:
     output_dir = jp_scheduler_root_dir / "jobs"
     output_dir.mkdir()
     return output_dir
 
 
 @pytest.fixture
-def jp_scheduler_staging_dir(jp_data_dir) -> Path:
+def jp_scheduler_staging_dir(jp_data_dir: Path) -> Path:
     staging_area = jp_data_dir / "scheduler_staging_area"
     staging_area.mkdir()
     return staging_area
 
 
 @pytest.fixture
-def jp_scheduler_db_url(jp_scheduler_staging_dir) -> str:
+def jp_scheduler_db_url(jp_scheduler_staging_dir: Path) -> str:
     db_file_path = jp_scheduler_staging_dir / "scheduler.sqlite"
     return f"sqlite:///{db_file_path}"
 
