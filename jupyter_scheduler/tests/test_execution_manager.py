@@ -1,4 +1,6 @@
+from pathlib import Path
 import shutil
+from typing import Tuple
 
 import pytest
 
@@ -7,7 +9,9 @@ from jupyter_scheduler.orm import Job
 
 
 @pytest.fixture
-def staging_dir_with_side_effects(static_test_files_dir, jp_scheduler_staging_dir):
+def staging_dir_with_side_effects(
+    static_test_files_dir, jp_scheduler_staging_dir
+) -> Tuple[Path, Path]:
     notebook_file_path = static_test_files_dir / "side_effects.ipynb"
     side_effect_file_path = static_test_files_dir / "output_side_effect.txt"
     job_staging_dir = jp_scheduler_staging_dir / "job-4"
@@ -20,7 +24,7 @@ def staging_dir_with_side_effects(static_test_files_dir, jp_scheduler_staging_di
 
 
 @pytest.fixture
-def side_effects_job_record(staging_dir_with_side_effects, jp_scheduler_db):
+def side_effects_job_record(staging_dir_with_side_effects, jp_scheduler_db) -> str:
     notebook_name = staging_dir_with_side_effects[0].name
     job = Job(
         runtime_environment_name="abc",
