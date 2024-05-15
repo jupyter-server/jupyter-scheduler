@@ -1,43 +1,60 @@
+import shutil
 from pathlib import Path
+from typing import Tuple
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from conftest import DB_URL
 from jupyter_scheduler.executors import DefaultExecutionManager
 from jupyter_scheduler.orm import Job
 
-JOB_ID = "69856f4e-ce94-45fd-8f60-3a587457fce7"
-NOTEBOOK_NAME = "side_effects.ipynb"
-SIDE_EFECT_FILE_NAME = "output_side_effect.txt"
 
-NOTEBOOK_DIR = Path(__file__).resolve().parent / "test_staging_dir" / "job-4"
-NOTEBOOK_PATH = NOTEBOOK_DIR / NOTEBOOK_NAME
-SIDE_EFFECT_FILE = NOTEBOOK_DIR / SIDE_EFECT_FILE_NAME
+@pytest.fixture
+def staging_dir_with_side_effects(
+    static_test_files_dir, jp_scheduler_staging_dir
+) -> Tuple[Path, Path]:
+    notebook_file_path = static_test_files_dir / "side_effects.ipynb"
+    side_effect_file_path = static_test_files_dir / "output_side_effect.txt"
+    job_staging_dir = jp_scheduler_staging_dir / "job-4"
+
+    job_staging_dir.mkdir()
+    shutil.copy2(notebook_file_path, job_staging_dir)
+    shutil.copy2(side_effect_file_path, job_staging_dir)
+
+    return (notebook_file_path, side_effect_file_path)
 
 
 @pytest.fixture
-def load_job(jp_scheduler_db):
-    with jp_scheduler_db() as session:
-        job = Job(
-            runtime_environment_name="abc",
-            input_filename=NOTEBOOK_NAME,
-            job_id=JOB_ID,
-        )
-        session.add(job)
-        session.commit()
-
-
-def test_add_side_effects_files(jp_scheduler_db, load_job):
-    manager = DefaultExecutionManager(
-        job_id=JOB_ID,
-        root_dir=str(NOTEBOOK_DIR),
-        db_url=DB_URL,
-        staging_paths={"input": str(NOTEBOOK_PATH)},
+def side_effects_job_record(staging_dir_with_side_effects, jp_scheduler_db) -> str:
+    notebook_name = staging_dir_with_side_effects[0].name
+    job = Job(
+        runtime_environment_name="abc",
+        input_filename=notebook_name,
     )
-    manager.add_side_effects_files(str(NOTEBOOK_DIR))
+    jp_scheduler_db.add(job)
+    jp_scheduler_db.commit()
 
-    with jp_scheduler_db() as session:
-        job = session.query(Job).filter(Job.job_id == JOB_ID).one()
-        assert SIDE_EFECT_FILE_NAME in job.packaged_files
+    return job.job_id
+
+
+def test_add_side_effects_files(
+    side_effects_job_record,
+    staging_dir_with_side_effects,
+    jp_scheduler_root_dir,
+    jp_scheduler_db_url,
+    jp_scheduler_db,
+):
+    job_id = side_effects_job_record
+    staged_notebook_file_path = staging_dir_with_side_effects[0]
+    staged_notebook_dir = staged_notebook_file_path.parent
+    side_effect_file_name = staging_dir_with_side_effects[1].name
+
+    manager = DefaultExecutionManager(
+        job_id=job_id,
+        root_dir=jp_scheduler_root_dir,
+        db_url=jp_scheduler_db_url,
+        staging_paths={"input": staged_notebook_file_path},
+    )
+    manager.add_side_effects_files(staged_notebook_dir)
+
+    job = jp_scheduler_db.query(Job).filter(Job.job_id == job_id).one()
+    assert side_effect_file_name in job.packaged_files

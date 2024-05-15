@@ -60,65 +60,88 @@ async def test_copy_from_staging():
                 )
 
 
-HERE = Path(__file__).parent.resolve()
-OUTPUTS_DIR = os.path.join(HERE, "test_files_output")
+@pytest.fixture
+def staging_dir_with_notebook_job(static_test_files_dir, jp_scheduler_staging_dir):
+    staging_dir = jp_scheduler_staging_dir / "job-1"
+    job_filenames = ["helloworld-1.ipynb", "helloworld-1.html", "helloworld.ipynb"]
+
+    staged_job_files = []
+    staging_dir.mkdir()
+    for job_filename in job_filenames:
+        staged_job_file = shutil.copy2(static_test_files_dir / job_filename, staging_dir)
+        staged_job_files.append(staged_job_file)
+
+    return staged_job_files
 
 
 @pytest.fixture
-def clear_outputs_dir():
-    yield
-    shutil.rmtree(OUTPUTS_DIR)
-    # rmtree() is not synchronous; wait until it has finished running
-    while os.path.isdir(OUTPUTS_DIR):
-        time.sleep(0.01)
+def staging_dir_with_tar_job(static_test_files_dir, jp_scheduler_staging_dir):
+    staging_dir = jp_scheduler_staging_dir / "job-2"
+    job_tar_file = static_test_files_dir / "helloworld.tar.gz"
+
+    staging_dir.mkdir()
+    staged_tar_file = shutil.copy2(job_tar_file, staging_dir)
+
+    return staged_tar_file
 
 
-@pytest.mark.parametrize(
-    "output_formats, output_filenames, staging_paths, output_dir, redownload",
-    [
-        (
-            ["ipynb", "html"],
-            {
+@pytest.fixture
+def downloader_parameters(
+    staging_dir_with_notebook_job,
+    staging_dir_with_tar_job,
+    request,
+    jp_scheduler_output_dir,
+):
+    job_1_ipynb_file_path, job_1_html_file_path, job_1_input_file_path = (
+        staging_dir_with_notebook_job
+    )
+    job_2_tar_file_path = staging_dir_with_tar_job
+    index = request.param
+    parameters = [
+        {
+            "output_formats": ["ipynb", "html"],
+            "output_filenames": {
                 "ipynb": "job-1/helloworld-out.ipynb",
                 "html": "job-1/helloworld-out.html",
                 "input": "job-1/helloworld-input.ipynb",
             },
-            {
-                "ipynb": os.path.join(HERE, "test_staging_dir", "job-1", "helloworld-1.ipynb"),
-                "html": os.path.join(HERE, "test_staging_dir", "job-1", "helloworld-1.html"),
-                "input": os.path.join(HERE, "test_staging_dir", "job-1", "helloworld.ipynb"),
+            "staging_paths": {
+                "ipynb": job_1_ipynb_file_path,
+                "html": job_1_html_file_path,
+                "input": job_1_input_file_path,
             },
-            OUTPUTS_DIR,
-            False,
-        ),
-        (
-            ["ipynb", "html"],
-            {
+            "output_dir": jp_scheduler_output_dir,
+            "redownload": False,
+        },
+        {
+            "output_formats": ["ipynb", "html"],
+            "output_filenames": {
                 "ipynb": "job-2/helloworld-1.ipynb",
                 "html": "job-2/helloworld-1.html",
                 "input": "job-2/helloworld.ipynb",
             },
-            {
-                "tar.gz": os.path.join(HERE, "test_staging_dir", "job-2", "helloworld.tar.gz"),
+            "staging_paths": {
+                "tar.gz": job_2_tar_file_path,
                 "ipynb": "job-2/helloworld-1.ipynb",
                 "html": "job-2/helloworld-1.html",
                 "input": "job-2/helloworld.ipynb",
             },
-            OUTPUTS_DIR,
-            False,
-        ),
-    ],
-)
-def test_downloader_download(
-    clear_outputs_dir, output_formats, output_filenames, staging_paths, output_dir, redownload
-):
-    downloader = Downloader(
-        output_formats=output_formats,
-        output_filenames=output_filenames,
-        staging_paths=staging_paths,
-        output_dir=output_dir,
-        redownload=redownload,
+            "output_dir": jp_scheduler_output_dir,
+            "redownload": False,
+        },
+    ]
+    return parameters[index]
+
+
+@pytest.mark.parametrize("downloader_parameters", [0, 1], indirect=True)
+def test_downloader_download(downloader_parameters):
+    output_formats, output_filenames, staging_paths, output_dir = (
+        downloader_parameters["output_formats"],
+        downloader_parameters["output_filenames"],
+        downloader_parameters["staging_paths"],
+        downloader_parameters["output_dir"],
     )
+    downloader = Downloader(**downloader_parameters)
     downloader.download()
 
     assert os.path.exists(output_dir)
