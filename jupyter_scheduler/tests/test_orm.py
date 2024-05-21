@@ -20,7 +20,7 @@ def initial_db(jp_scheduler_db_url):
         runtime_environment_name = Column(String(256), nullable=False)
         input_filename = Column(String(256), nullable=False)
 
-    initial_job = InitialJob(runtime_environment_name="abc", input_filename="abc")
+    initial_job = InitialJob(runtime_environment_name="abc", input_filename="input.ipynb")
 
     create_tables(db_url=jp_scheduler_db_url, Base=TestBase)
 
@@ -32,10 +32,13 @@ def initial_db(jp_scheduler_db_url):
     job_id = initial_job.job_id
     session.close()
 
-    yield TestBase, Session, job_id
+    return TestBase, Session, job_id
 
 
-def updated_job_model(Base):
+@pytest.fixture
+def updated_job_model(initial_db):
+    Base = initial_db[0]
+
     class UpdatedJob(Base):
         __tablename__ = "jobs"
         __table_args__ = {"extend_existing": True}
@@ -47,7 +50,7 @@ def updated_job_model(Base):
     return UpdatedJob
 
 
-def test_create_tables_with_new_column(jp_scheduler_db_url, initial_db):
+def test_create_tables_with_new_column(jp_scheduler_db_url, initial_db, updated_job_model):
     Base, Session, initial_job_id = initial_db
 
     session = Session()
@@ -55,12 +58,14 @@ def test_create_tables_with_new_column(jp_scheduler_db_url, initial_db):
     assert "new_column" not in initial_columns
     session.close()
 
-    JobModel = updated_job_model(Base)
+    JobModel = updated_job_model
     create_tables(db_url=jp_scheduler_db_url, Base=Base)
 
     session = Session()
     updated_columns = {col["name"] for col in inspect(session.bind).get_columns("jobs")}
     assert "new_column" in updated_columns
 
-    job1 = session.query(JobModel).filter(JobModel.job_id == initial_job_id).one()
-    assert job1 is not None
+    updated_job = session.query(JobModel).filter(JobModel.job_id == initial_job_id).one()
+    assert hasattr(updated_job, "new_column")
+    assert updated_job.runtime_environment_name == "abc"
+    assert updated_job.input_filename == "input.ipynb"
