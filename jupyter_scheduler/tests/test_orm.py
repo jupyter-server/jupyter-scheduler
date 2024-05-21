@@ -34,7 +34,7 @@ def initial_db(jp_scheduler_db_url) -> tuple[Type[DeclarativeMeta], sessionmaker
     job_id = initial_job.job_id
     session.close()
 
-    return TestBase, Session, job_id
+    return (TestBase, Session, job_id)
 
 
 @pytest.fixture
