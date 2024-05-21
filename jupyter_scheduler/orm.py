@@ -4,8 +4,9 @@ from sqlite3 import OperationalError
 from uuid import uuid4
 
 import sqlalchemy.types as types
-from sqlalchemy import Boolean, Column, Integer, String, create_engine
+from sqlalchemy import Boolean, Column, Integer, String, create_engine, inspect
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
+from sqlalchemy.sql import text
 
 from jupyter_scheduler.models import EmailNotifications, Status
 from jupyter_scheduler.utils import get_utc_timestamp
@@ -112,8 +113,25 @@ class JobDefinition(CommonColumns, Base):
     active = Column(Boolean, default=True)
 
 
-def create_tables(db_url, drop_tables=False):
+def create_tables(db_url, drop_tables=False, Base=Base):
     engine = create_engine(db_url)
+    inspector = inspect(engine)
+
+    with engine.connect() as connection:
+        for table_name, model in Base.metadata.tables.items():
+            if inspector.has_table(table_name):
+                columns_in_db = inspector.get_columns(table_name)
+                columns_in_db_names = {col["name"] for col in columns_in_db}
+
+                for column_name, column in model.c.items():
+                    if column_name not in columns_in_db_names:
+                        column_type = str(column.type.compile(dialect=engine.dialect))
+                        nullable = "NULL" if column.nullable else "NOT NULL"
+                        alter_stmt = text(
+                            f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} {nullable}"
+                        )
+                        connection.execute(alter_stmt)
+
     try:
         if drop_tables:
             Base.metadata.drop_all(engine)
