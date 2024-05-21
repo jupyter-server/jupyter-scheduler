@@ -1,5 +1,4 @@
 import json
-import os
 from sqlite3 import OperationalError
 from uuid import uuid4
 
@@ -92,6 +91,7 @@ class CommonColumns:
 
 class Job(CommonColumns, Base):
     __tablename__ = "jobs"
+    __table_args__ = {"extend_existing": True}
     job_id = Column(String(36), primary_key=True, default=generate_uuid)
     job_definition_id = Column(String(36))
     status = Column(String(64), default=Status.STOPPED)
@@ -105,6 +105,7 @@ class Job(CommonColumns, Base):
 
 class JobDefinition(CommonColumns, Base):
     __tablename__ = "job_definitions"
+    __table_args__ = {"extend_existing": True}
     job_definition_id = Column(String(36), primary_key=True, default=generate_uuid)
     schedule = Column(String(256))
     timezone = Column(String(36))
