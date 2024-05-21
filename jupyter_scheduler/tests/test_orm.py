@@ -1,4 +1,5 @@
 from typing import Type
+
 import pytest
 from sqlalchemy import Column, Integer, String, inspect
 from sqlalchemy.orm import DeclarativeMeta, sessionmaker
