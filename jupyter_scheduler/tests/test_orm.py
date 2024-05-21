@@ -1,6 +1,7 @@
+from typing import Type
 import pytest
-from sqlalchemy import Column, Integer, String, create_engine, inspect
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, inspect
+from sqlalchemy.orm import DeclarativeMeta, sessionmaker
 
 from jupyter_scheduler.orm import (
     create_session,
@@ -11,7 +12,7 @@ from jupyter_scheduler.orm import (
 
 
 @pytest.fixture
-def initial_db(jp_scheduler_db_url):
+def initial_db(jp_scheduler_db_url) -> tuple[Type[DeclarativeMeta], sessionmaker, str]:
     TestBase = declarative_base()
 
     class InitialJob(TestBase):
@@ -36,7 +37,7 @@ def initial_db(jp_scheduler_db_url):
 
 
 @pytest.fixture
-def updated_job_model(initial_db):
+def updated_job_model(initial_db) -> Type[DeclarativeMeta]:
     Base = initial_db[0]
 
     class UpdatedJob(Base):
@@ -45,7 +46,7 @@ def updated_job_model(initial_db):
         job_id = Column(String(36), primary_key=True, default=generate_uuid)
         runtime_environment_name = Column(String(256), nullable=False)
         input_filename = Column(String(256), nullable=False)
-        new_column = Column("new_column", Integer, default=0)
+        new_column = Column("new_column", Integer)
 
     return UpdatedJob
 
