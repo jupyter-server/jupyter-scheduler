@@ -1,10 +1,11 @@
 import pytest
 from sqlalchemy import Column, Integer, String, create_engine, inspect
 from sqlalchemy.orm import sessionmaker
+
 from jupyter_scheduler.orm import (
+    create_session,
     create_tables,
     declarative_base,
-    create_session,
     generate_uuid,
 )
 
