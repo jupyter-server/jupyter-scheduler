@@ -114,24 +114,28 @@ class JobDefinition(CommonColumns, Base):
     active = Column(Boolean, default=True)
 
 
-def create_tables(db_url, drop_tables=False, Base=Base):
-    engine = create_engine(db_url)
+def update_db_schema(engine, Base):
     inspector = inspect(engine)
 
     with engine.connect() as connection:
         for table_name, model in Base.metadata.tables.items():
             if inspector.has_table(table_name):
-                columns_in_db = inspector.get_columns(table_name)
-                columns_in_db_names = {col["name"] for col in columns_in_db}
+                columns_db = inspector.get_columns(table_name)
+                columns_db_names = {col["name"] for col in columns_db}
 
-                for column_name, column in model.c.items():
-                    if column_name not in columns_in_db_names:
-                        column_type = str(column.type.compile(dialect=engine.dialect))
-                        nullable = "NULL" if column.nullable else "NOT NULL"
-                        alter_stmt = text(
-                            f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} {nullable}"
+                for column_model_name, column_model in model.c.items():
+                    if column_model_name not in columns_db_names:
+                        column_type = str(column_model.type.compile(dialect=engine.dialect))
+                        nullable = "NULL" if column_model.nullable else "NOT NULL"
+                        alter_statement = text(
+                            f"ALTER TABLE {table_name} ADD COLUMN {column_model_name} {column_type} {nullable}"
                         )
-                        connection.execute(alter_stmt)
+                        connection.execute(alter_statement)
+
+
+def create_tables(db_url, drop_tables=False, Base=Base):
+    engine = create_engine(db_url)
+    update_db_schema(engine, Base)
 
     try:
         if drop_tables:
