@@ -124,6 +124,8 @@ def update_db_schema(engine, Base):
                 columns_db_names = {col["name"] for col in columns_db}
 
                 for column_model_name, column_model in model.c.items():
+                    if column_model_name in columns_db_names:
+                        continue
                     if column_model_name not in columns_db_names:
                         column_type = str(column_model.type.compile(dialect=engine.dialect))
                         nullable = "NULL" if column_model.nullable else "NOT NULL"
