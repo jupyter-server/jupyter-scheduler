@@ -122,22 +122,28 @@ class JobDefinition(CommonColumns, Base):
 
 def update_db_schema(engine, Base):
     inspector = inspect(engine)
+    alter_statements = []
 
+    for table_name, model in Base.metadata.tables.items():
+        if not inspector.has_table(table_name):
+            continue
+        columns_db = inspector.get_columns(table_name)
+        columns_db_names = {col["name"] for col in columns_db}
+
+        for column_model_name, column_model in model.c.items():
+            if column_model_name in columns_db_names:
+                continue
+            column_type = str(column_model.type.compile(dialect=engine.dialect))
+            alter_statement = text(
+                f"ALTER TABLE {table_name} ADD COLUMN {column_model_name} {column_type} NULL"
+            )
+            alter_statements.append(alter_statement)
+
+    if not alter_statements:
+        return
     with engine.connect() as connection:
-        for table_name, model in Base.metadata.tables.items():
-            if inspector.has_table(table_name):
-                columns_db = inspector.get_columns(table_name)
-                columns_db_names = {col["name"] for col in columns_db}
-
-                for column_model_name, column_model in model.c.items():
-                    if column_model_name in columns_db_names:
-                        continue
-                    if column_model_name not in columns_db_names:
-                        column_type = str(column_model.type.compile(dialect=engine.dialect))
-                        alter_statement = text(
-                            f"ALTER TABLE {table_name} ADD COLUMN {column_model_name} {column_type} NULL"
-                        )
-                        connection.execute(alter_statement)
+        for alter_statement in alter_statements:
+            connection.execute(alter_statement)
 
 
 def create_tables(db_url, drop_tables=False, Base=Base):
