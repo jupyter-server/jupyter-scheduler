@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.7.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.6.0...5b55901d565ad1a2894beaf1aa638dbc016bcf37))
+
+### Enhancements made
+
+- Update to SQLAlchemy 2.x [#521](https://github.com/jupyter-server/jupyter-scheduler/pull/521) ([@andrii-i](https://github.com/andrii-i))
+- Add database schema update and database migration logic [#520](https://github.com/jupyter-server/jupyter-scheduler/pull/520) ([@andrii-i](https://github.com/andrii-i))
+- Use pytest temporary folders and fixtures to create test file hierarchy at test time [#516](https://github.com/jupyter-server/jupyter-scheduler/pull/516) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-04-30&to=2024-05-29&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-04-30..2024-05-29&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.6.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.5.2...51a5ee4cb5681844ee4d6d2577545fb973ad7890))
@@ -24,8 +42,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-04-15&to=2024-04-30&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-04-15..2024-04-30&type=Issues) | [@github-actions](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Agithub-actions+updated%3A2024-04-15..2024-04-30&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.5.2
 
