@@ -35,7 +35,7 @@ export function PackageInputFolderControl(props: {
       <FormControlLabel
         control={
           <Checkbox
-            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            onChange={event => {
               const checkboxEvent = event.target.checked ? 'check' : 'uncheck';
               log(`create-job.options.package_input_folder.${checkboxEvent}`);
               props.onChange(event);
