@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { useTranslator } from '../hooks';
+import { useEventLogger, useTranslator } from '../hooks';
 
 import {
   Checkbox,
@@ -13,6 +13,7 @@ export function PackageInputFolderControl(props: {
   inputFile: string;
 }): JSX.Element {
   const trans = useTranslator('jupyterlab');
+  const log = useEventLogger();
   const inputFilePath = props.inputFile.split('/');
   inputFilePath.pop();
 
@@ -33,7 +34,14 @@ export function PackageInputFolderControl(props: {
     <FormGroup>
       <FormControlLabel
         control={
-          <Checkbox onChange={props.onChange} name={'packageInputFolder'} />
+          <Checkbox
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              const checkboxEvent = event.target.checked ? 'check' : 'uncheck';
+              log(`create-job.options.package_input_folder.${checkboxEvent}`);
+              props.onChange(event);
+            }}
+            name={'packageInputFolder'}
+          />
         }
         label={trans.__('Run job with input folder')}
         aria-describedby="jp-package-input-folder-helper-text"
