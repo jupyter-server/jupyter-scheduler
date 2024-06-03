@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.7.1
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.7.0...8b13516cb9a2ad804b8e866e80307b1428ec089a))
+
+### Enhancements made
+
+- Emit telemetry event on "Run job with input folder" checkbox click [#523](https://github.com/jupyter-server/jupyter-scheduler/pull/523) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-05-29&to=2024-06-03&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-05-29..2024-06-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.7.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.6.0...5b55901d565ad1a2894beaf1aa638dbc016bcf37))
@@ -17,8 +33,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-04-30&to=2024-05-29&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-04-30..2024-05-29&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.6.0
 
