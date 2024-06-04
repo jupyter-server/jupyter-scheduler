@@ -8,6 +8,11 @@
         "command": "scheduling:create-from-filebrowser",
         "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
         "rank": 3.9
+      },
+      {
+        "command": "workflows:create-from-filebrowser",
+        "selector": ".jp-DirListing-item[data-file-type=\"notebook\"]",
+        "rank": 4
       }
     ]
   },
@@ -17,6 +22,11 @@
         "name": "create-job",
         "command": "scheduling:create-from-notebook",
         "rank": 46
+      },
+      {
+        "name": "create-workflow",
+        "command": "workflows:create-from-notebook",
+        "rank": 47
       }
     ]
   },

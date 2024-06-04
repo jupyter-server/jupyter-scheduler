@@ -59,6 +59,8 @@
     "@emotion/styled": "^11.10.4",
     "@jupyterlab/application": "^4",
     "@jupyterlab/apputils": "^4",
+    "@jupyterlab/codeeditor": "^4",
+    "@jupyterlab/codemirror": "^4",
     "@jupyterlab/coreutils": "^6",
     "@jupyterlab/filebrowser": "^4",
     "@jupyterlab/launcher": "^4",
@@ -72,11 +74,23 @@
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.6",
     "@mui/system": "^5.10.6",
+    "@mui/x-date-pickers": "^6.19.3",
     "@types/react-dom": "^18.0.5",
     "cronstrue": "^2.12.0",
+    "elkjs": "^0.9.1",
+    "email-validator": "^2.0.4",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "nanoid": "^3.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tzdata": "^1.0.33"
+    "react-hook-form": "^7.50.1",
+    "react-resizable-panels": "^2.0.9",
+    "react-router-dom": "^6.22.0",
+    "react-show-more-text": "^1.7.1",
+    "reactflow": "^11.10.3",
+    "tzdata": "^1.0.33",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -84,6 +98,8 @@
     "@jupyterlab/builder": "^4",
     "@jupyterlab/testutils": "^4",
     "@types/jest": "^29",
+    "@types/lodash": "4.14.192",
+    "@types/react-show-more-text": "^1.4.5",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "eslint": "^7.14.0",
@@ -100,7 +116,8 @@
     "stylelint-config-standard": "~24.0.0",
     "stylelint-prettier": "^2.0.0",
     "ts-jest": "^29",
-    "typescript": "~4.3.0"
+    "typescript": "~5.1.6",
+    "zustand-types": "^0.1.0"
   },
   "resolutions": {
     "@types/react": "^17.0.1",

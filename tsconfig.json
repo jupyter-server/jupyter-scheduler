@@ -18,8 +18,9 @@
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": true,
-    "target": "es2017",
-    "types": ["jest"]
+    "target": "es2019",
+    "types": ["jest"],
+    "experimentalDecorators": true
   },
   "include": ["src/**/*"]
 }

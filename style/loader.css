@@ -1,0 +1,78 @@
+.jp-async-toast .jp-spinner-container {
+  display: flex;
+  height: 32px;
+  align-items: center;
+}
+
+.jp-async-toast .jp-Spinner {
+  width: auto;
+  position: relative;
+  background: var(--jp-inverse-layout-color2);
+}
+
+.jp-async-toast .jp-SpinnerContent {
+  margin: 0;
+  height: 24px;
+  width: 24px;
+  margin-right: 8px;
+}
+
+.jp-async-toast .jp-toast-content {
+  display: flex;
+  padding: 12px;
+  min-width: 200px;
+  margin-right: auto;
+  pointer-events: all;
+  flex-direction: column;
+  box-sizing: border-box;
+  border-radius: 2px;
+  color: var(--jp-layout-color0);
+  font-size: var(--jp-ui-font-size1);
+  box-shadow: var(--jp-elevation-z20);
+  background: var(--jp-inverse-layout-color2);
+}
+
+.jp-async-toast .jp-toast-text {
+  max-width: 250px;
+  min-width: 100px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.jp-async-toast .jp-toast-icon {
+  display: flex;
+  padding-top: 3px;
+  margin-right: 4px;
+  align-items: center;
+}
+
+.jp-async-toast .jp-SpinnerContent::after {
+  background: var(--jp-inverse-layout-color2);
+}
+
+.jp-async-toast button {
+  height: 24px;
+  outline: none;
+  display: flex;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 6px;
+  background: none;
+  text-align: center;
+  align-items: center;
+  margin-left: auto;
+  border: none !important;
+}
+
+.jp-async-toast button > .close-icon {
+  display: flex;
+}
+
+.jp-async-toast button .jp-icon3 {
+  fill: var(--jp-layout-color0);
+}
+
+.jp-async-toast button > .close-icon:hover .jp-icon3 {
+  fill: var(--jp-layout-color4);
+}
