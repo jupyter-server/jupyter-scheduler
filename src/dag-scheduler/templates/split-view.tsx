@@ -7,6 +7,7 @@ type Props = {
   RightPanel: JSX.Element;
   panelWidth: number;
   showRightPanel?: boolean;
+  onLayout?: VoidFunction;
 };
 
 const style: SxProps<Theme> = {
@@ -20,13 +21,18 @@ const style: SxProps<Theme> = {
 export const SplitViewTemplate: FC<Props> = ({
   LeftPanel,
   RightPanel,
-  panelWidth = 0
+  panelWidth = 0,
+  onLayout = () => {}
 }) => {
   return (
     <Stack sx={{ pb: 4, height: '100%', overflow: 'scroll' }}>
       <Box sx={style}>
         <Stack direction="row" spacing={2} height="100%" overflow="hidden">
-          <PanelGroup direction="horizontal" key={panelWidth}>
+          <PanelGroup
+            direction="horizontal"
+            key={panelWidth}
+            onLayout={onLayout}
+          >
             <Panel minSize={65} defaultSize={65}>
               {LeftPanel}
             </Panel>

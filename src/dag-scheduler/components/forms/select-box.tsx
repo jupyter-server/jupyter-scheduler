@@ -3,17 +3,16 @@ import React, { FC } from 'react';
 import {
   FormControl,
   MenuItem,
-  Select,
   ListSubheader,
   SelectChangeEvent,
   FormHelperText,
-  styled,
   SelectProps,
   FormLabel,
   Typography,
   InputLabel
 } from '@mui/material';
 import { Controller, UseControllerProps } from 'react-hook-form';
+import { CustomSelect } from '../styled';
 
 type Option = {
   value: string;
@@ -42,11 +41,6 @@ export type GroupSelectBoxProps = Props & {
     items: Option[];
   }[];
 };
-
-export const CustomSelect = styled(Select as any)<SelectProps<string>>(() => ({
-  '& fieldset': { top: 0 },
-  '& legend': { display: 'none' }
-}));
 
 const SelectComponent: FC<SelectBoxProps | GroupSelectBoxProps> = props => {
   const labelId = `${props.id}-label`;

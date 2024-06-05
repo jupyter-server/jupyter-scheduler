@@ -1,4 +1,13 @@
-import { Alert, Drawer, IconButton, styled } from '@mui/material';
+import {
+  Alert,
+  Drawer,
+  IconButton,
+  Select,
+  SelectProps,
+  TextField,
+  TextFieldProps,
+  styled
+} from '@mui/material';
 import { Stack } from '@mui/system';
 
 export const StyledDrawer = styled(Drawer)({
@@ -39,3 +48,21 @@ export const StyledAlert = styled(Alert)({
   position: 'relative',
   boxSizing: 'border-box'
 });
+
+export const CustomSelect = styled(Select as any)<SelectProps<string>>(() => ({
+  '& fieldset': { top: 0 },
+  '& legend': { display: 'none' }
+}));
+
+export const CustomTextField = styled(TextField)<TextFieldProps>(
+  ({ theme }) => ({
+    '& fieldset': { top: 0 },
+    '& legend': {
+      display: 'none',
+      color: theme.palette.grey,
+      marginBottom: theme.spacing(2)
+    },
+    '& .MuiInputLabel-shrink': { opacity: 0 },
+    '& .MuiInputLabel-root': { color: 'var(--jp-border-color0)' }
+  })
+);

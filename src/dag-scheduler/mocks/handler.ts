@@ -18,7 +18,7 @@ export class MockWorkflowService extends WorkflowsService {
     jobDefintionsQuery: Scheduler.IListJobDefinitionsQuery,
     definition_id?: string | undefined
   ): Promise<Scheduler.IListJobDefinitionsResponse> {
-    return Promise.resolve(job_definitions as any);
+    return new Promise(r => setTimeout(() => r(job_definitions as any), 2000));
   }
 
   public override getJobDefinition(

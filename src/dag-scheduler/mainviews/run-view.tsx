@@ -4,7 +4,9 @@ import React, {
   useEffect,
   useRef,
   useState,
-  useMemo
+  useMemo,
+  forwardRef,
+  useImperativeHandle
 } from 'react';
 import {
   Alert,
@@ -46,7 +48,7 @@ import {
   PageHeader,
   StyledDrawer,
   StyledIconButton
-} from '../components/styled/drawer';
+} from '../components/styled';
 
 const nodeTypes = {
   custom: TaskRunNode
@@ -83,117 +85,129 @@ type Props = {
   onRefresh: () => Promise<void>;
 };
 
-const ReactflowWrapper: FC<Props> = ({ onRefresh }) => {
-  const theme = useTheme();
-  const { fitView } = useReactFlow();
-  const useStore = useWorkflowStore();
+type ReactWrapperHandle = { fitView: VoidFunction };
 
-  const {
-    nodes,
-    edges,
-    currentJob,
-    onNodesChange,
-    selectedNodeId,
-    setSelectedNode,
-    onAutoLayout
-  } = useStore(selector);
+const ReactflowWrapper = forwardRef<ReactWrapperHandle, Props>(
+  ({ onRefresh }, ref) => {
+    const theme = useTheme();
+    const { fitView } = useReactFlow();
+    const useStore = useWorkflowStore();
 
-  useEffect(() => {
-    setTimeout(() => fitView({ duration: 500, maxZoom: 0.7 }), 0);
-  }, [nodes.length, edges.length]);
+    const {
+      nodes,
+      edges,
+      currentJob,
+      onNodesChange,
+      selectedNodeId,
+      setSelectedNode,
+      onAutoLayout
+    } = useStore(selector);
 
-  const handlePaneClick = useCallback(() => {
-    setSelectedNode(null);
-  }, [setSelectedNode]);
+    const handleFitView = () => {
+      fitView({ duration: 500, maxZoom: 0.7 });
+    };
 
-  const onSelectionChange = useCallback<OnSelectionChangeFunc>(
-    params => {
-      const [selectedItem] = params.nodes;
+    useImperativeHandle(ref, () => ({
+      fitView: handleFitView
+    }));
 
-      if (params.nodes.length === 1 && selectedItem.id !== selectedNodeId) {
-        setSelectedNode(selectedItem);
+    useEffect(() => {
+      setTimeout(handleFitView, 0);
+    }, [nodes.length, edges.length]);
 
-        return;
-      }
+    const handlePaneClick = useCallback(() => {
+      setSelectedNode(null);
+    }, [setSelectedNode]);
 
-      if (!selectedItem || params.nodes.length > 1) {
-        setSelectedNode(null);
-      }
-    },
-    [setSelectedNode, selectedNodeId]
-  );
+    const onSelectionChange = useCallback<OnSelectionChangeFunc>(
+      params => {
+        const [selectedItem] = params.nodes;
 
-  const isJobSelected = currentJob?.runId && !selectedNodeId;
-  const editorBg = theme.palette.mode === 'light' ? '#daefff' : '#232f38';
+        if (params.nodes.length === 1 && selectedItem.id !== selectedNodeId) {
+          setSelectedNode(selectedItem);
 
-  return (
-    <ReactFlow
-      fitView
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      elevateEdgesOnSelect={false}
-      fitViewOptions={defaultFitView}
-      defaultEdgeOptions={defaultEdgeOptions}
-      deleteKeyCode={null}
-      selectionOnDrag={false}
-      multiSelectionKeyCode={null}
-      onNodesChange={onNodesChange}
-      onPaneClick={handlePaneClick}
-      nodesConnectable={false}
-      onSelectionChange={onSelectionChange}
-      className={isJobSelected ? 'focused' : ''}
-    >
-      <Background
-        variant={BackgroundVariant.Dots}
-        style={{
-          background: isJobSelected ? editorBg : 'transparent'
-        }}
-      />
-      <Controls
-        position="bottom-right"
-        style={{ zIndex: 10 }}
-        showInteractive={false}
-      />
-      {currentJob?.runId ? (
-        <Panel position="top-right">
-          <Toolbar disableGutters sx={{ gap: 1, minHeight: 'unset' }}>
-            <StyledIconButton title="Re-arrange nodes" onClick={onAutoLayout}>
-              <AccountTree />
-            </StyledIconButton>
-            <StyledIconButton title="Refresh" onClick={onRefresh}>
-              <Refresh />
-            </StyledIconButton>
-          </Toolbar>
-        </Panel>
-      ) : null}
-      <svg>
-        <defs>
-          <marker
-            refX="0"
-            refY="0"
-            orient="auto"
-            id="edge-circle"
-            markerWidth="10"
-            markerHeight="10"
-            viewBox="-5 -5 10 10"
-            markerUnits="strokeWidth"
-          >
-            <circle
-              r="2"
-              cx="0"
-              cy="0"
-              fill="#b1b1b7"
-              stroke="#b1b1b7"
-              strokeOpacity="0.75"
-            />
-          </marker>
-        </defs>
-      </svg>
-    </ReactFlow>
-  );
-};
+          return;
+        }
+
+        if (!selectedItem || params.nodes.length > 1) {
+          setSelectedNode(null);
+        }
+      },
+      [setSelectedNode, selectedNodeId]
+    );
+
+    const isJobSelected = currentJob?.runId && !selectedNodeId;
+    const editorBg = theme.palette.mode === 'light' ? '#daefff' : '#232f38';
+
+    return (
+      <ReactFlow
+        fitView
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        elevateEdgesOnSelect={false}
+        fitViewOptions={defaultFitView}
+        defaultEdgeOptions={defaultEdgeOptions}
+        deleteKeyCode={null}
+        selectionOnDrag={false}
+        multiSelectionKeyCode={null}
+        onNodesChange={onNodesChange}
+        onPaneClick={handlePaneClick}
+        nodesConnectable={false}
+        onSelectionChange={onSelectionChange}
+        className={isJobSelected ? 'focused' : ''}
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          style={{
+            background: isJobSelected ? editorBg : 'transparent'
+          }}
+        />
+        <Controls
+          position="bottom-right"
+          style={{ zIndex: 10 }}
+          showInteractive={false}
+        />
+        {currentJob?.runId ? (
+          <Panel position="top-right">
+            <Toolbar disableGutters sx={{ gap: 1, minHeight: 'unset' }}>
+              <StyledIconButton title="Re-arrange nodes" onClick={onAutoLayout}>
+                <AccountTree />
+              </StyledIconButton>
+              <StyledIconButton title="Refresh" onClick={onRefresh}>
+                <Refresh />
+              </StyledIconButton>
+            </Toolbar>
+          </Panel>
+        ) : null}
+        <svg>
+          <defs>
+            <marker
+              refX="0"
+              refY="0"
+              orient="auto"
+              id="edge-circle"
+              markerWidth="10"
+              markerHeight="10"
+              viewBox="-5 -5 10 10"
+              markerUnits="strokeWidth"
+            >
+              <circle
+                r="2"
+                cx="0"
+                cy="0"
+                fill="#b1b1b7"
+                stroke="#b1b1b7"
+                strokeOpacity="0.75"
+              />
+            </marker>
+          </defs>
+        </svg>
+      </ReactFlow>
+    );
+  }
+);
 
 const actionsSelector = (state: RFState) => ({
   syncStore: state.syncStore,
@@ -212,6 +226,7 @@ export const JobsRunView: FC = () => {
   const [loading, setLoading] = useState(true);
   const [showRerun, setShowRerun] = useState(false);
   const [displayError, setDisplayError] = useState('');
+  const reactflowInstance = useRef<ReactWrapperHandle | null>(null);
 
   const {
     reRunJob,
@@ -355,7 +370,10 @@ export const JobsRunView: FC = () => {
       <ReactFlowProvider>
         <SplitViewTemplate
           panelWidth={showSidePanel ? 350 : 0}
-          LeftPanel={<ReactflowWrapper onRefresh={fetchJobRun} />}
+          onLayout={() => reactflowInstance.current?.fitView()}
+          LeftPanel={
+            <ReactflowWrapper ref={reactflowInstance} onRefresh={fetchJobRun} />
+          }
           RightPanel={
             <>
               <StyledDrawer

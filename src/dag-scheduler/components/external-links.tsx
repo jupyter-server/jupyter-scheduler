@@ -44,14 +44,12 @@ export const ExternalLinks: FC<ExternalLinksProps> = ({ options }) => {
         <ArrowOutward fontSize="small" />
       </IconButton>
       <Popper
-        sx={{
-          zIndex: 1
-        }}
         open={open}
-        anchorEl={anchorRef.current}
-        role={undefined}
         transition
         disablePortal
+        role={undefined}
+        sx={{ zIndex: 1 }}
+        anchorEl={anchorRef.current}
       >
         {({ TransitionProps, placement }) => (
           <Grow

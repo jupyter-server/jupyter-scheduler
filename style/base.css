@@ -30,6 +30,8 @@
 
 .jp-notebook-job-list-empty {
   margin-top: 12px;
+  padding: 10px;
+  text-align: center;
 }
 
 /* Error reporting */

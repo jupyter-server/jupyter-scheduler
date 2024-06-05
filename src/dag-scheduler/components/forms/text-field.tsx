@@ -1,18 +1,10 @@
 import React, { FC } from 'react';
 import { Controller, UseControllerProps } from 'react-hook-form';
-import TextField, { TextFieldProps } from '@mui/material/TextField';
-import { FormControl, FormLabel, Typography, styled } from '@mui/material';
+import { TextFieldProps } from '@mui/material/TextField';
+import { FormControl, FormLabel, Typography } from '@mui/material';
+import { CustomTextField } from '../styled';
 
 type FormInputProps = TextFieldProps & UseControllerProps;
-
-const CustomTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
-  '& fieldset': { top: 0 },
-  '& legend': {
-    display: 'none',
-    color: theme.palette.grey,
-    marginBottom: theme.spacing(2)
-  }
-}));
 
 // TODO: Split the props into 2 groups (one for hook-form and one for mui)
 export const FormInputText: FC<FormInputProps> = ({

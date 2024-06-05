@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { TaskStatus } from '../model';
 import { ErrorOutlineRounded, WarningAmberOutlined } from '@mui/icons-material';
-import { CircularProgress, Tooltip } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 
 type Props = {
   status?: TaskStatus;
@@ -14,17 +14,9 @@ const TaskStatusComponent: FC<Props> = ({
 }) => {
   switch (status) {
     case TaskStatus.FAILED_TO_UPDATE:
-      return (
-        <Tooltip title={message}>
-          <WarningAmberOutlined color="warning" />
-        </Tooltip>
-      );
+      return <WarningAmberOutlined color="warning" />;
     case TaskStatus.FAILED_TO_CREATE:
-      return (
-        <Tooltip title={message}>
-          <ErrorOutlineRounded color="error" />
-        </Tooltip>
-      );
+      return <ErrorOutlineRounded color="error" />;
     case TaskStatus.CREATING:
       return <CircularProgress size={16} />;
     default:

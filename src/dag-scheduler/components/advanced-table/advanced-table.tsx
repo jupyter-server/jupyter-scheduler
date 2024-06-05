@@ -267,7 +267,7 @@ export function AdvancedTable<
           ...(loading ? { pointerEvents: 'none', opacity: 0.5 } : {})
         }}
       >
-        <Table stickyHeader>
+        <Table stickyHeader style={{ position: 'relative' }}>
           <AdvancedTableHeader
             columns={props.columns}
             query={props.query}
@@ -276,7 +276,13 @@ export function AdvancedTable<
           <TableBody role="presentation">
             <TableRow>
               <TableCell
-                sx={{ p: 0, height: 5, border: 'none' }}
+                sx={{
+                  p: 0,
+                  height: 5,
+                  width: '100%',
+                  border: 'none',
+                  position: 'absolute'
+                }}
                 colSpan={props.columns.length}
               >
                 {loading ? <LinearProgress /> : null}

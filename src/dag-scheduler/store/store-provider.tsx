@@ -5,12 +5,12 @@ type WrapperProps = {
   children?: JSX.Element;
 };
 
-export const withStore = (Component: React.ComponentType<WrapperProps>) => (
-  props: WrapperProps
-): JSX.Element => {
-  return (
-    <WorkflowStoreProvider>
-      <Component {...props} />
-    </WorkflowStoreProvider>
-  );
-};
+export const withStore =
+  (Component: React.ComponentType<WrapperProps>) =>
+  (props: WrapperProps): JSX.Element => {
+    return (
+      <WorkflowStoreProvider>
+        <Component {...props} />
+      </WorkflowStoreProvider>
+    );
+  };

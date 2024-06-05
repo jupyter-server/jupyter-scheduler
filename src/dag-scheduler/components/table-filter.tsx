@@ -150,32 +150,32 @@ function FilterForm({ value, columns, onSave, onClose }: FilterFormProps) {
     value.length ? [...value] : [{ ...DEFAULT_ITEM }]
   );
 
-  const handleInputChange = (index: number) => (
-    fieldName: keyof FilterItem,
-    fieldValue: string
-  ) => {
-    const nextState = filters.length ? filters.slice() : [{ ...DEFAULT_ITEM }];
+  const handleInputChange =
+    (index: number) => (fieldName: keyof FilterItem, fieldValue: string) => {
+      const nextState = filters.length
+        ? filters.slice()
+        : [{ ...DEFAULT_ITEM }];
 
-    nextState[index][fieldName] = fieldValue;
+      nextState[index][fieldName] = fieldValue;
 
-    // Reset the filter value, if column is changed and retain the condition if possible
-    if (fieldName === 'field') {
-      const currentColumn = columns.find(c => c.field === fieldValue);
-      const { type } = currentColumn || ({} as AdvancedTableColumn);
+      // Reset the filter value, if column is changed and retain the condition if possible
+      if (fieldName === 'field') {
+        const currentColumn = columns.find(c => c.field === fieldValue);
+        const { type } = currentColumn || ({} as AdvancedTableColumn);
 
-      const current = nextState[index]['condition'];
-      const { options } = operators[type || 'string'];
-      const isConditionValid = options.find(o => o === current);
+        const current = nextState[index]['condition'];
+        const { options } = operators[type || 'string'];
+        const isConditionValid = options.find(o => o === current);
 
-      const defaultOp =
-        (isConditionValid ? current : null) || (fieldValue ? options[0] : '');
+        const defaultOp =
+          (isConditionValid ? current : null) || (fieldValue ? options[0] : '');
 
-      nextState[index]['value'] = '';
-      nextState[index]['condition'] = defaultOp;
-    }
+        nextState[index]['value'] = '';
+        nextState[index]['condition'] = defaultOp;
+      }
 
-    setFilters(nextState);
-  };
+      setFilters(nextState);
+    };
 
   const handleAddFilter = () => {
     setFilters([...filters, { ...DEFAULT_ITEM }]);
@@ -265,9 +265,8 @@ function FilterRow({
     dataType || 'string'
   );
 
-  const { options, Component, ComponentProps } = operators[
-    columnType || 'string'
-  ];
+  const { options, Component, ComponentProps } =
+    operators[columnType || 'string'];
 
   const isDateType = columnType === 'date';
 

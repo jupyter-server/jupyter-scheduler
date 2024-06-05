@@ -7,8 +7,7 @@ import {
   Stack,
   Tab,
   Tabs,
-  Typography,
-  styled
+  Typography
 } from '@mui/material';
 
 import { useWorkflows, useTranslator } from '../hooks';
@@ -18,17 +17,10 @@ import {
   AdvancedTable,
   AdvancedTableColumn
 } from '../components/advanced-table';
-import { getJobStatus } from '../util';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Refresh } from '@mui/icons-material';
 import { WorkflowsViewType } from '../contants';
-
-const PageHeader = styled(Stack)({
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderBottom: '1px solid var(--jp-border-color2)'
-});
+import { PageHeader } from '../components/styled';
 
 type IListJobsTableProps = {
   // function that shows job detail view
@@ -70,16 +62,6 @@ export const ListJobsTable: FC<IListJobsTableProps> = props => {
         {trans.__('Reload')}
       </Button>
     </Stack>
-  );
-
-  const translateStatus = useCallback(
-    (status: Scheduler.Status) => {
-      // This may look inefficient, but it's intended to call the `trans` function
-      // with distinct, static values, so that code analyzers can pick up all the
-      // needed source strings.
-      return getJobStatus(status, trans);
-    },
-    [trans]
   );
 
   // Display column headers with sort indicators.
@@ -148,7 +130,7 @@ export const ListJobsTable: FC<IListJobsTableProps> = props => {
   ];
 
   const renderRow = (job: Scheduler.IDescribeJob) =>
-    buildJobRow(job, translateStatus, props.showJobDetail);
+    buildJobRow(job, props.showJobDetail);
 
   const emptyRowMessage = useMemo(
     () =>

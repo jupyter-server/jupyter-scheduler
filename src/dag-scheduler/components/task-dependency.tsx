@@ -11,10 +11,10 @@ import { Box } from '@mui/system';
 
 import { Edge } from 'reactflow';
 import { useWorkflowStore } from '../hooks';
-import { CustomSelect } from './forms/select-box';
 import { Close } from '@mui/icons-material';
 // TODO: tree-shake
 import { uniqBy } from 'lodash';
+import { CustomSelect } from './styled';
 
 const getDiff = (previous: string[], current: string[]) => {
   const added = current

@@ -5,7 +5,9 @@ import React, {
   useState,
   FC,
   useEffect,
-  useMemo
+  useMemo,
+  useImperativeHandle,
+  forwardRef
 } from 'react';
 import ReactFlow, {
   Node,
@@ -74,7 +76,7 @@ import {
   StyledAlert,
   StyledDrawer,
   StyledIconButton
-} from '../components/styled/drawer';
+} from '../components/styled';
 
 const nodeTypes = {
   custom: CustomNode
@@ -119,292 +121,299 @@ type Props = {
   onCreateTask: (payload: Scheduler.ITask) => Promise<unknown>;
 };
 
-const ReactflowWrapper: FC<Props> = ({
-  onCreateTask,
-  onRefresh,
-  onUpdate,
-  onError
-}) => {
-  const theme = useTheme();
-  const { fitView } = useReactFlow();
-  const useStore = useWorkflowStore();
-  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
-  const editorBg = theme.palette.mode === 'light' ? '#daefff' : '#232f38';
+type ReactWrapperHandle = { fitView: VoidFunction };
 
-  const {
-    nodes,
-    edges,
-    currentJob,
-    onCreateEdge,
-    onCreateNode,
-    onUpdateEdge,
-    onEdgesChange,
-    onNodesChange,
-    onEdgesDelete,
-    setSelectedNode,
-    isValidConnection,
-    selectedNodeId,
-    onAutoLayout,
-    hasUnsavedChanges
-  } = useStore(selector);
+const ReactflowWrapper = forwardRef<ReactWrapperHandle, Props>(
+  ({ onCreateTask, onRefresh, onUpdate, onError }, ref) => {
+    const theme = useTheme();
+    const { fitView } = useReactFlow();
+    const useStore = useWorkflowStore();
+    const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+    const editorBg = theme.palette.mode === 'light' ? '#daefff' : '#232f38';
 
-  // Getters should be invoked
-  const getAllTasks = useStore(state => state.getAllTasks);
+    const {
+      nodes,
+      edges,
+      currentJob,
+      onCreateEdge,
+      onCreateNode,
+      onUpdateEdge,
+      onEdgesChange,
+      onNodesChange,
+      onEdgesDelete,
+      setSelectedNode,
+      isValidConnection,
+      selectedNodeId,
+      onAutoLayout,
+      hasUnsavedChanges
+    } = useStore(selector);
 
-  useEffect(() => {
-    setTimeout(() => fitView({ duration: 500, maxZoom: 0.7 }), 0);
-  }, [nodes.length, edges.length]);
+    // Getters should be invoked
+    const getAllTasks = useStore(state => state.getAllTasks);
 
-  const shouldSave = useMemo(hasUnsavedChanges, [nodes, edges]);
+    const handleFitView = () => {
+      fitView({ duration: 500, maxZoom: 0.7 });
+    };
 
-  const handleDragOver = useCallback((event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-  }, []);
+    useImperativeHandle(ref, () => ({
+      fitView: handleFitView
+    }));
 
-  const handleDrop = useCallback(
-    async (event: any) => {
-      if (!currentJob?.job_definition_id) {
-        console.error('The Workflow creation is still in progress.');
+    useEffect(() => {
+      setTimeout(handleFitView, 0);
+    }, [nodes.length, edges.length]);
 
-        return;
-      }
+    const shouldSave = useMemo(hasUnsavedChanges, [nodes, edges]);
 
+    const handleDragOver = useCallback((event: any) => {
       event.preventDefault();
       event.stopPropagation();
+    }, []);
 
-      const model = emptyCreateTaskModel();
-      const mimeData = event.mimeData.getData(CONTENTS_MIME_RICH);
-      const response = await mimeData.withContent();
+    const handleDrop = useCallback(
+      async (event: any) => {
+        if (!currentJob?.job_definition_id) {
+          console.error('The Workflow creation is still in progress.');
 
-      // check if the dropped element is valid
-      if (!reactFlowInstance.current || !response) {
-        return;
-      }
+          return;
+        }
 
-      const { name, content } = response;
-      const { kernelspec } = content.metadata;
+        event.preventDefault();
+        event.stopPropagation();
 
-      const currentNames = getAllTasks().map(t => t.name);
-      const fileName = MakeNameValid(name.split('.ipynb').shift());
+        const model = emptyCreateTaskModel();
+        const mimeData = event.mimeData.getData(CONTENTS_MIME_RICH);
+        const response = await mimeData.withContent();
 
-      model.nodeId = nanoid();
-      model.name = generateUniqueName(currentNames, fileName);
-      model.input_uri = mimeData.model.path ?? '';
-      model.kernelSpecId = kernelspec?.name || '';
+        // check if the dropped element is valid
+        if (!reactFlowInstance.current || !response) {
+          return;
+        }
 
-      if (!model.kernelSpecId) {
-        onError(
-          `${model.name} is missing kernel spec. Choose a kernel spec and save task`
+        const { name, content } = response;
+        const { kernelspec } = content.metadata;
+
+        const currentNames = getAllTasks().map(t => t.name);
+        const fileName = MakeNameValid(name.split('.ipynb').shift());
+
+        model.nodeId = nanoid();
+        model.name = generateUniqueName(currentNames, fileName);
+        model.input_uri = mimeData.model.path ?? '';
+        model.kernelSpecId = kernelspec?.name || '';
+
+        if (!model.kernelSpecId) {
+          onError(
+            `${model.name} is missing kernel spec. Choose a kernel spec and save task`
+          );
+        }
+
+        // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
+        // and you don't need to subtract the reactFlowBounds.left/top anymore
+        // details: https://reactflow.dev/whats-new/2023-11-10
+        const position = reactFlowInstance.current.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY
+        });
+
+        const newNode = {
+          position,
+          data: model,
+          type: 'custom',
+          id: model.nodeId // The node id should be the same as the data id so we can fetch the same and render later
+        };
+
+        // Create a new entry in the store
+        onCreateNode(newNode);
+
+        if (model.kernelSpecId) {
+          // Save the task to the Backend
+          onCreateTask(model);
+
+          return;
+        }
+      },
+      [onCreateNode, getAllTasks, currentJob]
+    );
+
+    const handleInit = useCallback(
+      (instance: ReactFlowInstance) => (reactFlowInstance.current = instance),
+      []
+    );
+
+    const handlePaneClick = useCallback(() => {
+      setSelectedNode(null);
+    }, [setSelectedNode]);
+
+    const onSelectionChange = useCallback<OnSelectionChangeFunc>(
+      params => {
+        const [selectedItem] = params.nodes;
+
+        if (params.nodes.length === 1 && selectedItem.id !== selectedNodeId) {
+          setSelectedNode(selectedItem);
+
+          return;
+        }
+
+        if (!selectedItem || params.nodes.length > 1) {
+          setSelectedNode(null);
+        }
+      },
+      [setSelectedNode, selectedNodeId]
+    );
+
+    const handleNodeClick: NodeMouseHandler = useCallback(
+      (_: unknown, params) => {
+        setSelectedNode(params);
+      },
+      [setSelectedNode]
+    );
+
+    const handleEdgesDelete = useCallback(
+      (edges: Edge[]) => {
+        onEdgesDelete(edges);
+      },
+      [onEdgesDelete]
+    );
+
+    const handleNodeDoubleClick = useCallback(
+      (_: React.MouseEvent, node: Node) => {
+        const selectedEdges: NodeChange[] = getOutgoers(node, nodes, edges).map(
+          node => ({
+            id: node.id,
+            type: 'select',
+            selected: true,
+            item: node
+          })
         );
-      }
 
-      // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
-      // and you don't need to subtract the reactFlowBounds.left/top anymore
-      // details: https://reactflow.dev/whats-new/2023-11-10
-      const position = reactFlowInstance.current.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY
-      });
+        const connectedEdges: EdgeChange[] = getConnectedEdges([node], edges)
+          .filter(edge => edge.source === node.id)
+          .map(node => ({
+            id: node.id,
+            type: 'select',
+            selected: true,
+            item: node
+          }));
 
-      const newNode = {
-        position,
-        data: model,
-        type: 'custom',
-        id: model.nodeId // The node id should be the same as the data id so we can fetch the same and render later
-      };
+        onNodesChange(selectedEdges);
+        onEdgesChange(connectedEdges);
+      },
+      [nodes, edges]
+    );
 
-      // Create a new entry in the store
-      onCreateNode(newNode);
+    const canAddTasks =
+      !!currentJob?.job_definition_id && currentJob?.version === 'v2';
 
-      if (model.kernelSpecId) {
-        // Save the task to the Backend
-        onCreateTask(model);
+    const isJobSelected = currentJob?.id && !selectedNodeId;
 
-        return;
-      }
-    },
-    [onCreateNode, getAllTasks, currentJob]
-  );
+    const dropzoneProps: IDropZoneProps = canAddTasks
+      ? {
+          onDrop: handleDrop,
+          onDragOver: handleDragOver
+        }
+      : {};
 
-  const handleInit = useCallback(
-    (instance: ReactFlowInstance) => (reactFlowInstance.current = instance),
-    []
-  );
-
-  const handlePaneClick = useCallback(() => {
-    setSelectedNode(null);
-  }, [setSelectedNode]);
-
-  const onSelectionChange = useCallback<OnSelectionChangeFunc>(
-    params => {
-      const [selectedItem] = params.nodes;
-
-      if (params.nodes.length === 1 && selectedItem.id !== selectedNodeId) {
-        setSelectedNode(selectedItem);
-
-        return;
-      }
-
-      if (!selectedItem || params.nodes.length > 1) {
-        setSelectedNode(null);
-      }
-    },
-    [setSelectedNode, selectedNodeId]
-  );
-
-  const handleNodeClick: NodeMouseHandler = useCallback(
-    (_: unknown, params) => {
-      setSelectedNode(params);
-    },
-    [setSelectedNode]
-  );
-
-  const handleEdgesDelete = useCallback(
-    (edges: Edge[]) => {
-      onEdgesDelete(edges);
-    },
-    [onEdgesDelete]
-  );
-
-  const handleNodeDoubleClick = useCallback(
-    (_: React.MouseEvent, node: Node) => {
-      const selectedEdges: NodeChange[] = getOutgoers(node, nodes, edges).map(
-        node => ({
-          id: node.id,
-          type: 'select',
-          selected: true,
-          item: node
-        })
-      );
-
-      const connectedEdges: EdgeChange[] = getConnectedEdges([node], edges)
-        .filter(edge => edge.source === node.id)
-        .map(node => ({
-          id: node.id,
-          type: 'select',
-          selected: true,
-          item: node
-        }));
-
-      onNodesChange(selectedEdges);
-      onEdgesChange(connectedEdges);
-    },
-    [nodes, edges]
-  );
-
-  const canAddTasks =
-    !!currentJob?.job_definition_id && currentJob?.version === 'v2';
-
-  const isJobSelected = currentJob?.id && !selectedNodeId;
-
-  const dropzoneProps: IDropZoneProps = canAddTasks
-    ? {
-        onDrop: handleDrop,
-        onDragOver: handleDragOver
-      }
-    : {};
-
-  return (
-    <>
-      <Dropzone {...dropzoneProps}>
-        <ReactFlow
-          fitView
-          nodes={nodes}
-          edges={edges}
-          id="task-editor"
-          onInit={handleInit}
-          elevateEdgesOnSelect
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          edgeUpdaterRadius={10}
-          onConnect={onCreateEdge}
-          onEdgeUpdate={onUpdateEdge}
-          onPaneClick={handlePaneClick}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={handleNodeClick}
-          fitViewOptions={defaultFitView}
-          onEdgesDelete={handleEdgesDelete}
-          defaultEdgeOptions={defaultEdgeOptions}
-          onSelectionChange={onSelectionChange}
-          isValidConnection={isValidConnection}
-          onNodeDoubleClick={handleNodeDoubleClick}
-          connectionLineComponent={ConnectionLine}
-          deleteKeyCode={null}
-          selectionOnDrag={false}
-          multiSelectionKeyCode={null}
-          edgesUpdatable={canAddTasks}
-          nodesConnectable={canAddTasks}
-          className={isJobSelected ? 'focused' : ''}
-        >
-          <Background
-            variant={BackgroundVariant.Dots}
-            style={{
-              background: isJobSelected ? editorBg : 'transparent'
-            }}
-          />
-          <Controls
-            position={'bottom-right'}
-            style={{ zIndex: 10 }}
-            showInteractive={false}
-          />
-          {canAddTasks ? (
-            <Panel position="top-right">
-              <Toolbar disableGutters sx={{ gap: 1, minHeight: 'unset' }}>
-                <StyledIconButton
-                  title="Re-arrange nodes"
-                  onClick={onAutoLayout}
+    return (
+      <>
+        <Dropzone {...dropzoneProps}>
+          <ReactFlow
+            fitView
+            nodes={nodes}
+            edges={edges}
+            id="task-editor"
+            onInit={handleInit}
+            elevateEdgesOnSelect
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            edgeUpdaterRadius={10}
+            onConnect={onCreateEdge}
+            onEdgeUpdate={onUpdateEdge}
+            onPaneClick={handlePaneClick}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onNodeClick={handleNodeClick}
+            fitViewOptions={defaultFitView}
+            onEdgesDelete={handleEdgesDelete}
+            defaultEdgeOptions={defaultEdgeOptions}
+            onSelectionChange={onSelectionChange}
+            isValidConnection={isValidConnection}
+            onNodeDoubleClick={handleNodeDoubleClick}
+            connectionLineComponent={ConnectionLine}
+            deleteKeyCode={null}
+            selectionOnDrag={false}
+            multiSelectionKeyCode={null}
+            edgesUpdatable={canAddTasks}
+            nodesConnectable={canAddTasks}
+            className={isJobSelected ? 'focused' : ''}
+          >
+            <Background
+              variant={BackgroundVariant.Dots}
+              style={{
+                background: isJobSelected ? editorBg : 'transparent'
+              }}
+            />
+            <Controls
+              position={'bottom-right'}
+              style={{ zIndex: 10 }}
+              showInteractive={false}
+            />
+            {canAddTasks ? (
+              <Panel position="top-right">
+                <Toolbar disableGutters sx={{ gap: 1, minHeight: 'unset' }}>
+                  <StyledIconButton
+                    title="Re-arrange nodes"
+                    onClick={onAutoLayout}
+                  >
+                    <AccountTree />
+                  </StyledIconButton>
+                  <StyledIconButton title="Refresh" onClick={onRefresh}>
+                    <Refresh />
+                  </StyledIconButton>
+                  <StyledIconButton title="Save" onClick={onUpdate}>
+                    <Badge color="error" variant="dot" invisible={!shouldSave}>
+                      <Save />
+                    </Badge>
+                  </StyledIconButton>
+                </Toolbar>
+              </Panel>
+            ) : null}
+            <svg>
+              <defs>
+                <linearGradient id="edge-gradient">
+                  <stop offset="0%" stopColor={theme.palette.success.light} />
+                  <stop offset="100%" stopColor={theme.palette.info.light} />
+                </linearGradient>
+                <linearGradient id="edge-gradient-error">
+                  <stop offset="0%" stopColor={theme.palette.error.light} />
+                  <stop offset="100%" stopColor={theme.palette.error.dark} />
+                </linearGradient>
+                <marker
+                  refX="0"
+                  refY="0"
+                  orient="auto"
+                  id="edge-circle"
+                  markerWidth="10"
+                  markerHeight="10"
+                  viewBox="-5 -5 10 10"
+                  markerUnits="strokeWidth"
                 >
-                  <AccountTree />
-                </StyledIconButton>
-                <StyledIconButton title="Refresh" onClick={onRefresh}>
-                  <Refresh />
-                </StyledIconButton>
-                <StyledIconButton title="Save" onClick={onUpdate}>
-                  <Badge color="error" variant="dot" invisible={!shouldSave}>
-                    <Save />
-                  </Badge>
-                </StyledIconButton>
-              </Toolbar>
-            </Panel>
-          ) : null}
-          <svg>
-            <defs>
-              <linearGradient id="edge-gradient">
-                <stop offset="0%" stopColor={theme.palette.success.light} />
-                <stop offset="100%" stopColor={theme.palette.info.light} />
-              </linearGradient>
-              <linearGradient id="edge-gradient-error">
-                <stop offset="0%" stopColor={theme.palette.error.light} />
-                <stop offset="100%" stopColor={theme.palette.error.dark} />
-              </linearGradient>
-              <marker
-                refX="0"
-                refY="0"
-                orient="auto"
-                id="edge-circle"
-                markerWidth="10"
-                markerHeight="10"
-                viewBox="-5 -5 10 10"
-                markerUnits="strokeWidth"
-              >
-                <circle
-                  r="2"
-                  cx="0"
-                  cy="0"
-                  fill={theme.palette.grey[400]}
-                  stroke={theme.palette.grey[400]}
-                  strokeOpacity="0.75"
-                />
-              </marker>
-            </defs>
-          </svg>
-        </ReactFlow>
-      </Dropzone>
-    </>
-  );
-};
+                  <circle
+                    r="2"
+                    cx="0"
+                    cy="0"
+                    fill={theme.palette.grey[400]}
+                    stroke={theme.palette.grey[400]}
+                    strokeOpacity="0.75"
+                  />
+                </marker>
+              </defs>
+            </svg>
+          </ReactFlow>
+        </Dropzone>
+      </>
+    );
+  }
+);
 
 const actionSelector = (state: RFState) => ({
   runJob: state.runJob,
@@ -426,6 +435,7 @@ const TaskView: FC = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const reactflowInstance = useRef<ReactWrapperHandle | null>(null);
 
   const useStore = useWorkflowStore();
   const trans = useTranslator('jupyterlab');
@@ -668,8 +678,10 @@ const TaskView: FC = () => {
       <ReactFlowProvider>
         <SplitViewTemplate
           panelWidth={showSidePanel ? 450 : 0}
+          onLayout={() => reactflowInstance.current?.fitView()}
           LeftPanel={
             <ReactflowWrapper
+              ref={reactflowInstance}
               onError={setDisplayError}
               onRefresh={fetchJobDefinition}
               onCreateTask={handleCreateTask}

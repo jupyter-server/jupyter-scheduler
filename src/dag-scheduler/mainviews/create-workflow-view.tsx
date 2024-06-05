@@ -8,7 +8,7 @@ import { useTranslator, useWorkflows } from '../hooks';
 import { Scheduler } from '../handler';
 import { CreateWorkflow } from './create-workflow';
 import { emptyCreateJobDefinitionModel } from '../model';
-import { StyledAlert, StyledDrawer } from '../components/styled/drawer';
+import { StyledAlert, StyledDrawer } from '../components/styled';
 
 export const CreateWorkflowView: FC = () => {
   const navigate = useNavigate();

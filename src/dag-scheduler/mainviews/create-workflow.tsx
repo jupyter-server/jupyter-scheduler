@@ -36,11 +36,8 @@ import {
   Step,
   StepLabel,
   Stepper,
-  TextField,
-  TextFieldProps,
   Tooltip,
-  Typography,
-  styled
+  Typography
 } from '@mui/material';
 
 import { Box, Stack } from '@mui/system';
@@ -74,6 +71,7 @@ import { useLocation } from 'react-router-dom';
 import { AsyncButton } from '../components/async-button';
 import moment from 'moment';
 import { Dropzone } from '../components/drop-zone';
+import { CustomTextField } from '../components/styled';
 
 export interface ICreateWorkflowProps {
   model: Scheduler.IJobDefinition;
@@ -104,17 +102,6 @@ type FormData = {
   scheduleInput: ModelWithScheduleFields;
   workflowNotificationEmails: Contact[];
 };
-
-const CustomTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
-  '& fieldset': { top: 0 },
-  '& legend': {
-    display: 'none',
-    color: theme.palette.grey,
-    marginBottom: theme.spacing(2)
-  },
-  '& .MuiInputLabel-shrink': { opacity: 0 },
-  '& .MuiInputLabel-root': { color: 'var(--jp-border-color0)' }
-}));
 
 export function CreateWorkflow(props: ICreateWorkflowProps): JSX.Element {
   const trans = useTranslator('jupyterlab');

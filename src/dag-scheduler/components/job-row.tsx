@@ -19,7 +19,6 @@ function Timestamp(props: { job: Scheduler.IDescribeJob }): JSX.Element | null {
 
 export function buildJobRow(
   model: Scheduler.IDescribeJob,
-  translateStatus: (status: Scheduler.Status) => string,
   showDetailView: (jobId: string) => void
 ): JSX.Element {
   const trans = useTranslator('jupyterlab');

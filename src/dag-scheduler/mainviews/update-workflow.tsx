@@ -31,7 +31,6 @@ export interface IUpdateWorkflowProps {
   onUpdate: (payload: Scheduler.IJobDefinition) => any;
 }
 
-// TODO: rename the component & file name
 export function UpdateWorkflow(props: IUpdateWorkflowProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
   const { api, namespaces } = useWorkflows();

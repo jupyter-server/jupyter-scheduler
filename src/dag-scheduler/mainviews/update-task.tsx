@@ -24,9 +24,6 @@ import {
   Checkbox,
   Button,
   Autocomplete,
-  TextField,
-  styled,
-  TextFieldProps,
   Stack
 } from '@mui/material';
 import { WarningRounded, CheckCircle } from '@mui/icons-material';
@@ -53,6 +50,7 @@ import { serializeParameters, tryParseJSON } from '../util';
 import { nanoid } from 'nanoid';
 import { Workflows } from '../tokens';
 import { Dropzone } from '../components/drop-zone';
+import { CustomTextField } from '../components/styled';
 
 export interface IUpdateTaskProps {
   model: Scheduler.ITask;
@@ -60,18 +58,6 @@ export interface IUpdateTaskProps {
   onCreate: (payload: Scheduler.ITask) => any;
 }
 
-const CustomTextField = styled(TextField)<TextFieldProps>(({ theme }) => ({
-  '& fieldset': { top: 0 },
-  '& legend': {
-    display: 'none',
-    color: theme.palette.grey,
-    marginBottom: theme.spacing(2)
-  },
-  '& .MuiInputLabel-shrink': { opacity: 0 },
-  '& .MuiInputLabel-root': { color: 'var(--jp-border-color0)' }
-}));
-
-// TODO: rename the component & file name
 export function UpdateTask(props: IUpdateTaskProps): JSX.Element {
   const { model } = props;
   const trans = useTranslator('jupyterlab');

@@ -56,13 +56,13 @@ export enum WorkflowsViewType {
   Tasks = 'Tasks'
 }
 
-export const notificationTypes = Object.entries(
-  NotificationEvents
-).map(([label, value]) => ({ value, label }));
+export const notificationTypes = Object.entries(NotificationEvents).map(
+  ([label, value]) => ({ value, label })
+);
 
-export const outputFormatTypes = Object.entries(
-  OutputFormats
-).map(([label, value]) => ({ value, label }));
+export const outputFormatTypes = Object.entries(OutputFormats).map(
+  ([label, value]) => ({ value, label })
+);
 
 export const triggerRuleTypes = Object.entries(TriggerRules).map(
   ([label, value]) => ({

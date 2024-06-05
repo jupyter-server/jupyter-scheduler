@@ -9,15 +9,8 @@ import { useWorkflowStore } from '../../hooks';
 import { TaskStatus } from '../../model';
 
 export const ConnectionLine: FC<ConnectionLineComponentProps> = props => {
-  const {
-    toX,
-    toY,
-    connectionStatus,
-    fromX,
-    fromY,
-    fromPosition,
-    toPosition
-  } = props;
+  const { toX, toY, connectionStatus, fromX, fromY, fromPosition, toPosition } =
+    props;
 
   const { getState } = useStoreApi();
   const useStore = useWorkflowStore();
