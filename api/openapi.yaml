@@ -101,7 +101,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
   /jobs/{job_id}:
     get:
       summary: Get details of a specific job
@@ -184,7 +183,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
   /job_definitions:
     get:
       summary: List all job definitions
@@ -244,7 +242,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
     post:
       summary: Create a new job definition
       requestBody:
@@ -277,7 +274,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
   /job_definitions/{job_definition_id}:
     get:
       summary: Get details of a specific job definition
@@ -300,7 +296,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
 
     patch:
       summary: Update a specific job definition
@@ -339,7 +334,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
     delete:
       summary: Delete a specific job definition
       parameters:
@@ -364,7 +358,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
   /jobs/{job_id}/download_files:
     get:
       summary: Download job files
@@ -388,7 +381,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
 
   /jobs/count:
     get:
@@ -415,7 +407,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
   /runtime_environments:
     get:
       summary: List available runtime environments
@@ -434,7 +425,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
 
   /config:
     get:
@@ -460,7 +450,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-
   /batch/jobs:
     delete:
       summary: Batch delete jobs
@@ -480,7 +469,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
 
 components:
   schemas:
@@ -578,19 +566,17 @@ components:
         runtime_environment_parameters:
           type: object
         additionalProperties:
-            type: string
+          type: string
         output_formats:
           type: array
           items:
             type: string
         parameters:
           type: object
-        additionalProperties:
-            type: string
         tags:
           type: array
         items:
-            type: string
+          type: string
         name:
           type: string
         output_filename_template:
