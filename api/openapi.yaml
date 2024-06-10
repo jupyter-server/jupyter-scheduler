@@ -1,0 +1,777 @@
+openapi: 3.0.0
+info:
+  title: Jupyter Scheduler API
+  version: 2.7.1
+  description: API for Jupyter Scheduler, a JupyterLab extension for running notebook jobs.
+servers:
+  - url: /scheduler
+paths:
+  /jobs:
+    get:
+      summary: List all jobs
+      parameters:
+        - name: job_definition_id
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/Status'
+          required: false
+        - name: name
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+        - name: start_time
+          in: query
+          schema:
+            type: integer
+          required: false
+        - name: sort_by
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SortField'
+          description: Specifies the sorting criteria, defaults to 'create_time' in descending order if not provided
+          required: false
+        - name: max_items
+          in: query
+          schema:
+            type: integer
+            default: 1000
+          required: false
+        - name: next_token
+          in: query
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Successfully retrieved the list of jobs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListJobsResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new job
+      requestBody:
+        description: Payload to create a new job
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJob'
+      responses:
+        '200':
+          description: Successfully created the job.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /jobs/{job_id}:
+    get:
+      summary: Get details of a specific job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved job details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeJob'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a specific job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data for updating the job
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateJob'
+      responses:
+        '204':
+          description: Successfully updated the job.
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a specific job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted the job.
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /job_definitions:
+    get:
+      summary: List all job definitions
+      parameters:
+        - name: job_definition_id
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: name
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+        - name: create_time
+          in: query
+          schema:
+            type: integer
+          required: false
+        - name: sort_by
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SortField'
+          description: Specifies the sorting criteria, defaults to 'create_time' in descending order if not provided
+          required: false
+        - name: max_items
+          in: query
+          schema:
+            type: integer
+            default: 1000
+          required: false
+        - name: next_token
+          in: query
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Successfully retrieved the list of job definitions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListJobDefinitionsResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    post:
+      summary: Create a new job definition
+      requestBody:
+        description: Payload to create a new job definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobDefinition'
+      responses:
+        '200':
+          description: Successfully created the job definition.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_definition_id:
+                    type: string
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /job_definitions/{job_definition_id}:
+    get:
+      summary: Get details of a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved job definition details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeJobDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    patch:
+      summary: Update a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data for updating the job definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateJobDefinition'
+      responses:
+        '204':
+          description: Successfully updated the job definition.
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Job definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    delete:
+      summary: Delete a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted the job definition.
+        '404':
+          description: Job definition not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /jobs/{job_id}/download_files:
+    get:
+      summary: Download job files
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: redownload
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Files successfully downloaded or copied.
+        '500':
+          description: Error downloading files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /jobs/count:
+    get:
+      summary: Count jobs based on status
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/Status'
+      responses:
+        '200':
+          description: Successfully counted jobs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /runtime_environments:
+    get:
+      summary: List available runtime environments
+      responses:
+        '200':
+          description: Successfully listed runtime environments.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RuntimeEnvironment'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /config:
+    get:
+      summary: Get configuration details
+      responses:
+        '200':
+          description: Successfully retrieved configuration details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  supported_features:
+                    type: array
+                    items:
+                      type: string
+                  manage_environments_command:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /batch/jobs:
+    delete:
+      summary: Batch delete jobs
+      parameters:
+        - name: job_id
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '204':
+          description: Successfully deleted the specified jobs.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+    Status:
+      type: string
+      enum: [CREATED, QUEUED, IN_PROGRESS, COMPLETED, FAILED, STOPPING, STOPPED]
+    SortField:
+      type: object
+      properties:
+        name:
+          type: string
+        direction:
+          type: string
+        enum: [asc, desc]
+    DescribeJob:
+      type: object
+      properties:
+        job_id:
+          type: string
+        input_filename:
+          type: string
+        runtime_environment_name:
+          type: string
+        runtime_environment_parameters:
+          type: object
+          additionalProperties:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        output_filename_template:
+          type: string
+        compute_type:
+          type: string
+        job_files:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobFile'
+        create_time:
+          type: integer
+        update_time:
+          type: integer
+        start_time:
+          type: integer
+        end_time:
+          type: integer
+        status:
+          $ref: '#/components/schemas/Status'
+        status_message:
+          type: string
+        downloaded:
+          type: boolean
+        package_input_folder:
+          type: boolean
+        packaged_files:
+          type: array
+          items:
+            type: string
+    ListJobsResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DescribeJob'
+        total_count:
+          type: integer
+        next_token:
+          type: string
+    CreateJob:
+      type: object
+      properties:
+        input_uri:
+          type: string
+        input_filename:
+          type: string
+        runtime_environment_name:
+          type: string
+        runtime_environment_parameters:
+          type: object
+        additionalProperties:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+        additionalProperties:
+            type: string
+        tags:
+          type: array
+        items:
+            type: string
+        name:
+          type: string
+        output_filename_template:
+          type: string
+        compute_type:
+          type: string
+        package_input_folder:
+          type: boolean
+    UpdateJob:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        name:
+          type: string
+        compute_type:
+          type: string
+    DescribeJobDefinition:
+      type: object
+      properties:
+        job_definition_id:
+          type: string
+        input_filename:
+          type: string
+        runtime_environment_name:
+          type: string
+        runtime_environment_parameters:
+          type: object
+          additionalProperties:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        output_filename_template:
+          type: string
+        active:
+          type: boolean
+        create_time:
+          type: integer
+        update_time:
+          type: integer
+    ListJobDefinitionsResponse:
+      type: object
+      properties:
+        job_definitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DescribeJobDefinition'
+        total_count:
+          type: integer
+        next_token:
+          type: string
+    CreateJobDefinition:
+      type: object
+      properties:
+        input_uri:
+          type: string
+        input_filename:
+          type: string
+        runtime_environment_name:
+          type: string
+        runtime_environment_parameters:
+          type: object
+          additionalProperties:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        output_filename_template:
+          type: string
+        active:
+          type: boolean
+        schedule:
+          type: string
+        timezone:
+          type: string
+        compute_type:
+          type: string
+        package_input_folder:
+          type: boolean
+    UpdateJobDefinition:
+      type: object
+      properties:
+        runtime_environment_name:
+          type: string
+        runtime_environment_parameters:
+          type: object
+          additionalProperties:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        url:
+          type: string
+        schedule:
+          type: string
+        timezone:
+          type: string
+        output_filename_template:
+          type: string
+        active:
+          type: boolean
+        compute_type:
+          type: string
+        input_uri:
+          type: string
+    CreateJobFromDefinition:
+      type: object
+      properties:
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+    JobFile:
+      type: object
+      properties:
+        display_name:
+          type: string
+        file_format:
+          type: string
+        file_path:
+          type: string
+    RuntimeEnvironment:
+      type: object
+      properties:
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        file_extensions:
+          type: array
+          items:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        compute_types:
+          type: array
+          items:
+            type: string
+        default_compute_type:
+          type: string
+        utc_only:
+          type: boolean
