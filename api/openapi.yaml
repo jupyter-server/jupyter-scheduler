@@ -5,6 +5,9 @@ info:
   description: API for Jupyter Scheduler, a JupyterLab extension for running notebook jobs.
 servers:
   - url: /scheduler
+security:
+  - JupyterServerAuthHeader: []
+  - JupyterServerAuthToken: []
 paths:
   /jobs:
     get:
@@ -457,6 +460,18 @@ paths:
                 $ref: '#/components/schemas/Error'
 
 components:
+  securitySchemes:
+    JupyterServerAuthHeader:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Authentication managed by the Jupyter Server using a token provided in the Authorization header. See Jupyter Server documentation for more details."
+    JupyterServerAuthToken:
+      type: apiKey
+      in: query
+      name: token
+      description: "Authentication managed by the Jupyter Server using a token provided as a query parameter. See Jupyter Server documentation for more details."
+
   schemas:
     Error:
       type: object
