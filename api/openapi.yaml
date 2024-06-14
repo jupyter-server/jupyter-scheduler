@@ -487,7 +487,7 @@ components:
           type: string
         direction:
           type: string
-        enum: [asc, desc]
+          enum: [asc, desc]
     DescribeJob:
       type: object
       properties:
@@ -575,8 +575,8 @@ components:
           type: object
         tags:
           type: array
-        items:
-          type: string
+          items:
+            type: string
         name:
           type: string
         output_filename_template:
