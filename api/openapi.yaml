@@ -88,12 +88,6 @@ paths:
                 properties:
                   job_id:
                     type: string
-        '400':
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -141,18 +135,6 @@ paths:
       responses:
         '204':
           description: Successfully updated the job.
-        '400':
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Job not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -170,12 +152,6 @@ paths:
       responses:
         '204':
           description: Successfully deleted the job.
-        '404':
-          description: Job not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -261,12 +237,6 @@ paths:
                 properties:
                   job_definition_id:
                     type: string
-        '400':
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -315,18 +285,6 @@ paths:
       responses:
         '204':
           description: Successfully updated the job definition.
-        '400':
-          description: Invalid request data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Job definition not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -345,12 +303,6 @@ paths:
       responses:
         '204':
           description: Successfully deleted the job definition.
-        '404':
-          description: Job definition not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
@@ -384,12 +336,6 @@ paths:
                 properties:
                   job_id:
                     type: string
-        '400':
-          description: Invalid input data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
         '500':
           description: Server error
           content:
