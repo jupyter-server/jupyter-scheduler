@@ -358,6 +358,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /job_definitions/{job_definition_id}/jobs:
+    post:
+      summary: Create a job from a job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Parameters needed to create a job from this job definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobFromDefinition'
+      responses:
+        '200':
+          description: Successfully created the job from the job definition.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
   /jobs/{job_id}/download_files:
     get:
       summary: Download job files
