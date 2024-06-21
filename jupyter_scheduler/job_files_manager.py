@@ -1,10 +1,10 @@
 import os
 import random
 import tarfile
-from multiprocessing import Process
-from typing import Dict, List, Optional, Type
+from typing import Awaitable, Dict, List, Optional, Type
 
 import fsspec
+from dask.distributed import Client as DaskClient
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
@@ -14,7 +14,10 @@ from jupyter_scheduler.scheduler import BaseScheduler
 class JobFilesManager:
     scheduler = None
 
-    def __init__(self, scheduler: Type[BaseScheduler]):
+    def __init__(
+        self,
+        scheduler: Type[BaseScheduler],
+    ):
         self.scheduler = scheduler
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
@@ -23,8 +26,9 @@ class JobFilesManager:
         output_filenames = self.scheduler.get_job_filenames(job)
         output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
-        p = Process(
-            target=Downloader(
+        dask_client: DaskClient = await self.scheduler.dask_client_future
+        dask_client.submit(
+            Downloader(
                 output_formats=job.output_formats,
                 output_filenames=output_filenames,
                 staging_paths=staging_paths,
@@ -33,7 +37,6 @@ class JobFilesManager:
                 include_staging_files=job.package_input_folder,
             ).download
         )
-        p.start()
 
 
 class Downloader:
