@@ -1,11 +1,11 @@
-import multiprocessing as mp
 import os
 import random
 import shutil
-from typing import Dict, List, Optional, Type, Union
+from typing import Awaitable, Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
+from dask.distributed import Client as DaskClient
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
@@ -96,11 +96,17 @@ class BaseScheduler(LoggingConfigurable):
     )
 
     def __init__(
-        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
+        self,
+        root_dir: str,
+        environments_manager: Type[EnvironmentManager],
+        dask_client_future: Awaitable[DaskClient],
+        config=None,
+        **kwargs,
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
         self.environments_manager = environments_manager
+        self.dask_client_future = dask_client_future
 
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
@@ -437,7 +443,7 @@ class Scheduler(BaseScheduler):
             destination_dir=staging_dir,
         )
 
-    def create_job(self, model: CreateJob) -> str:
+    async def create_job(self, model: CreateJob) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
 
@@ -478,25 +484,17 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-            # The MP context forces new processes to not be forked on Linux.
-            # This is necessary because `asyncio.get_event_loop()` is bugged in
-            # forked processes in Python versions below 3.12. This method is
-            # called by `jupyter_core` by `nbconvert` in the default executor.
-            #
-            # See: https://github.com/python/cpython/issues/66285
-            # See also: https://github.com/jupyter/jupyter_core/pull/362
-            mp_ctx = mp.get_context("spawn")
-            p = mp_ctx.Process(
-                target=self.execution_manager_class(
+            dask_client: DaskClient = await self.dask_client_future
+            future = dask_client.submit(
+                self.execution_manager_class(
                     job_id=job.job_id,
                     staging_paths=staging_paths,
                     root_dir=self.root_dir,
                     db_url=self.db_url,
                 ).process
             )
-            p.start()
 
-            job.pid = p.pid
+            job.pid = future.key
             session.commit()
 
             job_id = job.job_id
@@ -749,14 +747,16 @@ class Scheduler(BaseScheduler):
 
         return list_response
 
-    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+    async def create_job_from_definition(
+        self, job_definition_id: str, model: CreateJobFromDefinition
+    ):
         job_id = None
         definition = self.get_job_definition(job_definition_id)
         if definition:
             input_uri = self.get_staging_paths(definition)["input"]
             attributes = definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
             attributes = {**attributes, **model.dict(exclude_none=True), "input_uri": input_uri}
-            job_id = self.create_job(CreateJob(**attributes))
+            job_id = await self.create_job(CreateJob(**attributes))
 
         return job_id
 
