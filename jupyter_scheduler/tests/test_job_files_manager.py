@@ -1,10 +1,9 @@
+import asyncio
 import filecmp
 import os
 import shutil
 import tarfile
-import time
-from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -41,23 +40,25 @@ async def test_copy_from_staging():
     }
     output_dir = "jobs/1"
     with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
-        with patch("jupyter_scheduler.job_files_manager.Process") as mock_process:
-            with patch("jupyter_scheduler.scheduler.Scheduler") as mock_scheduler:
-                mock_scheduler.get_job.return_value = job
-                mock_scheduler.get_staging_paths.return_value = staging_paths
-                mock_scheduler.get_local_output_path.return_value = output_dir
-                mock_scheduler.get_job_filenames.return_value = job_filenames
-                manager = JobFilesManager(scheduler=mock_scheduler)
-                await manager.copy_from_staging(1)
+        with patch("jupyter_scheduler.scheduler.Scheduler") as mock_scheduler:
+            mock_future = asyncio.Future()
+            mock_future.set_result(MagicMock())
+            mock_scheduler.dask_client_future = mock_future
+            mock_scheduler.get_job.return_value = job
+            mock_scheduler.get_staging_paths.return_value = staging_paths
+            mock_scheduler.get_local_output_path.return_value = output_dir
+            mock_scheduler.get_job_filenames.return_value = job_filenames
+            manager = JobFilesManager(scheduler=mock_scheduler)
+            await manager.copy_from_staging(1)
 
-                mock_downloader.assert_called_once_with(
-                    output_formats=job.output_formats,
-                    output_filenames=job_filenames,
-                    staging_paths=staging_paths,
-                    output_dir=output_dir,
-                    redownload=False,
-                    include_staging_files=None,
-                )
+            mock_downloader.assert_called_once_with(
+                output_formats=job.output_formats,
+                output_filenames=job_filenames,
+                staging_paths=staging_paths,
+                output_dir=output_dir,
+                redownload=False,
+                include_staging_files=None,
+            )
 
 
 @pytest.fixture
