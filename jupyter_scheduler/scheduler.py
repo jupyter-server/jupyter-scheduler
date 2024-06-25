@@ -97,22 +97,11 @@ class BaseScheduler(LoggingConfigurable):
     )
 
     def __init__(
-        self,
-        root_dir: str,
-        environments_manager: Type[EnvironmentManager],
-        config=None,
-        **kwargs,
+        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
         self.environments_manager = environments_manager
-
-        loop = asyncio.get_event_loop()
-        self.dask_client_future: Awaitable[DaskClient] = loop.create_task(self._get_dask_client())
-
-    async def _get_dask_client(self):
-        """Creates and configures a Dask client."""
-        return DaskClient(processes=False, asynchronous=True)
 
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
@@ -393,6 +382,12 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.join(self.root_dir, self.output_directory, output_dir_name)
 
+    async def stop_extension(self):
+        """
+        Placeholder method for a cleanup code to run when the server is stopping.
+        """
+        pass
+
 
 class Scheduler(BaseScheduler):
     _db_session = None
@@ -425,6 +420,13 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+
+        loop = asyncio.get_event_loop()
+        self.dask_client_future: Awaitable[DaskClient] = loop.create_task(self._get_dask_client())
+
+    async def _get_dask_client(self):
+        """Creates and configures a Dask client."""
+        return DaskClient(processes=False, asynchronous=True)
 
     @property
     def db_session(self):
@@ -782,6 +784,14 @@ class Scheduler(BaseScheduler):
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
+
+    async def stop_extension(self):
+        """
+        Cleanup code to run when the server is stopping.
+        """
+        if self.dask_client_future:
+            dask_client: DaskClient = await self.dask_client_future
+            await dask_client.close()
 
 
 class ArchivingScheduler(Scheduler):

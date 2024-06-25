@@ -92,3 +92,25 @@ class SchedulerApp(ExtensionApp):
         if scheduler.task_runner:
             loop = asyncio.get_event_loop()
             loop.create_task(scheduler.task_runner.start())
+
+    async def stop_extension(self):
+        """
+        Public method called by Jupyter Server when the server is stopping.
+        This calls the cleanup code defined in `self._stop_exception()` inside
+        an exception handler, as the server halts if this method raises an
+        exception.
+        """
+        try:
+            await self._stop_extension()
+        except Exception as e:
+            self.log.error("Jupyter Scheduler raised an exception while stopping:")
+            self.log.exception(e)
+
+    async def _stop_extension(self):
+        """
+        Private method that defines the cleanup code to run when the server is
+        stopping.
+        """
+        if "scheduler" in self.settings:
+            scheduler: SchedulerApp = self.settings["scheduler"]
+            await scheduler.stop_extension()
