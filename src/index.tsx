@@ -27,6 +27,7 @@ import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
 import { SERVER_EXTENSION_404_JSX } from './util/errors';
 import { MakeNameValid } from './util/job-name-validation';
+import { WorkflowsPlugin } from './dag-scheduler';
 
 export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -354,7 +355,8 @@ function activatePlugin(
 const plugins: JupyterFrontEndPlugin<any>[] = [
   schedulerPlugin,
   advancedOptions,
-  telemetry
+  telemetry,
+  WorkflowsPlugin
 ];
 
 export { JobsView };

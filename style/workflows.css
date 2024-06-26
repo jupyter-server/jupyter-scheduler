@@ -1,0 +1,409 @@
+.react-flow {
+  --node-border-radius: 10px;
+  --bg-color: var(--jp-border-color3);
+  --text-color: var(--jp-ui-font-color1);
+  --node-bg-color: var(--jp-ui-inverse-font-color0);
+  --secondary-text-color: var(--jp-content-font-color2);
+
+  flex: 1;
+  overflow: hidden;
+  margin: 0 !important;
+  box-sizing: border-box;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  border: 2px solid transparent;
+  box-shadow: inset rgba(50, 50, 93, 0.25) 0 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+}
+
+.react-flow.focused {
+  border: 2px solid var(--jp-brand-color2);
+}
+
+.notebook-workflows {
+  --shadow-color: var(--jp-layout-color0);
+}
+
+.notebook-workflows.dark {
+  --shadow-color: var(--jp-border-color3);
+}
+
+.react-flow__controls-button:hover {
+  background: var(--jp-border-color3);
+}
+
+.react-flow__node-custom {
+  display: flex;
+  min-height: 70px;
+  min-width: 250px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  color: var(--text-color);
+  background: var(--node-bg-color);
+  font-family: 'Fira Mono', monospace;
+  border-radius: var(--node-border-radius);
+  box-shadow: rgba(50, 50, 93, 0.25) 0 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0 8px 16px -8px;
+}
+
+.react-flow__node-custom:hover {
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.25);
+}
+
+.react-flow__node-custom .wrapper {
+  width: 100%;
+  padding: 2px;
+  overflow: hidden;
+  position: relative;
+  border-radius: var(--node-border-radius);
+}
+
+.notebook-workflows .react-flow__edge-path {
+  /* stroke: #f37627; */
+  stroke-width: 1;
+  fill: none;
+}
+
+.wrapper::before {
+  content: '';
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  border-radius: 100%;
+  transform: translate(-50%, -50%);
+  width: calc(100% * 1.41421356237);
+  padding-bottom: calc(100% * 1.41421356237);
+}
+
+.wrapper.pending::after {
+  content: '';
+  height: 20px;
+  width: 100%;
+  display: block;
+  position: absolute;
+  left: 0;
+  top: -16px;
+  animation: move 3s ease-in-out infinite;
+  background: linear-gradient(45deg, #a2d6ef, #1a69af 100px);
+}
+
+@keyframes move {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 250px 50px;
+  }
+}
+
+.react-flow__node-custom.selected .wrapper::before {
+  content: '';
+  z-index: -1;
+  background-color: var(--jp-brand-color2);
+}
+
+.react-flow__node-custom .inner {
+  padding: 16px 20px;
+  position: relative;
+  border-radius: var(--node-border-radius);
+}
+
+.react-flow__node-custom .body {
+  overflow: hidden;
+  max-width: 200px;
+}
+
+.react-flow__handle {
+  opacity: 1;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.task-run-node .react-flow__handle.connectionindicator {
+  cursor: grab;
+}
+
+.task-run-node .react-flow__handle {
+  background-color: transparent;
+}
+
+.task-node .react-flow__handle.source {
+  /* right: -10px; */
+  width: 10%;
+  height: 50%;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.task-node .react-flow__handle.target {
+  left: -10px;
+}
+
+.source.show-hint {
+  right: 0 !important;
+  transform: translateX(50%);
+}
+
+.react-flow__node.selected .source.show-hint {
+  background-color: var(--jp-brand-color1);
+}
+
+.show-hint {
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  display: grid;
+  width: 15px;
+  height: 15px;
+  color: white;
+  padding: 2px;
+  z-index: 1000000;
+  position: absolute;
+  border-radius: 100%;
+  align-content: center;
+  justify-content: center;
+  pointer-events: none;
+  background: var(--jp-border-color1);
+  transform: scale(1) translateX(-50%);
+}
+
+.show-hint:not(.source) {
+  left: -15px;
+}
+
+.show-hint::before,
+.show-hint::after {
+  content: '';
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  opacity: 0.7;
+  position: absolute;
+  border-radius: 100%;
+  background: inherit;
+}
+
+.show-hint.valid {
+  background: var(--jp-accent-color2) !important;
+}
+
+.show-hint.invalid {
+  background: var(--jp-error-color2) !important;
+}
+
+.show-hint.invalid::before,
+.show-hint.valid::before {
+  animation: react-flow-handle-pulse 2s ease-out infinite;
+}
+
+.show-hint.invalid::after,
+.show-hint.valid::after {
+  animation: react-flow-handle-pulse 2s 1s ease-out infinite;
+}
+
+@keyframes react-flow-handle-pulse {
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+.edgebutton {
+  width: 20px;
+  height: 20px;
+  background: #eee;
+  border: 1px solid #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.edgebutton:hover {
+  box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
+}
+
+.react-flow__node:focus {
+  outline: none;
+}
+
+.react-flow__node-toolbar {
+  /* top: -30px; */
+  left: -8px;
+  padding: 0 8px;
+}
+
+.react-flow__node-toolbar .toolbar-btn-container {
+  border-radius: 4px;
+  transform: translateX(50%);
+  background: var(--node-bg-color);
+  box-shadow: 2px 4px 12px 2px var(--jp-shadow-ambient-color);
+}
+
+.react-flow__controls button path {
+  fill: var(--text-color);
+}
+
+.react-flow__controls button {
+  border-radius: 0;
+  border-bottom: none;
+  background-color: var(--node-bg-color);
+}
+
+.jp-notebook-workflows-panel .react-flow__attribution a {
+  display: none;
+}
+
+.reactflow-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.react-flow__pane {
+  border-width: 2px;
+  border-style: dashed;
+  border-color: transparent;
+}
+
+.draghover .MuiOutlinedInput-root,
+.draghover .react-flow__pane {
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+  border-color: var(--jp-brand-color1);
+  background: rgba(33, 150, 243, 0.1);
+  transition-property: top, left, right, bottom;
+}
+
+.workflow-editor_side-panel {
+  position: relative;
+  max-width: 350px;
+  margin: 0 !important;
+  overflow: scroll;
+  min-width: 200px;
+  box-shadow: 0 2px 4px 6px rgba(229, 228, 228, 0.03),
+    0 4px 8px 12px rgba(204, 203, 203, 0.06);
+}
+
+/* https://css-tricks.com/books/greatest-css-tricks/scroll-shadows/ */
+.notebook-workflows .scroll-shadow {
+  background:
+    /* Shadow Cover TOP */ linear-gradient(
+        var(--shadow-color) 30%,
+        rgba(255, 255, 255, 0)
+      )
+      center top,
+    /* Shadow Cover BOTTOM */
+      linear-gradient(rgba(255, 255, 255, 0), var(--shadow-color) 70%) center
+      bottom,
+    /* Shadow TOP */
+      radial-gradient(
+        farthest-side at 50% 0,
+        rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0)
+      )
+      center top,
+    /* Shadow BOTTOM */
+      radial-gradient(
+        farthest-side at 50% 100%,
+        rgba(0, 0, 0, 0.2),
+        rgba(0, 0, 0, 0)
+      )
+      center bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  background-attachment: local, local, scroll, scroll;
+}
+
+/* TODO: This should be fixed in the reusable component */
+.jp-notebook-workflows-panel .jp-form-group {
+  margin: 0;
+}
+
+.jp-notebook-workflows-panel .jp-form-group .jp-form-control {
+  border-radius: 2px;
+  background-color: unset;
+  border-width: 1px !important;
+  border: 1px solid var(--jp-border-color0);
+}
+
+.jp-notebook-workflows-panel .jp-form-group .jp-form-control:hover {
+  background-color: unset !important;
+  border: 1px solid var(--jp-inverse-layout-color1);
+}
+
+.jp-notebook-workflows-panel .jp-form-control:focus-within {
+  border: 1px solid var(--md-blue-700) !important;
+}
+
+.jp-scheduler-editor {
+  height: 260px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 2px;
+  overflow: auto;
+}
+
+.jp-scheduler-editor .cm-editor {
+  height: 100%;
+}
+
+.jp-scheduler-editor.error {
+  border-color: var(--jp-error-color1);
+}
+
+.jp-scheduler-editor + span.error-msg {
+  color: var(--jp-error-color0);
+}
+
+.jp-scheduler-editor + span.error-msg::before {
+  content: 'x';
+  width: 18px;
+  height: 18px;
+  background: var(--jp-error-color1);
+  border-radius: 50%;
+  display: inline-block;
+  color: white;
+  text-align: center;
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.jp-scheduler-editor span.cm-tab {
+  visibility: hidden;
+}
+
+.jp-toast-container {
+  gap: 8px;
+  right: 48px;
+  bottom: 48px;
+  display: flex;
+  z-index: 10000;
+  position: fixed;
+  pointer-events: none;
+  box-sizing: border-box;
+  background: transparent;
+  flex-direction: column-reverse;
+}
+
+.properties-viewer .jp-scheduler-editor {
+  /* resize: both; */
+  max-width: 600px;
+  max-height: 600px;
+  min-width: 300px;
+  min-height: 300px;
+}
+
+.text-line-truncate {
+  display: -webkit-box;
+  max-width: 200px;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.error-details-collapse {
+  word-break: break-word;
+}

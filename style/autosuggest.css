@@ -1,0 +1,230 @@
+.jp-publish-notebook.jp-Dialog .lm-Widget {
+  max-width: 600px;
+  overflow: unset !important;
+}
+
+.placeholder {
+  width: 100% !important;
+}
+
+.pill-container {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  padding: 0 10px;
+  overflow: auto;
+  flex-wrap: wrap;
+  max-height: 100px;
+  align-items: center;
+  list-style-type: none;
+}
+
+.pill-container li {
+  position: relative;
+}
+
+.pill {
+  display: flex;
+  font-size: 12px;
+  padding: 4px 8px;
+  margin: 2px 2px 0;
+  user-select: none;
+  border-radius: 10px;
+  align-items: center;
+  color: var(--jp-ui-font-color2);
+  border: 1px solid var(--jp-border-color1);
+  background: var(--jp-input-active-background);
+}
+
+.pill.selected {
+  background: var(--jp-border-color2);
+}
+
+.pill.invalid {
+  color: white;
+  border: none;
+  background: var(--jp-error-color1);
+}
+
+.pill.invalid svg path {
+  fill: white;
+}
+
+.pill.invalid.selected {
+  background: var(--jp-error-color0);
+}
+
+.pill:hover {
+  cursor: pointer;
+  background: var(--jp-border-color1);
+  color: var(--jp-ui-font-color0);
+}
+
+.pill .close-icon {
+  display: inline-block;
+  margin-top: 1px;
+  margin-left: 4px;
+  padding: 1px;
+  height: 12px;
+}
+
+.pill .close-icon:hover {
+  border-radius: 50%;
+  background: var(--jp-border-color2);
+}
+
+.pill-btn {
+  background: #dadcdf;
+}
+
+.pills-list {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.pills-list li {
+  display: inline-block;
+}
+
+.jp-form-group {
+  display: flex;
+  margin: 16px 0;
+  flex-direction: column;
+}
+
+.jp-form-group .btn {
+  margin-left: 4px;
+  display: inline-block;
+}
+
+.jp-form-control:hover {
+  background: var(--jp-border-color3) !important;
+}
+
+.jp-form-control:focus-within {
+  border-bottom: 2px solid var(--md-blue-700) !important;
+}
+
+.jp-form-group .jp-form-control {
+  display: flex;
+  padding: 10px 0;
+  align-items: center;
+  justify-content: flex-start;
+  background: var(--jp-border-color2);
+  border-bottom: 2px solid var(--jp-border-color0);
+}
+
+.jp-form-group label {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  margin: 0 !important;
+}
+
+.jp-form-group input {
+  outline: none;
+  padding: 8px 0;
+  margin-left: 4px;
+  border: none;
+  flex-grow: 0;
+  flex-shrink: 1;
+  display: inline-block;
+  width: 1px;
+}
+
+.jp-form-group textarea {
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 0 4px;
+  overflow: hidden;
+  line-height: 32px;
+  font-family: inherit;
+  height: 32px !important;
+  background: transparent;
+  color: var(--jp-ui-font-color0);
+}
+
+.hidden-input {
+  opacity: 0;
+  width: 1px;
+  left: -9999px;
+  z-index: -9999;
+  position: absolute;
+}
+
+.subject-container {
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgb(212, 210, 210);
+}
+
+.autosuggest {
+  cursor: text;
+  display: block;
+  position: relative;
+}
+
+.suggestions-wrapper {
+  position: relative;
+}
+
+.suggestions {
+  z-index: 10;
+  width: 100%;
+  margin-top: 0;
+  padding: 8px 0;
+  overflow: auto;
+  max-height: 200px;
+  position: absolute;
+  list-style-type: none;
+  background: var(--jp-layout-color0);
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+.suggestions li {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.suggestions li a {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.suggestions li.selected,
+.suggestions li:hover {
+  background: var(--jp-layout-color2);
+}
+
+.suggestions li .profile-pic {
+  height: 32px;
+  width: 32px;
+  display: flex;
+  color: white;
+  font-size: 14px;
+  margin-left: 16px;
+  border-radius: 50%;
+  margin-right: 12px;
+  align-items: center;
+  box-sizing: border-box;
+  justify-content: center;
+  background: var(--jp-border-color0);
+  box-shadow: 0 4px 8px var(--jp-shadow-base-lightness);
+}
+
+.suggestions .suggestion-text > div:first-child {
+  font-weight: 500;
+}
+
+.suggestions .suggestion-text > div:last-child {
+  font-weight: 400;
+  line-height: 1rem;
+  font-size: 0.725rem;
+  letter-spacing: 0.025rem;
+  color: var(--jp-content-font-color2);
+}

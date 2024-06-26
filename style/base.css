@@ -13,6 +13,9 @@
 @import './button.css';
 @import './labeled-value.css';
 @import './edit-job-definitions.css';
+@import './autosuggest.css';
+@import './loader.css';
+@import './workflows.css';
 
 .jp-notebook-jobs-panel {
   background: var(--jp-layout-color1);
@@ -27,6 +30,8 @@
 
 .jp-notebook-job-list-empty {
   margin-top: 12px;
+  padding: 10px;
+  text-align: center;
 }
 
 /* Error reporting */
