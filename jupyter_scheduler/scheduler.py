@@ -1,3 +1,4 @@
+import asyncio
 import os
 import random
 import shutil
@@ -99,14 +100,19 @@ class BaseScheduler(LoggingConfigurable):
         self,
         root_dir: str,
         environments_manager: Type[EnvironmentManager],
-        dask_client_future: Awaitable[DaskClient],
         config=None,
         **kwargs,
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
         self.environments_manager = environments_manager
-        self.dask_client_future = dask_client_future
+
+        loop = asyncio.get_event_loop()
+        self.dask_client_future: Awaitable[DaskClient] = loop.create_task(self._get_dask_client())
+
+    async def _get_dask_client(self):
+        """Creates and configures a Dask client."""
+        return DaskClient(processes=False, asynchronous=True)
 
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.

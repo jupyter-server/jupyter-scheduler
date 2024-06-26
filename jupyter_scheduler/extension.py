@@ -1,3 +1,5 @@
+import asyncio
+
 from dask.distributed import Client as DaskClient
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.extension.application import ExtensionApp
@@ -72,15 +74,11 @@ class SchedulerApp(ExtensionApp):
 
         environments_manager = self.environment_manager_class()
 
-        asyncio_loop = self.serverapp.io_loop.asyncio_loop
-        dask_client_future = asyncio_loop.create_task(self._get_dask_client())
-
         scheduler = self.scheduler_class(
             root_dir=self.serverapp.root_dir,
             environments_manager=environments_manager,
             db_url=self.db_url,
             config=self.config,
-            dask_client_future=dask_client_future,
         )
 
         job_files_manager = self.job_files_manager_class(scheduler=scheduler)
@@ -89,28 +87,8 @@ class SchedulerApp(ExtensionApp):
             environments_manager=environments_manager,
             scheduler=scheduler,
             job_files_manager=job_files_manager,
-            dask_client_future=dask_client_future,
         )
 
         if scheduler.task_runner:
-            asyncio_loop.create_task(scheduler.task_runner.start())
-
-    async def _get_dask_client(self):
-        """Creates and configures a Dask client."""
-        return DaskClient(processes=False, asynchronous=True)
-
-    async def stop_extension(self):
-        """Called by the Jupyter Server when stopping to cleanup resources."""
-        try:
-            await self._stop_extension()
-        except Exception as e:
-            self.log.error("Error while stopping Jupyter Scheduler:")
-            self.log.exception(e)
-
-    async def _stop_extension(self):
-        """Closes the Dask client if it exists."""
-        if "dask_client_future" in self.settings:
-            dask_client: DaskClient = await self.settings["dask_client_future"]
-            self.log.info("Closing Dask client.")
-            await dask_client.close()
-            self.log.info("Dask client closed.")
+            loop = asyncio.get_event_loop()
+            loop.create_task(scheduler.task_runner.start())
