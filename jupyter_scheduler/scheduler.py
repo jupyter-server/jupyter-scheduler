@@ -2,7 +2,7 @@ import asyncio
 import os
 import random
 import shutil
-from typing import Awaitable, Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
@@ -421,12 +421,11 @@ class Scheduler(BaseScheduler):
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
 
-        loop = asyncio.get_event_loop()
-        self.dask_client_future: Awaitable[DaskClient] = loop.create_task(self._get_dask_client())
+        self.dask_client: DaskClient = self._get_dask_client()
 
-    async def _get_dask_client(self):
+    def _get_dask_client(self):
         """Creates and configures a Dask client."""
-        return DaskClient(processes=False, asynchronous=True)
+        return DaskClient()
 
     @property
     def db_session(self):
@@ -451,7 +450,7 @@ class Scheduler(BaseScheduler):
             destination_dir=staging_dir,
         )
 
-    async def create_job(self, model: CreateJob) -> str:
+    def create_job(self, model: CreateJob) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
 
@@ -492,8 +491,7 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-            dask_client: DaskClient = await self.dask_client_future
-            future = dask_client.submit(
+            future = self.dask_client.submit(
                 self.execution_manager_class(
                     job_id=job.job_id,
                     staging_paths=staging_paths,
@@ -755,16 +753,14 @@ class Scheduler(BaseScheduler):
 
         return list_response
 
-    async def create_job_from_definition(
-        self, job_definition_id: str, model: CreateJobFromDefinition
-    ):
+    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
         job_id = None
         definition = self.get_job_definition(job_definition_id)
         if definition:
             input_uri = self.get_staging_paths(definition)["input"]
             attributes = definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
             attributes = {**attributes, **model.dict(exclude_none=True), "input_uri": input_uri}
-            job_id = await self.create_job(CreateJob(**attributes))
+            job_id = self.create_job(CreateJob(**attributes))
 
         return job_id
 
@@ -789,9 +785,8 @@ class Scheduler(BaseScheduler):
         """
         Cleanup code to run when the server is stopping.
         """
-        if self.dask_client_future:
-            dask_client: DaskClient = await self.dask_client_future
-            await dask_client.close()
+        if self.dask_client:
+            self.dask_client.close()
 
 
 class ArchivingScheduler(Scheduler):
