@@ -5,6 +5,7 @@ from multiprocessing import Process
 from typing import Dict, List, Optional, Type
 
 import fsspec
+from dask.distributed import Client as DaskClient
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
@@ -23,17 +24,20 @@ class JobFilesManager:
         output_filenames = self.scheduler.get_job_filenames(job)
         output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
-        p = Process(
-            target=Downloader(
-                output_formats=job.output_formats,
-                output_filenames=output_filenames,
-                staging_paths=staging_paths,
-                output_dir=output_dir,
-                redownload=redownload,
-                include_staging_files=job.package_input_folder,
-            ).download
-        )
-        p.start()
+        download = Downloader(
+            output_formats=job.output_formats,
+            output_filenames=output_filenames,
+            staging_paths=staging_paths,
+            output_dir=output_dir,
+            redownload=redownload,
+            include_staging_files=job.package_input_folder,
+        ).download
+        if self.scheduler.dask_client:
+            dask_client: DaskClient = self.scheduler.dask_client
+            dask_client.submit(download)
+        else:
+            p = Process(target=download)
+            p.start()
 
 
 class Downloader:
