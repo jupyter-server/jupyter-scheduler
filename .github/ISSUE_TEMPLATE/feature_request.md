@@ -21,7 +21,7 @@ https://github.com/jupyter-server/jupyter-scheduler/issues
 * I would like it if [...] happened when I [...] because [...]
 -->
 
-### Proposed Solution
+### Proposed solution
 
 <!-- Provide a clear and concise description of a way to accomplish what you want. For example:
 * Add an option so that when [...]  [...] will happen
