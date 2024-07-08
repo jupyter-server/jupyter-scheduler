@@ -17,7 +17,7 @@ https://jupyterlab.readthedocs.io/en/latest/getting_started/issue.html
 
 <!--Describe the bug clearly and concisely. Include screenshots if possible-->
 
-## Reproduce
+## How to reproduce
 
 <!--Describe step-by-step instructions to reproduce the behavior-->
 
