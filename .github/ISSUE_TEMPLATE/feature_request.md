@@ -10,7 +10,8 @@ assignees: ''
 
 <!--
 Thanks for thinking of a way to improve Jupyter Scheduler. If this solves a problem for you, then it probably solves that problem for lots of people! So the whole community will benefit from this request.
-Before creating a new feature request please search the issues for relevant feature requests.
+Before creating a new feature request please search the existing issues for relevant feature requests:
+https://github.com/jupyter-server/jupyter-scheduler/issues
 -->
 
 ### Problem

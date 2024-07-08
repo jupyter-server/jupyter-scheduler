@@ -7,7 +7,7 @@ https://jupyter-scheduler.readthedocs.io/en/latest/contributors/index.html
 
 ## References
 
-<!-- Note issue numbers this pull request addresses (should be at least one, see contributing guidelines above). -->
+<!-- Note the issue numbers this pull request addresses (should be at least one, see the contributing guidelines above). -->
 
 <!-- Note any other pull requests that address this issue and how this pull request is different. -->
 
