@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Jupyter Scheduler API
+  title: Jupyter Workflow API
   version: 2.7.1
-  description: API for Jupyter Scheduler, a JupyterLab extension for running notebook jobs.
+  description: 'API for Jupyter Workflow, a JupyterLab extension for running notebook jobs. The endpoints with v2 prefix are for workflows (scheduling with multiple tasks). The existing endpoint without v2 prefix are for scheduling with single task'
 servers:
   - url: /scheduler
 security:
@@ -11,94 +11,32 @@ security:
 paths:
   /jobs:
     get:
-      summary: List all jobs
+      summary: List jobs
+      description: This endpoint lists all the jobs related to Jupyter Scheduling with single task.
+      operationId: listJobs
       parameters:
-        - name: job_definition_id
-          in: query
-          schema:
-            type: string
-          required: false
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/Status'
-          required: false
-        - name: name
-          in: query
-          schema:
-            type: string
-          required: false
-        - name: tags
-          in: query
-          schema:
-            type: array
-            items:
-              type: string
-          required: false
-        - name: start_time
-          in: query
+        - in: query
+          name: limit
           schema:
             type: integer
-          required: false
-        - name: sort_by
-          in: query
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/SortField'
-          description: Specifies the sorting criteria, defaults to 'create_time' in descending order if not provided
-          required: false
-        - name: max_items
-          in: query
+        - in: query
+          name: offset
           schema:
             type: integer
-            default: 1000
-          required: false
-        - name: next_token
-          in: query
-          schema:
-            type: string
-          required: false
       responses:
         '200':
-          description: Successfully retrieved the list of jobs.
+          description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListJobsResponse'
+                $ref: '#/components/schemas/DSListJobsResponse'
         '500':
           description: Server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    post:
-      summary: Create a new job
-      requestBody:
-        description: Payload to create a new job
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateJob'
-      responses:
-        '200':
-          description: Successfully created the job.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  job_id:
-                    type: string
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /jobs/{job_id}:
+  '/jobs/{job_id}':
     get:
       summary: Get details of a specific job
       parameters:
@@ -113,58 +51,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DescribeJob'
+                $ref: '#/components/schemas/DSDescribeJob'
         '500':
           description: Server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    patch:
-      summary: Update a specific job
-      parameters:
-        - name: job_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Data for updating the job
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateJob'
-      responses:
-        '204':
-          description: Successfully updated the job.
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      summary: Delete a specific job
-      parameters:
-        - name: job_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Successfully deleted the job.
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
   /job_definitions:
     get:
       summary: List all job definitions
+      description: This endpoint lists all the job defintions related to Jupyter Scheduling with single task. There is V2 end-point to list job defintions for workflows (multiple-tasks)
+      operationId: listJobDefinitions
       parameters:
         - name: job_definition_id
           in: query
@@ -194,7 +92,9 @@ paths:
             type: array
             items:
               $ref: '#/components/schemas/SortField'
-          description: Specifies the sorting criteria, defaults to 'create_time' in descending order if not provided
+          description: >-
+            Specifies the sorting criteria, defaults to 'create_time' in
+            descending order if not provided
           required: false
         - name: max_items
           in: query
@@ -213,14 +113,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListJobDefinitionsResponse'
+                $ref: '#/components/schemas/DSListJobDefinitionsResponse'
         '500':
           description: Server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     post:
       summary: Create a new job definition
       requestBody:
@@ -229,7 +128,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateJobDefinition'
+              $ref: '#/components/schemas/DSCreateJobDefinition'
       responses:
         '200':
           description: Successfully created the job definition.
@@ -246,8 +145,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /job_definitions/{job_definition_id}:
+  '/job_definitions/{job_definition_id}':
     get:
       summary: Get details of a specific job definition
       parameters:
@@ -262,14 +160,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DescribeJobDefinition'
+                $ref: '#/components/schemas/DSDescribeJobDefinition'
         '500':
           description: Server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     patch:
       summary: Update a specific job definition
       parameters:
@@ -284,17 +181,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateJobDefinition'
+              $ref: '#/components/schemas/DSUpdateJobDefinition'
       responses:
         '204':
-          description: Successfully updated the job definition.
+          description: Job definition updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSDescribeJobDefinition'
         '500':
           description: Server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     delete:
       summary: Delete a specific job definition
       parameters:
@@ -312,8 +212,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /job_definitions/{job_definition_id}/jobs:
+  '/job_definitions/{job_definition_id}/jobs':
     post:
       summary: Create a job from a job definition
       parameters:
@@ -345,9 +244,255 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
-  /jobs/{job_id}/download_files:
+  /v2/job_definitions/:
+    post:
+      summary: Create a new V2 job definition
+      description: This endpoint creates a job_defintion for workflows. Tasks can be added/removed/updated in this job_defintion.
+      requestBody:
+        description: Payload to create a new V2 job definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSCreateJobDefinition'
+      responses:
+        '200':
+          description: Successfully created the job definition.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_definition_id:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/v2/job_definitions/{job_definition_id}':
+    get:
+      summary: Get details of a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved job definition details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSDescribeJobDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data for updating the job definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSUpdateJobDefinition'
+      responses:
+        '204':
+          description: Job definition updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSDescribeJobDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted the job definition.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/v2/job_definitions/{job_definition_id}/deploy':
+    post:
+      summary: Deploy a specific job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deployed the job definition.
+        '500':
+          description: Server error
+  '/v2/job_definitions/{job_definition_id}/tasks':
+    get:
+      summary: Get list of tasks
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DSTask'
+    post:
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSTask'
+      responses:
+        '201':
+          description: Task created
+  '/v2/job_definitions/{job_definition_id}/tasks/{task_id}':
+    patch:
+      summary: Update a specific task in a job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data for updating the task
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSTask'
+      responses:
+        '200':
+          description: Job definition updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSDescribeJobDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a specific task from job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted the task from job definition.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v2/scheduler/jobs:
+    get:
+      summary: List V2 jobs
+      operationId: lv2 istJobs
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSListJobsResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/v2/scheduler/jobs/{job_id}':
+    post:
+      summary: Manual Run a specific job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully ran the job.
+        '500':
+          description: Server error
+    get:
+      summary: Get details of a specific job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved job details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSDescribeJob'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/v2/scheduler/jobs/{job_id}/task_runs/{task_id}/download_files':
     get:
       summary: Download job files
       parameters:
@@ -370,7 +515,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+  '/v2/scheduler/job_definitions/{job_definition_id}/jobs':
+    post:
+      summary: Create a job from a job definition
+      parameters:
+        - name: job_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Parameters needed to create a job from this job definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobFromDefinition'
+      responses:
+        '200':
+          description: Successfully created the job from the job definition.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/jobs/{job_id}/download_files':
+    get:
+      summary: Download job files
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: redownload
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Files successfully downloaded or copied.
+        '500':
+          description: Error downloading files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /jobs/count:
     get:
       summary: Count jobs based on status
@@ -395,7 +594,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /runtime_environments:
     get:
       summary: List available runtime environments
@@ -414,7 +612,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /config:
     get:
       summary: Get configuration details
@@ -438,7 +635,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /batch/jobs:
     delete:
       summary: Batch delete jobs
@@ -458,20 +654,157 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+  /files:
+    get:
+      summary: Get list of files
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DSFile'
+    post:
+      summary: Create a new file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSFile'
+      responses:
+        '201':
+          description: File created
+  '/files/{fileId}':
+    get:
+      summary: Get a file by ID
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSFile'
+    put:
+      summary: Update a file by ID
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSFile'
+      responses:
+        '200':
+          description: File updated
+    delete:
+      summary: Delete a file by ID
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: File deleted
+  /namespaces:
+    get:
+      summary: Get list of namespaces
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DSNamespace'
+    post:
+      summary: Create a new namespace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSNamespace'
+      responses:
+        '201':
+          description: Namespace created
+  '/namespaces/{namespaceId}':
+    get:
+      summary: Get a namespace by ID
+      parameters:
+        - name: namespaceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DSNamespace'
+    put:
+      summary: Update a namespace by ID
+      parameters:
+        - name: namespaceId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DSNamespace'
+      responses:
+        '200':
+          description: Namespace updated
+    delete:
+      summary: Delete a namespace by ID
+      parameters:
+        - name: namespaceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Namespace deleted
 components:
   securitySchemes:
     JupyterServerAuthHeader:
       type: apiKey
       in: header
       name: Authorization
-      description: "Authentication managed by the Jupyter Server using a token provided in the Authorization header. See Jupyter Server documentation for more details."
+      description: >-
+        Authentication managed by the Jupyter Server using a token provided in
+        the Authorization header. See Jupyter Server documentation for more
+        details.
     JupyterServerAuthToken:
       type: apiKey
       in: query
       name: token
-      description: "Authentication managed by the Jupyter Server using a token provided as a query parameter. See Jupyter Server documentation for more details."
-
+      description: >-
+        Authentication managed by the Jupyter Server using a token provided as a
+        query parameter. See Jupyter Server documentation for more details.
   schemas:
     Error:
       type: object
@@ -480,7 +813,14 @@ components:
           type: string
     Status:
       type: string
-      enum: [CREATED, QUEUED, IN_PROGRESS, COMPLETED, FAILED, STOPPING, STOPPED]
+      enum:
+        - CREATED
+        - QUEUED
+        - IN_PROGRESS
+        - COMPLETED
+        - FAILED
+        - STOPPING
+        - STOPPED
     SortField:
       type: object
       properties:
@@ -488,8 +828,66 @@ components:
           type: string
         direction:
           type: string
-          enum: [asc, desc]
-    DescribeJob:
+          enum:
+            - asc
+            - desc
+    CreateJobFromDefinition:
+      type: object
+      properties:
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+    RuntimeEnvironment:
+      type: object
+      properties:
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        file_extensions:
+          type: array
+          items:
+            type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        compute_types:
+          type: array
+          items:
+            type: string
+        default_compute_type:
+          type: string
+        utc_only:
+          type: boolean
+    DSNamespace:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        cluster:
+          type: string
+        priorityClassName:
+          type: string
+    JobFile:
+      type: object
+      properties:
+        display_name:
+          type: string
+        file_format:
+          type: string
+        file_path:
+          type: string
+    DSDescribeJob:
       type: object
       properties:
         job_id:
@@ -498,14 +896,109 @@ components:
           type: string
         runtime_environment_name:
           type: string
-        runtime_environment_parameters:
+        runtimeProperties:
           type: object
           additionalProperties:
             type: string
+        runtime_environment_parameters:
+          type: object
+        additionalProperties:
+          type: string
+        idempotency_token:
+          type: string
+        job_definition_id:
+          type: string
+        parameters:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+        output_filename_template:
+          type: string
+        compute_type:
+          type: string
+        job_files:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobFile'
+        url:
+          type: string
+        create_time:
+          type: integer
+        update_time:
+          type: integer
+        start_time:
+          type: integer
+        end_time:
+          type: integer
+        status:
+          $ref: '#/components/schemas/Status'
+        status_message:
+          type: string
+        downloaded:
+          type: boolean
+        notificationEvents:
+          type: array
+          items:
+            type: string
+        notificationEmails:
+          type: array
+          items:
+            type: string
+        externalLinks:
+          type: array
+          items:
+            type: string
+        input_file_id:
+          type: string
+        output_file_id:
+          type: string
+        outputPreviewLink:
+          type: string
         output_formats:
           type: array
           items:
             type: string
+        slackChannel:
+          type: string
+        scheduleStartDate:
+          type: string
+        taskTimeout:
+          type: string
+        showOutputInEmail:
+          type: boolean
+        task_runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSDescribeJobTask'
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSDesribeJobfinitionTask'
+        runId:
+          type: string
+    DSDescribeJobTask:
+      type: object
+      properties:
+        job_id:
+          type: string
+        input_filename:
+          type: string
+        runtime_environment_name:
+          type: string
+        runtimeProperties:
+          type: object
+        additionalProperties:
+          type: string
+        runtime_environment_parameters:
+          type: object
+        idempotency_token:
+          type: string
+        job_definition_id:
+          type: string
         parameters:
           type: object
           additionalProperties:
@@ -524,6 +1017,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JobFile'
+        url:
+          type: string
         create_time:
           type: integer
         update_time:
@@ -538,24 +1033,58 @@ components:
           type: string
         downloaded:
           type: boolean
-        package_input_folder:
-          type: boolean
-        packaged_files:
+        notificationEvents:
           type: array
           items:
             type: string
-    ListJobsResponse:
+        notificationEmails:
+          type: array
+          items:
+            type: string
+        externalLinks:
+          type: array
+          items:
+            type: string
+        input_file_id:
+          type: string
+        output_file_id:
+          type: string
+        outputPreviewLink:
+          type: string
+        output_formats:
+          type: array
+          items:
+            type: string
+        slackChannel:
+          type: string
+        scheduleStartDate:
+          type: string
+        taskTimeout:
+          type: string
+        showOutputInEmail:
+          type: boolean
+        runId:
+          type: string
+        run_count:
+          type: integer
+        taskId:
+          type: string
+        dependsOn:
+          type: array
+          items:
+            type: string
+    DSListJobsResponse:
       type: object
       properties:
         jobs:
           type: array
           items:
-            $ref: '#/components/schemas/DescribeJob'
+            $ref: '#/components/schemas/DSDescribeJob'
         total_count:
           type: integer
         next_token:
           type: string
-    CreateJob:
+    DSCreateJobDefinition:
       type: object
       properties:
         input_uri:
@@ -572,8 +1101,14 @@ components:
           type: array
           items:
             type: string
+        runtimeProperties:
+          type: object
+          additionalProperties:
+            type: string
         parameters:
           type: object
+          additionalProperties:
+            type: string
         tags:
           type: array
           items:
@@ -584,108 +1119,141 @@ components:
           type: string
         compute_type:
           type: string
-        package_input_folder:
-          type: boolean
-    UpdateJob:
-      type: object
-      properties:
-        status:
-          $ref: '#/components/schemas/Status'
-        name:
-          type: string
-        compute_type:
-          type: string
-    DescribeJobDefinition:
-      type: object
-      properties:
-        job_definition_id:
-          type: string
-        input_filename:
-          type: string
-        runtime_environment_name:
-          type: string
-        runtime_environment_parameters:
-          type: object
-          additionalProperties:
-            type: string
-        output_formats:
-          type: array
-          items:
-            type: string
-        parameters:
-          type: object
-          additionalProperties:
-            type: string
-        tags:
-          type: array
-          items:
-            type: string
-        name:
-          type: string
-        output_filename_template:
-          type: string
-        active:
-          type: boolean
-        create_time:
-          type: integer
-        update_time:
-          type: integer
-    ListJobDefinitionsResponse:
-      type: object
-      properties:
-        job_definitions:
-          type: array
-          items:
-            $ref: '#/components/schemas/DescribeJobDefinition'
-        total_count:
-          type: integer
-        next_token:
-          type: string
-    CreateJobDefinition:
-      type: object
-      properties:
-        input_uri:
-          type: string
-        input_filename:
-          type: string
-        runtime_environment_name:
-          type: string
-        runtime_environment_parameters:
-          type: object
-          additionalProperties:
-            type: string
-        output_formats:
-          type: array
-          items:
-            type: string
-        parameters:
-          type: object
-          additionalProperties:
-            type: string
-        tags:
-          type: array
-          items:
-            type: string
-        name:
-          type: string
-        output_filename_template:
-          type: string
-        active:
-          type: boolean
         schedule:
           type: string
         timezone:
           type: string
-        compute_type:
+        kernelSpecId:
           type: string
-        package_input_folder:
+        namespaceId:
+          type: string
+        notificationEvents:
+          type: array
+          items:
+            type: string
+        notificationEmails:
+          type: array
+          items:
+            type: string
+        slackChannel:
+          type: string
+        scheduleStartDate:
+          type: string
+        taskTimeout:
+          type: string
+        showOutputInEmail:
           type: boolean
-    UpdateJobDefinition:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSTask'
+        notebookParameters:
+          type: object
+          additionalProperties:
+            type: string
+    DSDescribeJobDefinition:
+      type: object
+      properties:
+        input_filename:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        kernelSpecId:
+          type: string
+        kernelSpecVersion:
+          type: string
+        kernelProfileId:
+          type: string
+        kernelProfileVersion:
+          type: string
+        namespaceId:
+          type: string
+        runtimeProperties:
+          type: object
+          additionalProperties:
+            type: string
+        notificationEvents:
+          type: array
+          items:
+            type: string
+        notificationEmails:
+          type: array
+          items:
+            type: string
+        notebookParameters:
+          type: object
+          additionalProperties:
+            type: string
+        slackChannel:
+          type: string
+        scheduleStartDate:
+          type: string
+        taskTimeout:
+          type: string
+        showOutputInEmail:
+          type: boolean
+        output_formats:
+          type: array
+          items:
+            type: string
+        inputFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSFile'
+        runtime_environment_name:
+          type: string
+        runtime_environment_parameters:
+          type: object
+        additionalProperties:
+          type: string
+        input_file_id:
+          type: string
+        active:
+          type: boolean
+        status:
+          type: string
+        statusMessage:
+          type: string
+        input_file_path:
+          type: string
+        externalLinks:
+          type: array
+          items:
+            type: string
+        job_definition_id:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        version:
+          type: string
+        deploy_time:
+          type: integer
+        create_time:
+          type: integer
+        update_time:
+          type: integer
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSDesribeJobfinitionTask'
+        tags:
+          type: array
+          items:
+            type: string
+        schedule:
+          type: string
+        timezone:
+          type: string
+    DSUpdateJobDefinition:
       type: object
       properties:
         runtime_environment_name:
           type: string
-        runtime_environment_parameters:
+        runtimeProperties:
           type: object
           additionalProperties:
             type: string
@@ -717,32 +1285,150 @@ components:
           type: string
         input_uri:
           type: string
-    CreateJobFromDefinition:
+        kernelSpecId:
+          type: string
+        notificationEvents:
+          type: array
+          items:
+            type: string
+        notificationEmails:
+          type: array
+          items:
+            type: string
+        input_file_id:
+          type: string
+        slackChannel:
+          type: string
+        scheduleStartDate:
+          type: string
+        taskTimeout:
+          type: string
+        showOutputInEmail:
+          type: boolean
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSTask'
+    DSListJobDefinitionsResponse:
       type: object
       properties:
-        parameters:
+        job_definitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSDescribeJobDefinition'
+        total_count:
+          type: integer
+        next_token:
+          type: string
+    DSTask:
+      type: object
+      properties:
+        id:
+          type: string
+        nodeId:
+          type: string
+        name:
+          type: string
+        kernelSpecId:
+          type: string
+        kernelSpecVersion:
+          type: string
+        kernelProfileId:
+          type: string
+        kernelProfileVersion:
+          type: string
+        namespaceId:
+          type: string
+        runtimeProperties:
           type: object
           additionalProperties:
             type: string
-    JobFile:
+        notebookParameters:
+          type: object
+          additionalProperties:
+            type: string
+        outputFormats:
+          type: array
+          items:
+            type: string
+        inputFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSFile'
+        taskTimeout:
+          type: string
+        showOutputInEmail:
+          type: boolean
+        slackChannel:
+          type: string
+        input_uri:
+          type: string
+        input_filename:
+          type: string
+        triggerRule:
+          type: string
+        dependsOn:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+        lastModifiedAt:
+          type: string
+        status:
+          type: string
+        statusMessage:
+          type: string
+        input_file_id:
+          type: string
+    DSDesribeJobfinitionTask:
       type: object
       properties:
-        display_name:
+        id:
           type: string
-        file_format:
+        nodeId:
           type: string
-        file_path:
-          type: string
-    RuntimeEnvironment:
-      type: object
-      properties:
         name:
           type: string
-        label:
+        kernelSpecId:
           type: string
-        description:
+        namespaceId:
           type: string
-        file_extensions:
+        kernelSpecVersion:
+          type: string
+        kernelProfileId:
+          type: string
+        kernelProfileVersion:
+          type: string
+        status:
+          type: string
+        status_message:
+          type: string
+        create_time:
+          type: string
+        update_time:
+          type: string
+        runtimeProperties:
+          type: object
+          additionalProperties:
+            type: string
+        inputFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/DSFile'
+        taskTimeout:
+          type: string
+        showOutputInEmail:
+          type: boolean
+        slackChannel:
+          type: string
+        input_uri:
+          type: string
+        input_filename:
+          type: string
+        triggerRule:
+          type: string
+        dependsOn:
           type: array
           items:
             type: string
@@ -750,15 +1436,57 @@ components:
           type: array
           items:
             type: string
-        metadata:
+        parameters:
           type: object
           additionalProperties:
             type: string
-        compute_types:
-          type: array
-          items:
-            type: string
-        default_compute_type:
+        statusMessage:
           type: string
-        utc_only:
+        input_file_id:
+          type: string
+        notebookParameters:
+          type: object
+          additionalProperties:
+            type: string
+        notificationEmails:
+          type: object
+          additionalProperties:
+            type: string
+    DSFile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        notebook_server:
+          type: string
+        contents:
+          $ref: '#/components/schemas/JupyterContentsModel'
+    JupyterContentsModel:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+        created:
+          type: string
+        last_modified:
+          type: string
+        writable:
           type: boolean
+        mimetype:
+          type: string
+        content:
+          type: object
+          additionalProperties:
+            type: string
+        format:
+          type: string
+        chunk:
+          type: string
+        fileType:
+          type: string
