@@ -9,6 +9,8 @@ import psutil
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
+from prefect import flow, task
+from prefect_dask import DaskTaskRunner
 from sqlalchemy import and_, asc, desc, func
 from traitlets import Instance
 from traitlets import Type as TType
@@ -478,25 +480,16 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-            # The MP context forces new processes to not be forked on Linux.
-            # This is necessary because `asyncio.get_event_loop()` is bugged in
-            # forked processes in Python versions below 3.12. This method is
-            # called by `jupyter_core` by `nbconvert` in the default executor.
-            #
-            # See: https://github.com/python/cpython/issues/66285
-            # See also: https://github.com/jupyter/jupyter_core/pull/362
-            mp_ctx = mp.get_context("spawn")
-            p = mp_ctx.Process(
-                target=self.execution_manager_class(
-                    job_id=job.job_id,
-                    staging_paths=staging_paths,
-                    root_dir=self.root_dir,
-                    db_url=self.db_url,
-                ).process
+            execution_manager = self.execution_manager_class(
+                job_id=job.job_id,
+                staging_paths=staging_paths,
+                root_dir=self.root_dir,
+                db_url=self.db_url,
             )
-            p.start()
 
-            job.pid = p.pid
+            execution_manager.process()
+
+            job.pid = 1  # TODO: fix pid hardcode
             session.commit()
 
             job_id = job.job_id
