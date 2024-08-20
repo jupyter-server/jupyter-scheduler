@@ -2,10 +2,10 @@ import multiprocessing as mp
 import os
 import random
 import shutil
-from typing import Dict, List, Optional, Type, Union
 import signal
 import subprocess
 import sys
+from typing import Dict, List, Optional, Type, Union
 from uuid import uuid4
 
 import fsspec
