@@ -143,11 +143,19 @@ function getSelectedFileBaseName(widget: FileBrowser | null): string | null {
 }
 
 // Get the file name, with all parent directories, of the currently selected file.
-function getSelectedFilePath(widget: FileBrowser | null): string | null {
+function getSelectedFilePath(
+  widget: FileBrowser | null,
+  app: JupyterFrontEnd<JupyterFrontEnd.IShell, 'desktop' | 'mobile'>
+): string | null {
   const selectedItem = getSelectedItem(widget);
   if (selectedItem === null) {
     return null;
   }
+
+  if (app.serviceManager.contents.driveName(selectedItem.path) === 'RTC') {
+    return app.serviceManager.contents.localPath(selectedItem.path);
+  }
+
   return selectedItem.path;
 }
 
@@ -260,7 +268,8 @@ function activatePlugin(
     execute: async () => {
       eventLogger('file-browser.create-job');
       const widget = fileBrowserTracker.currentWidget;
-      const filePath = getSelectedFilePath(widget) ?? '';
+      const filePath = getSelectedFilePath(widget, app) ?? '';
+      console.log(filePath);
 
       // Update the job form inside the notebook jobs widget
       const newCreateModel = emptyCreateJobModel();
