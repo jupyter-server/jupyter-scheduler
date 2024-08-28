@@ -142,7 +142,10 @@ function getSelectedFileBaseName(widget: FileBrowser | null): string | null {
   return parts.join('.');
 }
 
-// Get the file name, with all parent directories, of the currently selected file.
+/**
+ * Get the file name of the currently selected file with all parent directories, check
+ * for and remove "RTC" drive prefix potentially added by jupyter-collaboration.
+ */
 function getSelectedFilePath(
   widget: FileBrowser | null,
   contents: Contents.IManager
@@ -151,12 +154,18 @@ function getSelectedFilePath(
   if (selectedItem === null) {
     return null;
   }
+  return getLocalPath(selectedItem.path, contents);
+}
 
-  if (contents.driveName(selectedItem.path) === 'RTC') {
-    return contents.localPath(selectedItem.path);
+/**
+ * Checks if path contains "RTC" drive prefix potentially added by jupyter-collaboration
+ * and returns a local path removing "RTC" prefix if needed
+ */
+function getLocalPath(path: string, contents: Contents.IManager): string {
+  if (contents.driveName(path) === 'RTC') {
+    return contents.localPath(path);
   }
-
-  return selectedItem.path;
+  return path;
 }
 
 // Get the containing directory of the file at a particular path.
