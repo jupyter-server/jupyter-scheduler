@@ -161,7 +161,10 @@ function getSelectedFilePath(
  * Checks if path contains "RTC" drive prefix potentially added by jupyter-collaboration
  * and returns a local path removing "RTC" prefix if needed
  */
-function getLocalPath(path: string, contents: Contents.IManager): string {
+export function getLocalPath(
+  path: string,
+  contents: Contents.IManager
+): string {
   if (contents.driveName(path) === 'RTC') {
     return contents.localPath(path);
   }
