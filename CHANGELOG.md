@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.8.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.7.1...bfb84b632f375426529fde1226042651025a85a2))
+
+### Enhancements made
+
+- Support jupyter-collaboration by handling RTC prefix in the file paths [#541](https://github.com/jupyter-server/jupyter-scheduler/pull/541) ([@andrii-i](https://github.com/andrii-i))
+- Updated integration tests workflow [#535](https://github.com/jupyter-server/jupyter-scheduler/pull/535) ([@krassowski](https://github.com/krassowski))
+- Add GitHub bug, issue, PR templates [#534](https://github.com/jupyter-server/jupyter-scheduler/pull/534) ([@andrii-i](https://github.com/andrii-i))
+- Add OpenAPI API specification [#527](https://github.com/jupyter-server/jupyter-scheduler/pull/527) ([@andrii-i](https://github.com/andrii-i))
+
+### Documentation improvements
+
+- Updated copyright template [#538](https://github.com/jupyter-server/jupyter-scheduler/pull/538) ([@srdas](https://github.com/srdas))
+- Add OpenAPI API specification [#527](https://github.com/jupyter-server/jupyter-scheduler/pull/527) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-06-03&to=2024-08-29&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-06-03..2024-08-29&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Akrassowski+updated%3A2024-06-03..2024-08-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Asrdas+updated%3A2024-06-03..2024-08-29&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.7.1
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.7.0...8b13516cb9a2ad804b8e866e80307b1428ec089a))
@@ -15,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-05-29&to=2024-06-03&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-05-29..2024-06-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.7.0
 
