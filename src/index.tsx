@@ -142,13 +142,33 @@ function getSelectedFileBaseName(widget: FileBrowser | null): string | null {
   return parts.join('.');
 }
 
-// Get the file name, with all parent directories, of the currently selected file.
-function getSelectedFilePath(widget: FileBrowser | null): string | null {
+/**
+ * Get the file name of the currently selected file with all parent directories, check
+ * for and remove "RTC" drive prefix potentially added by jupyter-collaboration.
+ */
+function getSelectedFilePath(
+  widget: FileBrowser | null,
+  contents: Contents.IManager
+): string | null {
   const selectedItem = getSelectedItem(widget);
   if (selectedItem === null) {
     return null;
   }
-  return selectedItem.path;
+  return getLocalPath(selectedItem.path, contents);
+}
+
+/**
+ * Checks if path contains "RTC" drive prefix potentially added by jupyter-collaboration
+ * and returns a local path removing "RTC" prefix if needed
+ */
+export function getLocalPath(
+  path: string,
+  contents: Contents.IManager
+): string {
+  if (contents.driveName(path) === 'RTC') {
+    return contents.localPath(path);
+  }
+  return path;
 }
 
 // Get the containing directory of the file at a particular path.
@@ -260,7 +280,8 @@ function activatePlugin(
     execute: async () => {
       eventLogger('file-browser.create-job');
       const widget = fileBrowserTracker.currentWidget;
-      const filePath = getSelectedFilePath(widget) ?? '';
+      const filePath =
+        getSelectedFilePath(widget, app.serviceManager.contents) ?? '';
 
       // Update the job form inside the notebook jobs widget
       const newCreateModel = emptyCreateJobModel();
