@@ -6,6 +6,7 @@ from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
 from jupyter_scheduler.orm import create_tables
+from jupyter_scheduler.workflows import WorkflowHandler
 
 from .handlers import (
     BatchJobHandler,
@@ -35,6 +36,7 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/job_definitions/%s/jobs" % JOB_DEFINITION_ID_REGEX, JobFromDefinitionHandler),
         (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
         (r"scheduler/config", ConfigHandler),
+        (r"scheduler/worklows", WorkflowHandler),
     ]
 
     drop_tables = Bool(False, config=True, help="Drop the database tables before starting.")

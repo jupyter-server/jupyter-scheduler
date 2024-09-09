@@ -107,6 +107,16 @@ class Job(CommonColumns, Base):
     # Any default values specified for new columns will be ignored during the migration process.
 
 
+class Workflow(Base):
+    __tablename__ = "workflows"
+    __table_args__ = {"extend_existing": True}
+    workflow_id = Column(String(36), primary_key=True, default=generate_uuid)
+    tasks = Column(JsonType(1024))
+    status = Column(String(64), default=Status.STOPPED)
+    # All new columns added to this table must be nullable to ensure compatibility during database migrations.
+    # Any default values specified for new columns will be ignored during the migration process.
+
+
 class JobDefinition(CommonColumns, Base):
     __tablename__ = "job_definitions"
     __table_args__ = {"extend_existing": True}

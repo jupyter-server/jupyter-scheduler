@@ -40,12 +40,13 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, JobDefinition, create_session
+from jupyter_scheduler.orm import Job, JobDefinition, Workflow, create_session
 from jupyter_scheduler.utils import (
     copy_directory,
     create_output_directory,
     create_output_filename,
 )
+from jupyter_scheduler.workflows import CreateWorkflow
 
 
 class BaseScheduler(LoggingConfigurable):
@@ -109,6 +110,10 @@ class BaseScheduler(LoggingConfigurable):
         In case a task runner is actually handling execution of the jobs,
         this method should just create the job record.
         """
+        raise NotImplementedError("must be implemented by subclass")
+
+    def create_workflow(self, model: CreateWorkflow) -> str:
+        """Creates a new workflow record, may trigger execution of the workflow."""
         raise NotImplementedError("must be implemented by subclass")
 
     def update_job(self, job_id: str, model: UpdateJob):
@@ -525,6 +530,27 @@ class Scheduler(BaseScheduler):
             job_id = job.job_id
 
         return job_id
+
+    def create_workflow(self, model: CreateWorkflow) -> str:
+
+        with self.db_session() as session:
+
+            workflow = Workflow(**model.dict(exclude_none=True))
+
+            session.add(workflow)
+            session.commit()
+
+            execution_manager = self.execution_manager_class(
+                workflow_id=workflow.workflow_id,
+                root_dir=self.root_dir,
+                db_url=self.db_url,
+            )
+            execution_manager.process_workflow()
+            session.commit()
+
+            workflow_id = workflow.workflow_id
+
+        return workflow_id
 
     def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:
