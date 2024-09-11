@@ -42,6 +42,7 @@ class EmailNotifications(BaseModel):
 
 
 class Status(str, Enum):
+    DRAFT = "DRAFT"
     CREATED = "CREATED"
     QUEUED = "QUEUED"
     IN_PROGRESS = "IN_PROGRESS"
@@ -86,6 +87,8 @@ class CreateJob(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     package_input_folder: Optional[bool] = None
+    depends_on: Optional[str] = None
+    workflow_id: str = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -148,6 +151,8 @@ class DescribeJob(BaseModel):
     downloaded: bool = False
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
+    depends_on: Optional[str] = None
+    workflow_id: str = None
 
     class Config:
         orm_mode = True
@@ -193,6 +198,7 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
+    depends_on: Optional[str] = None
 
 
 class DeleteJob(BaseModel):

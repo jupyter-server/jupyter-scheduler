@@ -57,9 +57,10 @@ class DescribeWorkflow(BaseModel):
         orm_mode = True
 
 
-class DescribeTask(BaseModel):
-    dependsOn: List[str] = []
-    status: Status = Status.CREATED
+class UpdateWorkflow(BaseModel):
+    workflow_id: str
+    tasks: List[str] = None
+    status: Status = None
 
     class Config:
         orm_mode = True

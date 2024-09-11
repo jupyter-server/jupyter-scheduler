@@ -19,7 +19,7 @@ from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, Workflow, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp
-from jupyter_scheduler.workflows import DescribeTask, DescribeWorkflow
+from jupyter_scheduler.workflows import DescribeWorkflow
 
 
 class ExecutionManager(ABC):

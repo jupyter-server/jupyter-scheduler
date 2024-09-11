@@ -372,6 +372,7 @@ export namespace Scheduler {
     timezone?: string;
     active?: boolean;
     input_uri?: string;
+    depends_on?: string[];
   }
 
   export interface IDescribeJobDefinition {
@@ -418,6 +419,8 @@ export namespace Scheduler {
     output_formats?: string[];
     compute_type?: string;
     package_input_folder?: boolean;
+    depends_on?: string[];
+    workflow_id?: string;
   }
 
   export interface ICreateJobFromDefinition {
@@ -467,6 +470,8 @@ export namespace Scheduler {
     end_time?: number;
     downloaded: boolean;
     package_input_folder?: boolean;
+    depends_on?: string[];
+    workflow_id?: string;
   }
 
   export interface ICreateJobResponse {
