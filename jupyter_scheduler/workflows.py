@@ -3,7 +3,6 @@ from typing import List
 
 from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
-
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
     InputUriError,
@@ -26,8 +25,6 @@ class WorkflowHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             workflow_id = await ensure_async(
                 self.scheduler.create_workflow(CreateWorkflow(**payload))
             )
-            self.log.info(payload)
-            print(payload)
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e

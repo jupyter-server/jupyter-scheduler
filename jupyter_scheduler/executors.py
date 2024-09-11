@@ -36,11 +36,11 @@ class ExecutionManager(ABC):
 
     def __init__(
         self,
-        job_id: str,
-        workflow_id: str,
-        root_dir: str,
         db_url: str,
-        staging_paths: Dict[str, str],
+        job_id: str = None,
+        workflow_id: str = None,
+        root_dir: str = None,
+        staging_paths: Dict[str, str] = None,
     ):
         self.job_id = job_id
         self.workflow_id = workflow_id
@@ -86,7 +86,6 @@ class ExecutionManager(ABC):
             self.on_complete()
 
     def process_workflow(self):
-
         self.before_start_workflow()
         try:
             self.execute_workflow()
@@ -205,7 +204,7 @@ class DefaultExecutionManager(ExecutionManager):
 
         return tasks_data_obj
 
-    @flow()
+    @flow
     def execute_workflow(self):
 
         tasks_info = self.get_task_data()
