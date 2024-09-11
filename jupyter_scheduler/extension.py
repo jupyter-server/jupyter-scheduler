@@ -39,7 +39,7 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/config", ConfigHandler),
         (r"scheduler/worklows", WorkflowHandler),
         (
-            r"scheduler/worklows/{}/run".format(WORKFLOW_ID_REGEX),
+            fr"scheduler/worklows/{WORKFLOW_ID_REGEX}/run",
             WorkflowRunHandler,
         ),
     ]
