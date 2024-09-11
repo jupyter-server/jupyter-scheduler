@@ -21,6 +21,7 @@ from .handlers import (
 
 JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+(?:-\w+)+)"
 JOB_ID_REGEX = r"(?P<job_id>\w+(?:-\w+)+)"
+WORKFLOW_ID_REGEX = r"(?P<workflow_id>\w+(?:-\w+)+)"
 
 
 class SchedulerApp(ExtensionApp):
@@ -37,6 +38,9 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
         (r"scheduler/config", ConfigHandler),
         (r"scheduler/worklows", WorkflowHandler),
+        (r"scheduler/worklows/%s/run" % (WORKFLOW_ID_REGEX, JOB_ID_REGEX), WorkflowHandler),
+        (r"scheduler/worklows/%s/jobs" % WORKFLOW_ID_REGEX, WorkflowHandler),
+        (r"scheduler/worklows/%s/jobs/%s" % (WORKFLOW_ID_REGEX, JOB_ID_REGEX), WorkflowHandler),
     ]
 
     drop_tables = Bool(False, config=True, help="Drop the database tables before starting.")
