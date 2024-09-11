@@ -55,3 +55,14 @@ class DescribeWorkflow(BaseModel):
     workflow_id: str
     tasks: List[str] = None
     status: Status = Status.CREATED
+
+    class Config:
+        orm_mode = True
+
+
+class DescribeTask(BaseModel):
+    dependsOn: List[str] = []
+    status: Status = Status.CREATED
+
+    class Config:
+        orm_mode = True

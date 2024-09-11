@@ -541,6 +541,8 @@ class Scheduler(BaseScheduler):
             session.commit()
 
             execution_manager = self.execution_manager_class(
+                job_id="123",
+                staging_paths=dict(),
                 workflow_id=workflow.workflow_id,
                 root_dir=self.root_dir,
                 db_url=self.db_url,
