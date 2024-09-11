@@ -3,6 +3,7 @@ from typing import List
 
 from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
+
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
     InputUriError,
