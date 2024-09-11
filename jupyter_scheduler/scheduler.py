@@ -532,23 +532,18 @@ class Scheduler(BaseScheduler):
         return job_id
 
     def create_workflow(self, model: CreateWorkflow) -> str:
-
         with self.db_session() as session:
-
             workflow = Workflow(**model.dict(exclude_none=True))
-
             session.add(workflow)
             session.commit()
+            return workflow.workflow_id
 
-            execution_manager = self.execution_manager_class(
-                workflow_id=workflow.workflow_id,
-                db_url=self.db_url,
-            )
-            execution_manager.process_workflow()
-            session.commit()
-
-            workflow_id = workflow.workflow_id
-
+    def run_workflow(self, workflow_id: str) -> str:
+        execution_manager = self.execution_manager_class(
+            workflow_id=workflow_id,
+            db_url=self.db_url,
+        )
+        execution_manager.process_workflow()
         return workflow_id
 
     def update_job(self, job_id: str, model: UpdateJob):

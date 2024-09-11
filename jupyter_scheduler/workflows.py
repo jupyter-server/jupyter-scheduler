@@ -45,6 +45,30 @@ class WorkflowHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             self.finish(json.dumps(dict(workflow_id=workflow_id)))
 
 
+class WorkflowRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    @authenticated
+    async def post(self, workflow_id: str):
+        try:
+            workflow_id = await ensure_async(self.scheduler.run_workflow(workflow_id))
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except InputUriError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except IdempotencyTokenError as e:
+            self.log.exception(e)
+            raise HTTPError(409, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(500, "Unexpected error occurred during creation of a workflow.") from e
+        else:
+            self.finish(json.dumps(dict(workflow_id=workflow_id)))
+
+
 class CreateWorkflow(BaseModel):
     tasks: List[str]
 
