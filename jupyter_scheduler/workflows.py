@@ -1,5 +1,5 @@
 import json
-from typing import List
+from typing import List, Optional
 
 from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
@@ -71,7 +71,11 @@ class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler)
                 "Error during workflow job creation. workflow_id in the URL and payload don't match.",
             )
         try:
-            job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload), run=False))
+            job_id = await ensure_async(
+                self.scheduler.create_workflow_task(
+                    workflow_id=workflow_id, model=CreateJob(**payload)
+                )
+            )
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -175,3 +179,10 @@ class UpdateWorkflow(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UpdateWorkflow(BaseModel):
+    status: Optional[Status] = None
+    name: Optional[str] = None
+    compute_type: Optional[str] = None
+    depends_on: Optional[str] = None
