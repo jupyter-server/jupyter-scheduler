@@ -6,7 +6,11 @@ from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
 from jupyter_scheduler.orm import create_tables
-from jupyter_scheduler.workflows import WorkflowsHandler, WorkflowsRunHandler, WorkflowsTasksHandler
+from jupyter_scheduler.workflows import (
+    WorkflowsHandler,
+    WorkflowsRunHandler,
+    WorkflowsTasksHandler,
+)
 
 from .handlers import (
     BatchJobHandler,
