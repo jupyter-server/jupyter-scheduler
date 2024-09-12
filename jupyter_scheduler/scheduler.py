@@ -473,7 +473,7 @@ class Scheduler(BaseScheduler):
             destination_dir=staging_dir,
         )
 
-    def create_job(self, model: CreateJob) -> str:
+    def create_job(self, model: CreateJob, run: bool = True) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
 
@@ -513,6 +513,9 @@ class Scheduler(BaseScheduler):
                 session.commit()
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
+
+            if not run:
+                return job.job_id
 
             # The MP context forces new processes to not be forked on Linux.
             # This is necessary because `asyncio.get_event_loop()` is bugged in

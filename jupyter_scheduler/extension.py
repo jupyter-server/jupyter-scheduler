@@ -6,7 +6,7 @@ from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
 from jupyter_scheduler.orm import create_tables
-from jupyter_scheduler.workflows import WorkflowHandler, WorkflowRunHandler
+from jupyter_scheduler.workflows import WorkflowsHandler, WorkflowsRunHandler, WorkflowsTasksHandler
 
 from .handlers import (
     BatchJobHandler,
@@ -37,11 +37,15 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/job_definitions/%s/jobs" % JOB_DEFINITION_ID_REGEX, JobFromDefinitionHandler),
         (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
         (r"scheduler/config", ConfigHandler),
-        (r"scheduler/worklows", WorkflowHandler),
-        (fr"scheduler/worklows/{WORKFLOW_ID_REGEX}", WorkflowHandler),
+        (r"scheduler/worklows", WorkflowsHandler),
+        (rf"scheduler/worklows/{WORKFLOW_ID_REGEX}", WorkflowsHandler),
         (
             rf"scheduler/worklows/{WORKFLOW_ID_REGEX}/run",
-            WorkflowRunHandler,
+            WorkflowsRunHandler,
+        ),
+        (
+            rf"scheduler/worklows/{WORKFLOW_ID_REGEX}/tasks",
+            WorkflowsTasksHandler,
         ),
     ]
 

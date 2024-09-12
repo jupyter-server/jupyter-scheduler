@@ -14,11 +14,11 @@ from jupyter_scheduler.handlers import (
     ExtensionHandlerMixin,
     JobHandlersMixin,
 )
-from jupyter_scheduler.models import Status
+from jupyter_scheduler.models import CreateJob, Status, UpdateJob
 from jupyter_scheduler.pydantic_v1 import BaseModel, ValidationError
 
 
-class WorkflowHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def post(self):
         payload = self.get_json_body()
@@ -60,7 +60,76 @@ class WorkflowHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             self.finish(workflow.json())
 
 
-class WorkflowRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    @authenticated
+    async def post(self, workflow_id: str):
+        print("WorkflowsTasksHandler post")
+        payload = self.get_json_body()
+        if workflow_id != payload.get("workflow_id"):
+            raise HTTPError(
+                400,
+                "Error during workflow job creation. workflow_id in the URL and payload don't match.",
+            )
+        try:
+            job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload), run=False))
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except InputUriError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except IdempotencyTokenError as e:
+            self.log.exception(e)
+            raise HTTPError(409, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(
+                500, "Unexpected error occurred during creation of workflow job."
+            ) from e
+        else:
+            self.finish(json.dumps(dict(job_id=job_id)))
+
+    @authenticated
+    async def patch(self, workflow_id: str, job_id: str):
+        payload = self.get_json_body()
+        if workflow_id != payload.get("workflow_id", None):
+            raise HTTPError(
+                400,
+                "Error during workflow job creation. workflow_id in the URL and payload don't match.",
+            )
+        status = payload.get("status")
+        status = Status(status) if status else None
+
+        if status and status != Status.STOPPED:
+            raise HTTPError(
+                500,
+                "Invalid value for field 'status'. Workflow job status can only be updated to status 'STOPPED' after creation.",
+            )
+        try:
+            if status:
+                await ensure_async(self.scheduler.stop_job(job_id))
+            else:
+                await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(
+                500, "Unexpected error occurred while updating the workflow job."
+            ) from e
+        else:
+            self.set_status(204)
+            self.finish()
+
+
+class WorkflowsRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def post(self, workflow_id: str):
         try:
@@ -79,7 +148,9 @@ class WorkflowRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(500, str(e)) from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred during creation of a workflow.") from e
+            raise HTTPError(
+                500, "Unexpected error occurred during attempt to run a workflow."
+            ) from e
         else:
             self.finish(json.dumps(dict(workflow_id=workflow_id)))
 
