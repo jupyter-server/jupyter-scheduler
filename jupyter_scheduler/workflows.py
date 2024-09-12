@@ -21,7 +21,7 @@ from jupyter_scheduler.pydantic_v1 import BaseModel, ValidationError
 class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def post(self):
-        payload = self.get_json_body()
+        payload = self.get_json_body() or {}
         try:
             workflow_id = await ensure_async(
                 self.scheduler.create_workflow(CreateWorkflow(**payload))
@@ -160,7 +160,7 @@ class WorkflowsRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 
 
 class CreateWorkflow(BaseModel):
-    tasks: List[str]
+    tasks: List[str] = []
 
 
 class DescribeWorkflow(BaseModel):
