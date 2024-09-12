@@ -114,7 +114,7 @@ class Workflow(Base):
     __table_args__ = {"extend_existing": True}
     workflow_id = Column(String(36), primary_key=True, default=generate_uuid)
     tasks = Column(JsonType(1024))
-    status = Column(String(64), default=Status.DRAFT)
+    status = Column(String(64), default=Status.CREATED)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 

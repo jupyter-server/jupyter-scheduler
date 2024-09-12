@@ -44,6 +44,21 @@ class WorkflowHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         else:
             self.finish(json.dumps(dict(workflow_id=workflow_id)))
 
+    @authenticated
+    async def get(self, workflow_id: str = None):
+        if not workflow_id:
+            raise HTTPError(400, "Missing workflow_id in the request URL.")
+        try:
+            workflow = await ensure_async(self.scheduler.get_workflow(workflow_id))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(500, "Unexpected error occurred while getting workflow details.") from e
+        else:
+            self.finish(workflow.json())
+
 
 class WorkflowRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated

@@ -46,7 +46,7 @@ from jupyter_scheduler.utils import (
     create_output_directory,
     create_output_filename,
 )
-from jupyter_scheduler.workflows import CreateWorkflow
+from jupyter_scheduler.workflows import CreateWorkflow, DescribeWorkflow
 
 
 class BaseScheduler(LoggingConfigurable):
@@ -113,7 +113,15 @@ class BaseScheduler(LoggingConfigurable):
         raise NotImplementedError("must be implemented by subclass")
 
     def create_workflow(self, model: CreateWorkflow) -> str:
-        """Creates a new workflow record, may trigger execution of the workflow."""
+        """Creates a new workflow record."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def run_workflow(self, workflow_id: str) -> str:
+        """Triggers execution of the workflow."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def get_workflow(self, workflow_id: str) -> DescribeWorkflow:
+        """Returns workflow record for a single workflow."""
         raise NotImplementedError("must be implemented by subclass")
 
     def update_job(self, job_id: str, model: UpdateJob):
@@ -545,6 +553,14 @@ class Scheduler(BaseScheduler):
         )
         execution_manager.process_workflow()
         return workflow_id
+
+    def get_workflow(self, workflow_id: str) -> DescribeWorkflow:
+        with self.db_session() as session:
+            workflow_record = (
+                session.query(Workflow).filter(Workflow.workflow_id == workflow_id).one()
+            )
+        model = DescribeWorkflow.from_orm(workflow_record)
+        return model
 
     def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:
