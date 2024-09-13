@@ -173,16 +173,8 @@ class DescribeWorkflow(BaseModel):
 
 
 class UpdateWorkflow(BaseModel):
-    workflow_id: str
-    tasks: List[str] = None
-    status: Status = None
+    tasks: Optional[List[str]] = None
+    status: Optional[Status] = None
 
     class Config:
         orm_mode = True
-
-
-class UpdateWorkflow(BaseModel):
-    status: Optional[Status] = None
-    name: Optional[str] = None
-    compute_type: Optional[str] = None
-    depends_on: Optional[str] = None

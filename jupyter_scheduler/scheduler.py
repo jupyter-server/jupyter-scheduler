@@ -570,12 +570,19 @@ class Scheduler(BaseScheduler):
         return model
 
     def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
-        job_id = self.scheduler.create_job(model, run=False)
-        workflow: DescribeWorkflow = self.scheduler.get_workflow(workflow_id)
+        job_id = self.create_job(model, run=False)
+        workflow: DescribeWorkflow = self.get_workflow(workflow_id)
         updated_tasks = (workflow.tasks or [])[:]
         updated_tasks.append(job_id)
-        self.scheduler.update_workflow(workflow_id, UpdateWorkflow(depends_on=updated_tasks))
+        self.update_workflow(workflow_id, UpdateWorkflow(tasks=updated_tasks))
         return job_id
+
+    def update_workflow(self, workflow_id: str, model: UpdateWorkflow):
+        with self.db_session() as session:
+            session.query(Workflow).filter(Workflow.workflow_id == workflow_id).update(
+                model.dict(exclude_none=True)
+            )
+            session.commit()
 
     def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:

@@ -86,7 +86,7 @@ class CreateJob(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     package_input_folder: Optional[bool] = None
-    depends_on: Optional[str] = None
+    depends_on: Optional[List[str]] = None
     workflow_id: str = None
 
     @root_validator
@@ -150,7 +150,7 @@ class DescribeJob(BaseModel):
     downloaded: bool = False
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
-    depends_on: Optional[str] = None
+    depends_on: Optional[List[str]] = None
     workflow_id: str = None
 
     class Config:
@@ -197,7 +197,7 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
-    depends_on: Optional[str] = None
+    depends_on: Optional[List[str]] = None
 
 
 class DeleteJob(BaseModel):
