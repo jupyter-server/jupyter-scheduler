@@ -2,9 +2,14 @@ import multiprocessing as mp
 import os
 import random
 import shutil
+import signal
+import subprocess
+import sys
 from typing import Dict, List, Optional, Type, Union
+from uuid import uuid4
 
 import fsspec
+import mlflow
 import psutil
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
@@ -44,6 +49,10 @@ from jupyter_scheduler.utils import (
     create_output_directory,
     create_output_filename,
 )
+
+MLFLOW_SERVER_HOST = "127.0.0.1"
+MLFLOW_SERVER_PORT = "5000"
+MLFLOW_SERVER_URI = f"http://{MLFLOW_SERVER_HOST}:{MLFLOW_SERVER_PORT}"
 
 
 class BaseScheduler(LoggingConfigurable):
@@ -399,6 +408,33 @@ class Scheduler(BaseScheduler):
 
     task_runner = Instance(allow_none=True, klass="jupyter_scheduler.task_runner.BaseTaskRunner")
 
+    def start_mlflow_server(self):
+        mlflow_process = subprocess.Popen(
+            [
+                "mlflow",
+                "server",
+                "--host",
+                MLFLOW_SERVER_HOST,
+                "--port",
+                MLFLOW_SERVER_PORT,
+            ],
+            preexec_fn=os.setsid,
+        )
+        mlflow.set_tracking_uri(MLFLOW_SERVER_URI)
+        return mlflow_process
+
+    def stop_mlflow_server(self):
+        if self.mlflow_process is not None:
+            os.killpg(os.getpgid(self.mlflow_process.pid), signal.SIGTERM)
+            self.mlflow_process.wait()
+            self.mlflow_process = None
+            print("MLFlow server stopped")
+
+    def mlflow_signal_handler(self, signum, frame):
+        print("Shutting down MLFlow server")
+        self.stop_mlflow_server()
+        sys.exit(0)
+
     def __init__(
         self,
         root_dir: str,
@@ -413,6 +449,10 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+
+        self.mlflow_process = self.start_mlflow_server()
+        signal.signal(signal.SIGINT, self.mlflow_signal_handler)
+        signal.signal(signal.SIGTERM, self.mlflow_signal_handler)
 
     @property
     def db_session(self):
@@ -461,6 +501,21 @@ class Scheduler(BaseScheduler):
 
             if not model.output_formats:
                 model.output_formats = []
+
+            mlflow_client = mlflow.MlflowClient()
+
+            if model.job_definition_id and model.mlflow_experiment_id:
+                experiment_id = model.mlflow_experiment_id
+            else:
+                experiment_id = mlflow_client.create_experiment(f"{model.input_filename}-{uuid4()}")
+                model.mlflow_experiment_id = experiment_id
+                input_file_path = os.path.join(self.root_dir, model.input_uri)
+                mlflow.log_artifact(input_file_path, "input")
+
+            mlflow_run = mlflow_client.create_run(
+                experiment_id=experiment_id, run_name=f"{model.input_filename}-{uuid4()}"
+            )
+            model.mlflow_run_id = mlflow_run.info.run_id
 
             job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
 
@@ -608,6 +663,12 @@ class Scheduler(BaseScheduler):
         with self.db_session() as session:
             if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
+
+            mlflow_client = mlflow.MlflowClient()
+            experiment_id = mlflow_client.create_experiment(f"{model.input_filename}-{uuid4()}")
+            model.mlflow_experiment_id = experiment_id
+            input_file_path = os.path.join(self.root_dir, model.input_uri)
+            mlflow.log_artifact(input_file_path, "input")
 
             job_definition = JobDefinition(**model.dict(exclude_none=True, exclude={"input_uri"}))
             session.add(job_definition)

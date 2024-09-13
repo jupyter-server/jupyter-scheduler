@@ -39,6 +39,11 @@ import {
   LabeledValue
 } from '../../components/labeled-value';
 import { getErrorMessage } from '../../util/errors';
+import { OpenInNew } from '@mui/icons-material';
+
+const MLFLOW_SERVER_HOST = '127.0.0.1';
+const MLFLOW_SERVER_PORT = '5000';
+const MLFLOW_SERVER_URI = `http://${MLFLOW_SERVER_HOST}:${MLFLOW_SERVER_PORT}`;
 
 export interface IJobDetailProps {
   app: JupyterFrontEnd;
@@ -167,6 +172,18 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
             {trans.__('Download Job Files')}
           </Button>
         )}
+      {props.model?.mlflowLogging === true && (
+        <Button
+          variant="outlined"
+          onClick={() => {
+            const mlFlowUrl = `${MLFLOW_SERVER_URI}/#/experiments/${props.model?.mlflowExperimentId}/runs/${props.model?.mlflowRunId}`;
+            window.open(mlFlowUrl);
+          }}
+          endIcon={<OpenInNew />}
+        >
+          {trans.__('Open in MLFlow')}
+        </Button>
+      )}
       {props.model !== null && props.model.status === 'IN_PROGRESS' && (
         <ConfirmDialogStopButton
           handleStop={handleStopJob}
@@ -250,6 +267,23 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
         value: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
       },
+      {
+        value: props.model.mlflowLogging ? trans.__('Yes') : trans.__('No'),
+        label: trans.__('MLFlow Logging')
+      }
+    ],
+    [
+      {
+        value: props.model.mlflowExperimentId,
+        label: trans.__('MLFLow Experiment Id')
+      },
+      {
+        value: props.model.mlflowRunId,
+
+        label: trans.__('MLFlow Run Id')
+      }
+    ],
+    [
       {
         value: props.model.packageInputFolder
           ? trans.__('Yes')

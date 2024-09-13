@@ -1,3 +1,4 @@
+import base64
 import io
 import os
 import shutil
@@ -7,6 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 import fsspec
+import mlflow
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
@@ -14,6 +16,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
+from jupyter_scheduler.scheduler import MLFLOW_SERVER_URI
 from jupyter_scheduler.utils import get_utc_timestamp
 
 
@@ -143,6 +146,8 @@ class DefaultExecutionManager(ExecutionManager):
         finally:
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
+            if getattr(job, "mlflow_logging", False):
+                self.log_to_mlflow(job, nb)
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
@@ -172,6 +177,103 @@ class DefaultExecutionManager(ExecutionManager):
             output, _ = cls().from_notebook_node(notebook_node)
             with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
                 f.write(output)
+
+    def log_to_mlflow(self, job, nb):
+        mlflow.set_tracking_uri(MLFLOW_SERVER_URI)
+        with mlflow.start_run(run_id=job.mlflow_run_id):
+            if job.parameters:
+                mlflow.log_params(job.parameters)
+
+            for cell_idx, cell in enumerate(nb.cells):
+                if "tags" in cell.metadata:
+                    if "mlflow_log" in cell.metadata["tags"]:
+                        self.mlflow_log(cell, cell_idx)
+                    elif "mlflow_log_input" in cell.metadata["tags"]:
+                        self.mlflow_log_input(cell, cell_idx)
+                    elif "mlflow_log_output" in cell.metadata["tags"]:
+                        self.mlflow_log_output(cell, cell_idx)
+
+            for output_format in job.output_formats:
+                output_path = self.staging_paths[output_format]
+                directory, file_name_with_extension = os.path.split(output_path)
+                file_name, file_extension = os.path.splitext(file_name_with_extension)
+                file_name_parts = file_name.split("-")
+                file_name_without_timestamp = "-".join(file_name_parts[:-7])
+                file_name_final = f"{file_name_without_timestamp}{file_extension}"
+                new_output_path = os.path.join(directory, file_name_final)
+                shutil.copy(output_path, new_output_path)
+                timestamp = "-".join(file_name_parts[-7:]).split(".")[0]
+                mlflow.log_param("job_created", timestamp)
+                mlflow.log_artifact(new_output_path, "")
+                os.remove(new_output_path)
+
+    def mlflow_log(self, cell, cell_idx):
+        self.mlflow_log_input(cell, cell_idx)
+        self.mlflow_log_output(cell, cell_idx)
+
+    def mlflow_log_input(self, cell, cell_idx):
+        mlflow.log_text(cell.source, f"cell_{cell_idx}_input.txt")
+
+    def mlflow_log_output(self, cell, cell_idx):
+        if cell.cell_type == "code" and hasattr(cell, "outputs"):
+            self._log_code_output(cell_idx, cell.outputs)
+        elif cell.cell_type == "markdown":
+            self._log_markdown_output(cell, cell_idx)
+
+    def _log_code_output(self, cell_idx, outputs):
+        for output_idx, output in enumerate(outputs):
+            if output.output_type == "stream":
+                self._log_stream_output(cell_idx, output_idx, output)
+            elif hasattr(output, "data"):
+                for output_data_idx, output_data in enumerate(output.data):
+                    if output_data == "text/plain":
+                        mlflow.log_text(
+                            output.data[output_data],
+                            f"cell_{cell_idx}_output_{output_data_idx}.txt",
+                        )
+                    elif output_data == "text/html":
+                        self._log_html_output(output, cell_idx, output_data_idx)
+                    elif output_data == "application/pdf":
+                        self._log_pdf_output(output, cell_idx, output_data_idx)
+                    elif output_data.startswith("image"):
+                        self._log_image_output(output, cell_idx, output_data_idx, output_data)
+
+    def _log_stream_output(self, cell_idx, output_idx, output):
+        mlflow.log_text("".join(output.text), f"cell_{cell_idx}_output_{output_idx}.txt")
+
+    def _log_html_output(self, output, cell_idx, output_idx):
+        if "text/html" in output.data:
+            html_content = output.data["text/html"]
+            if isinstance(html_content, list):
+                html_content = "".join(html_content)
+            mlflow.log_text(html_content, f"cell_{cell_idx}_output_{output_idx}.html")
+
+    def _log_pdf_output(self, output, cell_idx, output_idx):
+        pdf_data = base64.b64decode(output.data["application/pdf"].split(",")[1])
+        with open(f"cell_{cell_idx}_output_{output_idx}.pdf", "wb") as pdf_file:
+            pdf_file.write(pdf_data)
+        mlflow.log_artifact(f"cell_{cell_idx}_output_{output_idx}.pdf")
+
+    def _log_image_output(self, output, cell_idx, output_idx, mime_type):
+        image_data_str = output.data[mime_type]
+        if "," in image_data_str:
+            image_data_base64 = image_data_str.split(",")[1]
+        else:
+            image_data_base64 = image_data_str
+
+        try:
+            image_data = base64.b64decode(image_data_base64)
+            image_extension = mime_type.split("/")[1]
+            filename = f"cell_{cell_idx}_output_{output_idx}.{image_extension}"
+            with open(filename, "wb") as image_file:
+                image_file.write(image_data)
+            mlflow.log_artifact(filename)
+            os.remove(filename)
+        except Exception as e:
+            print(f"Error logging image output in cell {cell_idx}, output {output_idx}: {e}")
+
+    def _log_markdown_output(self, cell, cell_idx):
+        mlflow.log_text(cell.source, f"cell_{cell_idx}_output_0.md")
 
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
