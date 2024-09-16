@@ -521,6 +521,11 @@ class Scheduler(BaseScheduler):
             if not run:
                 return job.job_id
 
+            job_id = self.run_job(job=job, staging_paths=staging_paths)
+            return job_id
+
+    def run_job(self, job: Job, staging_paths: Dict[str, str]) -> str:
+        with self.db_session() as session:
             # The MP context forces new processes to not be forked on Linux.
             # This is necessary because `asyncio.get_event_loop()` is bugged in
             # forked processes in Python versions below 3.12. This method is
@@ -556,6 +561,7 @@ class Scheduler(BaseScheduler):
     def run_workflow(self, workflow_id: str) -> str:
         execution_manager = self.execution_manager_class(
             workflow_id=workflow_id,
+            root_dir=self.root_dir,
             db_url=self.db_url,
         )
         execution_manager.process_workflow()
@@ -855,6 +861,28 @@ class Scheduler(BaseScheduler):
             staging_paths[output_format] = os.path.join(self.staging_path, id, filename)
 
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
+
+        return staging_paths
+
+    @staticmethod
+    def get_staging_paths(model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+        staging_paths = {}
+        if not model:
+            return staging_paths
+
+        id = model.job_id if isinstance(model, DescribeJob) else model.job_definition_id
+
+        for output_format in model.output_formats:
+            filename = create_output_filename(
+                model.input_filename, model.create_time, output_format
+            )
+            staging_paths[output_format] = os.path.join(
+                os.path.join(jupyter_data_dir(), "scheduler_staging_area"), id, filename
+            )
+
+        staging_paths["input"] = os.path.join(
+            os.path.join(jupyter_data_dir(), "scheduler_staging_area"), id, model.input_filename
+        )
 
         return staging_paths
 

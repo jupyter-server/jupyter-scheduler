@@ -3,6 +3,7 @@ import os
 import shutil
 import tarfile
 import traceback
+import multiprocessing as mp
 from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Dict, List
@@ -15,9 +16,10 @@ from prefect import flow, task
 from prefect.futures import as_completed
 from prefect_dask.task_runners import DaskTaskRunner
 
-from jupyter_scheduler.models import DescribeJob, JobFeature, Status
+from jupyter_scheduler.models import CreateJob, DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, Workflow, create_session
 from jupyter_scheduler.parameterize import add_parameters
+from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.utils import get_utc_timestamp
 from jupyter_scheduler.workflows import DescribeWorkflow
 
@@ -186,36 +188,44 @@ class ExecutionManager(ABC):
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
-    @task(task_run_name="{task_id}")
-    def execute_task(self, task_id: str):
-        print(f"Task {task_id} executed")
-        return task_id
+    @task
+    def execute_task(self, job: Job):
+        with self.db_session() as session:
+            staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
+
+            execution_manager = DefaultExecutionManager(
+                job_id=job.job_id,
+                staging_paths=staging_paths,
+                root_dir=self.root_dir,
+                db_url=self.db_url,
+            )
+            execution_manager.process()
+
+            job.pid = 1  # TODO: fix pid hardcode
+            job_id = job.job_id
+
+        return job_id
 
     @task
-    def get_task_data(self, task_ids: List[str] = []):
-        # TODO: get orm objects from Task table of the db, create DescribeTask for each
-        tasks_data_obj = [
-            {"id": "task0", "dependsOn": ["task3"]},
-            {"id": "task4", "dependsOn": ["task0", "task1", "task2", "task3"]},
-            {"id": "task1", "dependsOn": []},
-            {"id": "task2", "dependsOn": ["task1"]},
-            {"id": "task3", "dependsOn": ["task1", "task2"]},
-        ]
+    def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
+        with self.db_session() as session:
+            tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
 
-        return tasks_data_obj
+        return tasks
 
     @flow
     def execute_workflow(self):
+        tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
+        tasks = {task.job_id: task for task in tasks_info}
 
-        tasks_info = self.get_task_data()
-        tasks = {task["id"]: task for task in tasks_info}
-
-        # create Prefect tasks, use caching to ensure Prefect tasks are created before wait_for is called on them
         @lru_cache(maxsize=None)
         def make_task(task_id):
-            deps = tasks[task_id]["dependsOn"]
+            """Create a delayed object for the given task recursively creating delayed objects for all tasks it depends on"""
+            deps = tasks[task_id].depends_on or []
+            name = tasks[task_id].name
+            job_id = tasks[task_id].job_id
             return self.execute_task.submit(
-                task_id, wait_for=[make_task(dep_id) for dep_id in deps]
+                tasks[task_id], wait_for=[make_task(dep_id) for dep_id in deps]
             )
 
         final_tasks = [make_task(task_id) for task_id in tasks]
