@@ -63,7 +63,6 @@ class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
 class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def post(self, workflow_id: str):
-        print("WorkflowsTasksHandler post")
         payload = self.get_json_body()
         if workflow_id != payload.get("workflow_id"):
             raise HTTPError(

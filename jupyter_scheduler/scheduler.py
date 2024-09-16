@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
-from dask.distributed import Client as DaskClient
 from distributed import LocalCluster
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
@@ -399,12 +398,6 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.join(self.root_dir, self.output_directory, output_dir_name)
 
-    async def stop_extension(self):
-        """
-        Placeholder method for a cleanup code to run when the server is stopping.
-        """
-        pass
-
 
 class Scheduler(BaseScheduler):
     _db_session = None
@@ -417,12 +410,6 @@ class Scheduler(BaseScheduler):
         help=_i18n(
             "The class that handles the job creation of scheduled jobs from job definitions."
         ),
-    )
-
-    dask_cluster_url = Unicode(
-        allow_none=True,
-        config=True,
-        help="URL of the Dask cluster to connect to.",
     )
 
     db_url = Unicode(help=_i18n("Scheduler database url"))
@@ -443,15 +430,6 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
-
-        self.dask_client: DaskClient = self._get_dask_client()
-
-    def _get_dask_client(self):
-        """Creates and configures a Dask client."""
-        if self.dask_cluster_url:
-            return DaskClient(self.dask_cluster_url)
-        cluster = LocalCluster(processes=True)
-        return DaskClient(cluster)
 
     @property
     def db_session(self):
@@ -874,13 +852,6 @@ class Scheduler(BaseScheduler):
         )
 
         return staging_paths
-
-    async def stop_extension(self):
-        """
-        Cleanup code to run when the server is stopping.
-        """
-        if self.dask_client:
-            await self.dask_client.close()
 
 
 class ArchivingScheduler(Scheduler):

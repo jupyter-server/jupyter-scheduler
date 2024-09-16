@@ -14,7 +14,6 @@ import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from prefect import flow, task
 from prefect.futures import as_completed
-from prefect_dask.task_runners import DaskTaskRunner
 
 from jupyter_scheduler.models import CreateJob, DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, Workflow, create_session
