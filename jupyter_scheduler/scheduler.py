@@ -1,4 +1,3 @@
-import multiprocessing as mp
 import os
 import random
 import shutil
@@ -526,25 +525,15 @@ class Scheduler(BaseScheduler):
 
     def run_job(self, job: Job, staging_paths: Dict[str, str]) -> str:
         with self.db_session() as session:
-            # The MP context forces new processes to not be forked on Linux.
-            # This is necessary because `asyncio.get_event_loop()` is bugged in
-            # forked processes in Python versions below 3.12. This method is
-            # called by `jupyter_core` by `nbconvert` in the default executor.
-            #
-            # See: https://github.com/python/cpython/issues/66285
-            # See also: https://github.com/jupyter/jupyter_core/pull/362
-            mp_ctx = mp.get_context("spawn")
-            p = mp_ctx.Process(
-                target=self.execution_manager_class(
-                    job_id=job.job_id,
-                    staging_paths=staging_paths,
-                    root_dir=self.root_dir,
-                    db_url=self.db_url,
-                ).process
+            execution_manager = self.execution_manager_class(
+                job_id=job.job_id,
+                staging_paths=staging_paths,
+                root_dir=self.root_dir,
+                db_url=self.db_url,
             )
-            p.start()
+            execution_manager.process()
 
-            job.pid = p.pid
+            job.pid = 1  # TODO: fix pid hardcode
             session.commit()
 
             job_id = job.job_id

@@ -188,7 +188,7 @@ class ExecutionManager(ABC):
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
-    @task
+    @task(name="Execute workflow task")
     def execute_task(self, job: Job):
         with self.db_session() as session:
             staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
@@ -206,14 +206,14 @@ class DefaultExecutionManager(ExecutionManager):
 
         return job_id
 
-    @task
+    @task(name="Get workflow task records")
     def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
         with self.db_session() as session:
             tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
 
         return tasks
 
-    @flow
+    @flow(name="Execute workflow", flow_run_name="Execute workflow run")
     def execute_workflow(self):
         tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
         tasks = {task.job_id: task for task in tasks_info}
@@ -232,6 +232,7 @@ class DefaultExecutionManager(ExecutionManager):
         for future in as_completed(final_tasks):
             future.result()
 
+    @flow(name="Execute job", flow_run_name="Execute job run")
     def execute(self):
         job = self.model
 
@@ -254,6 +255,7 @@ class DefaultExecutionManager(ExecutionManager):
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
 
+    @task(name="Check for and add side effect files")
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
         input_notebook = os.path.relpath(self.staging_paths["input"])
@@ -276,6 +278,7 @@ class DefaultExecutionManager(ExecutionManager):
                 )
                 session.commit()
 
+    @task(name="Create output files")
     def create_output_files(self, job: DescribeJob, notebook_node):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)
