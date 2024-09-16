@@ -1,9 +1,9 @@
 import io
+import multiprocessing as mp
 import os
 import shutil
 import tarfile
 import traceback
-import multiprocessing as mp
 from abc import ABC, abstractmethod
 from functools import lru_cache
 from typing import Dict, List
