@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload Playwright Test report
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jupyter_scheduler-playwright-tests-linux
           path: |

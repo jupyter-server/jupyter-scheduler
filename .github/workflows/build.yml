@@ -58,7 +58,7 @@ jobs:
           pip uninstall -y "jupyter_scheduler" jupyterlab
 
       - name: Upload extension packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: extension-artifacts
           path: dist/jupyter_scheduler*

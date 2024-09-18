@@ -22,7 +22,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Distributions
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jupyter-scheduler-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
