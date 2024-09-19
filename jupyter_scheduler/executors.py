@@ -10,6 +10,8 @@ import fsspec
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
+from prefect import flow, task
+from prefect_dask import DaskTaskRunner
 
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
@@ -122,6 +124,7 @@ class ExecutionManager(ABC):
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
+    @flow(task_runner=DaskTaskRunner)
     def execute(self):
         job = self.model
 
@@ -144,6 +147,7 @@ class DefaultExecutionManager(ExecutionManager):
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
 
+    @task
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
         input_notebook = os.path.relpath(self.staging_paths["input"])
@@ -166,6 +170,7 @@ class DefaultExecutionManager(ExecutionManager):
                 )
                 session.commit()
 
+    @task
     def create_output_files(self, job: DescribeJob, notebook_node):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)
