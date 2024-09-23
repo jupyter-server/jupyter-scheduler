@@ -156,6 +156,7 @@ class DescribeWorkflow(BaseModel):
     workflow_id: str
     tasks: List[str] = None
     status: Status = Status.CREATED
+    active: Optional[bool] = None
 
     class Config:
         orm_mode = True
@@ -164,6 +165,7 @@ class DescribeWorkflow(BaseModel):
 class UpdateWorkflow(BaseModel):
     tasks: Optional[List[str]] = None
     status: Optional[Status] = None
+    active: Optional[bool] = None
 
     class Config:
         orm_mode = True
