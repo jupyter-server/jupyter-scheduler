@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
-from distributed import LocalCluster
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
