@@ -148,6 +148,79 @@ class WorkflowsRunHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             self.finish(json.dumps(dict(workflow_id=workflow_id)))
 
 
+class WorkflowDefinitionsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    @authenticated
+    async def post(self):
+        payload = self.get_json_body() or {}
+        try:
+            workflow_id = await ensure_async(
+                self.scheduler.create_workflow(CreateWorkflow(**payload))
+            )
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except InputUriError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except IdempotencyTokenError as e:
+            self.log.exception(e)
+            raise HTTPError(409, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(500, "Unexpected error occurred during creation of a workflow.") from e
+        else:
+            self.finish(json.dumps(dict(workflow_id=workflow_id)))
+
+    @authenticated
+    async def get(self, workflow_id: str = None):
+        if not workflow_id:
+            raise HTTPError(400, "Missing workflow_id in the request URL.")
+        try:
+            workflow = await ensure_async(self.scheduler.get_workflow(workflow_id))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(500, "Unexpected error occurred while getting workflow details.") from e
+        else:
+            self.finish(workflow.json())
+
+
+class WorkflowDefinitionsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    @authenticated
+    async def post(self, workflow_id: str):
+        payload = self.get_json_body()
+        try:
+            task_id = await ensure_async(
+                self.scheduler.create_workflow_task(
+                    workflow_id=workflow_id, model=CreateJob(**payload)
+                )
+            )
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except InputUriError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except IdempotencyTokenError as e:
+            self.log.exception(e)
+            raise HTTPError(409, str(e)) from e
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(
+                500, "Unexpected error occurred during creation of workflow job."
+            ) from e
+        else:
+            self.finish(json.dumps(dict(task_id=task_id)))
+
+
 class CreateWorkflow(BaseModel):
     tasks: List[str] = []
 
@@ -165,6 +238,38 @@ class DescribeWorkflow(BaseModel):
 class UpdateWorkflow(BaseModel):
     tasks: Optional[List[str]] = None
     status: Optional[Status] = None
+    active: Optional[bool] = None
+
+    class Config:
+        orm_mode = True
+
+
+class CreateWorkflowDefinition(BaseModel):
+    tasks: List[str] = []
+    # any field added to CreateWorkflow should also be added to this model as well
+    schedule: Optional[str] = None
+    timezone: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class DescribeWorkflowDefinition(BaseModel):
+    workflow_definition_id: str
+    tasks: List[str] = None
+    schedule: Optional[str] = None
+    timezone: Optional[str] = None
+    status: Status = Status.CREATED
+    active: Optional[bool] = None
+
+    class Config:
+        orm_mode = True
+
+
+class UpdateWorkflowDefinition(BaseModel):
+    tasks: Optional[List[str]] = None
+    schedule: Optional[str] = None
+    timezone: Optional[str] = None
     active: Optional[bool] = None
 
     class Config:
