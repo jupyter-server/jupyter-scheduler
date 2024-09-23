@@ -64,13 +64,8 @@ class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler)
     @authenticated
     async def post(self, workflow_id: str):
         payload = self.get_json_body()
-        if workflow_id != payload.get("workflow_id"):
-            raise HTTPError(
-                400,
-                "Error during workflow job creation. workflow_id in the URL and payload don't match.",
-            )
         try:
-            job_id = await ensure_async(
+            task_id = await ensure_async(
                 self.scheduler.create_workflow_task(
                     workflow_id=workflow_id, model=CreateJob(**payload)
                 )
@@ -93,16 +88,11 @@ class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler)
                 500, "Unexpected error occurred during creation of workflow job."
             ) from e
         else:
-            self.finish(json.dumps(dict(job_id=job_id)))
+            self.finish(json.dumps(dict(task_id=task_id)))
 
     @authenticated
-    async def patch(self, workflow_id: str, job_id: str):
+    async def patch(self, _: str, task_id: str):
         payload = self.get_json_body()
-        if workflow_id != payload.get("workflow_id", None):
-            raise HTTPError(
-                400,
-                "Error during workflow job creation. workflow_id in the URL and payload don't match.",
-            )
         status = payload.get("status")
         status = Status(status) if status else None
 
@@ -113,9 +103,9 @@ class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler)
             )
         try:
             if status:
-                await ensure_async(self.scheduler.stop_job(job_id))
+                await ensure_async(self.scheduler.stop_job(task_id))
             else:
-                await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
+                await ensure_async(self.scheduler.update_job(task_id, UpdateJob(**payload)))
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
