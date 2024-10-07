@@ -123,7 +123,7 @@ class Workflow(Base):
 class WorkflowDefinition(Base):
     __tablename__ = "workflow_definitions"
     __table_args__ = {"extend_existing": True}
-    workflow_id = Column(String(36), primary_key=True, default=generate_uuid)
+    workflow_definition_id = Column(String(36), primary_key=True, default=generate_uuid)
     tasks = Column(JsonType)
     status = Column(String(64), default=Status.CREATED)
     active = Column(Boolean, default=False)

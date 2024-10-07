@@ -16,11 +16,11 @@ from prefect import flow, task
 from prefect.futures import as_completed
 
 from jupyter_scheduler.models import CreateJob, DescribeJob, JobFeature, Status
-from jupyter_scheduler.orm import Job, Workflow, create_session
+from jupyter_scheduler.orm import Job, Workflow, WorkflowDefinition, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.utils import get_utc_timestamp
-from jupyter_scheduler.workflows import DescribeWorkflow
+from jupyter_scheduler.workflows import DescribeWorkflow, DescribeWorkflowDefinition
 
 
 class ExecutionManager(ABC):
@@ -40,11 +40,13 @@ class ExecutionManager(ABC):
         db_url: str,
         job_id: str = None,
         workflow_id: str = None,
+        workflow_definition_id: str = None,
         root_dir: str = None,
         staging_paths: Dict[str, str] = None,
     ):
         self.job_id = job_id
         self.workflow_id = workflow_id
+        self.workflow_definition_id = workflow_definition_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
@@ -57,6 +59,17 @@ class ExecutionManager(ABC):
                     session.query(Workflow).filter(Workflow.workflow_id == self.workflow_id).first()
                 )
                 self._model = DescribeWorkflow.from_orm(workflow)
+            return self._model
+        if self.workflow_definition_id:
+            with self.db_session() as session:
+                workflow_definition = (
+                    session.query(WorkflowDefinition)
+                    .filter(
+                        WorkflowDefinition.workflow_definition_id == self.workflow_definition_id
+                    )
+                    .first()
+                )
+                self._model = DescribeWorkflowDefinition.from_orm(workflow_definition)
             return self._model
         if self._model is None:
             with self.db_session() as session:
@@ -186,6 +199,23 @@ class ExecutionManager(ABC):
 
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
+
+    def activate_workflow_definition(self):
+        workflow_definition = self.model
+        with self.db_session() as session:
+            session.query(WorkflowDefinition).filter(
+                WorkflowDefinition.workflow_definition_id
+                == workflow_definition.workflow_definition_id
+            ).update({"active": True})
+            session.commit()
+            workflow_definition = (
+                session.query(WorkflowDefinition)
+                .filter(
+                    WorkflowDefinition.workflow_definition_id
+                    == workflow_definition.workflow_definition_id
+                )
+                .first()
+            )
 
     @task(name="Execute workflow task")
     def execute_task(self, job: Job):
