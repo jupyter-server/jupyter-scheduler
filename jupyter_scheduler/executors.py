@@ -1,6 +1,7 @@
 import io
 import multiprocessing as mp
 import os
+from pathlib import Path
 import shutil
 import tarfile
 import traceback
@@ -20,7 +21,7 @@ from jupyter_scheduler.orm import Job, Workflow, WorkflowDefinition, create_sess
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.utils import get_utc_timestamp
-from jupyter_scheduler.workflows import DescribeWorkflow, DescribeWorkflowDefinition
+from jupyter_scheduler.workflows import CreateWorkflow, DescribeWorkflow, DescribeWorkflowDefinition
 
 
 class ExecutionManager(ABC):
@@ -197,25 +198,56 @@ class ExecutionManager(ABC):
             session.commit()
 
 
+@flow(name="Create and run a new workflow`")
+def create_and_run_workflow(tasks: List[str], root_dir, db_url):
+    db_session = create_session(db_url)
+    with db_session() as session:
+        workflow = Workflow(tasks=tasks)
+        session.add(workflow)
+        session.commit()
+        workflow_id = workflow.workflow_id
+    execution_manager = DefaultExecutionManager(
+        workflow_id=workflow_id,
+        root_dir=root_dir,
+        db_url=db_url,
+    )
+    execution_manager.process_workflow()
+
+
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
     def activate_workflow_definition(self):
-        workflow_definition = self.model
+        describe_workflow_definition: DescribeWorkflowDefinition = self.model
         with self.db_session() as session:
             session.query(WorkflowDefinition).filter(
                 WorkflowDefinition.workflow_definition_id
-                == workflow_definition.workflow_definition_id
+                == describe_workflow_definition.workflow_definition_id
             ).update({"active": True})
             session.commit()
-            workflow_definition = (
-                session.query(WorkflowDefinition)
-                .filter(
-                    WorkflowDefinition.workflow_definition_id
-                    == workflow_definition.workflow_definition_id
-                )
-                .first()
-            )
+        self.serve_workflow_definition()
+
+    @flow
+    def serve_workflow_definition(self):
+        describe_workflow_definition: DescribeWorkflowDefinition = self.model
+        attributes = describe_workflow_definition.dict(
+            exclude={"schedule", "timezone"}, exclude_none=True
+        )
+        create_workflow = CreateWorkflow(**attributes)
+        flow_path = Path(
+            "/Users/aieroshe/Documents/jupyter-scheduler/jupyter_scheduler/executors.py"
+        )
+        create_and_run_workflow.from_source(
+            source=str(flow_path.parent),
+            entrypoint="executors.py:create_and_run_workflow",
+        ).serve(
+            cron=self.model.schedule,
+            parameters={
+                "model": create_workflow,
+                "root_dir": self.root_dir,
+                "db_url": self.db_url,
+            },
+        )
 
     @task(name="Execute workflow task")
     def execute_task(self, job: Job):
