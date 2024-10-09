@@ -100,6 +100,8 @@ export interface ICreateJobModel
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
   packageInputFolder?: boolean;
+  dependsOn?: string[];
+  workflowId?: string;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -312,6 +314,8 @@ export interface IJobDetailModel {
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
   packageInputFolder?: boolean;
+  dependsOn?: string[];
+  workflowId?: string;
 }
 
 export interface IJobDefinitionModel {
@@ -388,7 +392,9 @@ export function convertDescribeJobtoJobDetail(
     startTime: describeJob.start_time,
     endTime: describeJob.end_time,
     downloaded: describeJob.downloaded,
-    packageInputFolder: describeJob.package_input_folder
+    packageInputFolder: describeJob.package_input_folder,
+    dependsOn: describeJob.depends_on,
+    workflowId: describeJob.workflow_id
   };
 }
 

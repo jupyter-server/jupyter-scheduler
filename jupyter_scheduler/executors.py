@@ -1,20 +1,31 @@
 import io
+import multiprocessing as mp
 import os
 import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
-from typing import Dict
+from functools import lru_cache
+from pathlib import Path
+from typing import Dict, List
 
 import fsspec
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
+from prefect import flow, task
+from prefect.futures import as_completed
 
-from jupyter_scheduler.models import DescribeJob, JobFeature, Status
-from jupyter_scheduler.orm import Job, create_session
+from jupyter_scheduler.models import CreateJob, DescribeJob, JobFeature, Status
+from jupyter_scheduler.orm import Job, Workflow, WorkflowDefinition, create_session
 from jupyter_scheduler.parameterize import add_parameters
+from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.utils import get_utc_timestamp
+from jupyter_scheduler.workflows import (
+    CreateWorkflow,
+    DescribeWorkflow,
+    DescribeWorkflowDefinition,
+)
 
 
 class ExecutionManager(ABC):
@@ -29,14 +40,42 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
+    def __init__(
+        self,
+        db_url: str,
+        job_id: str = None,
+        workflow_id: str = None,
+        workflow_definition_id: str = None,
+        root_dir: str = None,
+        staging_paths: Dict[str, str] = None,
+    ):
         self.job_id = job_id
+        self.workflow_id = workflow_id
+        self.workflow_definition_id = workflow_definition_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
 
     @property
     def model(self):
+        if self.workflow_id:
+            with self.db_session() as session:
+                workflow = (
+                    session.query(Workflow).filter(Workflow.workflow_id == self.workflow_id).first()
+                )
+                self._model = DescribeWorkflow.from_orm(workflow)
+            return self._model
+        if self.workflow_definition_id:
+            with self.db_session() as session:
+                workflow_definition = (
+                    session.query(WorkflowDefinition)
+                    .filter(
+                        WorkflowDefinition.workflow_definition_id == self.workflow_definition_id
+                    )
+                    .first()
+                )
+                self._model = DescribeWorkflowDefinition.from_orm(workflow_definition)
+            return self._model
         if self._model is None:
             with self.db_session() as session:
                 job = session.query(Job).filter(Job.job_id == self.job_id).first()
@@ -65,6 +104,17 @@ class ExecutionManager(ABC):
         else:
             self.on_complete()
 
+    def process_workflow(self):
+        self.before_start_workflow()
+        try:
+            self.execute_workflow()
+        except CellExecutionError as e:
+            self.on_failure_workflow(e)
+        except Exception as e:
+            self.on_failure_workflow(e)
+        else:
+            self.on_complete_workflow()
+
     @abstractmethod
     def execute(self):
         """Performs notebook execution,
@@ -72,6 +122,11 @@ class ExecutionManager(ABC):
         add notebook execution logic within
         this method
         """
+        pass
+
+    @abstractmethod
+    def execute_workflow(self):
+        """Performs workflow execution"""
         pass
 
     @classmethod
@@ -98,11 +153,31 @@ class ExecutionManager(ABC):
             )
             session.commit()
 
+    def before_start_workflow(self):
+        """Called before start of execute"""
+        workflow = self.model
+        with self.db_session() as session:
+            session.query(Workflow).filter(Workflow.workflow_id == workflow.workflow_id).update(
+                {"status": Status.IN_PROGRESS}
+            )
+            session.commit()
+
     def on_failure(self, e: Exception):
         """Called after failure of execute"""
         job = self.model
         with self.db_session() as session:
             session.query(Job).filter(Job.job_id == job.job_id).update(
+                {"status": Status.FAILED, "status_message": str(e)}
+            )
+            session.commit()
+
+        traceback.print_exc()
+
+    def on_failure_workflow(self, e: Exception):
+        """Called after failure of execute"""
+        workflow = self.model
+        with self.db_session() as session:
+            session.query(Workflow).filter(Workflow.workflow_id == workflow.workflow_id).update(
                 {"status": Status.FAILED, "status_message": str(e)}
             )
             session.commit()
@@ -118,10 +193,111 @@ class ExecutionManager(ABC):
             )
             session.commit()
 
+    def on_complete_workflow(self):
+        workflow = self.model
+        with self.db_session() as session:
+            session.query(Workflow).filter(Workflow.workflow_id == workflow.workflow_id).update(
+                {"status": Status.COMPLETED}
+            )
+            session.commit()
+
+
+@flow(name="Create and run a new workflow`")
+def create_and_run_workflow(tasks: List[str], root_dir, db_url):
+    db_session = create_session(db_url)
+    with db_session() as session:
+        workflow = Workflow(tasks=tasks)
+        session.add(workflow)
+        session.commit()
+        workflow_id = workflow.workflow_id
+    execution_manager = DefaultExecutionManager(
+        workflow_id=workflow_id,
+        root_dir=root_dir,
+        db_url=db_url,
+    )
+    execution_manager.process_workflow()
+
 
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
+    def activate_workflow_definition(self):
+        describe_workflow_definition: DescribeWorkflowDefinition = self.model
+        with self.db_session() as session:
+            session.query(WorkflowDefinition).filter(
+                WorkflowDefinition.workflow_definition_id
+                == describe_workflow_definition.workflow_definition_id
+            ).update({"active": True})
+            session.commit()
+        self.serve_workflow_definition()
+
+    @flow
+    def serve_workflow_definition(self):
+        describe_workflow_definition: DescribeWorkflowDefinition = self.model
+        attributes = describe_workflow_definition.dict(
+            exclude={"schedule", "timezone"}, exclude_none=True
+        )
+        create_workflow = CreateWorkflow(**attributes)
+        flow_path = Path(
+            "/Users/aieroshe/Documents/jupyter-scheduler/jupyter_scheduler/executors.py"
+        )
+        create_and_run_workflow.from_source(
+            source=str(flow_path.parent),
+            entrypoint="executors.py:create_and_run_workflow",
+        ).serve(
+            cron=self.model.schedule,
+            parameters={
+                "model": create_workflow,
+                "root_dir": self.root_dir,
+                "db_url": self.db_url,
+            },
+        )
+
+    @task(name="Execute workflow task")
+    def execute_task(self, job: Job):
+        with self.db_session() as session:
+            staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
+
+            execution_manager = DefaultExecutionManager(
+                job_id=job.job_id,
+                staging_paths=staging_paths,
+                root_dir=self.root_dir,
+                db_url=self.db_url,
+            )
+            execution_manager.process()
+
+            job.pid = 1  # TODO: fix pid hardcode
+            job_id = job.job_id
+
+        return job_id
+
+    @task(name="Get workflow task records")
+    def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
+        with self.db_session() as session:
+            tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
+
+        return tasks
+
+    @flow(name="Execute workflow", flow_run_name="Execute workflow run")
+    def execute_workflow(self):
+        tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
+        tasks = {task.job_id: task for task in tasks_info}
+
+        @lru_cache(maxsize=None)
+        def make_task(task_id):
+            """Create a delayed object for the given task recursively creating delayed objects for all tasks it depends on"""
+            deps = tasks[task_id].depends_on or []
+            name = tasks[task_id].name
+            job_id = tasks[task_id].job_id
+            return self.execute_task.submit(
+                tasks[task_id], wait_for=[make_task(dep_id) for dep_id in deps]
+            )
+
+        final_tasks = [make_task(task_id) for task_id in tasks]
+        for future in as_completed(final_tasks):
+            future.result()
+
+    @flow(name="Execute job", flow_run_name="Execute job run")
     def execute(self):
         job = self.model
 
@@ -144,6 +320,7 @@ class DefaultExecutionManager(ExecutionManager):
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
 
+    @task(name="Check for and add side effect files")
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
         input_notebook = os.path.relpath(self.staging_paths["input"])
@@ -166,6 +343,7 @@ class DefaultExecutionManager(ExecutionManager):
                 )
                 session.commit()
 
+    @task(name="Create output files")
     def create_output_files(self, job: DescribeJob, notebook_node):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)

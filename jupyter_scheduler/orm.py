@@ -103,6 +103,32 @@ class Job(CommonColumns, Base):
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
+    depends_on = Column(JsonType)
+    workflow_id = Column(String(36))
+    # All new columns added to this table must be nullable to ensure compatibility during database migrations.
+    # Any default values specified for new columns will be ignored during the migration process.
+
+
+class Workflow(Base):
+    __tablename__ = "workflows"
+    __table_args__ = {"extend_existing": True}
+    workflow_id = Column(String(36), primary_key=True, default=generate_uuid)
+    tasks = Column(JsonType)
+    status = Column(String(64), default=Status.CREATED)
+    active = Column(Boolean, default=False)
+    # All new columns added to this table must be nullable to ensure compatibility during database migrations.
+    # Any default values specified for new columns will be ignored during the migration process.
+
+
+class WorkflowDefinition(Base):
+    __tablename__ = "workflow_definitions"
+    __table_args__ = {"extend_existing": True}
+    workflow_definition_id = Column(String(36), primary_key=True, default=generate_uuid)
+    tasks = Column(JsonType)
+    status = Column(String(64), default=Status.CREATED)
+    active = Column(Boolean, default=False)
+    schedule = Column(String(256))
+    timezone = Column(String(36))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 
