@@ -116,6 +116,8 @@ class Workflow(Base):
     tasks = Column(JsonType)
     status = Column(String(64), default=Status.CREATED)
     active = Column(Boolean, default=False)
+    name = Column(String(256))
+    parameters = Column(JsonType(1024))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 
@@ -129,6 +131,8 @@ class WorkflowDefinition(Base):
     active = Column(Boolean, default=False)
     schedule = Column(String(256))
     timezone = Column(String(36))
+    name = Column(String(256))
+    parameters = Column(JsonType(1024))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 

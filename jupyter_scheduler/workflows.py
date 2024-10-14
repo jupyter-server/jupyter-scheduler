@@ -1,5 +1,5 @@
 import json
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
@@ -291,9 +291,13 @@ class WorkflowDefinitionsActivationHandler(ExtensionHandlerMixin, JobHandlersMix
 
 class CreateWorkflow(BaseModel):
     tasks: List[str] = []
+    name: str
+    parameters: Optional[Dict[str, str]] = None
 
 
 class DescribeWorkflow(BaseModel):
+    name: str
+    parameters: Optional[Dict[str, str]] = None
     workflow_id: str
     tasks: List[str] = None
     status: Status = Status.CREATED
@@ -304,6 +308,8 @@ class DescribeWorkflow(BaseModel):
 
 
 class UpdateWorkflow(BaseModel):
+    name: str
+    parameters: Optional[Dict[str, str]] = None
     tasks: Optional[List[str]] = None
     status: Optional[Status] = None
     active: Optional[bool] = None
@@ -315,6 +321,8 @@ class UpdateWorkflow(BaseModel):
 class CreateWorkflowDefinition(BaseModel):
     tasks: List[str] = []
     # any field added to CreateWorkflow should also be added to this model as well
+    name: str
+    parameters: Optional[Dict[str, str]] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
 
@@ -323,6 +331,8 @@ class CreateWorkflowDefinition(BaseModel):
 
 
 class DescribeWorkflowDefinition(BaseModel):
+    name: str
+    parameters: Optional[Dict[str, str]] = None
     workflow_definition_id: str
     tasks: List[str] = None
     schedule: Optional[str] = None
@@ -335,6 +345,8 @@ class DescribeWorkflowDefinition(BaseModel):
 
 
 class UpdateWorkflowDefinition(BaseModel):
+    name: str
+    parameters: Optional[Dict[str, str]] = None
     tasks: Optional[List[str]] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None
