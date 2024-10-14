@@ -1,12 +1,12 @@
 import io
 import multiprocessing as mp
 import os
-from pathlib import Path
 import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
 from functools import lru_cache
+from pathlib import Path
 from typing import Dict, List
 
 import fsspec
@@ -21,7 +21,11 @@ from jupyter_scheduler.orm import Job, Workflow, WorkflowDefinition, create_sess
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.utils import get_utc_timestamp
-from jupyter_scheduler.workflows import CreateWorkflow, DescribeWorkflow, DescribeWorkflowDefinition
+from jupyter_scheduler.workflows import (
+    CreateWorkflow,
+    DescribeWorkflow,
+    DescribeWorkflowDefinition,
+)
 
 
 class ExecutionManager(ABC):
