@@ -61,7 +61,7 @@ class SchedulerApp(ExtensionApp):
             WorkflowDefinitionsHandler,
         ),
         (
-            rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/activate",
+            rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/deploy",
             WorkflowDefinitionsActivationHandler,
         ),
         (
