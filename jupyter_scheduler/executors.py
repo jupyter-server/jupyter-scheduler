@@ -243,7 +243,7 @@ class DefaultExecutionManager(ExecutionManager):
         ).serve(
             cron=self.model.schedule,
             parameters={
-                "model": create_workflow,
+                "tasks": create_workflow.tasks,
                 "root_dir": self.root_dir,
                 "db_url": self.db_url,
             },
