@@ -70,6 +70,20 @@ Examples of other formats:
 OUTPUT_FILENAME_TEMPLATE = "{{input_filename}}-{{create_time}}"
 
 
+class TriggerRule(str, Enum):
+    ALL_SUCCESS = "all_success"
+    ALL_FAILES = "all_failed"
+    ALL_DONE = "all_done"
+    ONE_FAILED = "one_failed"
+    ONE_SUCCESS = "one_success"
+    NONE_FAILED = "none_failed"
+    NONE_SKIPPED = "none_skipped"
+    DUMMY = "dummy"
+
+    def __str__(self):
+        return self.value
+
+
 class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
 
@@ -88,6 +102,7 @@ class CreateJob(BaseModel):
     package_input_folder: Optional[bool] = None
     depends_on: Optional[List[str]] = None
     workflow_id: Optional[str] = None
+    trigger_rule: Optional[TriggerRule] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -152,6 +167,7 @@ class DescribeJob(BaseModel):
     packaged_files: Optional[List[str]] = []
     depends_on: Optional[List[str]] = None
     workflow_id: Optional[str] = None
+    trigger_rule: Optional[TriggerRule] = None
 
     class Config:
         orm_mode = True
@@ -198,6 +214,7 @@ class UpdateJob(BaseModel):
     name: Optional[str] = None
     compute_type: Optional[str] = None
     depends_on: Optional[List[str]] = None
+    trigger_rule: Optional[TriggerRule] = None
 
 
 class DeleteJob(BaseModel):
@@ -218,6 +235,9 @@ class CreateJobDefinition(BaseModel):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
     package_input_folder: Optional[bool] = None
+    depends_on: Optional[List[str]] = None
+    workflow_id: Optional[str] = None
+    trigger_rule: Optional[TriggerRule] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -245,6 +265,9 @@ class DescribeJobDefinition(BaseModel):
     active: bool
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
+    depends_on: Optional[List[str]] = None
+    workflow_id: Optional[str] = None
+    trigger_rule: Optional[TriggerRule] = None
 
     class Config:
         orm_mode = True
@@ -264,6 +287,9 @@ class UpdateJobDefinition(BaseModel):
     active: Optional[bool] = None
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
+    depends_on: Optional[List[str]] = None
+    workflow_id: Optional[str] = None
+    trigger_rule: Optional[TriggerRule] = None
 
 
 class ListJobDefinitionsQuery(BaseModel):

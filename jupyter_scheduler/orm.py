@@ -7,7 +7,7 @@ from sqlalchemy import Boolean, Column, Integer, String, create_engine, inspect
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 from sqlalchemy.sql import text
 
-from jupyter_scheduler.models import EmailNotifications, Status
+from jupyter_scheduler.models import EmailNotifications, Status, TriggerRule
 from jupyter_scheduler.utils import get_utc_timestamp
 
 Base = declarative_base()
@@ -89,6 +89,9 @@ class CommonColumns:
     # Any default values specified for new columns will be ignored during the migration process.
     package_input_folder = Column(Boolean)
     packaged_files = Column(JsonType, default=[])
+    depends_on = Column(JsonType)
+    workflow_id = Column(String(36))
+    trigger_rule = Column(String(64))
 
 
 class Job(CommonColumns, Base):
@@ -103,8 +106,6 @@ class Job(CommonColumns, Base):
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
-    depends_on = Column(JsonType)
-    workflow_id = Column(String(36))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 
