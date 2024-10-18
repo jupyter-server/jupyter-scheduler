@@ -4,9 +4,9 @@ import tarfile
 from multiprocessing import Process
 from typing import Dict, List, Optional, Type
 
+import dask
 import fsspec
 from jupyter_server.utils import ensure_async
-from prefect import task
 
 from jupyter_scheduler.exceptions import SchedulerError
 from jupyter_scheduler.scheduler import BaseScheduler
@@ -75,7 +75,7 @@ class Downloader:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
                 tar.extractall(self.output_dir)
 
-    @task(name="Download job files")
+    @dask.delayed(name="Download job files")
     def download(self):
         # ensure presence of staging paths
         if not self.staging_paths:

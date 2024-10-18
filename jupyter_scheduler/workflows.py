@@ -308,7 +308,7 @@ class DescribeWorkflow(BaseModel):
 
 
 class UpdateWorkflow(BaseModel):
-    name: str
+    name: Optional[str] = None
     parameters: Optional[Dict[str, str]] = None
     tasks: Optional[List[str]] = None
     status: Optional[Status] = None
@@ -345,7 +345,7 @@ class DescribeWorkflowDefinition(BaseModel):
 
 
 class UpdateWorkflowDefinition(BaseModel):
-    name: str
+    name: Optional[str] = None
     parameters: Optional[Dict[str, str]] = None
     tasks: Optional[List[str]] = None
     schedule: Optional[str] = None

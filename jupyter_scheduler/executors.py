@@ -9,12 +9,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, List
 
+import dask
 import fsspec
 import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
-from prefect import flow, task
-from prefect.futures import as_completed
 
 from jupyter_scheduler.models import CreateJob, DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, Workflow, WorkflowDefinition, create_session
@@ -202,7 +201,7 @@ class ExecutionManager(ABC):
             session.commit()
 
 
-@flow(name="Create and run a new workflow`")
+@dask.delayed(name="Create and run a new workflow`")
 def create_and_run_workflow(tasks: List[str], root_dir, db_url):
     db_session = create_session(db_url)
     with db_session() as session:
@@ -231,30 +230,30 @@ class DefaultExecutionManager(ExecutionManager):
             session.commit()
         self.serve_workflow_definition()
 
-    @flow
+    @dask.delayed(name="Serve workflow definition")
     def serve_workflow_definition(self):
         describe_workflow_definition: DescribeWorkflowDefinition = self.model
         attributes = describe_workflow_definition.dict(
             exclude={"schedule", "timezone"}, exclude_none=True
         )
         create_workflow = CreateWorkflow(**attributes)
-        flow_path = Path(
-            "/Users/aieroshe/Documents/jupyter-scheduler/jupyter_scheduler/executors.py"
-        )
-        create_and_run_workflow.from_source(
-            source=str(flow_path.parent),
-            entrypoint="executors.py:create_and_run_workflow",
-        ).serve(
-            cron=self.model.schedule,
-            parameters={
-                "tasks": create_workflow.tasks,
-                "root_dir": self.root_dir,
-                "db_url": self.db_url,
-            },
-        )
+        # flow_path = Path(
+        #     "/Users/aieroshe/Documents/jupyter-scheduler/jupyter_scheduler/executors.py"
+        # )
+        # create_and_run_workflow.from_source(
+        #     source=str(flow_path.parent),
+        #     entrypoint="executors.py:create_and_run_workflow",
+        # ).serve(
+        #     cron=self.model.schedule,
+        #     parameters={
+        #         "tasks": create_workflow.tasks,
+        #         "root_dir": self.root_dir,
+        #         "db_url": self.db_url,
+        #     },
+        # )
 
-    @task(name="Execute workflow task")
-    def execute_task(self, job: Job):
+    @dask.delayed(name="Execute workflow task")
+    def execute_task(self, job: Job, dependencies: List[str]) -> str:
         with self.db_session() as session:
             staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
 
@@ -271,14 +270,12 @@ class DefaultExecutionManager(ExecutionManager):
 
         return job_id
 
-    @task(name="Get workflow task records")
     def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
         with self.db_session() as session:
             tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
 
         return tasks
 
-    @flow(name="Execute workflow", flow_run_name="Execute workflow run")
     def execute_workflow(self):
         tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
         tasks = {task.job_id: task for task in tasks_info}
@@ -287,17 +284,11 @@ class DefaultExecutionManager(ExecutionManager):
         def make_task(task_id):
             """Create a delayed object for the given task recursively creating delayed objects for all tasks it depends on"""
             deps = tasks[task_id].depends_on or []
-            name = tasks[task_id].name
-            job_id = tasks[task_id].job_id
-            return self.execute_task.submit(
-                tasks[task_id], wait_for=[make_task(dep_id) for dep_id in deps]
-            )
+            return self.execute_task(tasks[task_id], [make_task(dep_id) for dep_id in deps])
 
         final_tasks = [make_task(task_id) for task_id in tasks]
-        for future in as_completed(final_tasks):
-            future.result()
+        dask.compute(*final_tasks)
 
-    @flow(name="Execute job", flow_run_name="Execute job run")
     def execute(self):
         job = self.model
 
@@ -320,7 +311,7 @@ class DefaultExecutionManager(ExecutionManager):
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
 
-    @task(name="Check for and add side effect files")
+    @dask.delayed(name="Check for and add side effect files")
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
         input_notebook = os.path.relpath(self.staging_paths["input"])
@@ -343,7 +334,7 @@ class DefaultExecutionManager(ExecutionManager):
                 )
                 session.commit()
 
-    @task(name="Create output files")
+    @dask.delayed(name="Create output files")
     def create_output_files(self, job: DescribeJob, notebook_node):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)
