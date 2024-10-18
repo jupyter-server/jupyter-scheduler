@@ -75,7 +75,7 @@ class Downloader:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
                 tar.extractall(self.output_dir)
 
-    @dask.delayed(name="Download job files")
+    # @dask.delayed(name="Download job files")
     def download(self):
         # ensure presence of staging paths
         if not self.staging_paths:

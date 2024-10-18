@@ -201,7 +201,7 @@ class ExecutionManager(ABC):
             session.commit()
 
 
-@dask.delayed(name="Create and run a new workflow`")
+# @dask.delayed(name="Create and run a new workflow`")
 def create_and_run_workflow(tasks: List[str], root_dir, db_url):
     db_session = create_session(db_url)
     with db_session() as session:
@@ -230,7 +230,7 @@ class DefaultExecutionManager(ExecutionManager):
             session.commit()
         self.serve_workflow_definition()
 
-    @dask.delayed(name="Serve workflow definition")
+    # @dask.delayed(name="Serve workflow definition")
     def serve_workflow_definition(self):
         describe_workflow_definition: DescribeWorkflowDefinition = self.model
         attributes = describe_workflow_definition.dict(
@@ -253,8 +253,9 @@ class DefaultExecutionManager(ExecutionManager):
         # )
 
     @dask.delayed(name="Execute workflow task")
-    def execute_task(self, job: Job, dependencies: List[str]) -> str:
+    def execute_task(self, job: Job, dependencies: List[str] = []) -> str:
         with self.db_session() as session:
+            print(f"executing task {job.job_id} with dependencies {dependencies}")
             staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
 
             execution_manager = DefaultExecutionManager(
@@ -265,12 +266,21 @@ class DefaultExecutionManager(ExecutionManager):
             )
             execution_manager.process()
 
+            self.dask_client.submit(
+                DefaultExecutionManager(
+                    job_id=job.job_id,
+                    root_dir=self.root_dir,
+                    db_url=self.db_url,
+                ).process
+            )
+
             job.pid = 1  # TODO: fix pid hardcode
             job_id = job.job_id
 
         return job_id
 
     def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
+        print("getting task records for task: {task_ids}")
         with self.db_session() as session:
             tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
 
@@ -278,15 +288,32 @@ class DefaultExecutionManager(ExecutionManager):
 
     def execute_workflow(self):
         tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
+        print(f"tasks_info in execute_workflow: {tasks_info}")
         tasks = {task.job_id: task for task in tasks_info}
+        print(f"tasks in execute_workflow: {tasks}")
 
         @lru_cache(maxsize=None)
         def make_task(task_id):
             """Create a delayed object for the given task recursively creating delayed objects for all tasks it depends on"""
+            print("making task for")
+            print(task_id)
             deps = tasks[task_id].depends_on or []
-            return self.execute_task(tasks[task_id], [make_task(dep_id) for dep_id in deps])
+            print(deps)
+            print(f"dependencies in make_task for {task_id}")
+            print(deps)
+
+            execute_task_result = self.execute_task(
+                tasks[task_id], [make_task(dep_id) for dep_id in deps]
+            )
+            print("execute task result from make_task")
+            print(execute_task_result)
+
+            return execute_task_result
 
         final_tasks = [make_task(task_id) for task_id in tasks]
+        print("Final tasks:")
+        print(final_tasks)
+        print(f"Calling compute after loops")
         dask.compute(*final_tasks)
 
     def execute(self):
@@ -311,7 +338,7 @@ class DefaultExecutionManager(ExecutionManager):
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
 
-    @dask.delayed(name="Check for and add side effect files")
+    # @dask.delayed(name="Check for and add side effect files")
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
         input_notebook = os.path.relpath(self.staging_paths["input"])
@@ -334,7 +361,7 @@ class DefaultExecutionManager(ExecutionManager):
                 )
                 session.commit()
 
-    @dask.delayed(name="Create output files")
+    # @dask.delayed(name="Create output files")
     def create_output_files(self, job: DescribeJob, notebook_node):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)

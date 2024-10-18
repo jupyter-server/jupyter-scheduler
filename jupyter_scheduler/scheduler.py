@@ -5,6 +5,8 @@ from typing import Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
+from dask.distributed import Client as DaskClient
+from distributed import LocalCluster
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
@@ -431,6 +433,12 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.join(self.root_dir, self.output_directory, output_dir_name)
 
+    async def stop_extension(self):
+        """
+        Placeholder method for a cleanup code to run when the server is stopping.
+        """
+        pass
+
 
 class Scheduler(BaseScheduler):
     _db_session = None
@@ -443,6 +451,12 @@ class Scheduler(BaseScheduler):
         help=_i18n(
             "The class that handles the job creation of scheduled jobs from job definitions."
         ),
+    )
+
+    dask_cluster_url = Unicode(
+        allow_none=True,
+        config=True,
+        help="URL of the Dask cluster to connect to.",
     )
 
     db_url = Unicode(help=_i18n("Scheduler database url"))
@@ -463,6 +477,17 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+        self.dask_client: DaskClient = self._get_dask_client()
+
+    def _get_dask_client(self):
+        """Creates and configures a Dask client."""
+        if self.dask_cluster_url:
+            return DaskClient(self.dask_cluster_url)
+        print("Starting local Dask cluster")
+        cluster = LocalCluster(processes=True)
+        client = DaskClient(cluster)
+        print(client)
+        return client
 
     @property
     def db_session(self):
@@ -566,6 +591,13 @@ class Scheduler(BaseScheduler):
             return workflow_definition.workflow_definition_id
 
     def run_workflow(self, workflow_id: str) -> str:
+        # self.dask_client.submit(
+        #     self.execution_manager_class(
+        #         workflow_id=workflow_id,
+        #         root_dir=self.root_dir,
+        #         db_url=self.db_url,
+        #     ).process_workflow
+        # )
         execution_manager = self.execution_manager_class(
             workflow_id=workflow_id,
             root_dir=self.root_dir,
@@ -603,9 +635,14 @@ class Scheduler(BaseScheduler):
 
     def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
         job_id = self.create_job(model, run=False)
+        print(f"create_workflow_task job_id: {job_id}")
         workflow: DescribeWorkflow = self.get_workflow(workflow_id)
+        print(f"workflow in create_workflow_task: {workflow}")
         updated_tasks = (workflow.tasks or [])[:]
+        print(f"updated_tasks before update: {updated_tasks}")
         updated_tasks.append(job_id)
+        print(f"updated_tasks after update: {updated_tasks}")
+
         self.update_workflow(workflow_id, UpdateWorkflow(tasks=updated_tasks))
         return job_id
 
@@ -936,6 +973,13 @@ class Scheduler(BaseScheduler):
         )
 
         return staging_paths
+
+    async def stop_extension(self):
+        """
+        Cleanup code to run when the server is stopping.
+        """
+        if self.dask_client:
+            await self.dask_client.close()
 
 
 class ArchivingScheduler(Scheduler):
