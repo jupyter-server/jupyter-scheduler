@@ -115,7 +115,7 @@ class Workflow(Base):
     __table_args__ = {"extend_existing": True}
     workflow_id = Column(String(36), primary_key=True, default=generate_uuid)
     tasks = Column(JsonType)
-    status = Column(String(64), default=Status.CREATED)
+    status = Column(String(64), default=Status.DRAFT)
     active = Column(Boolean, default=False)
     name = Column(String(256))
     parameters = Column(JsonType(1024))
@@ -128,7 +128,7 @@ class WorkflowDefinition(Base):
     __table_args__ = {"extend_existing": True}
     workflow_definition_id = Column(String(36), primary_key=True, default=generate_uuid)
     tasks = Column(JsonType)
-    status = Column(String(64), default=Status.CREATED)
+    status = Column(String(64), default=Status.DRAFT)
     active = Column(Boolean, default=False)
     schedule = Column(String(256))
     timezone = Column(String(36))

@@ -42,6 +42,7 @@ class EmailNotifications(BaseModel):
 
 
 class Status(str, Enum):
+    DRAFT = "DRAFT"
     CREATED = "CREATED"
     QUEUED = "QUEUED"
     IN_PROGRESS = "IN_PROGRESS"
