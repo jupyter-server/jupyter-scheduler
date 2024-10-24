@@ -220,64 +220,14 @@ def create_and_run_workflow(tasks: List[str], root_dir, db_url):
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
-    def activate_workflow_definition(self):
+    def deploy_workflow_definition(self):
         describe_workflow_definition: DescribeWorkflowDefinition = self.model
         with self.db_session() as session:
             session.query(WorkflowDefinition).filter(
                 WorkflowDefinition.workflow_definition_id
                 == describe_workflow_definition.workflow_definition_id
-            ).update({"active": True})
+            ).update({"active": True, "status": Status.DEPLOYED})
             session.commit()
-        self.serve_workflow_definition()
-
-    # @dask.delayed(name="Serve workflow definition")
-    def serve_workflow_definition(self):
-        describe_workflow_definition: DescribeWorkflowDefinition = self.model
-        attributes = describe_workflow_definition.dict(
-            exclude={"schedule", "timezone"}, exclude_none=True
-        )
-        create_workflow = CreateWorkflow(**attributes)
-        # flow_path = Path(
-        #     "/Users/aieroshe/Documents/jupyter-scheduler/jupyter_scheduler/executors.py"
-        # )
-        # create_and_run_workflow.from_source(
-        #     source=str(flow_path.parent),
-        #     entrypoint="executors.py:create_and_run_workflow",
-        # ).serve(
-        #     cron=self.model.schedule,
-        #     parameters={
-        #         "tasks": create_workflow.tasks,
-        #         "root_dir": self.root_dir,
-        #         "db_url": self.db_url,
-        #     },
-        # )
-
-    @dask.delayed(name="Execute workflow task")
-    def execute_task(self, job: Job, dependencies: List[str] = []) -> str:
-        with self.db_session() as session:
-            print(f"executing task {job.job_id} with dependencies {dependencies}")
-            staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
-
-            execution_manager = DefaultExecutionManager(
-                job_id=job.job_id,
-                staging_paths=staging_paths,
-                root_dir=self.root_dir,
-                db_url=self.db_url,
-            )
-            execution_manager.process()
-
-            self.dask_client.submit(
-                DefaultExecutionManager(
-                    job_id=job.job_id,
-                    root_dir=self.root_dir,
-                    db_url=self.db_url,
-                ).process
-            )
-
-            job.pid = 1  # TODO: fix pid hardcode
-            job_id = job.job_id
-
-        return job_id
 
     def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
         print("getting task records for task: {task_ids}")
@@ -286,6 +236,7 @@ class DefaultExecutionManager(ExecutionManager):
 
         return tasks
 
+    # @dask.delayed(name="Execute workflow")
     def execute_workflow(self):
         tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
         print(f"tasks_info in execute_workflow: {tasks_info}")
@@ -302,13 +253,16 @@ class DefaultExecutionManager(ExecutionManager):
             print(f"dependencies in make_task for {task_id}")
             print(deps)
 
-            execute_task_result = self.execute_task(
-                tasks[task_id], [make_task(dep_id) for dep_id in deps]
+            execute_task_delayed = execute_task(
+                job=tasks[task_id],
+                root_dir=self.root_dir,
+                db_url=self.db_url,
+                dependencies=[make_task(dep_id) for dep_id in deps],
             )
             print("execute task result from make_task")
-            print(execute_task_result)
+            print(execute_task_delayed)
 
-            return execute_task_result
+            return execute_task_delayed
 
         final_tasks = [make_task(task_id) for task_id in tasks]
         print("Final tasks:")
@@ -395,6 +349,19 @@ class DefaultExecutionManager(ExecutionManager):
                 return False
             else:
                 return True
+
+
+@dask.delayed(name="Execute workflow task")
+def execute_task(job: Job, root_dir: str, db_url: str, dependencies: List[str] = []):
+    print(f"executing task {job.job_id} with dependencies {dependencies}")
+    staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
+    process_job = DefaultExecutionManager(
+        job_id=job.job_id,
+        staging_paths=staging_paths,
+        root_dir=root_dir,
+        db_url=db_url,
+    ).process
+    return process_job()
 
 
 class ArchivingExecutionManager(DefaultExecutionManager):

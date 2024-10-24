@@ -261,12 +261,12 @@ class WorkflowDefinitionsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, A
             self.finish()
 
 
-class WorkflowDefinitionsActivationHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+class WorkflowDefinitionsDeploymentHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def post(self, workflow_definition_id: str):
         try:
             workflow_definition_id = await ensure_async(
-                self.scheduler.activate_workflow_definition(workflow_definition_id)
+                self.scheduler.deploy_workflow_definition(workflow_definition_id)
             )
         except ValidationError as e:
             self.log.exception(e)
@@ -321,7 +321,7 @@ class UpdateWorkflow(BaseModel):
 class CreateWorkflowDefinition(BaseModel):
     tasks: List[str] = []
     # any field added to CreateWorkflow should also be added to this model as well
-    name: str
+    name: str = ""
     parameters: Optional[Dict[str, str]] = None
     schedule: Optional[str] = None
     timezone: Optional[str] = None

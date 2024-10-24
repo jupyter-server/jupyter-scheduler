@@ -132,7 +132,7 @@ class BaseScheduler(LoggingConfigurable):
         """Triggers execution of the workflow."""
         raise NotImplementedError("must be implemented by subclass")
 
-    def activate_workflow_definition(self, workflow_definition_id: str) -> str:
+    def deploy_workflow_definition(self, workflow_definition_id: str) -> str:
         """Activates workflow marking it as ready for execution."""
         raise NotImplementedError("must be implemented by subclass")
 
@@ -487,6 +487,7 @@ class Scheduler(BaseScheduler):
         cluster = LocalCluster(processes=True)
         client = DaskClient(cluster)
         print(client)
+        print(f"Dask dashboard link: {client.dashboard_link}")
         return client
 
     @property
@@ -561,15 +562,14 @@ class Scheduler(BaseScheduler):
 
     def run_job(self, job: Job, staging_paths: Dict[str, str]) -> str:
         with self.db_session() as session:
-            execution_manager = self.execution_manager_class(
+            process_job = self.execution_manager_class(
                 job_id=job.job_id,
                 staging_paths=staging_paths,
                 root_dir=self.root_dir,
                 db_url=self.db_url,
-            )
-            execution_manager.process()
-
-            job.pid = 1  # TODO: fix pid hardcode
+            ).process
+            future = self.dask_client.submit(process_job)
+            job.pid = future.key
             session.commit()
 
             job_id = job.job_id
@@ -591,28 +591,21 @@ class Scheduler(BaseScheduler):
             return workflow_definition.workflow_definition_id
 
     def run_workflow(self, workflow_id: str) -> str:
-        # self.dask_client.submit(
-        #     self.execution_manager_class(
-        #         workflow_id=workflow_id,
-        #         root_dir=self.root_dir,
-        #         db_url=self.db_url,
-        #     ).process_workflow
-        # )
-        execution_manager = self.execution_manager_class(
+        process_workflow = self.execution_manager_class(
             workflow_id=workflow_id,
             root_dir=self.root_dir,
             db_url=self.db_url,
-        )
-        execution_manager.process_workflow()
+        ).process_workflow
+        self.dask_client.submit(process_workflow)
         return workflow_id
 
-    def activate_workflow_definition(self, workflow_definition_id: str) -> str:
+    def deploy_workflow_definition(self, workflow_definition_id: str) -> str:
         execution_manager = self.execution_manager_class(
             workflow_definition_id=workflow_definition_id,
             root_dir=self.root_dir,
             db_url=self.db_url,
         )
-        execution_manager.activate_workflow_definition()
+        execution_manager.deploy_workflow_definition()
         return workflow_definition_id
 
     def get_workflow(self, workflow_id: str) -> DescribeWorkflow:
@@ -978,8 +971,10 @@ class Scheduler(BaseScheduler):
         """
         Cleanup code to run when the server is stopping.
         """
-        if self.dask_client:
-            await self.dask_client.close()
+        if self.dask_client is None:
+            return
+        if self.dask_client and self.dask_client.close:
+            self.dask_client.close()
 
 
 class ArchivingScheduler(Scheduler):

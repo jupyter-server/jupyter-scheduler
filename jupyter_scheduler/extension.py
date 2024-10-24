@@ -7,7 +7,7 @@ from traitlets import Bool, Type, Unicode, default
 
 from jupyter_scheduler.orm import create_tables
 from jupyter_scheduler.workflows import (
-    WorkflowDefinitionsActivationHandler,
+    WorkflowDefinitionsDeploymentHandler,
     WorkflowDefinitionsHandler,
     WorkflowDefinitionsTasksHandler,
     WorkflowsHandler,
@@ -62,7 +62,7 @@ class SchedulerApp(ExtensionApp):
         ),
         (
             rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/deploy",
-            WorkflowDefinitionsActivationHandler,
+            WorkflowDefinitionsDeploymentHandler,
         ),
         (
             rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/tasks",
