@@ -119,6 +119,7 @@ class Workflow(Base):
     active = Column(Boolean, default=False)
     name = Column(String(256))
     parameters = Column(JsonType(1024))
+    create_time = Column(Integer, default=get_utc_timestamp)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 
