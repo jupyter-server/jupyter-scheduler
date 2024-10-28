@@ -453,6 +453,16 @@ class Scheduler(BaseScheduler):
         ),
     )
 
+    workflow_runner_class = TType(
+        allow_none=True,
+        config=True,
+        default_value="jupyter_scheduler.workflow_runner.WorkflowRunner",
+        klass="jupyter_scheduler.workflow_runner.BaseWorkflowRunner",
+        help=_i18n(
+            "The class that handles the workflow creation of scheduled workflows from workflow definitions."
+        ),
+    )
+
     dask_cluster_url = Unicode(
         allow_none=True,
         config=True,
@@ -462,6 +472,10 @@ class Scheduler(BaseScheduler):
     db_url = Unicode(help=_i18n("Scheduler database url"))
 
     task_runner = Instance(allow_none=True, klass="jupyter_scheduler.task_runner.BaseTaskRunner")
+
+    workflow_runner = Instance(
+        allow_none=True, klass="jupyter_scheduler.workflow_runner.BaseWorkflowRunner"
+    )
 
     def __init__(
         self,
@@ -477,6 +491,8 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+        if self.workflow_runner_class:
+            self.workflow_runner = self.workflow_runner_class(scheduler=self, config=config)
         self.dask_client: DaskClient = self._get_dask_client()
 
     def _get_dask_client(self):
@@ -576,21 +592,32 @@ class Scheduler(BaseScheduler):
 
         return job_id
 
+    def run_workflow_from_definition(self, model: DescribeWorkflowDefinition) -> str:
+        print(f"scheduler.calling create_and_run_workflow with {model}")
+        workflow_id = self.create_workflow(
+            CreateWorkflow(
+                **model.dict(exclude={"schedule", "timezone", "tasks"}, exclude_none=True),
+            )
+        )
+        task_definitions = self.get_workflow_definition_tasks(model.workflow_definition_id)
+        for task_definition in task_definitions:
+            self.create_workflow_task(
+                workflow_id=workflow_id,
+                model=CreateJob(**task_definition.dict(exclude={"schedule", "timezone"})),
+            )
+        return workflow_id
+
     def create_workflow(self, model: CreateWorkflow) -> str:
+        print(f"calling create_workflow with {model}")
+        print(model.dict)
         with self.db_session() as session:
             workflow = Workflow(**model.dict(exclude_none=True))
             session.add(workflow)
             session.commit()
             return workflow.workflow_id
 
-    def create_workflow_definition(self, model: CreateWorkflowDefinition) -> str:
-        with self.db_session() as session:
-            workflow_definition = WorkflowDefinition(**model.dict(exclude_none=True))
-            session.add(workflow_definition)
-            session.commit()
-            return workflow_definition.workflow_definition_id
-
     def run_workflow(self, workflow_id: str) -> str:
+        print(f"calling run_workflow for workflow {workflow_id}")
         process_workflow = self.execution_manager_class(
             workflow_id=workflow_id,
             root_dir=self.root_dir,
@@ -599,13 +626,30 @@ class Scheduler(BaseScheduler):
         self.dask_client.submit(process_workflow)
         return workflow_id
 
+    def create_workflow_definition(self, model: CreateWorkflowDefinition) -> str:
+        with self.db_session() as session:
+            workflow_definition = WorkflowDefinition(**model.dict(exclude_none=True))
+            session.add(workflow_definition)
+            session.commit()
+            return workflow_definition.workflow_definition_id
+
     def deploy_workflow_definition(self, workflow_definition_id: str) -> str:
-        execution_manager = self.execution_manager_class(
-            workflow_definition_id=workflow_definition_id,
-            root_dir=self.root_dir,
-            db_url=self.db_url,
-        )
-        execution_manager.deploy_workflow_definition()
+        with self.db_session() as session:
+            workflow_definition = (
+                session.query(WorkflowDefinition)
+                .filter(WorkflowDefinition.workflow_definition_id == workflow_definition_id)
+                .with_for_update()
+                .one()
+            )
+            workflow_definition_schedule = workflow_definition.schedule
+            session.query(WorkflowDefinition).filter(
+                WorkflowDefinition.workflow_definition_id == workflow_definition_id
+            ).update({"active": True, "status": Status.DEPLOYED})
+            session.commit()
+
+        if self.workflow_runner and workflow_definition_schedule:
+            self.workflow_runner.add_workflow_definition(workflow_definition_id)
+
         return workflow_definition_id
 
     def get_workflow(self, workflow_id: str) -> DescribeWorkflow:
@@ -616,7 +660,15 @@ class Scheduler(BaseScheduler):
         model = DescribeWorkflow.from_orm(workflow_record)
         return model
 
-    def get_workflow_definition(self, workflow_definition_id: str) -> DescribeWorkflowDefinition:
+    def get_all_workflows(self) -> List[DescribeWorkflow]:
+        with self.db_session() as session:
+            workflow_records = session.query(Workflow).all()
+        models = [
+            DescribeWorkflow.from_orm(workflow_record) for workflow_record in workflow_records
+        ]
+        return models
+
+    def get_workflow_definition(self, workflow_definition_id: str) -> List[Workflow]:
         with self.db_session() as session:
             workflow_definition_record = (
                 session.query(WorkflowDefinition)
@@ -625,6 +677,18 @@ class Scheduler(BaseScheduler):
             )
         model = DescribeWorkflowDefinition.from_orm(workflow_definition_record)
         return model
+
+    def get_workflow_definition_tasks(
+        self, workflow_definition_id: str
+    ) -> List[DescribeJobDefinition]:
+        with self.db_session() as session:
+            task_records = (
+                session.query(JobDefinition)
+                .filter(JobDefinition.workflow_id == workflow_definition_id)
+                .all()
+            )
+        tasks = [DescribeJobDefinition.from_orm(task_record) for task_record in task_records]
+        return tasks
 
     def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
         job_id = self.create_job(model, run=False)
@@ -652,6 +716,15 @@ class Scheduler(BaseScheduler):
             workflow_definition_id, UpdateWorkflowDefinition(tasks=updated_tasks)
         )
         return job_definition_id
+
+    def get_all_workflow_definition_tasks(self) -> List[DescribeWorkflowDefinition]:
+        with self.db_session() as session:
+            workflow_definition_records = session.query(WorkflowDefinition).all()
+        models = [
+            DescribeWorkflowDefinition.from_orm(workflow_definition_record)
+            for workflow_definition_record in workflow_definition_records
+        ]
+        return models
 
     def update_workflow(self, workflow_id: str, model: UpdateWorkflow):
         with self.db_session() as session:

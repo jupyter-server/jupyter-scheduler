@@ -104,6 +104,7 @@ class ExecutionManager(ABC):
             self.on_complete()
 
     def process_workflow(self):
+        print(f"calling ExecutionManager(ABC).process_workflow for {self.model}")
         self.before_start_workflow()
         try:
             self.execute_workflow()
@@ -154,6 +155,7 @@ class ExecutionManager(ABC):
 
     def before_start_workflow(self):
         """Called before start of execute"""
+        print(f"calling ExecutionManager(ABC).before_start_workflow for {self.model}")
         workflow = self.model
         with self.db_session() as session:
             session.query(Workflow).filter(Workflow.workflow_id == workflow.workflow_id).update(
@@ -201,38 +203,14 @@ class ExecutionManager(ABC):
             session.commit()
 
 
-# @dask.delayed(name="Create and run a new workflow`")
-def create_and_run_workflow(tasks: List[str], root_dir, db_url):
-    db_session = create_session(db_url)
-    with db_session() as session:
-        workflow = Workflow(tasks=tasks)
-        session.add(workflow)
-        session.commit()
-        workflow_id = workflow.workflow_id
-    execution_manager = DefaultExecutionManager(
-        workflow_id=workflow_id,
-        root_dir=root_dir,
-        db_url=db_url,
-    )
-    execution_manager.process_workflow()
-
-
 class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
-    def deploy_workflow_definition(self):
-        describe_workflow_definition: DescribeWorkflowDefinition = self.model
-        with self.db_session() as session:
-            session.query(WorkflowDefinition).filter(
-                WorkflowDefinition.workflow_definition_id
-                == describe_workflow_definition.workflow_definition_id
-            ).update({"active": True, "status": Status.DEPLOYED})
-            session.commit()
-
     def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
-        print("getting task records for task: {task_ids}")
+        print(f"getting task records for task: {task_ids}")
         with self.db_session() as session:
             tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
+        print(f"gotten task records for task {task_ids}: {tasks}")
 
         return tasks
 

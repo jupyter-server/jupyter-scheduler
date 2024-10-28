@@ -65,6 +65,36 @@ class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         else:
             self.finish(workflow.json())
 
+    @authenticated
+    async def get(self, workflow_id: str = None):
+        if workflow_id:
+            try:
+                workflow = await ensure_async(self.scheduler.get_workflow(workflow_id))
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise HTTPError(500, str(e)) from e
+            except Exception as e:
+                self.log.exception(e)
+                raise HTTPError(
+                    500, "Unexpected error occurred while getting workflow details."
+                ) from e
+            else:
+                self.finish(workflow.json())
+        else:
+            try:
+                workflows = await ensure_async(self.scheduler.get_all_workflows())
+                workflows_json = [workflow.dict() for workflow in workflows]
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise HTTPError(500, str(e)) from e
+            except Exception as e:
+                self.log.exception(e)
+                raise HTTPError(
+                    500, "Unexpected error occurred while getting all workflows details."
+                ) from e
+            else:
+                self.finish(json.dumps(workflows_json))
+
 
 class WorkflowsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
@@ -184,22 +214,40 @@ class WorkflowDefinitionsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
 
     @authenticated
     async def get(self, workflow_definition_id: str = None):
-        if not workflow_definition_id:
-            raise HTTPError(400, "Missing workflow_id in the request URL.")
-        try:
-            workflow_definition = await ensure_async(
-                self.scheduler.get_workflow_definition(workflow_definition_id)
-            )
-        except SchedulerError as e:
-            self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
-        except Exception as e:
-            self.log.exception(e)
-            raise HTTPError(
-                500, "Unexpected error occurred while getting workflow definition details."
-            ) from e
+        if workflow_definition_id:
+            try:
+                workflow_definition = await ensure_async(
+                    self.scheduler.get_workflow_definition(workflow_definition_id)
+                )
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise HTTPError(500, str(e)) from e
+            except Exception as e:
+                self.log.exception(e)
+                raise HTTPError(
+                    500, "Unexpected error occurred while getting workflow definition details."
+                ) from e
+            else:
+                self.finish(workflow_definition.json())
         else:
-            self.finish(workflow_definition.json())
+            try:
+                workflow_definitions = await ensure_async(
+                    self.scheduler.get_all_workflow_definitions()
+                )
+                workflow_definitions_json = [
+                    workflow_definition.dict() for workflow_definition in workflow_definitions
+                ]
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise HTTPError(500, str(e)) from e
+            except Exception as e:
+                self.log.exception(e)
+                raise HTTPError(
+                    500,
+                    "Unexpected error occurred while getting all workflows definitions details.",
+                ) from e
+            else:
+                self.finish(json.dumps(workflow_definitions_json))
 
 
 class WorkflowDefinitionsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
@@ -259,6 +307,47 @@ class WorkflowDefinitionsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, A
         else:
             self.set_status(204)
             self.finish()
+
+    @authenticated
+    async def get(self, workflow_definition_id: str = None):
+        if workflow_definition_id:
+            try:
+                task_definitions = await ensure_async(
+                    self.scheduler.get_workflow_definition_tasks(workflow_definition_id)
+                )
+                task_definitions_json = [
+                    task_definition.dict() for task_definition in task_definitions
+                ]
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise HTTPError(500, str(e)) from e
+            except Exception as e:
+                self.log.exception(e)
+                raise HTTPError(
+                    500,
+                    "Unexpected error occurred while getting workflow task definitions details.",
+                ) from e
+            else:
+                self.finish(json.dumps(task_definitions_json))
+        else:
+            try:
+                task_definitions = await ensure_async(
+                    self.scheduler.get_all_workflow_definition_tasks()
+                )
+                task_definitions_json = [
+                    task_definition.dict() for task_definition in task_definitions
+                ]
+            except SchedulerError as e:
+                self.log.exception(e)
+                raise HTTPError(500, str(e)) from e
+            except Exception as e:
+                self.log.exception(e)
+                raise HTTPError(
+                    500,
+                    "Unexpected error occurred while getting all task definitions details.",
+                ) from e
+            else:
+                self.finish(json.dumps(task_definitions_json))
 
 
 class WorkflowDefinitionsDeploymentHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):

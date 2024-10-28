@@ -17,7 +17,11 @@ from jupyter_scheduler.utils import (
     get_localized_timestamp,
     get_utc_timestamp,
 )
-from jupyter_scheduler.workflows import CreateWorkflow, UpdateWorkflowDefinition
+from jupyter_scheduler.workflows import (
+    CreateWorkflow,
+    DescribeWorkflowDefinition,
+    UpdateWorkflowDefinition,
+)
 
 Base = declarative_base()
 
@@ -108,11 +112,11 @@ class Cache:
                 session.add(WorkflowDefinitionCache(**model.dict()))
             session.commit()
 
-    def get(self, job_definition_id: str) -> DescribeWorkflowDefinitionCache:
+    def get(self, workflow_definition_id: str) -> DescribeWorkflowDefinitionCache:
         with self.session() as session:
             definition = (
                 session.query(WorkflowDefinitionCache)
-                .filter(WorkflowDefinitionCache.job_definition_id == job_definition_id)
+                .filter(WorkflowDefinitionCache.workflow_definition_id == workflow_definition_id)
                 .first()
             )
 
@@ -126,22 +130,22 @@ class Cache:
             session.add(WorkflowDefinitionCache(**model.dict()))
             session.commit()
 
-    def update(self, job_definition_id: str, model: UpdateWorkflowDefinitionCache):
+    def update(self, workflow_definition_id: str, model: UpdateWorkflowDefinitionCache):
         with self.session() as session:
             session.query(WorkflowDefinitionCache).filter(
-                WorkflowDefinitionCache.job_definition_id == job_definition_id
+                WorkflowDefinitionCache.workflow_definition_id == workflow_definition_id
             ).update(model.dict(exclude_none=True))
             session.commit()
 
-    def delete(self, job_definition_id: str):
+    def delete(self, workflow_definition_id: str):
         with self.session() as session:
             session.query(WorkflowDefinitionCache).filter(
-                WorkflowDefinitionCache.job_definition_id == job_definition_id
+                WorkflowDefinitionCache.workflow_definition_id == workflow_definition_id
             ).delete()
             session.commit()
 
 
-class BaseTaskRunner(LoggingConfigurable):
+class BaseWorkflowRunner(LoggingConfigurable):
     """Base task runner, this class's start method is called
     at the start of jupyter server, and is responsible for
     polling for the workflow definitions and creating new workflows
@@ -187,10 +191,10 @@ class BaseTaskRunner(LoggingConfigurable):
         NotImplementedError("must be implemented by subclass")
 
 
-class TaskRunner(BaseTaskRunner):
-    """Default task runner that maintains a workflow definition cache and a
+class WorkflowRunner(BaseWorkflowRunner):
+    """Default workflow runner that maintains a workflow definition cache and a
     priority queue, and polls the queue every `poll_interval` seconds
-    for new jobs to create.
+    for new workflows to create.
     """
 
     def __init__(self, scheduler, config=None) -> None:
@@ -205,7 +209,7 @@ class TaskRunner(BaseTaskRunner):
 
     def populate_cache(self):
         with self.db_session() as session:
-            definitions = (
+            definitions: List[WorkflowDefinition] = (
                 session.query(WorkflowDefinition).filter(WorkflowDefinition.schedule != None).all()
             )
 
@@ -223,7 +227,7 @@ class TaskRunner(BaseTaskRunner):
             if definition.active:
                 self.queue.push(
                     WorkflowDefinitionTask(
-                        job_definition_id=definition.workflow_definition_id,
+                        workflow_definition_id=definition.workflow_definition_id,
                         next_run_time=next_run_time,
                     )
                 )
@@ -273,12 +277,12 @@ class TaskRunner(BaseTaskRunner):
         )
 
         next_run_time_changed = cached_next_run_time != next_run_time and active
-        resumed_job = model.active and not cache.active
+        resumed_workflow = model.active and not cache.active
 
-        if next_run_time_changed or resumed_job:
+        if next_run_time_changed or resumed_workflow:
             self.log.debug("Updating queue...")
             task = WorkflowDefinitionTask(
-                job_definition_id=workflow_definition_id, next_run_time=next_run_time
+                workflow_definition_id=workflow_definition_id, next_run_time=next_run_time
             )
             self.queue.push(task)
             self.log.debug(f"Updated queue, {task}")
@@ -286,14 +290,13 @@ class TaskRunner(BaseTaskRunner):
     def delete_workflow_definition(self, workflow_definition_id: str):
         self.cache.delete(workflow_definition_id)
 
-    def create_workflow(self, workflow_definition_id: str):
-        definition = self.scheduler.get_workflow_definition(workflow_definition_id)
+    def create_and_run_workflow(self, workflow_definition_id: str):
+        definition: DescribeWorkflowDefinition = self.scheduler.get_workflow_definition(
+            workflow_definition_id
+        )
+        print(f"calling workflow_runner.create_and_run_workflow with {definition.dict}")
         if definition and definition.active:
-            self.scheduler.create_workflow(
-                CreateWorkflow(
-                    **definition.dict(exclude={"schedule", "timezone"}, exclude_none=True),
-                )
-            )
+            self.scheduler.run_workflow_from_definition(definition)
 
     def compute_time_diff(self, queue_run_time: int, timezone: str):
         local_time = get_localized_timestamp(timezone) if timezone else get_utc_timestamp()
@@ -302,7 +305,7 @@ class TaskRunner(BaseTaskRunner):
     def process_queue(self):
         self.log.debug(self.queue)
         while not self.queue.isempty():
-            task = self.queue.peek()
+            task: WorkflowDefinitionTask = self.queue.peek()
             cache = self.cache.get(task.workflow_definition_id)
 
             if not cache:
@@ -323,7 +326,7 @@ class TaskRunner(BaseTaskRunner):
                 break
             else:
                 try:
-                    self.create_workflow(task.workflow_definition_id)
+                    self.create_and_run_workflow(task.workflow_definition_id)
                 except Exception as e:
                     self.log.exception(e)
                 self.queue.pop()
@@ -334,7 +337,7 @@ class TaskRunner(BaseTaskRunner):
                 )
                 self.queue.push(
                     WorkflowDefinitionTask(
-                        job_definition_id=task.job_definition_id, next_run_time=run_time
+                        workflow_definition_id=task.workflow_definition_id, next_run_time=run_time
                     )
                 )
 

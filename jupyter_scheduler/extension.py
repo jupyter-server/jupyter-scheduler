@@ -125,6 +125,10 @@ class SchedulerApp(ExtensionApp):
             loop = asyncio.get_event_loop()
             loop.create_task(scheduler.task_runner.start())
 
+        if scheduler.workflow_runner:
+            loop = asyncio.get_event_loop()
+            loop.create_task(scheduler.workflow_runner.start())
+
     async def stop_extension(self):
         """
         Public method called by Jupyter Server when the server is stopping.
