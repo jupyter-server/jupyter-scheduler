@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.9.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.8.0...1f431cfa410c98868ff655c2f84986a10b91f4dc))
+
+### Enhancements made
+
+- Add support for Python 3.12, update versions of github actions [#548](https://github.com/jupyter-server/jupyter-scheduler/pull/548) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Add support for Python 3.12, update versions of github actions [#548](https://github.com/jupyter-server/jupyter-scheduler/pull/548) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-08-29&to=2024-09-18&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-08-29..2024-09-18&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.8.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.7.1...bfb84b632f375426529fde1226042651025a85a2))
@@ -23,8 +43,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-06-03&to=2024-08-29&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-06-03..2024-08-29&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Akrassowski+updated%3A2024-06-03..2024-08-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Asrdas+updated%3A2024-06-03..2024-08-29&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.7.1
 
