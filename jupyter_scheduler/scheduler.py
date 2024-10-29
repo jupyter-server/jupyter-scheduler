@@ -593,7 +593,9 @@ class Scheduler(BaseScheduler):
         return job_id
 
     def run_workflow_from_definition(self, model: DescribeWorkflowDefinition) -> str:
-        print(f"scheduler.calling create_and_run_workflow with {model}")
+        print(
+            f"calling scheduler.run_workflow_from_definition with DescribeWorkflowDefinition {model}"
+        )
         workflow_id = self.create_workflow(
             CreateWorkflow(
                 **model.dict(exclude={"schedule", "timezone", "tasks"}, exclude_none=True),
@@ -608,7 +610,7 @@ class Scheduler(BaseScheduler):
         return workflow_id
 
     def create_workflow(self, model: CreateWorkflow) -> str:
-        print(f"calling create_workflow with {model}")
+        print(f"calling scheduler.create_workflow with {model}")
         print(model.dict)
         with self.db_session() as session:
             workflow = Workflow(**model.dict(exclude_none=True))
@@ -617,7 +619,7 @@ class Scheduler(BaseScheduler):
             return workflow.workflow_id
 
     def run_workflow(self, workflow_id: str) -> str:
-        print(f"calling run_workflow for workflow {workflow_id}")
+        print(f"calling scheduler.run_workflow for {workflow_id}")
         process_workflow = self.execution_manager_class(
             workflow_id=workflow_id,
             root_dir=self.root_dir,
@@ -681,6 +683,7 @@ class Scheduler(BaseScheduler):
     def get_workflow_definition_tasks(
         self, workflow_definition_id: str
     ) -> List[DescribeJobDefinition]:
+        print(f"calling scheduler.get_workflow_definition_tasks for{workflow_definition_id}")
         with self.db_session() as session:
             task_records = (
                 session.query(JobDefinition)
@@ -691,6 +694,9 @@ class Scheduler(BaseScheduler):
         return tasks
 
     def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
+        print(
+            f"calling scheduler.create_workflow_task with workflow_id {workflow_id},\n CreateJob {model},\n about to call scheduler.create_job"
+        )
         job_id = self.create_job(model, run=False)
         print(f"create_workflow_task job_id: {job_id}")
         workflow: DescribeWorkflow = self.get_workflow(workflow_id)
