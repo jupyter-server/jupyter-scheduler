@@ -7,7 +7,7 @@ from sqlalchemy import Boolean, Column, Integer, String, create_engine, inspect
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 from sqlalchemy.sql import text
 
-from jupyter_scheduler.models import EmailNotifications, Status, TriggerRule
+from jupyter_scheduler.models import EmailNotifications, Status
 from jupyter_scheduler.utils import get_utc_timestamp
 
 Base = declarative_base()
@@ -90,7 +90,6 @@ class CommonColumns:
     package_input_folder = Column(Boolean)
     packaged_files = Column(JsonType, default=[])
     depends_on = Column(JsonType)
-    trigger_rule = Column(String(64))
 
 
 class Job(CommonColumns, Base):
