@@ -232,7 +232,7 @@ class WorkflowDefinitionsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
         else:
             try:
                 workflow_definitions = await ensure_async(
-                    self.scheduler.get_all_workflow_definitions()
+                    self.scheduler.get_all_workflow_definition_tasks()
                 )
                 workflow_definitions_json = [
                     workflow_definition.dict() for workflow_definition in workflow_definitions
@@ -258,7 +258,9 @@ class WorkflowDefinitionsTasksHandler(ExtensionHandlerMixin, JobHandlersMixin, A
             task_defintion_id = await ensure_async(
                 self.scheduler.create_workflow_definition_task(
                     workflow_definition_id=workflow_definition_id,
-                    model=CreateJobDefinition(**payload),
+                    model=CreateJobDefinition(
+                        **payload, workflow_definition_id=workflow_definition_id
+                    ),
                 )
             )
         except ValidationError as e:

@@ -238,7 +238,7 @@ class CreateJobDefinition(BaseModel):
     timezone: Optional[str] = None
     package_input_folder: Optional[bool] = None
     depends_on: Optional[List[str]] = None
-    workflow_id: Optional[str] = None
+    workflow_definition_id: Optional[str] = None
     trigger_rule: Optional[TriggerRule] = None
 
     @root_validator
@@ -268,7 +268,7 @@ class DescribeJobDefinition(BaseModel):
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
     depends_on: Optional[List[str]] = None
-    workflow_id: Optional[str] = None
+    workflow_definition_id: Optional[str] = None
     trigger_rule: Optional[TriggerRule] = None
 
     class Config:
@@ -290,7 +290,7 @@ class UpdateJobDefinition(BaseModel):
     compute_type: Optional[str] = None
     input_uri: Optional[str] = None
     depends_on: Optional[List[str]] = None
-    workflow_id: Optional[str] = None
+    workflow_definition_id: Optional[str] = None
     trigger_rule: Optional[TriggerRule] = None
 
 

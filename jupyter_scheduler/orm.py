@@ -90,7 +90,6 @@ class CommonColumns:
     package_input_folder = Column(Boolean)
     packaged_files = Column(JsonType, default=[])
     depends_on = Column(JsonType)
-    workflow_id = Column(String(36))
     trigger_rule = Column(String(64))
 
 
@@ -106,6 +105,7 @@ class Job(CommonColumns, Base):
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
+    workflow_id = Column(String(36))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 
@@ -148,6 +148,7 @@ class JobDefinition(CommonColumns, Base):
     url = Column(String(256), default=generate_job_definitions_url)
     create_time = Column(Integer, default=get_utc_timestamp)
     active = Column(Boolean, default=True)
+    workflow_definition_id = Column(String(36))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
 
