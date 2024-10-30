@@ -104,7 +104,6 @@ class ExecutionManager(ABC):
             self.on_complete()
 
     def process_workflow(self):
-        print(f"calling ExecutionManager(ABC).process_workflow for {self.model}")
         self.before_start_workflow()
         try:
             self.execute_workflow()
@@ -155,7 +154,6 @@ class ExecutionManager(ABC):
 
     def before_start_workflow(self):
         """Called before start of execute"""
-        print(f"calling ExecutionManager(ABC).before_start_workflow for {self.model}")
         workflow = self.model
         with self.db_session() as session:
             session.query(Workflow).filter(Workflow.workflow_id == workflow.workflow_id).update(
@@ -207,29 +205,20 @@ class DefaultExecutionManager(ExecutionManager):
     """Default execution manager that executes notebooks"""
 
     def get_tasks_records(self, task_ids: List[str]) -> List[Job]:
-        print(f"getting task records for task: {task_ids}")
         with self.db_session() as session:
             tasks = session.query(Job).filter(Job.job_id.in_(task_ids)).all()
-        print(f"gotten task records for task {task_ids}: {tasks}")
 
         return tasks
 
     # @dask.delayed(name="Execute workflow")
     def execute_workflow(self):
         tasks_info: List[Job] = self.get_tasks_records(self.model.tasks)
-        print(f"tasks_info in execute_workflow: {tasks_info}")
         tasks = {task.job_id: task for task in tasks_info}
-        print(f"tasks in execute_workflow: {tasks}")
 
         @lru_cache(maxsize=None)
         def make_task(task_id):
             """Create a delayed object for the given task recursively creating delayed objects for all tasks it depends on"""
-            print("making task for")
-            print(task_id)
             deps = tasks[task_id].depends_on or []
-            print(deps)
-            print(f"dependencies in make_task for {task_id}")
-            print(deps)
 
             execute_task_delayed = execute_task(
                 job=tasks[task_id],
@@ -237,15 +226,10 @@ class DefaultExecutionManager(ExecutionManager):
                 db_url=self.db_url,
                 dependencies=[make_task(dep_id) for dep_id in deps],
             )
-            print("execute task result from make_task")
-            print(execute_task_delayed)
 
             return execute_task_delayed
 
         final_tasks = [make_task(task_id) for task_id in tasks]
-        print("Final tasks:")
-        print(final_tasks)
-        print(f"Calling compute after loops")
         dask.compute(*final_tasks)
 
     def execute(self):
@@ -331,7 +315,6 @@ class DefaultExecutionManager(ExecutionManager):
 
 @dask.delayed(name="Execute workflow task")
 def execute_task(job: Job, root_dir: str, db_url: str, dependencies: List[str] = []):
-    print(f"executing task {job.job_id} with dependencies {dependencies}")
     staging_paths = Scheduler.get_staging_paths(DescribeJob.from_orm(job))
     process_job = DefaultExecutionManager(
         job_id=job.job_id,

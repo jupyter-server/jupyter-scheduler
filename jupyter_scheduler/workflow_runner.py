@@ -294,11 +294,7 @@ class WorkflowRunner(BaseWorkflowRunner):
         definition: DescribeWorkflowDefinition = self.scheduler.get_workflow_definition(
             workflow_definition_id
         )
-        print(f"calling workflow_runner.create_and_run_workflow with {definition.dict}")
         if definition and definition.active:
-            print(
-                f"calling self.scheduler.run_workflow_from_definition from workflow_runner.create_and_run_workflow with {definition.dict}"
-            )
             self.scheduler.run_workflow_from_definition(definition)
 
     def compute_time_diff(self, queue_run_time: int, timezone: str):

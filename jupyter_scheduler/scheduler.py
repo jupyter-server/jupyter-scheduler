@@ -593,9 +593,6 @@ class Scheduler(BaseScheduler):
         return job_id
 
     def run_workflow_from_definition(self, model: DescribeWorkflowDefinition) -> str:
-        print(
-            f"calling scheduler.run_workflow_from_definition with DescribeWorkflowDefinition {model.dict()}"
-        )
         workflow_id = self.create_workflow(
             CreateWorkflow(
                 **model.dict(exclude={"schedule", "timezone", "tasks"}, exclude_none=True),
@@ -603,9 +600,6 @@ class Scheduler(BaseScheduler):
         )
         task_definitions = self.get_workflow_definition_tasks(model.workflow_definition_id)
         for task_definition in task_definitions:
-            print(
-                f"scheduler.run_workflow_from_definition attempting to create a workflow {workflow_id} task from task definition {task_definition.dict()}"
-            )
             input_uri = self.get_staging_paths(task_definition)["input"]
             attributes = task_definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
             attributes = {**attributes, "input_uri": input_uri}
@@ -614,8 +608,6 @@ class Scheduler(BaseScheduler):
         return workflow_id
 
     def create_workflow(self, model: CreateWorkflow) -> str:
-        print(f"calling scheduler.create_workflow with CreateWorkflow {model.dict()}")
-        print(model.dict)
         with self.db_session() as session:
             workflow = Workflow(**model.dict(exclude_none=True))
             session.add(workflow)
@@ -623,7 +615,6 @@ class Scheduler(BaseScheduler):
             return workflow.workflow_id
 
     def run_workflow(self, workflow_id: str) -> str:
-        print(f"calling scheduler.run_workflow for {workflow_id}")
         process_workflow = self.execution_manager_class(
             workflow_id=workflow_id,
             root_dir=self.root_dir,
@@ -688,7 +679,6 @@ class Scheduler(BaseScheduler):
         self, workflow_definition_id: str
     ) -> List[DescribeJobDefinition]:
         with self.db_session() as session:
-            print(f"calling scheduler.get_workflow_definition_tasks for {workflow_definition_id}")
             task_records = (
                 session.query(JobDefinition)
                 .filter(JobDefinition.workflow_definition_id == workflow_definition_id)
@@ -698,17 +688,10 @@ class Scheduler(BaseScheduler):
         return tasks
 
     def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
-        print(
-            f"calling scheduler.create_workflow_task with workflow_id {workflow_id},\n CreateJob {model.dict()},\n about to call scheduler.create_job"
-        )
         job_id = self.create_job(model, run=False)
-        print(f"create_workflow_task job_id: {job_id}")
         workflow: DescribeWorkflow = self.get_workflow(workflow_id)
-        print(f"workflow in create_workflow_task: {workflow}")
         updated_tasks = (workflow.tasks or [])[:]
-        print(f"updated_tasks before update: {updated_tasks}")
         updated_tasks.append(job_id)
-        print(f"updated_tasks after update: {updated_tasks}")
 
         self.update_workflow(workflow_id, UpdateWorkflow(tasks=updated_tasks))
         return job_id
@@ -716,9 +699,6 @@ class Scheduler(BaseScheduler):
     def create_workflow_definition_task(
         self, workflow_definition_id: str, model: CreateJobDefinition
     ) -> str:
-        print(
-            f"calling scheduler.create_workflow_definition_task with for workflow def {workflow_definition_id} with CreateJobDefinition model {model.dict()}"
-        )
         job_definition_id = self.create_job_definition(model, add_to_task_runner=False)
         workflow_definition: DescribeWorkflowDefinition = self.get_workflow_definition(
             workflow_definition_id
@@ -740,9 +720,6 @@ class Scheduler(BaseScheduler):
         return models
 
     def update_workflow(self, workflow_id: str, model: UpdateWorkflow):
-        print(
-            f"calling scheduler.update_workflow with workflow_id {workflow_id},\n UpdateWorkflow {model.dict()},\n about to call scheduler.create_job"
-        )
         with self.db_session() as session:
             session.query(Workflow).filter(Workflow.workflow_id == workflow_id).update(
                 model.dict(exclude_none=True)
