@@ -1087,4 +1087,3 @@ components:
         active:
           type: boolean
           nullable: true
-
