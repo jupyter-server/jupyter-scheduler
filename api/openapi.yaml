@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   title: Jupyter Scheduler API
-  version: 2.7.1
-  description: API for Jupyter Scheduler, a JupyterLab extension for running notebook jobs.
+  version: 0.0.1
+  description: API for Jupyter Scheduler, a JupyterLab extension for running notebook jobs and workflows.
 servers:
   - url: /scheduler
 security:
@@ -97,7 +97,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /jobs/{job_id}:
     get:
       summary: Get details of a specific job
@@ -161,7 +160,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
   /job_definitions:
     get:
       summary: List all job definitions
@@ -220,7 +218,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     post:
       summary: Create a new job definition
       requestBody:
@@ -246,191 +243,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /job_definitions/{job_definition_id}:
+  /workflows:
     get:
-      summary: Get details of a specific job definition
-      parameters:
-        - name: job_definition_id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: List all workflows
       responses:
         '200':
-          description: Successfully retrieved job definition details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DescribeJobDefinition'
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    patch:
-      summary: Update a specific job definition
-      parameters:
-        - name: job_definition_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Data for updating the job definition
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateJobDefinition'
-      responses:
-        '204':
-          description: Successfully updated the job definition.
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    delete:
-      summary: Delete a specific job definition
-      parameters:
-        - name: job_definition_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Successfully deleted the job definition.
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /job_definitions/{job_definition_id}/jobs:
-    post:
-      summary: Create a job from a job definition
-      parameters:
-        - name: job_definition_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Parameters needed to create a job from this job definition
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateJobFromDefinition'
-      responses:
-        '200':
-          description: Successfully created the job from the job definition.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  job_id:
-                    type: string
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-
-  /jobs/{job_id}/download_files:
-    get:
-      summary: Download job files
-      parameters:
-        - name: job_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: redownload
-          in: query
-          schema:
-            type: boolean
-            default: false
-      responses:
-        '204':
-          description: Files successfully downloaded or copied.
-        '500':
-          description: Error downloading files
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /jobs/count:
-    get:
-      summary: Count jobs based on status
-      parameters:
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/Status'
-      responses:
-        '200':
-          description: Successfully counted jobs.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /runtime_environments:
-    get:
-      summary: List available runtime environments
-      responses:
-        '200':
-          description: Successfully listed runtime environments.
+          description: Successfully retrieved list of workflows.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RuntimeEnvironment'
+                  $ref: '#/components/schemas/DescribeWorkflow'
         '500':
           description: Server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /config:
-    get:
-      summary: Get configuration details
+    post:
+      summary: Create a new workflow
+      requestBody:
+        description: Payload to create a new workflow
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflow'
       responses:
         '200':
-          description: Successfully retrieved configuration details.
+          description: Successfully created the workflow.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  supported_features:
-                    type: array
-                    items:
-                      type: string
-                  manage_environments_command:
+                  workflow_id:
                     type: string
         '500':
           description: Server error
@@ -438,20 +286,329 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /batch/jobs:
-    delete:
-      summary: Batch delete jobs
+  /workflows/{workflow_id}:
+    get:
+      summary: Get details of a specific workflow
       parameters:
-        - name: job_id
-          in: query
+        - name: workflow_id
+          in: path
+          required: true
           schema:
-            type: array
-            items:
-              type: string
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved workflow details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeWorkflow'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a specific workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data for updating the workflow
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkflow'
       responses:
         '204':
-          description: Successfully deleted the specified jobs.
+          description: Successfully updated the workflow.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a specific workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted the workflow.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflows/{workflow_id}/run:
+    post:
+      summary: Run a specific workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow started successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflow_id:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflows/{workflow_id}/tasks:
+    get:
+      summary: Get tasks (Jobs) in a workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved workflow tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DescribeJob'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a task (Job) to a workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Payload to create a new task (Job) in the workflow
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJob'
+      responses:
+        '200':
+          description: Successfully created the workflow task.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflow_definitions:
+    get:
+      summary: List all workflow definitions
+      responses:
+        '200':
+          description: Successfully retrieved the list of workflow definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DescribeWorkflowDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new workflow definition
+      requestBody:
+        description: Payload to create a new workflow definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkflowDefinition'
+      responses:
+        '200':
+          description: Successfully created the workflow definition.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflow_definition_id:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflow_definitions/{workflow_definition_id}:
+    get:
+      summary: Get details of a specific workflow definition
+      parameters:
+        - name: workflow_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved workflow definition details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescribeWorkflowDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a specific workflow definition
+      parameters:
+        - name: workflow_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data for updating the workflow definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkflowDefinition'
+      responses:
+        '204':
+          description: Successfully updated the workflow definition.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a specific workflow definition
+      parameters:
+        - name: workflow_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted the workflow definition.
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflow_definitions/{workflow_definition_id}/deploy:
+    post:
+      summary: Deploy a workflow definition
+      parameters:
+        - name: workflow_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deployed the workflow definition.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflow_definition_id:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflow_definitions/{workflow_definition_id}/tasks:
+    get:
+      summary: List tasks (Job Definitions) for a specific workflow definition
+      parameters:
+        - name: workflow_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved workflow definition tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DescribeJobDefinition'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Add a task (Job Definition) to a workflow definition
+      parameters:
+        - name: workflow_definition_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Payload to create a new task (Job Definition) in the workflow definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateJobDefinition'
+      responses:
+        '200':
+          description: Successfully created the workflow definition task.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_definition_id:
+                    type: string
         '500':
           description: Server error
           content:
@@ -465,13 +622,12 @@ components:
       type: apiKey
       in: header
       name: Authorization
-      description: "Authentication managed by the Jupyter Server using a token provided in the Authorization header. See Jupyter Server documentation for more details."
+      description: "Authentication managed by the Jupyter Server using a token provided in the Authorization header."
     JupyterServerAuthToken:
       type: apiKey
       in: query
       name: token
-      description: "Authentication managed by the Jupyter Server using a token provided as a query parameter. See Jupyter Server documentation for more details."
-
+      description: "Authentication managed by the Jupyter Server using a token provided as a query parameter."
   schemas:
     Error:
       type: object
@@ -480,7 +636,7 @@ components:
           type: string
     Status:
       type: string
-      enum: [CREATED, QUEUED, IN_PROGRESS, COMPLETED, FAILED, STOPPING, STOPPED]
+      enum: [CREATED, QUEUED, IN_PROGRESS, COMPLETED, FAILED, STOPPING, STOPPED, DRAFT, DEPLOYED]
     SortField:
       type: object
       properties:
@@ -496,54 +652,146 @@ components:
           type: string
         input_filename:
           type: string
+          nullable: true
         runtime_environment_name:
           type: string
         runtime_environment_parameters:
           type: object
           additionalProperties:
             type: string
+          nullable: true
         output_formats:
           type: array
           items:
             type: string
+          nullable: true
         parameters:
           type: object
           additionalProperties:
             type: string
+          nullable: true
         tags:
           type: array
           items:
             type: string
+          nullable: true
         name:
           type: string
         output_filename_template:
           type: string
+          nullable: true
+          default: "{{input_filename}}-{{create_time}}"
         compute_type:
           type: string
+          nullable: true
         job_files:
           type: array
           items:
             $ref: '#/components/schemas/JobFile'
+          nullable: true
         create_time:
           type: integer
         update_time:
           type: integer
         start_time:
           type: integer
+          nullable: true
         end_time:
           type: integer
+          nullable: true
         status:
           $ref: '#/components/schemas/Status'
         status_message:
           type: string
+          nullable: true
         downloaded:
           type: boolean
         package_input_folder:
           type: boolean
+          nullable: true
         packaged_files:
           type: array
           items:
             type: string
+          nullable: true
+          default: []
+        depends_on:
+          type: array
+          items:
+            type: string
+          nullable: true
+        workflow_id:
+          type: string
+          nullable: true
+    DescribeWorkflow:
+      type: object
+      properties:
+        workflow_id:
+          type: string
+        tasks:
+          type: array
+          items:
+            type: string
+          description: IDs of Jobs associated with the workflow
+        name:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/Status'
+        active:
+          type: boolean
+    CreateWorkflow:
+      type: object
+      properties:
+        name:
+          type: string
+        tasks:
+          type: array
+          items:
+            type: string
+          description: IDs of Jobs to include in the workflow
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+    UpdateWorkflow:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        tasks:
+          type: array
+          items:
+            type: string
+          description: IDs of Jobs to update in the workflow
+          nullable: true
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/Status'
+          nullable: true
+        active:
+          type: boolean
+          nullable: true
+    JobFile:
+      type: object
+      properties:
+        display_name:
+          type: string
+        file_format:
+          type: string
+        file_path:
+          type: string
     ListJobsResponse:
       type: object
       properties:
@@ -562,74 +810,67 @@ components:
           type: string
         input_filename:
           type: string
+          nullable: true
         runtime_environment_name:
           type: string
         runtime_environment_parameters:
           type: object
-        additionalProperties:
-          type: string
+          additionalProperties:
+            type: string
+          nullable: true
         output_formats:
           type: array
           items:
             type: string
+          nullable: true
         parameters:
           type: object
+          additionalProperties:
+            type: string
+          nullable: true
         tags:
           type: array
           items:
             type: string
+          nullable: true
         name:
           type: string
         output_filename_template:
           type: string
+          nullable: true
+          default: "{{input_filename}}-{{create_time}}"
         compute_type:
           type: string
+          nullable: true
         package_input_folder:
           type: boolean
+          nullable: true
+        depends_on:
+          type: array
+          items:
+            type: string
+          nullable: true
+        workflow_id:
+          type: string
+          nullable: true
     UpdateJob:
       type: object
       properties:
         status:
-          $ref: '#/components/schemas/Status'
+          allOf:
+            - $ref: '#/components/schemas/Status'
+          nullable: true
         name:
           type: string
+          nullable: true
         compute_type:
           type: string
-    DescribeJobDefinition:
-      type: object
-      properties:
-        job_definition_id:
-          type: string
-        input_filename:
-          type: string
-        runtime_environment_name:
-          type: string
-        runtime_environment_parameters:
-          type: object
-          additionalProperties:
-            type: string
-        output_formats:
+          nullable: true
+        depends_on:
           type: array
           items:
             type: string
-        parameters:
-          type: object
-          additionalProperties:
-            type: string
-        tags:
-          type: array
-          items:
-            type: string
-        name:
-          type: string
-        output_filename_template:
-          type: string
-        active:
-          type: boolean
-        create_time:
-          type: integer
-        update_time:
-          type: integer
+          nullable: true
     ListJobDefinitionsResponse:
       type: object
       properties:
@@ -648,117 +889,201 @@ components:
           type: string
         input_filename:
           type: string
+          nullable: true
         runtime_environment_name:
           type: string
         runtime_environment_parameters:
           type: object
           additionalProperties:
             type: string
+          nullable: true
         output_formats:
           type: array
           items:
             type: string
+          nullable: true
         parameters:
           type: object
           additionalProperties:
             type: string
+          nullable: true
         tags:
           type: array
           items:
             type: string
+          nullable: true
         name:
           type: string
         output_filename_template:
           type: string
-        active:
-          type: boolean
-        schedule:
-          type: string
-        timezone:
-          type: string
+          nullable: true
+          default: "{{input_filename}}-{{create_time}}"
         compute_type:
           type: string
+          nullable: true
+        schedule:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
         package_input_folder:
           type: boolean
-    UpdateJobDefinition:
+          nullable: true
+        depends_on:
+          type: array
+          items:
+            type: string
+          nullable: true
+        workflow_definition_id:
+          type: string
+          nullable: true
+    DescribeJobDefinition:
       type: object
       properties:
+        input_filename:
+          type: string
+          nullable: true
         runtime_environment_name:
           type: string
         runtime_environment_parameters:
           type: object
           additionalProperties:
             type: string
+          nullable: true
         output_formats:
           type: array
           items:
             type: string
+          nullable: true
         parameters:
           type: object
           additionalProperties:
             type: string
+          nullable: true
         tags:
           type: array
           items:
             type: string
+          nullable: true
         name:
-          type: string
-        url:
-          type: string
-        schedule:
-          type: string
-        timezone:
           type: string
         output_filename_template:
           type: string
-        active:
-          type: boolean
+          nullable: true
+          default: "{{input_filename}}-{{create_time}}"
         compute_type:
           type: string
-        input_uri:
+          nullable: true
+        schedule:
           type: string
-    CreateJobFromDefinition:
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        job_definition_id:
+          type: string
+        create_time:
+          type: integer
+        update_time:
+          type: integer
+        active:
+          type: boolean
+        package_input_folder:
+          type: boolean
+          nullable: true
+        packaged_files:
+          type: array
+          items:
+            type: string
+          nullable: true
+          default: []
+        depends_on:
+          type: array
+          items:
+            type: string
+          nullable: true
+        workflow_definition_id:
+          type: string
+          nullable: true
+      required:
+        - runtime_environment_name
+        - name
+        - job_definition_id
+        - create_time
+        - update_time
+        - active
+    CreateWorkflowDefinition:
       type: object
       properties:
+        tasks:
+          type: array
+          items:
+            type: string
+          description: IDs of Job Definitions to be included as tasks
+        name:
+          type: string
         parameters:
           type: object
           additionalProperties:
             type: string
-    JobFile:
+          nullable: true
+        schedule:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+    DescribeWorkflowDefinition:
       type: object
       properties:
-        display_name:
+        workflow_definition_id:
           type: string
-        file_format:
-          type: string
-        file_path:
-          type: string
-    RuntimeEnvironment:
-      type: object
-      properties:
+        tasks:
+          type: array
+          items:
+            type: string
+          description: IDs of Job Definitions associated as tasks
         name:
           type: string
-        label:
-          type: string
-        description:
-          type: string
-        file_extensions:
-          type: array
-          items:
-            type: string
-        output_formats:
-          type: array
-          items:
-            type: string
-        metadata:
+        parameters:
           type: object
           additionalProperties:
             type: string
-        compute_types:
+          nullable: true
+        schedule:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/Status'
+        active:
+          type: boolean
+    UpdateWorkflowDefinition:
+      type: object
+      properties:
+        tasks:
           type: array
           items:
             type: string
-        default_compute_type:
+          description: IDs of Job Definitions to update in the workflow
+          nullable: true
+        name:
           type: string
-        utc_only:
+          nullable: true
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        schedule:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        active:
           type: boolean
+          nullable: true
