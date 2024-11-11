@@ -393,6 +393,7 @@ class DescribeWorkflow(BaseModel):
     tasks: List[str] = None
     status: Status = Status.CREATED
     active: Optional[bool] = None
+    url: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -430,6 +431,7 @@ class DescribeWorkflowDefinition(BaseModel):
     timezone: Optional[str] = None
     status: Status = Status.CREATED
     active: Optional[bool] = None
+    url: Optional[str] = None
 
     class Config:
         orm_mode = True
