@@ -1,7 +1,8 @@
 import json
 from typing import Dict, List, Optional
+from urllib.parse import urlunparse
 
-from jupyter_server.utils import ensure_async
+from jupyter_server.utils import ensure_async, url_path_join
 from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.exceptions import (
@@ -22,8 +23,6 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.pydantic_v1 import BaseModel, ValidationError
-from urllib.parse import urlunparse
-from jupyter_server.utils import url_path_join
 
 
 class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
