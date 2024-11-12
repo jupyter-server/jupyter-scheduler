@@ -45,27 +45,27 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/job_definitions/%s/jobs" % JOB_DEFINITION_ID_REGEX, JobFromDefinitionHandler),
         (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
         (r"scheduler/config", ConfigHandler),
-        (r"scheduler/worklows", WorkflowsHandler),
-        (rf"scheduler/worklows/{WORKFLOW_ID_REGEX}", WorkflowsHandler),
+        (r"scheduler/workflows", WorkflowsHandler),
+        (rf"scheduler/workflows/{WORKFLOW_ID_REGEX}", WorkflowsHandler),
         (
-            rf"scheduler/worklows/{WORKFLOW_ID_REGEX}/run",
+            rf"scheduler/workflows/{WORKFLOW_ID_REGEX}/run",
             WorkflowsRunHandler,
         ),
         (
-            rf"scheduler/worklows/{WORKFLOW_ID_REGEX}/tasks",
+            rf"scheduler/workflows/{WORKFLOW_ID_REGEX}/tasks",
             WorkflowsTasksHandler,
         ),
-        (r"scheduler/worklow_definitions", WorkflowDefinitionsHandler),
+        (r"scheduler/workflow_definitions", WorkflowDefinitionsHandler),
         (
-            rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}",
+            rf"scheduler/workflow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}",
             WorkflowDefinitionsHandler,
         ),
         (
-            rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/deploy",
+            rf"scheduler/workflow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/deploy",
             WorkflowDefinitionsDeploymentHandler,
         ),
         (
-            rf"scheduler/worklow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/tasks",
+            rf"scheduler/workflow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/tasks",
             WorkflowDefinitionsTasksHandler,
         ),
     ]

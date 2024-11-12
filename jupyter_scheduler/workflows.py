@@ -22,6 +22,8 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.pydantic_v1 import BaseModel, ValidationError
+from urllib.parse import urlunparse
+from jupyter_server.utils import url_path_join
 
 
 class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
@@ -32,6 +34,13 @@ class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             workflow_id = await ensure_async(
                 self.scheduler.create_workflow(CreateWorkflow(**payload))
             )
+
+            protocol = self.request.protocol
+            host = self.request.host
+            base_url = self.base_url
+            resource_path = url_path_join(base_url, "scheduler", "workflows", workflow_id)
+            full_url = urlunparse((protocol, host, resource_path, "", "", ""))
+
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -48,7 +57,7 @@ class WorkflowsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             self.log.exception(e)
             raise HTTPError(500, "Unexpected error occurred during creation of a workflow.") from e
         else:
-            self.finish(json.dumps(dict(workflow_id=workflow_id)))
+            self.finish(json.dumps(dict(workflow_id=workflow_id, url=full_url)))
 
     @authenticated
     async def get(self, workflow_id: str = None):
@@ -192,6 +201,13 @@ class WorkflowDefinitionsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
             workflow_definition_id = await ensure_async(
                 self.scheduler.create_workflow_definition(CreateWorkflowDefinition(**payload))
             )
+            protocol = self.request.protocol
+            host = self.request.host
+            base_url = self.base_url
+            resource_path = url_path_join(
+                base_url, "scheduler", "workflow_definitions", workflow_definition_id
+            )
+            full_url = urlunparse((protocol, host, resource_path, "", "", ""))
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -210,7 +226,9 @@ class WorkflowDefinitionsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
                 500, "Unexpected error occurred during creation of a workflow definition."
             ) from e
         else:
-            self.finish(json.dumps(dict(workflow_definition_id=workflow_definition_id)))
+            self.finish(
+                json.dumps(dict(workflow_definition_id=workflow_definition_id, url=full_url))
+            )
 
     @authenticated
     async def get(self, workflow_definition_id: str = None):
