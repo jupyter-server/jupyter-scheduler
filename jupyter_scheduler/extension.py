@@ -6,6 +6,14 @@ from jupyter_server.transutils import _i18n
 from traitlets import Bool, Type, Unicode, default
 
 from jupyter_scheduler.orm import create_tables
+from jupyter_scheduler.workflows import (
+    WorkflowDefinitionsDeploymentHandler,
+    WorkflowDefinitionsHandler,
+    WorkflowDefinitionsTasksHandler,
+    WorkflowsHandler,
+    WorkflowsRunHandler,
+    WorkflowsTasksHandler,
+)
 
 from .handlers import (
     BatchJobHandler,
@@ -20,6 +28,8 @@ from .handlers import (
 
 JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+(?:-\w+)+)"
 JOB_ID_REGEX = r"(?P<job_id>\w+(?:-\w+)+)"
+WORKFLOW_DEFINITION_ID_REGEX = r"(?P<workflow_definition_id>\w+(?:-\w+)+)"
+WORKFLOW_ID_REGEX = r"(?P<workflow_id>\w+(?:-\w+)+)"
 
 
 class SchedulerApp(ExtensionApp):
@@ -35,6 +45,29 @@ class SchedulerApp(ExtensionApp):
         (r"scheduler/job_definitions/%s/jobs" % JOB_DEFINITION_ID_REGEX, JobFromDefinitionHandler),
         (r"scheduler/runtime_environments", RuntimeEnvironmentsHandler),
         (r"scheduler/config", ConfigHandler),
+        (r"scheduler/workflows", WorkflowsHandler),
+        (rf"scheduler/workflows/{WORKFLOW_ID_REGEX}", WorkflowsHandler),
+        (
+            rf"scheduler/workflows/{WORKFLOW_ID_REGEX}/run",
+            WorkflowsRunHandler,
+        ),
+        (
+            rf"scheduler/workflows/{WORKFLOW_ID_REGEX}/tasks",
+            WorkflowsTasksHandler,
+        ),
+        (r"scheduler/workflow_definitions", WorkflowDefinitionsHandler),
+        (
+            rf"scheduler/workflow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}",
+            WorkflowDefinitionsHandler,
+        ),
+        (
+            rf"scheduler/workflow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/deploy",
+            WorkflowDefinitionsDeploymentHandler,
+        ),
+        (
+            rf"scheduler/workflow_definitions/{WORKFLOW_DEFINITION_ID_REGEX}/tasks",
+            WorkflowDefinitionsTasksHandler,
+        ),
     ]
 
     drop_tables = Bool(False, config=True, help="Drop the database tables before starting.")
@@ -91,3 +124,30 @@ class SchedulerApp(ExtensionApp):
         if scheduler.task_runner:
             loop = asyncio.get_event_loop()
             loop.create_task(scheduler.task_runner.start())
+
+        if scheduler.workflow_runner:
+            loop = asyncio.get_event_loop()
+            loop.create_task(scheduler.workflow_runner.start())
+
+    async def stop_extension(self):
+        """
+        Public method called by Jupyter Server when the server is stopping.
+        This calls the cleanup code defined in `self._stop_exception()` inside
+        an exception handler, as the server halts if this method raises an
+        exception.
+        """
+        try:
+            await self._stop_extension()
+        except Exception as e:
+            self.log.error("Jupyter Scheduler raised an exception while stopping:")
+
+            self.log.exception(e)
+
+    async def _stop_extension(self):
+        """
+        Private method that defines the cleanup code to run when the server is
+        stopping.
+        """
+        if "scheduler" in self.settings:
+            scheduler: SchedulerApp = self.settings["scheduler"]
+            await scheduler.stop_extension()

@@ -1,4 +1,3 @@
-import multiprocessing as mp
 import os
 import random
 import shutil
@@ -6,6 +5,8 @@ from typing import Dict, List, Optional, Type, Union
 
 import fsspec
 import psutil
+from dask.distributed import Client as DaskClient
+from distributed import LocalCluster
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
@@ -38,11 +39,25 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, JobDefinition, create_session
+from jupyter_scheduler.orm import (
+    Job,
+    JobDefinition,
+    Workflow,
+    WorkflowDefinition,
+    create_session,
+)
 from jupyter_scheduler.utils import (
     copy_directory,
     create_output_directory,
     create_output_filename,
+)
+from jupyter_scheduler.workflows import (
+    CreateWorkflow,
+    CreateWorkflowDefinition,
+    DescribeWorkflow,
+    DescribeWorkflowDefinition,
+    UpdateWorkflow,
+    UpdateWorkflowDefinition,
 )
 
 
@@ -109,6 +124,32 @@ class BaseScheduler(LoggingConfigurable):
         """
         raise NotImplementedError("must be implemented by subclass")
 
+    def create_workflow(self, model: CreateWorkflow) -> str:
+        """Creates a new workflow record."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def run_workflow(self, workflow_id: str) -> str:
+        """Triggers execution of the workflow."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def deploy_workflow_definition(self, workflow_definition_id: str) -> str:
+        """Activates workflow marking it as ready for execution."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def get_workflow(self, workflow_id: str) -> DescribeWorkflow:
+        """Returns workflow record for a single workflow."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
+        """Adds a task to a workflow."""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def create_workflow_definition_task(
+        self, workflow_definition_id: str, model: CreateJobDefinition
+    ) -> str:
+        """Adds a task to a workflow definition."""
+        raise NotImplementedError("must be implemented by subclass")
+
     def update_job(self, job_id: str, model: UpdateJob):
         """Updates job metadata in the persistence store,
         for example name, status etc. In case of status
@@ -160,6 +201,13 @@ class BaseScheduler(LoggingConfigurable):
         """
         raise NotImplementedError("must be implemented by subclass")
 
+    def create_workflow_definition(self, model: CreateWorkflowDefinition) -> str:
+        """Creates a new workflow definition record,
+        consider this as the template for creating
+        recurring/scheduled workflows.
+        """
+        raise NotImplementedError("must be implemented by subclass")
+
     def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         """Updates job definition metadata in the persistence store,
         should only impact all future jobs.
@@ -174,6 +222,10 @@ class BaseScheduler(LoggingConfigurable):
 
     def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
         """Returns job definition record for a single job definition"""
+        raise NotImplementedError("must be implemented by subclass")
+
+    def get_workflow_definition(self, workflow_definition_id: str) -> DescribeWorkflowDefinition:
+        """Returns workflow definition record for a single workflow definition"""
         raise NotImplementedError("must be implemented by subclass")
 
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
@@ -381,6 +433,12 @@ class BaseScheduler(LoggingConfigurable):
         else:
             return os.path.join(self.root_dir, self.output_directory, output_dir_name)
 
+    async def stop_extension(self):
+        """
+        Placeholder method for a cleanup code to run when the server is stopping.
+        """
+        pass
+
 
 class Scheduler(BaseScheduler):
     _db_session = None
@@ -395,9 +453,29 @@ class Scheduler(BaseScheduler):
         ),
     )
 
+    workflow_runner_class = TType(
+        allow_none=True,
+        config=True,
+        default_value="jupyter_scheduler.workflow_runner.WorkflowRunner",
+        klass="jupyter_scheduler.workflow_runner.BaseWorkflowRunner",
+        help=_i18n(
+            "The class that handles the workflow creation of scheduled workflows from workflow definitions."
+        ),
+    )
+
+    dask_cluster_url = Unicode(
+        allow_none=True,
+        config=True,
+        help="URL of the Dask cluster to connect to.",
+    )
+
     db_url = Unicode(help=_i18n("Scheduler database url"))
 
     task_runner = Instance(allow_none=True, klass="jupyter_scheduler.task_runner.BaseTaskRunner")
+
+    workflow_runner = Instance(
+        allow_none=True, klass="jupyter_scheduler.workflow_runner.BaseWorkflowRunner"
+    )
 
     def __init__(
         self,
@@ -413,6 +491,20 @@ class Scheduler(BaseScheduler):
         self.db_url = db_url
         if self.task_runner_class:
             self.task_runner = self.task_runner_class(scheduler=self, config=config)
+        if self.workflow_runner_class:
+            self.workflow_runner = self.workflow_runner_class(scheduler=self, config=config)
+        self.dask_client: DaskClient = self._get_dask_client()
+
+    def _get_dask_client(self):
+        """Creates and configures a Dask client."""
+        if self.dask_cluster_url:
+            return DaskClient(self.dask_cluster_url)
+        print("Starting local Dask cluster")
+        cluster = LocalCluster(processes=True)
+        client = DaskClient(cluster)
+        print(client)
+        print(f"Dask dashboard link: {client.dashboard_link}")
+        return client
 
     @property
     def db_session(self):
@@ -437,7 +529,7 @@ class Scheduler(BaseScheduler):
             destination_dir=staging_dir,
         )
 
-    def create_job(self, model: CreateJob) -> str:
+    def create_job(self, model: CreateJob, run: bool = True) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
 
@@ -478,30 +570,170 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-            # The MP context forces new processes to not be forked on Linux.
-            # This is necessary because `asyncio.get_event_loop()` is bugged in
-            # forked processes in Python versions below 3.12. This method is
-            # called by `jupyter_core` by `nbconvert` in the default executor.
-            #
-            # See: https://github.com/python/cpython/issues/66285
-            # See also: https://github.com/jupyter/jupyter_core/pull/362
-            mp_ctx = mp.get_context("spawn")
-            p = mp_ctx.Process(
-                target=self.execution_manager_class(
-                    job_id=job.job_id,
-                    staging_paths=staging_paths,
-                    root_dir=self.root_dir,
-                    db_url=self.db_url,
-                ).process
-            )
-            p.start()
+            if not run:
+                return job.job_id
 
-            job.pid = p.pid
+            job_id = self.run_job(job=job, staging_paths=staging_paths)
+            return job_id
+
+    def run_job(self, job: Job, staging_paths: Dict[str, str]) -> str:
+        with self.db_session() as session:
+            process_job = self.execution_manager_class(
+                job_id=job.job_id,
+                staging_paths=staging_paths,
+                root_dir=self.root_dir,
+                db_url=self.db_url,
+            ).process
+            future = self.dask_client.submit(process_job)
+            job.pid = future.key
             session.commit()
 
             job_id = job.job_id
 
         return job_id
+
+    def run_workflow_from_definition(self, model: DescribeWorkflowDefinition) -> str:
+        workflow_id = self.create_workflow(
+            CreateWorkflow(
+                **model.dict(exclude={"schedule", "timezone", "tasks"}, exclude_none=True),
+            )
+        )
+        task_definitions = self.get_workflow_definition_tasks(model.workflow_definition_id)
+        for task_definition in task_definitions:
+            input_uri = self.get_staging_paths(task_definition)["input"]
+            attributes = task_definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
+            attributes = {**attributes, "input_uri": input_uri}
+            self.create_workflow_task(workflow_id=workflow_id, model=CreateJob(**attributes))
+        self.run_workflow(workflow_id)
+        return workflow_id
+
+    def create_workflow(self, model: CreateWorkflow) -> str:
+        with self.db_session() as session:
+            workflow = Workflow(**model.dict(exclude_none=True))
+            session.add(workflow)
+            session.commit()
+            return workflow.workflow_id
+
+    def run_workflow(self, workflow_id: str) -> str:
+        process_workflow = self.execution_manager_class(
+            workflow_id=workflow_id,
+            root_dir=self.root_dir,
+            db_url=self.db_url,
+        ).process_workflow
+        self.dask_client.submit(process_workflow)
+        return workflow_id
+
+    def create_workflow_definition(self, model: CreateWorkflowDefinition) -> str:
+        with self.db_session() as session:
+            workflow_definition = WorkflowDefinition(**model.dict(exclude_none=True))
+            session.add(workflow_definition)
+            session.commit()
+            return workflow_definition.workflow_definition_id
+
+    def deploy_workflow_definition(self, workflow_definition_id: str) -> str:
+        with self.db_session() as session:
+            workflow_definition = (
+                session.query(WorkflowDefinition)
+                .filter(WorkflowDefinition.workflow_definition_id == workflow_definition_id)
+                .with_for_update()
+                .one()
+            )
+            workflow_definition_schedule = workflow_definition.schedule
+            session.query(WorkflowDefinition).filter(
+                WorkflowDefinition.workflow_definition_id == workflow_definition_id
+            ).update({"active": True, "status": Status.DEPLOYED})
+            session.commit()
+
+        if self.workflow_runner and workflow_definition_schedule:
+            self.workflow_runner.add_workflow_definition(workflow_definition_id)
+
+        return workflow_definition_id
+
+    def get_workflow(self, workflow_id: str) -> DescribeWorkflow:
+        with self.db_session() as session:
+            workflow_record = (
+                session.query(Workflow).filter(Workflow.workflow_id == workflow_id).one()
+            )
+        model = DescribeWorkflow.from_orm(workflow_record)
+        return model
+
+    def get_all_workflows(self) -> List[DescribeWorkflow]:
+        with self.db_session() as session:
+            workflow_records = session.query(Workflow).all()
+        models = [
+            DescribeWorkflow.from_orm(workflow_record) for workflow_record in workflow_records
+        ]
+        return models
+
+    def get_workflow_definition(self, workflow_definition_id: str) -> List[Workflow]:
+        with self.db_session() as session:
+            workflow_definition_record = (
+                session.query(WorkflowDefinition)
+                .filter(WorkflowDefinition.workflow_definition_id == workflow_definition_id)
+                .one()
+            )
+        model = DescribeWorkflowDefinition.from_orm(workflow_definition_record)
+        return model
+
+    def get_workflow_definition_tasks(
+        self, workflow_definition_id: str
+    ) -> List[DescribeJobDefinition]:
+        with self.db_session() as session:
+            task_records = (
+                session.query(JobDefinition)
+                .filter(JobDefinition.workflow_definition_id == workflow_definition_id)
+                .all()
+            )
+            tasks = [DescribeJobDefinition.from_orm(task_record) for task_record in task_records]
+        return tasks
+
+    def create_workflow_task(self, workflow_id: str, model: CreateJob) -> str:
+        job_id = self.create_job(model, run=False)
+        workflow: DescribeWorkflow = self.get_workflow(workflow_id)
+        updated_tasks = (workflow.tasks or [])[:]
+        updated_tasks.append(job_id)
+
+        self.update_workflow(workflow_id, UpdateWorkflow(tasks=updated_tasks))
+        return job_id
+
+    def create_workflow_definition_task(
+        self, workflow_definition_id: str, model: CreateJobDefinition
+    ) -> str:
+        job_definition_id = self.create_job_definition(model, add_to_task_runner=False)
+        workflow_definition: DescribeWorkflowDefinition = self.get_workflow_definition(
+            workflow_definition_id
+        )
+        updated_tasks = (workflow_definition.tasks or [])[:]
+        updated_tasks.append(job_definition_id)
+        self.update_workflow_definition(
+            workflow_definition_id, UpdateWorkflowDefinition(tasks=updated_tasks)
+        )
+        return job_definition_id
+
+    def get_all_workflow_definition_tasks(self) -> List[DescribeWorkflowDefinition]:
+        with self.db_session() as session:
+            workflow_definition_records = session.query(WorkflowDefinition).all()
+        models = [
+            DescribeWorkflowDefinition.from_orm(workflow_definition_record)
+            for workflow_definition_record in workflow_definition_records
+        ]
+        return models
+
+    def update_workflow(self, workflow_id: str, model: UpdateWorkflow):
+        with self.db_session() as session:
+            session.query(Workflow).filter(Workflow.workflow_id == workflow_id).update(
+                model.dict(exclude_none=True)
+            )
+            session.commit()
+
+    def update_workflow_definition(
+        self, workflow_definition_id: str, model: UpdateWorkflowDefinition
+    ):
+        with self.db_session() as session:
+            session.query(WorkflowDefinition).filter(
+                WorkflowDefinition.workflow_definition_id == workflow_definition_id
+            ).update(model.dict(exclude_none=True))
+            session.commit()
 
     def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:
@@ -604,7 +836,9 @@ class Scheduler(BaseScheduler):
                         session.commit()
                         break
 
-    def create_job_definition(self, model: CreateJobDefinition) -> str:
+    def create_job_definition(
+        self, model: CreateJobDefinition, add_to_task_runner: bool = True
+    ) -> str:
         with self.db_session() as session:
             if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
@@ -628,7 +862,7 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-        if self.task_runner and job_definition_schedule:
+        if add_to_task_runner and self.task_runner and job_definition_schedule:
             self.task_runner.add_job_definition(job_definition_id)
 
         return job_definition_id
@@ -776,6 +1010,37 @@ class Scheduler(BaseScheduler):
         staging_paths["input"] = os.path.join(self.staging_path, id, model.input_filename)
 
         return staging_paths
+
+    @staticmethod
+    def get_staging_paths(model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+        staging_paths = {}
+        if not model:
+            return staging_paths
+
+        id = model.job_id if isinstance(model, DescribeJob) else model.job_definition_id
+
+        for output_format in model.output_formats:
+            filename = create_output_filename(
+                model.input_filename, model.create_time, output_format
+            )
+            staging_paths[output_format] = os.path.join(
+                os.path.join(jupyter_data_dir(), "scheduler_staging_area"), id, filename
+            )
+
+        staging_paths["input"] = os.path.join(
+            os.path.join(jupyter_data_dir(), "scheduler_staging_area"), id, model.input_filename
+        )
+
+        return staging_paths
+
+    async def stop_extension(self):
+        """
+        Cleanup code to run when the server is stopping.
+        """
+        if self.dask_client is None:
+            return
+        if self.dask_client and self.dask_client.close:
+            self.dask_client.close()
 
 
 class ArchivingScheduler(Scheduler):
