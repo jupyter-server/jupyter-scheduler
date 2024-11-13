@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.10.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.9.0...524854685da5dce8b3030b3fd15e36f237fb021c))
+
+### Maintenance and upkeep improvements
+
+- Relax fsspec and pytz version pins allowing latest versions [#557](https://github.com/jupyter-server/jupyter-scheduler/pull/557) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-09-18&to=2024-11-13&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-09-18..2024-11-13&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.9.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.8.0...1f431cfa410c98868ff655c2f84986a10b91f4dc))
@@ -19,8 +35,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-08-29&to=2024-09-18&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-08-29..2024-09-18&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.8.0
 
