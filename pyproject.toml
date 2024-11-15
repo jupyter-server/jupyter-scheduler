@@ -80,7 +80,7 @@ dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
     "jupyter_scheduler/labextension/static/style.js",
-    "jupyter_scheduler//labextension/package.json",
+    "jupyter_scheduler/labextension/package.json",
 ]
 skip-if-exists = ["jupyter_scheduler/labextension/static/style.js"]
 
