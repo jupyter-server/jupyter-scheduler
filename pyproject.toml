@@ -72,7 +72,8 @@ artifacts = ["jupyter_scheduler/labextension"]
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
 [tool.hatch.build.targets.sdist]
-exclude = [".github"]
+artifacts = ["jupyter_scheduler/labextension"]
+exclude = [".github", "binder"]
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
@@ -92,10 +93,6 @@ build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyter_scheduler/labextension"
-
-[tool.hatch.build.targets.sdist]
-artifacts = ["jupyter_scheduler/labextension"]
-exclude = [".github", "binder"]
 
 [tool.tbump.version]
 current = "2.10.0"
