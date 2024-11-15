@@ -128,17 +128,5 @@
     "extension": true,
     "outputDir": "jupyter_scheduler/labextension",
     "schemaDir": "schema"
-  },
-  "jupyter-releaser": {
-    "hooks": {
-      "before-build-npm": [
-        "python -m pip install jupyterlab~=4.0",
-        "jlpm",
-        "jlpm build:prod"
-      ],
-      "before-build-python": [
-        "jlpm clean:all"
-      ]
-    }
   }
 }
