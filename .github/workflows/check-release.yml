@@ -14,12 +14,14 @@ jobs:
   check_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - run: ls -al
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Check Release
         uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+      - run: ls -al
       - name: Upload Distributions
         uses: actions/upload-artifact@v4
         with:
