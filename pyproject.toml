@@ -164,6 +164,3 @@ strict_equality = true
 warn_unused_configs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
-
-[tool.check-manifest]
-ignore = ["binder/**", "packages/**", "*.json", "*.png", "yarn.lock", ".*", "jupyter_scheduler/labextension/**", "jupyter_scheduler/static/**"]
