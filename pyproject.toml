@@ -93,6 +93,10 @@ npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyter_scheduler/labextension"
 
+[tool.hatch.build.targets.sdist]
+artifacts = ["jupyter_scheduler/labextension"]
+exclude = [".github", "binder"]
+
 [tool.tbump.version]
 current = "2.10.0"
 regex = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)((?P<channel>a|b|rc|.dev)(?P<release>\\d+))?"
@@ -143,6 +147,9 @@ filterwarnings = [
 
 [tool.jupyter_releaser]
 skip = ["check-links"]
+
+[tool.jupyter-releaser.hooks]
+before-build-python = ["jlpm clean:all"]
 
 [tool.mypy]
 check_untyped_defs = true
