@@ -30,15 +30,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "jupyter_server>=1.6,<3",
-    "traitlets~=5.0",
-    "nbconvert~=7.0",
-    "pydantic>=1.10,<3",
-    "sqlalchemy>=2.0,<3",
-    "croniter~=1.4",
-    "pytz>=2023.3,<=2024.2",
-    "fsspec>=2023.6.0,<=2024.10.0",
-    "psutil~=5.9"
 ]
 
 [project.optional-dependencies]
