@@ -31,10 +31,7 @@
       "description": "Timezone for the schedule."
     }
   },
-  "required": [
-    "tasks",
-    "name"
-  ],
+  "required": ["tasks", "name"],
   "definitions": {
     "Task": {
       "type": "object",
@@ -98,11 +95,7 @@
           "description": "DAG node ID of this task."
         }
       },
-      "required": [
-        "input_uri",
-        "name",
-        "node_id"
-      ]
+      "required": ["input_uri", "name", "node_id"]
     }
   }
 }
