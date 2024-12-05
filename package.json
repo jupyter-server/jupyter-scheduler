@@ -33,6 +33,7 @@
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
     "build:lib": "tsc",
+    "build:schema:js": "json2ts -i src/workflows/schema -o src/workflows/_interface --no-unknownAny --unreachableDefinitions --cwd ./src/workflows/schema",
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
@@ -74,6 +75,7 @@
     "@mui/system": "^5.10.6",
     "@types/react-dom": "^18.0.5",
     "cronstrue": "^2.12.0",
+    "json-schema-to-typescript": "^15.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tzdata": "^1.0.33"
