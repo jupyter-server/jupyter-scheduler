@@ -135,3 +135,6 @@ dev/*.ipynb
 # Jest coverage reports and a side effect
 coverage
 junit.xml
+
+# Interfaces generated from json-schema
+src/workflows/_interface
