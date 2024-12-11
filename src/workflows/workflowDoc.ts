@@ -1,5 +1,5 @@
 import { YDocument } from '@jupyter/ydoc';
-import { Text as YText, Doc as YDoc } from 'yjs';
+import * as Y from 'yjs';
 import { IWorkflowDoc, IWorkflowDocChange, StringChange } from './interfaces';
 import { ISignal, Signal } from '@lumino/signaling';
 
@@ -7,15 +7,14 @@ export class WorkflowDoc
   extends YDocument<IWorkflowDocChange>
   implements IWorkflowDoc
 {
-  private _name: YText;
-  private _nameChanged = new Signal<IWorkflowDoc, StringChange>(this);
-
   constructor() {
     super();
 
     this._name = this.ydoc.getText('name');
   }
 
+  private _name: Y.Text;
+  private _nameChanged = new Signal<IWorkflowDoc, StringChange>(this);
   get nameChanged(): ISignal<IWorkflowDoc, StringChange> {
     return this._nameChanged;
   }
@@ -31,7 +30,7 @@ export class WorkflowDoc
   }
 
   setName(name: string): void {
-    const newName = new YText();
+    const newName = new Y.Text();
     newName.insert(0, name);
     this._name = newName;
   }
