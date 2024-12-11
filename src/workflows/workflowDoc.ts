@@ -11,7 +11,12 @@ export class WorkflowDoc
     super();
 
     this._name = this.ydoc.getText('name');
+    this._name.observe(this._nameObserver);
   }
+
+  private _nameObserver = (event: Y.YTextEvent): void => {
+    this._nameChanged.emit({ newValue: 'WOW NEW VALUE' });
+  };
 
   private _name: Y.Text;
   private _nameChanged = new Signal<IWorkflowDoc, StringChange>(this);
