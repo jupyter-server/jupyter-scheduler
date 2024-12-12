@@ -3,6 +3,7 @@ import { PartialJSONObject } from '@lumino/coreutils';
 import { ISignal, Signal } from '@lumino/signaling';
 import { IWorkflowDoc } from './interfaces';
 import { WorkflowDoc } from './workflowDoc';
+import { Contents } from '@jupyterlab/services';
 
 export interface IWorkflowModel extends DocumentRegistry.IModel {
   sharedModel: IWorkflowDoc;
@@ -126,4 +127,44 @@ export class WorkflowModel implements IWorkflowModel {
 
   readonly defaultKernelName = '';
   readonly defaultKernelLanguage = '';
+}
+
+export class WorkflowModelFactory
+  implements DocumentRegistry.IModelFactory<WorkflowModel>
+{
+  //TODO: set conditionally
+  readonly collaborative = true;
+
+  get name(): string {
+    return 'workflow-model-factory';
+  }
+
+  get contentType(): Contents.ContentType {
+    return 'file';
+  }
+
+  get fileFormat(): Contents.FileFormat {
+    return 'text';
+  }
+
+  get isDisposed(): boolean {
+    return this._disposed;
+  }
+
+  dispose(): void {
+    this._disposed = true;
+  }
+
+  preferredLanguage(path: string): string {
+    return '';
+  }
+
+  createNew(
+    options: DocumentRegistry.IModelOptions<IWorkflowDoc>
+  ): WorkflowModel {
+    const model = new WorkflowModel(options);
+    return model;
+  }
+
+  private _disposed = false;
 }
