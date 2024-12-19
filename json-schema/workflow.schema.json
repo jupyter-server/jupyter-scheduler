@@ -95,7 +95,7 @@
           "items": {
             "type": "string"
           },
-          "description": "DAG node IDs of tasks this task depends on."
+          "description": "DAG node IDs of tasks this task depends on (upstream dependencies)."
         },
         "node_id": {
           "type": "string",
