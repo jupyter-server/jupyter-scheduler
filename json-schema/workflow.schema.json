@@ -101,7 +101,7 @@
               }
             },
             "required": [
-              "id"
+              "node_id"
             ]
           }
         },
