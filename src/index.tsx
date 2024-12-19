@@ -27,6 +27,8 @@ import { NotebookJobsPanel } from './notebook-jobs-panel';
 import { Scheduler } from './tokens';
 import { SERVER_EXTENSION_404_JSX } from './util/errors';
 import { MakeNameValid } from './util/job-name-validation';
+import { WorkflowModelFactory } from './workflows/workflowModel';
+import { WorkflowWidgetFactory } from './workflows/workflowWidgetFactory';
 
 export namespace CommandIDs {
   export const deleteJob = 'scheduling:delete-job';
@@ -194,9 +196,57 @@ function activatePlugin(
   telemetryHandler: Scheduler.TelemetryHandler,
   launcher: ILauncher | null
 ): void {
+  // Hardcoded boolean for testing. If true, set up workflow widget instead of scheduler UI
+  const showWorkflowsWidget = true;
+
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
   verifyServerExtension({ api, translator });
+
+  if (showWorkflowsWidget) {
+    const WORKFLOW_FACTORY = 'Workflow Editor';
+    const WORKFLOW_CONTENT_TYPE = 'workflow';
+    const WORKFLOW_FILE_EXT = '.jwf';
+
+    // Register the workflow file type
+    app.docRegistry.addFileType({
+      name: WORKFLOW_CONTENT_TYPE,
+      displayName: 'Workflow File',
+      extensions: [WORKFLOW_FILE_EXT],
+      fileFormat: 'text',
+      contentType: 'file',
+      mimeTypes: ['application/json']
+    });
+
+    // Register the workflow model factory
+    const modelFactory = new WorkflowModelFactory();
+    app.docRegistry.addModelFactory(modelFactory);
+
+    // Register the workflow widget factory
+    const widgetFactory = new WorkflowWidgetFactory({
+      name: WORKFLOW_FACTORY,
+      modelName: modelFactory.name,
+      fileTypes: [WORKFLOW_CONTENT_TYPE],
+      defaultFor: [WORKFLOW_CONTENT_TYPE]
+    });
+    app.docRegistry.addWidgetFactory(widgetFactory);
+
+    // Create a new untitled .jwf file and open it
+    void app.commands
+      .execute('docmanager:new-untitled', {
+        type: 'file',
+        ext: '.jwf'
+      })
+      .then(model => {
+        if (model) {
+          void app.commands.execute('docmanager:open', {
+            path: model.path
+          });
+        }
+      });
+
+    return;
+  }
 
   const { commands } = app;
   const fileBrowserTracker = browserFactory.tracker;
