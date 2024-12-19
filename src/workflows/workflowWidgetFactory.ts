@@ -1,4 +1,8 @@
-import { ABCWidgetFactory, DocumentRegistry } from '@jupyterlab/docregistry';
+import {
+  ABCWidgetFactory,
+  DocumentRegistry,
+  DocumentWidget
+} from '@jupyterlab/docregistry';
 import { Widget } from '@lumino/widgets';
 import { IWorkflowModel } from './workflowModel';
 
@@ -50,13 +54,29 @@ export class WorkflowWidget extends Widget {
   private _input: HTMLInputElement;
 }
 
-export class WorkflowWidgetFactory extends ABCWidgetFactory<
+export class WorkflowDocumentWidget extends DocumentWidget<
   Widget,
+  IWorkflowModel
+> {
+  constructor(options: DocumentWidget.IOptions<Widget, IWorkflowModel>) {
+    super(options);
+  }
+}
+
+export class WorkflowWidgetFactory extends ABCWidgetFactory<
+  WorkflowDocumentWidget,
   IWorkflowModel
 > {
   protected createNewWidget(
     context: DocumentRegistry.IContext<IWorkflowModel>
-  ): Widget {
-    return new WorkflowWidget(context);
+  ): WorkflowDocumentWidget {
+    const content = new WorkflowWidget(context);
+
+    const widget = new WorkflowDocumentWidget({
+      context,
+      content
+    });
+
+    return widget;
   }
 }
