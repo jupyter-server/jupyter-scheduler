@@ -11,21 +11,27 @@ export class WorkflowDoc
     super();
 
     this._name = this.ydoc.getText('name');
+    this._previousName = this._name.toString();
     this._name.observe(this._nameObserver);
   }
 
   private _nameObserver = (event: Y.YTextEvent): void => {
-    this._nameChanged.emit({ newValue: 'WOW NEW VALUE' });
+    const oldValue = this._previousName;
+    const newValue = this._name.toString();
+
+    this._previousName = newValue;
+
+    this._nameChanged.emit({ oldValue, newValue });
   };
 
-  private _name: Y.Text;
-  private _nameChanged = new Signal<IWorkflowDoc, StringChange>(this);
   get nameChanged(): ISignal<IWorkflowDoc, StringChange> {
     return this._nameChanged;
   }
+
   get name(): string {
     return this._name.toString();
   }
+
   get version(): string {
     return '0.0.1';
   }
@@ -35,8 +41,14 @@ export class WorkflowDoc
   }
 
   setName(name: string): void {
-    const newName = new Y.Text();
-    newName.insert(0, name);
-    this._name = newName;
+    const currentLength = this._name.length;
+    if (currentLength > 0) {
+      this._name.delete(0, currentLength);
+    }
+    this._name.insert(0, name);
   }
+
+  private _name: Y.Text;
+  private _previousName: string;
+  private _nameChanged = new Signal<IWorkflowDoc, StringChange>(this);
 }
