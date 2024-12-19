@@ -92,10 +92,18 @@
         },
         "depends_on": {
           "type": "array",
+          "description": "DAG node IDs of tasks this task depends on (upstream dependencies).",
           "items": {
-            "type": "string"
-          },
-          "description": "DAG node IDs of tasks this task depends on (upstream dependencies)."
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
         },
         "node_id": {
           "type": "string",
