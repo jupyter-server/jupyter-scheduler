@@ -96,7 +96,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "id": {
+              "node_id": {
                 "type": "string"
               }
             },
