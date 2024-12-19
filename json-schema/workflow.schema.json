@@ -113,7 +113,8 @@
       "required": [
         "input_uri",
         "name",
-        "node_id"
+        "node_id",
+        "depends_on"
       ]
     }
   }
