@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "0.0.1",
+  "name": "Example workflow",
+  "parameters": {
+    "ENV": "production",
+    "BUCKET": "mybucket"
+  },
+  "schedule": "0 6 * * *",
+  "timezone": "UTC",
+  "tasks": [
+    {
+      "node_id": "T1",
+      "name": "Initial Data Prep",
+      "input_uri": "/data/input1.csv",
+      "depends_on": [],
+      "runtime_environment_name": "python-env",
+      "runtime_environment_parameters": {
+        "python_version": "3.9"
+      },
+      "output_formats": [
+        "html",
+        "pdf"
+      ],
+      "parameters": {
+        "cleanup": "true"
+      },
+      "tags": [
+        "data-prep"
+      ],
+      "compute_type": "small",
+      "package_input_folder": false
+    },
+    {
+      "node_id": "T2",
+      "name": "Combine Data",
+      "input_uri": "/data/combined_input.csv",
+      "depends_on": [
+        {
+          "node_id": "T1"
+        },
+        {
+          "node_id": "T3"
+        }
+      ],
+      "runtime_environment_name": "python-env",
+      "runtime_environment_parameters": {
+        "python_version": "3.9"
+      },
+      "output_formats": [
+        "notebook"
+      ],
+      "parameters": {
+        "merge_mode": "full-outer"
+      },
+      "tags": [
+        "combine",
+        "processing"
+      ],
+      "compute_type": "medium",
+      "package_input_folder": false
+    },
+    {
+      "node_id": "T3",
+      "name": "Preprocess Data",
+      "input_uri": "/data/raw_data.csv",
+      "depends_on": [],
+      "runtime_environment_name": "python-env",
+      "runtime_environment_parameters": {},
+      "output_formats": [],
+      "parameters": {
+        "normalize": "true"
+      },
+      "tags": [
+        "preprocess"
+      ],
+      "compute_type": "large",
+      "package_input_folder": true
+    },
+    {
+      "node_id": "T4",
+      "name": "Analysis",
+      "input_uri": "/data/analysis_input.csv",
+      "depends_on": [
+        {
+          "node_id": "T2"
+        }
+      ],
+      "runtime_environment_name": "r-env",
+      "runtime_environment_parameters": {
+        "r_version": "4.2"
+      },
+      "output_formats": [
+        "html"
+      ],
+      "parameters": {
+        "analysis_type": "timeseries"
+      },
+      "tags": [
+        "analysis",
+        "R"
+      ],
+      "compute_type": "medium",
+      "package_input_folder": false
+    },
+    {
+      "node_id": "T5",
+      "name": "Final Output",
+      "input_uri": "/data/final_result.csv",
+      "depends_on": [],
+      "runtime_environment_name": "python-env",
+      "runtime_environment_parameters": {},
+      "output_formats": [],
+      "parameters": {},
+      "tags": [
+        "final"
+      ],
+      "compute_type": "small",
+      "package_input_folder": false
+    }
+  ]
+}
