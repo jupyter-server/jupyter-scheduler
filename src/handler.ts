@@ -323,7 +323,7 @@ async function requestAPI<T>(
   if (expectData && data.length > 0) {
     try {
       data = JSON.parse(data);
-    } catch (error) {
+    } catch {
       console.error('Not a JSON response body.', response);
     }
   }

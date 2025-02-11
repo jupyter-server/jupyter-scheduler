@@ -129,7 +129,7 @@ export function JobDefinition(props: IJobDefinitionProps): JSX.Element {
     if (model.schedule !== undefined) {
       cronString = cronstrue.toString(model.schedule);
     }
-  } catch (e) {
+  } catch {
     // Do nothing; let the errors or nothing display instead
   }
 

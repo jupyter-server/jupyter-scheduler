@@ -222,7 +222,7 @@ export function ScheduleInputs<
   const scheduleHelperText = useMemo(() => {
     try {
       return cronstrue.toString(props.model.schedule);
-    } catch (e) {
+    } catch {
       return '';
     }
   }, [props.model.schedule]);

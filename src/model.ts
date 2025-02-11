@@ -145,7 +145,7 @@ export function emptyUpdateJobDefinitionModel(): IUpdateJobDefinitionModel {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IListJobsModel extends PartialJSONObject {
   /* reserved */
 }
