@@ -75,6 +75,10 @@ class Downloader:
 
         with fsspec.open(archive_filepath) as f:
             with tarfile.open(fileobj=f, mode=read_mode) as tar:
+                # if extraction filter is supported (Python 3.12+), set a no-op filter
+                if hasattr(tar, "extraction_filter"):
+                    tar.extraction_filter = lambda member, path: member
+
                 tar.extractall(self.output_dir)
 
     def download(self):
