@@ -303,11 +303,11 @@ function activatePlugin(
   commands.addCommand(CommandIDs.createJobCurrentNotebook, {
     execute: async () => {
       eventLogger('notebook-header.create-job');
-      // Get the current notebook's name and path
-      const contentsModel =
-        notebookTracker.currentWidget?.context?.contentsModel;
-      const filePath = contentsModel?.path ?? '';
-      const fileName = contentsModel?.name ?? '';
+      // Get the current notebook's path and name
+      const widget = fileBrowserTracker.currentWidget;
+      const filePath =
+        getSelectedFilePath(widget, app.serviceManager.contents) ?? '';
+      const fileName = getSelectedFileBaseName(widget) ?? '';
 
       // Update the job form inside the notebook jobs widget
       const newCreateModel = emptyCreateJobModel();
