@@ -423,11 +423,6 @@ class Scheduler(BaseScheduler):
 
         return self._db_session
 
-    # def copy_input_file(self, input_uri: str, copy_to_path: str):
-    #     """Copies the input file to the staging directory in a new process."""
-    #     input_filepath = os.path.join(self.root_dir, input_uri)
-    #     spawn_process(target=copy_file, input_filepath=input_filepath, copy_to_path=copy_to_path)
-
     def copy_input_folder(self, input_uri: str, nb_copy_to_path: str) -> List[str]:
         """Copies the input file along with the input directory to the staging directory, returns the list of copied files relative to the staging directory"""
         input_dir_path = os.path.dirname(os.path.join(self.root_dir, input_uri))
@@ -468,15 +463,6 @@ class Scheduler(BaseScheduler):
             session.commit()
 
             staging_paths = self.get_staging_paths(DescribeJob.from_orm(job))
-            # if model.package_input_folder:
-            #     copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
-            #     input_notebook_filename = os.path.basename(model.input_uri)
-            #     job.packaged_files = [
-            #         file for file in copied_files if file != input_notebook_filename
-            #     ]
-            #     session.commit()
-            # else:
-            #     self.copy_input_file(model.input_uri, staging_paths["input"])
 
             p = spawn_process(
                 target=self.execution_manager_class(

@@ -4,7 +4,7 @@ import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import fsspec
 import nbconvert
@@ -14,7 +14,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
-from jupyter_scheduler.utils import copy_file, get_utc_timestamp
+from jupyter_scheduler.utils import copy_directory, copy_file, get_utc_timestamp
 
 
 class ExecutionManager(ABC):
@@ -110,10 +110,27 @@ class ExecutionManager(ABC):
         self.copy_input(self.input_uri, self.staging_paths["input"])
 
     def copy_input(self, input_uri: str, copy_to_path: str):
+        """Copies the input file or input file and input folder to the staging directory"""
         if self.package_input_folder:
-            self.copy_input_folder(input_uri, copy_to_path)
+            copied_files = self.copy_input_folder(input_uri, copy_to_path)
+            input_notebook_filename = os.path.basename(input_uri)
+            with self.db_session() as session:
+                job = session.query(Job).filter(Job.job_id == self.model.job_id).one()
+                job.packaged_files = [
+                    file for file in copied_files if file != input_notebook_filename
+                ]
+                session.commit()
         else:
             self.copy_input_file(input_uri, copy_to_path)
+
+    def copy_input_folder(self, input_uri: str, nb_copy_to_path: str) -> List[str]:
+        """Copies the input file along with the input directory to the staging directory, returns the list of copied files relative to the staging directory"""
+        input_dir_path = os.path.dirname(os.path.join(self.root_dir, input_uri))
+        staging_dir = os.path.dirname(nb_copy_to_path)
+        return copy_directory(
+            source_dir=input_dir_path,
+            destination_dir=staging_dir,
+        )
 
     def copy_input_file(self, input_uri: str, copy_to_path: str):
         """Copies the input file to the staging directory in a new process."""
