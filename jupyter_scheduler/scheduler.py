@@ -478,15 +478,7 @@ class Scheduler(BaseScheduler):
             else:
                 self.copy_input_file(model.input_uri, staging_paths["input"])
 
-            # The MP context forces new processes to not be forked on Linux.
-            # This is necessary because `asyncio.get_event_loop()` is bugged in
-            # forked processes in Python versions below 3.12. This method is
-            # called by `jupyter_core` by `nbconvert` in the default executor.
-            #
-            # See: https://github.com/python/cpython/issues/66285
-            # See also: https://github.com/jupyter/jupyter_core/pull/362
-            mp_ctx = mp.get_context("spawn")
-            p = mp_ctx.Process(
+            p = spawn_process(
                 target=self.execution_manager_class(
                     job_id=job.job_id,
                     staging_paths=staging_paths,
@@ -494,7 +486,6 @@ class Scheduler(BaseScheduler):
                     db_url=self.db_url,
                 ).process
             )
-            p.start()
 
             job.pid = p.pid
             session.commit()
