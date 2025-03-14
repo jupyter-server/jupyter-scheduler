@@ -4,7 +4,7 @@ import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import fsspec
 import nbconvert
@@ -14,7 +14,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 from jupyter_scheduler.models import DescribeJob, JobFeature, Status
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
-from jupyter_scheduler.utils import get_utc_timestamp
+from jupyter_scheduler.utils import copy_file, get_utc_timestamp
 
 
 class ExecutionManager(ABC):
@@ -29,11 +29,21 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
+    def __init__(
+        self,
+        job_id: str,
+        root_dir: str,
+        db_url: str,
+        staging_paths: Dict[str, str],
+        input_uri: Optional[str],
+        package_input_folder: Optional[bool],
+    ):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
+        self.input_uri = input_uri
+        self.package_input_folder = package_input_folder
 
     @property
     def model(self):
@@ -97,6 +107,18 @@ class ExecutionManager(ABC):
                 {"start_time": get_utc_timestamp(), "status": Status.IN_PROGRESS}
             )
             session.commit()
+        self.copy_input(self.input_uri, self.staging_paths["input"])
+
+    def copy_input(self, input_uri: str, copy_to_path: str):
+        if self.package_input_folder:
+            self.copy_input_folder(input_uri, copy_to_path)
+        else:
+            self.copy_input_file(input_uri, copy_to_path)
+
+    def copy_input_file(self, input_uri: str, copy_to_path: str):
+        """Copies the input file to the staging directory in a new process."""
+        input_filepath = os.path.join(self.root_dir, input_uri)
+        copy_file(input_filepath=input_filepath, copy_to_path=copy_to_path)
 
     def on_failure(self, e: Exception):
         """Called after failure of execute"""
