@@ -1,10 +1,11 @@
 import json
+from multiprocessing.context import SpawnProcess
 import os
+import multiprocessing
 import shutil
 from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
-
 import fsspec
 import pytz
 from croniter import croniter
@@ -113,3 +114,21 @@ def copy_directory(
             copied_files.append(rel_path)
 
     return copied_files
+
+
+def spawn_process(target, *args, **kwargs) -> SpawnProcess:
+    """
+    Spawns a new process using the 'spawn' context with the given target and
+    arguments, returns the spawned process.
+
+    The MP context forces new processes to not be forked on Linux.
+    This is necessary because `asyncio.get_event_loop()` is bugged in
+    forked processes in Python versions below 3.12. This method is
+    called by `jupyter_core` by `nbconvert` in the default executor.
+    See: https://github.com/python/cpython/issues/66285
+    See also: https://github.com/jupyter/jupyter_core/pull/362
+    """
+    context = multiprocessing.get_context("spawn")
+    process = context.Process(target=target, args=args, kwargs=kwargs)
+    process.start()
+    return process
