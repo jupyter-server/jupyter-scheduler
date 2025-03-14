@@ -41,8 +41,10 @@ from jupyter_scheduler.models import (
 from jupyter_scheduler.orm import Job, JobDefinition, create_session
 from jupyter_scheduler.utils import (
     copy_directory,
+    copy_file,
     create_output_directory,
     create_output_filename,
+    spawn_process,
 )
 
 
@@ -422,11 +424,9 @@ class Scheduler(BaseScheduler):
         return self._db_session
 
     def copy_input_file(self, input_uri: str, copy_to_path: str):
-        """Copies the input file to the staging directory"""
+        """Copies the input file to the staging directory in a new process."""
         input_filepath = os.path.join(self.root_dir, input_uri)
-        with fsspec.open(input_filepath) as input_file:
-            with fsspec.open(copy_to_path, "wb") as output_file:
-                output_file.write(input_file.read())
+        spawn_process(target=copy_file, input_filepath=input_filepath, copy_to_path=copy_to_path)
 
     def copy_input_folder(self, input_uri: str, nb_copy_to_path: str) -> List[str]:
         """Copies the input file along with the input directory to the staging directory, returns the list of copied files relative to the staging directory"""

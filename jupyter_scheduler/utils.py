@@ -116,6 +116,13 @@ def copy_directory(
     return copied_files
 
 
+def copy_file(input_filepath: str, copy_to_path: str):
+    """Copies the file at input_filepath to copy_to_path"""
+    with fsspec.open(input_filepath) as input_file:
+        with fsspec.open(copy_to_path, "wb") as output_file:
+            output_file.write(input_file.read())
+
+
 def spawn_process(target, *args, **kwargs) -> SpawnProcess:
     """
     Spawns a new process using the 'spawn' context with the given target and
