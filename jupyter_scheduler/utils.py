@@ -1,10 +1,9 @@
 import json
-from multiprocessing.context import SpawnProcess
 import os
-import multiprocessing
+import multiprocessing as mp
 import shutil
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Any, Callable, List, Optional
 from uuid import UUID
 import fsspec
 import pytz
@@ -123,7 +122,9 @@ def copy_file(input_filepath: str, copy_to_path: str):
             output_file.write(input_file.read())
 
 
-def spawn_process(target, *args, **kwargs) -> SpawnProcess:
+# After support for Python 3.9 will be dropped, ParamSpec available as a part
+# of standard library in Python 3.10+ should be used to type args and kwargs
+def spawn_process(target: Callable[..., Any], *args: Any, **kwargs: Any) -> mp.Process:
     """
     Spawns a new process using the 'spawn' context with the given target and
     arguments, returns the spawned process.
@@ -135,7 +136,7 @@ def spawn_process(target, *args, **kwargs) -> SpawnProcess:
     See: https://github.com/python/cpython/issues/66285
     See also: https://github.com/jupyter/jupyter_core/pull/362
     """
-    context = multiprocessing.get_context("spawn")
+    context = mp.get_context("spawn")
     process = context.Process(target=target, args=args, kwargs=kwargs)
     process.start()
     return process
