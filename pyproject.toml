@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.3.1", "jupyterlab~=4.0"]
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-nodejs-version>=0.3.2"]
 build-backend = "hatchling.build"
 
 [project]
@@ -29,15 +29,6 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "jupyter_server>=1.6,<3",
-    "traitlets~=5.0",
-    "nbconvert~=7.0",
-    "pydantic>=1.10,<3",
-    "sqlalchemy>=2.0,<3",
-    "croniter~=1.4",
-    "pytz>=2023.3,<=2024.2",
-    "fsspec>=2023.6.0,<=2024.10.0",
-    "psutil~=5.9"
 ]
 
 [project.optional-dependencies]
@@ -71,14 +62,15 @@ artifacts = ["jupyter_scheduler/labextension"]
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
 [tool.hatch.build.targets.sdist]
-exclude = [".github"]
+artifacts = ["jupyter_scheduler/labextension"]
+exclude = [".github", "binder"]
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
     "jupyter_scheduler/labextension/static/style.js",
-    "jupyter_scheduler//labextension/package.json",
+    "jupyter_scheduler/labextension/package.json",
 ]
 skip-if-exists = ["jupyter_scheduler/labextension/static/style.js"]
 
@@ -143,6 +135,14 @@ filterwarnings = [
 [tool.jupyter_releaser]
 skip = ["check-links"]
 
+[tool.jupyter-releaser.hooks]
+before-build-npm = [
+    "python -m pip install 'jupyterlab>=4.0.0,<5'",
+    "jlpm",
+    "jlpm build:prod"
+]
+before-build-python = ["jlpm clean:all"]
+
 [tool.mypy]
 check_untyped_defs = true
 disallow_incomplete_defs = true
@@ -154,6 +154,3 @@ strict_equality = true
 warn_unused_configs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
-
-[tool.check-manifest]
-ignore = ["binder/**", "packages/**", "*.json", "*.png", "yarn.lock", ".*", "jupyter_scheduler/labextension/**", "jupyter_scheduler/static/**"]
