@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timezone
 
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.extension.application import ExtensionApp
@@ -78,6 +79,7 @@ class SchedulerApp(ExtensionApp):
             environments_manager=environments_manager,
             db_url=self.db_url,
             config=self.config,
+            update_last_activity=self._update_last_activity,
         )
 
         job_files_manager = self.job_files_manager_class(scheduler=scheduler)
@@ -91,3 +93,13 @@ class SchedulerApp(ExtensionApp):
         if scheduler.task_runner:
             loop = asyncio.get_event_loop()
             loop.create_task(scheduler.task_runner.start())
+        
+        self._update_last_activity()
+
+    def _update_last_activity(self):
+        """Update last activity in the web application
+
+        Updates the `last_acitivity_times` dict in the web application. When running with jupyterhub, this prevents
+        the culler from thinking the server is idle.
+        """
+        self.serverapp.web_app.settings["last_activity_times"]["jupyter_scheduler"] = datetime.now(timezone.utc)

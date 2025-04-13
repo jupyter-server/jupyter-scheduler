@@ -96,11 +96,17 @@ class BaseScheduler(LoggingConfigurable):
     )
 
     def __init__(
-        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
+        self,
+        root_dir: str,
+        environments_manager: Type[EnvironmentManager],
+        config=None,
+        update_last_activity=None,
+        **kwargs
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
         self.environments_manager = environments_manager
+        self.update_last_activity = update_last_activity
 
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
@@ -405,10 +411,15 @@ class Scheduler(BaseScheduler):
         environments_manager: Type[EnvironmentManager],
         db_url: str,
         config=None,
+        update_last_activity=None,
         **kwargs,
     ):
         super().__init__(
-            root_dir=root_dir, environments_manager=environments_manager, config=config, **kwargs
+            root_dir=root_dir,
+            environments_manager=environments_manager,
+            config=config,
+            update_last_activity=update_last_activity,
+            **kwargs
         )
         self.db_url = db_url
         if self.task_runner_class:
@@ -438,6 +449,7 @@ class Scheduler(BaseScheduler):
         )
 
     def create_job(self, model: CreateJob) -> str:
+        self.update_last_activity()
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
 
