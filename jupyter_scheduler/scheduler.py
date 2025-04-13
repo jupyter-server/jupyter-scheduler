@@ -101,7 +101,7 @@ class BaseScheduler(LoggingConfigurable):
         environments_manager: Type[EnvironmentManager],
         config=None,
         update_last_activity=None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
@@ -419,7 +419,7 @@ class Scheduler(BaseScheduler):
             environments_manager=environments_manager,
             config=config,
             update_last_activity=update_last_activity,
-            **kwargs
+            **kwargs,
         )
         self.db_url = db_url
         if self.task_runner_class:
