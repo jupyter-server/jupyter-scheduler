@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.11.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.10.0...7de27edc63b127675737388d701385a8678d3677))
+
+### Enhancements made
+
+- bump fsspec version excluding 2025.3.1 that was yanked on PyPI [#585](https://github.com/jupyter-server/jupyter-scheduler/pull/585) ([@andrii-i](https://github.com/andrii-i))
+- Updated JupyterLab Classifier to JupyterLab 4, Bump actions/cache to v3 [#576](https://github.com/jupyter-server/jupyter-scheduler/pull/576) ([@astitv-sh](https://github.com/astitv-sh))
+- Add support for Python 3.13 version and remove support for Python 3.7 and 3.8 versions [#575](https://github.com/jupyter-server/jupyter-scheduler/pull/575) ([@asmita-sharma1625](https://github.com/asmita-sharma1625))
+- Enforce path imports for mui icons, Migrate to newer eslint (v8) [#572](https://github.com/jupyter-server/jupyter-scheduler/pull/572) ([@astitv-sh](https://github.com/astitv-sh))
+
+### Bugs fixed
+
+- Remove "RTC" drive prefix from filepath added by jupyter-collaboration when using notebook scheduler widget [#577](https://github.com/jupyter-server/jupyter-scheduler/pull/577) ([@asmita-sharma1625](https://github.com/asmita-sharma1625))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-11-13&to=2025-05-16&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-11-13..2025-05-16&type=Issues) | [@asmita-sharma1625](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aasmita-sharma1625+updated%3A2024-11-13..2025-05-16&type=Issues) | [@astitv-sh](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aastitv-sh+updated%3A2024-11-13..2025-05-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.10.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.9.0...524854685da5dce8b3030b3fd15e36f237fb021c))
@@ -15,8 +38,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-09-18&to=2024-11-13&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-09-18..2024-11-13&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.9.0
 
