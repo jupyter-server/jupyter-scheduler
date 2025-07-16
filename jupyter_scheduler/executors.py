@@ -11,10 +11,36 @@ import nbconvert
 import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
-from jupyter_scheduler.models import DescribeJob, JobFeature, Status
+from jupyter_scheduler.models import DescribeJob, JobFeature, Status, UpdateJob
 from jupyter_scheduler.orm import Job, create_session
 from jupyter_scheduler.parameterize import add_parameters
 from jupyter_scheduler.utils import get_utc_timestamp
+
+
+class TrackingExecutePreprocessor(ExecutePreprocessor):
+    """Custom ExecutePreprocessor that tracks completed cells and updates the database"""
+    
+    def __init__(self, db_session, job_id, **kwargs):
+        super().__init__(**kwargs)
+        self.db_session = db_session
+        self.job_id = job_id
+    
+    def preprocess_cell(self, cell, resources, index):
+        """
+        Override to track completed cells in the database.
+        Calls the superclass implementation and then updates the database.
+        """
+        # Call the superclass implementation
+        cell, resources = super().preprocess_cell(cell, resources, index)
+        
+        # Update the database with the current count of completed cells
+        with self.db_session() as session:
+            session.query(Job).filter(Job.job_id == self.job_id).update(
+                {"completed_cells": self.code_cells_executed}
+            )
+            session.commit()
+        
+        return cell, resources
 
 
 class ExecutionManager(ABC):
@@ -132,8 +158,12 @@ class DefaultExecutionManager(ExecutionManager):
             nb = add_parameters(nb, job.parameters)
 
         staging_dir = os.path.dirname(self.staging_paths["input"])
-        ep = ExecutePreprocessor(
-            kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=staging_dir
+        ep = TrackingExecutePreprocessor(
+            db_session=self.db_session,
+            job_id=self.job_id,
+            kernel_name=nb.metadata.kernelspec["name"], 
+            store_widget_state=True, 
+            cwd=staging_dir
         )
 
         try:

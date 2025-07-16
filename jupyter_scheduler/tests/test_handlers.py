@@ -131,6 +131,7 @@ async def test_get_jobs_for_single_job(jp_fetch):
             url="url_a",
             create_time=1664305872620,
             update_time=1664305872620,
+            completed_cells=5,
         )
         response = await jp_fetch("scheduler", "jobs", job_id, method="GET")
 
@@ -140,6 +141,7 @@ async def test_get_jobs_for_single_job(jp_fetch):
         assert body["job_id"] == job_id
         assert body["input_filename"]
         assert body["job_files"]
+        assert body["completed_cells"] == 5
 
 
 @pytest.mark.parametrize(
@@ -313,6 +315,28 @@ async def test_patch_jobs(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
         job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         body = {"name": "hello world", "compute_type": "compute_type_a"}
+        response = await jp_fetch(
+            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
+        )
+        assert response.code == 204
+        mock_update_job.assert_called_once_with(job_id, UpdateJob(**body))
+
+
+async def test_patch_jobs_with_completed_cells(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
+        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        body = {"name": "updated job", "completed_cells": 10}
+        response = await jp_fetch(
+            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
+        )
+        assert response.code == 204
+        mock_update_job.assert_called_once_with(job_id, UpdateJob(**body))
+
+
+async def test_patch_jobs_completed_cells_only(jp_fetch):
+    with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
+        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        body = {"completed_cells": 15}
         response = await jp_fetch(
             "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
         )
@@ -677,3 +701,73 @@ async def test_delete_job_definition_for_unexpected_error(jp_fetch):
         assert expected_http_error(
             e, 500, "Unexpected error occurred while deleting the job definition."
         )
+
+
+# Model validation tests for completed_cells field
+def test_describe_job_completed_cells_validation():
+    """Test DescribeJob model validation for completed_cells field"""
+    # Test valid integer values
+    job_data = {
+        "name": "test_job",
+        "input_filename": "test.ipynb",
+        "runtime_environment_name": "test_env",
+        "job_id": "test-job-id",
+        "url": "http://test.com/jobs/test-job-id",
+        "create_time": 1234567890,
+        "update_time": 1234567890,
+        "completed_cells": 5
+    }
+    job = DescribeJob(**job_data)
+    assert job.completed_cells == 5
+    
+    # Test None value
+    job_data["completed_cells"] = None
+    job = DescribeJob(**job_data)
+    assert job.completed_cells is None
+    
+    # Test zero value
+    job_data["completed_cells"] = 0
+    job = DescribeJob(**job_data)
+    assert job.completed_cells == 0
+    
+    # Test invalid type
+    job_data["completed_cells"] = "invalid"
+    with pytest.raises(ValidationError):
+        DescribeJob(**job_data)
+
+
+def test_update_job_completed_cells_validation():
+    """Test UpdateJob model validation for completed_cells field"""
+    # Test valid integer values
+    update_data = {"completed_cells": 10}
+    update_job = UpdateJob(**update_data)
+    assert update_job.completed_cells == 10
+    
+    # Test None value
+    update_data = {"completed_cells": None}
+    update_job = UpdateJob(**update_data)
+    assert update_job.completed_cells is None
+    
+    # Test zero value
+    update_data = {"completed_cells": 0}
+    update_job = UpdateJob(**update_data)
+    assert update_job.completed_cells == 0
+    
+    # Test invalid type
+    update_data = {"completed_cells": "invalid"}
+    with pytest.raises(ValidationError):
+        UpdateJob(**update_data)
+    
+    # Test exclude_none behavior
+    update_data = {"name": "test", "completed_cells": None}
+    update_job = UpdateJob(**update_data)
+    job_dict = update_job.dict(exclude_none=True)
+    assert "completed_cells" not in job_dict
+    assert job_dict["name"] == "test"
+    
+    # Test include completed_cells when not None
+    update_data = {"name": "test", "completed_cells": 5}
+    update_job = UpdateJob(**update_data)
+    job_dict = update_job.dict(exclude_none=True)
+    assert job_dict["completed_cells"] == 5
+    assert job_dict["name"] == "test"

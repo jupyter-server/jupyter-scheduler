@@ -148,6 +148,7 @@ class DescribeJob(BaseModel):
     downloaded: bool = False
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
+    completed_cells: Optional[int] = None
 
     class Config:
         orm_mode = True
@@ -193,6 +194,7 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
+    completed_cells: Optional[int] = None
 
 
 class DeleteJob(BaseModel):
