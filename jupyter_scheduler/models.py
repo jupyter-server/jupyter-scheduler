@@ -297,3 +297,4 @@ class JobFeature(str, Enum):
     output_filename_template = "output_filename_template"
     stop_job = "stop_job"
     delete_job = "delete_job"
+    track_cell_execution = "track_cell_execution"
