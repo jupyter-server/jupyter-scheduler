@@ -150,12 +150,14 @@ class DefaultExecutionManager(ExecutionManager):
 
     def __update_completed_cells_hook(self, ep: ExecutePreprocessor):
         """Returns a hook that runs on every cell execution, regardless of success or failure. Updates the completed_cells for the job."""
+
         def update_completed_cells(cell, cell_index, execute_reply):
             with self.db_session() as session:
                 session.query(Job).filter(Job.job_id == self.job_id).update(
                     {"completed_cells": ep.code_cells_executed}
                 )
                 session.commit()
+
         return update_completed_cells
 
     def add_side_effects_files(self, staging_dir: str):

@@ -65,11 +65,11 @@ def test_default_execution_manager_cell_tracking_hook():
     """Test that DefaultExecutionManager sets up on_cell_executed hook when track_cell_execution is supported"""
     job_id = "test-job-id"
 
-    with patch.object(DefaultExecutionManager, 'model') as mock_model:
-        with patch('jupyter_scheduler.executors.open', mock=MagicMock()):
-            with patch('jupyter_scheduler.executors.nbformat.read') as mock_nb_read:
-                with patch.object(DefaultExecutionManager, 'add_side_effects_files'):
-                    with patch.object(DefaultExecutionManager, 'create_output_files'):
+    with patch.object(DefaultExecutionManager, "model") as mock_model:
+        with patch("jupyter_scheduler.executors.open", mock=MagicMock()):
+            with patch("jupyter_scheduler.executors.nbformat.read") as mock_nb_read:
+                with patch.object(DefaultExecutionManager, "add_side_effects_files"):
+                    with patch.object(DefaultExecutionManager, "create_output_files"):
                         # Mock notebook
                         mock_nb = MagicMock()
                         mock_nb.metadata.kernelspec = {"name": "python3"}
@@ -84,11 +84,13 @@ def test_default_execution_manager_cell_tracking_hook():
                             job_id=job_id,
                             root_dir="/test",
                             db_url="sqlite:///:memory:",
-                            staging_paths={"input": "/test/input.ipynb"}
+                            staging_paths={"input": "/test/input.ipynb"},
                         )
 
                         # Patch ExecutePreprocessor
-                        with patch('jupyter_scheduler.executors.ExecutePreprocessor') as mock_ep_class:
+                        with patch(
+                            "jupyter_scheduler.executors.ExecutePreprocessor"
+                        ) as mock_ep_class:
                             mock_ep = MagicMock()
                             mock_ep_class.return_value = mock_ep
 
@@ -99,7 +101,7 @@ def test_default_execution_manager_cell_tracking_hook():
                             mock_ep_class.assert_called_once()
 
                             # Verify on_cell_executed hook was set
-                            assert hasattr(mock_ep, 'on_cell_executed')
+                            assert hasattr(mock_ep, "on_cell_executed")
                             assert mock_ep.on_cell_executed is not None
 
 
@@ -112,7 +114,7 @@ def test_update_completed_cells_hook():
         job_id=job_id,
         root_dir="/test",
         db_url="sqlite:///:memory:",
-        staging_paths={"input": "/test/input.ipynb"}
+        staging_paths={"input": "/test/input.ipynb"},
     )
 
     # Mock db_session
@@ -150,13 +152,15 @@ def test_update_completed_cells_hook_database_error():
         job_id=job_id,
         root_dir="/test",
         db_url="sqlite:///:memory:",
-        staging_paths={"input": "/test/input.ipynb"}
+        staging_paths={"input": "/test/input.ipynb"},
     )
 
     # Mock db_session with error
     mock_db_session = MagicMock()
     mock_session_context = MagicMock()
-    mock_session_context.query.return_value.filter.return_value.update.side_effect = Exception("DB Error")
+    mock_session_context.query.return_value.filter.return_value.update.side_effect = Exception(
+        "DB Error"
+    )
     mock_db_session.return_value.__enter__.return_value = mock_session_context
     manager._db_session = mock_db_session
 
@@ -180,6 +184,7 @@ def test_supported_features_includes_track_cell_execution():
     features = DefaultExecutionManager.supported_features()
 
     from jupyter_scheduler.models import JobFeature
+
     assert JobFeature.track_cell_execution in features
     assert features[JobFeature.track_cell_execution] is True
 
@@ -193,7 +198,7 @@ def test_hook_uses_correct_job_id():
         job_id=job_id,
         root_dir="/test",
         db_url="sqlite:///:memory:",
-        staging_paths={"input": "/test/input.ipynb"}
+        staging_paths={"input": "/test/input.ipynb"},
     )
 
     # Mock db_session
@@ -218,7 +223,7 @@ def test_hook_uses_correct_job_id():
     # The filter call should contain a condition that matches Job.job_id == job_id
     filter_call = mock_session_context.query.return_value.filter.call_args[0][0]
     # This is a SQLAlchemy comparison object, so we need to check its properties
-    assert hasattr(filter_call, 'right')
+    assert hasattr(filter_call, "right")
     assert filter_call.right.value == job_id
 
 
@@ -232,6 +237,7 @@ def test_cell_tracking_disabled_when_feature_false():
         def supported_features(cls):
             features = super().supported_features()
             from jupyter_scheduler.models import JobFeature
+
             features[JobFeature.track_cell_execution] = False
             return features
 
@@ -240,17 +246,21 @@ def test_cell_tracking_disabled_when_feature_false():
         job_id=job_id,
         root_dir="/test",
         db_url="sqlite:///:memory:",
-        staging_paths={"input": "/test/input.ipynb"}
+        staging_paths={"input": "/test/input.ipynb"},
     )
 
     # Mock ExecutePreprocessor and track calls to __update_completed_cells_hook
-    with patch.object(manager, '_DefaultExecutionManager__update_completed_cells_hook') as mock_hook_method:
-        with patch.object(DisabledTrackingExecutionManager, 'model') as mock_model:
-            with patch('jupyter_scheduler.executors.open', mock=MagicMock()):
-                with patch('jupyter_scheduler.executors.nbformat.read') as mock_nb_read:
-                    with patch.object(DisabledTrackingExecutionManager, 'add_side_effects_files'):
-                        with patch.object(DisabledTrackingExecutionManager, 'create_output_files'):
-                            with patch('jupyter_scheduler.executors.ExecutePreprocessor') as mock_ep_class:
+    with patch.object(
+        manager, "_DefaultExecutionManager__update_completed_cells_hook"
+    ) as mock_hook_method:
+        with patch.object(DisabledTrackingExecutionManager, "model") as mock_model:
+            with patch("jupyter_scheduler.executors.open", mock=MagicMock()):
+                with patch("jupyter_scheduler.executors.nbformat.read") as mock_nb_read:
+                    with patch.object(DisabledTrackingExecutionManager, "add_side_effects_files"):
+                        with patch.object(DisabledTrackingExecutionManager, "create_output_files"):
+                            with patch(
+                                "jupyter_scheduler.executors.ExecutePreprocessor"
+                            ) as mock_ep_class:
                                 # Mock notebook
                                 mock_nb = MagicMock()
                                 mock_nb.metadata.kernelspec = {"name": "python3"}
@@ -275,17 +285,20 @@ def test_cell_tracking_disabled_when_feature_false():
 
 def test_disabled_tracking_feature_support():
     """Test that custom execution manager can disable track_cell_execution feature"""
+
     # Create a custom execution manager class with track_cell_execution = False
     class DisabledTrackingExecutionManager(DefaultExecutionManager):
         @classmethod
         def supported_features(cls):
             features = super().supported_features()
             from jupyter_scheduler.models import JobFeature
+
             features[JobFeature.track_cell_execution] = False
             return features
 
     features = DisabledTrackingExecutionManager.supported_features()
 
     from jupyter_scheduler.models import JobFeature
+
     assert JobFeature.track_cell_execution in features
     assert features[JobFeature.track_cell_execution] is False

@@ -715,21 +715,21 @@ def test_describe_job_completed_cells_validation():
         "url": "http://test.com/jobs/test-job-id",
         "create_time": 1234567890,
         "update_time": 1234567890,
-        "completed_cells": 5
+        "completed_cells": 5,
     }
     job = DescribeJob(**job_data)
     assert job.completed_cells == 5
-    
+
     # Test None value
     job_data["completed_cells"] = None
     job = DescribeJob(**job_data)
     assert job.completed_cells is None
-    
+
     # Test zero value
     job_data["completed_cells"] = 0
     job = DescribeJob(**job_data)
     assert job.completed_cells == 0
-    
+
     # Test invalid type
     job_data["completed_cells"] = "invalid"
     with pytest.raises(ValidationError):
@@ -742,29 +742,29 @@ def test_update_job_completed_cells_validation():
     update_data = {"completed_cells": 10}
     update_job = UpdateJob(**update_data)
     assert update_job.completed_cells == 10
-    
+
     # Test None value
     update_data = {"completed_cells": None}
     update_job = UpdateJob(**update_data)
     assert update_job.completed_cells is None
-    
+
     # Test zero value
     update_data = {"completed_cells": 0}
     update_job = UpdateJob(**update_data)
     assert update_job.completed_cells == 0
-    
+
     # Test invalid type
     update_data = {"completed_cells": "invalid"}
     with pytest.raises(ValidationError):
         UpdateJob(**update_data)
-    
+
     # Test exclude_none behavior
     update_data = {"name": "test", "completed_cells": None}
     update_job = UpdateJob(**update_data)
     job_dict = update_job.dict(exclude_none=True)
     assert "completed_cells" not in job_dict
     assert job_dict["name"] == "test"
-    
+
     # Test include completed_cells when not None
     update_data = {"name": "test", "completed_cells": 5}
     update_job = UpdateJob(**update_data)
