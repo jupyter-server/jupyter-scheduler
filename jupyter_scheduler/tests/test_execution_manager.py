@@ -157,8 +157,8 @@ def test_update_completed_cells_hook_database_error():
     # Mock db_session with error
     mock_db_session = MagicMock()
     mock_session_context = MagicMock()
-    mock_session_context.query.return_value.filter.return_value.update.side_effect = (
-        Exception("DB Error")
+    mock_session_context.query.return_value.filter.return_value.update.side_effect = Exception(
+        "DB Error"
     )
     mock_db_session.return_value.__enter__.return_value = mock_session_context
     manager._db_session = mock_db_session
@@ -260,12 +260,8 @@ def test_cell_tracking_disabled_when_feature_false():
         with patch.object(DisabledTrackingExecutionManager, "model") as mock_model:
             with patch("jupyter_scheduler.executors.open", mock=MagicMock()):
                 with patch("jupyter_scheduler.executors.nbformat.read") as mock_nb_read:
-                    with patch.object(
-                        DisabledTrackingExecutionManager, "add_side_effects_files"
-                    ):
-                        with patch.object(
-                            DisabledTrackingExecutionManager, "create_output_files"
-                        ):
+                    with patch.object(DisabledTrackingExecutionManager, "add_side_effects_files"):
+                        with patch.object(DisabledTrackingExecutionManager, "create_output_files"):
                             with patch(
                                 "jupyter_scheduler.executors.ExecutePreprocessor"
                             ) as mock_ep_class:

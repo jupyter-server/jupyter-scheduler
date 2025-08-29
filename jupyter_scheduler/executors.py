@@ -29,9 +29,7 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(
-        self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]
-    ):
+    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
@@ -175,14 +173,10 @@ class DefaultExecutionManager(ExecutionManager):
         if new_files_set:
             with self.db_session() as session:
                 current_packaged_files_set = set(
-                    session.query(Job.packaged_files)
-                    .filter(Job.job_id == self.job_id)
-                    .scalar()
+                    session.query(Job.packaged_files).filter(Job.job_id == self.job_id).scalar()
                     or []
                 )
-                updated_packaged_files = list(
-                    current_packaged_files_set.union(new_files_set)
-                )
+                updated_packaged_files = list(current_packaged_files_set.union(new_files_set))
                 session.query(Job).filter(Job.job_id == self.job_id).update(
                     {"packaged_files": updated_packaged_files}
                 )
@@ -192,9 +186,7 @@ class DefaultExecutionManager(ExecutionManager):
         for output_format in job.output_formats:
             cls = nbconvert.get_exporter(output_format)
             output, _ = cls().from_notebook_node(notebook_node)
-            with fsspec.open(
-                self.staging_paths[output_format], "w", encoding="utf-8"
-            ) as f:
+            with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
                 f.write(output)
 
     def supported_features(self) -> Dict[JobFeature, bool]:
