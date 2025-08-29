@@ -442,7 +442,7 @@ class Scheduler(BaseScheduler):
             raise InputUriError(model.input_uri)
 
         input_path = os.path.join(self.root_dir, model.input_uri)
-        if not self.execution_manager_class.validate(input_path):
+        if not self.execution_manager_class.validate(self.execution_manager_class, input_path):
             raise SchedulerError(
                 """There is no kernel associated with the notebook. Please open
                     the notebook, select a kernel, and re-submit the job to execute.
