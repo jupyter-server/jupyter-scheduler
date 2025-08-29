@@ -74,9 +74,8 @@ class ExecutionManager(ABC):
         """
         pass
 
-    @classmethod
     @abstractmethod
-    def supported_features(cls) -> Dict[JobFeature, bool]:
+    def supported_features(self) -> Dict[JobFeature, bool]:
         """Returns a configuration of supported features
         by the execution engine. Implementors are expected
         to override this to return a dictionary of supported
@@ -84,8 +83,7 @@ class ExecutionManager(ABC):
         """
         pass
 
-    @classmethod
-    def validate(cls, input_path: str) -> bool:
+    def validate(self, input_path: str) -> bool:
         """Returns True if notebook has valid metadata to execute, False otherwise"""
         return True
 
@@ -132,9 +130,15 @@ class DefaultExecutionManager(ExecutionManager):
             nb = add_parameters(nb, job.parameters)
 
         staging_dir = os.path.dirname(self.staging_paths["input"])
+
         ep = ExecutePreprocessor(
-            kernel_name=nb.metadata.kernelspec["name"], store_widget_state=True, cwd=staging_dir
+            kernel_name=nb.metadata.kernelspec["name"],
+            store_widget_state=True,
+            cwd=staging_dir,
         )
+
+        if self.supported_features().get(JobFeature.track_cell_execution, False):
+            ep.on_cell_executed = self.__update_completed_cells_hook(ep)
 
         try:
             ep.preprocess(nb, {"metadata": {"path": staging_dir}})
@@ -143,6 +147,18 @@ class DefaultExecutionManager(ExecutionManager):
         finally:
             self.add_side_effects_files(staging_dir)
             self.create_output_files(job, nb)
+
+    def __update_completed_cells_hook(self, ep: ExecutePreprocessor):
+        """Returns a hook that runs on every cell execution, regardless of success or failure. Updates the completed_cells for the job."""
+
+        def update_completed_cells(cell, cell_index, execute_reply):
+            with self.db_session() as session:
+                session.query(Job).filter(Job.job_id == self.job_id).update(
+                    {"completed_cells": ep.code_cells_executed}
+                )
+                session.commit()
+
+        return update_completed_cells
 
     def add_side_effects_files(self, staging_dir: str):
         """Scan for side effect files potentially created after input file execution and update the job's packaged_files with these files"""
@@ -173,7 +189,7 @@ class DefaultExecutionManager(ExecutionManager):
             with fsspec.open(self.staging_paths[output_format], "w", encoding="utf-8") as f:
                 f.write(output)
 
-    def supported_features(cls) -> Dict[JobFeature, bool]:
+    def supported_features(self) -> Dict[JobFeature, bool]:
         return {
             JobFeature.job_name: True,
             JobFeature.output_formats: True,
@@ -188,9 +204,10 @@ class DefaultExecutionManager(ExecutionManager):
             JobFeature.output_filename_template: False,
             JobFeature.stop_job: True,
             JobFeature.delete_job: True,
+            JobFeature.track_cell_execution: False,
         }
 
-    def validate(cls, input_path: str) -> bool:
+    def validate(self, input_path: str) -> bool:
         with open(input_path, encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=4)
             try:
