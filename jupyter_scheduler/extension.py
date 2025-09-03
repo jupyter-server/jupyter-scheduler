@@ -45,6 +45,13 @@ class SchedulerApp(ExtensionApp):
     def _db_url_default(self):
         return f"sqlite:///{jupyter_data_dir()}/scheduler.sqlite"
 
+    database_manager_class = Type(
+        default_value="jupyter_scheduler.managers.SQLAlchemyDatabaseManager",
+        klass="jupyter_scheduler.managers.DatabaseManager",
+        config=True,
+        help=_i18n("Database manager class for custom database backends."),
+    )
+
     environment_manager_class = Type(
         default_value="jupyter_scheduler.environments.CondaEnvironmentManager",
         klass="jupyter_scheduler.environments.EnvironmentManager",
@@ -69,7 +76,8 @@ class SchedulerApp(ExtensionApp):
     def initialize_settings(self):
         super().initialize_settings()
 
-        create_tables(self.db_url, self.drop_tables)
+        database_manager = self.database_manager_class()
+        create_tables(self.db_url, self.drop_tables, database_manager=database_manager)
 
         environments_manager = self.environment_manager_class()
 
@@ -78,6 +86,8 @@ class SchedulerApp(ExtensionApp):
             environments_manager=environments_manager,
             db_url=self.db_url,
             config=self.config,
+            database_manager=database_manager,
+            database_manager_class=self.database_manager_class,
         )
 
         job_files_manager = self.job_files_manager_class(scheduler=scheduler)

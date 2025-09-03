@@ -53,6 +53,7 @@ def test_add_side_effects_files(
         root_dir=jp_scheduler_root_dir,
         db_url=jp_scheduler_db_url,
         staging_paths={"input": staged_notebook_file_path},
+        database_manager_class="jupyter_scheduler.managers.SQLAlchemyDatabaseManager",
     )
     manager.add_side_effects_files(staged_notebook_dir)
 

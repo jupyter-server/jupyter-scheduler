@@ -146,21 +146,9 @@ def update_db_schema(engine, Base):
             connection.execute(alter_statement)
 
 
-def create_tables(db_url, drop_tables=False, Base=Base):
-    engine = create_engine(db_url)
-    update_db_schema(engine, Base)
-
-    try:
-        if drop_tables:
-            Base.metadata.drop_all(engine)
-    except OperationalError:
-        pass
-    finally:
-        Base.metadata.create_all(engine)
+def create_tables(db_url, drop_tables=False, Base=Base, *, database_manager):
+    database_manager.create_tables(db_url, drop_tables, Base)
 
 
-def create_session(db_url):
-    engine = create_engine(db_url, echo=False)
-    Session = sessionmaker(bind=engine)
-
-    return Session
+def create_session(db_url, database_manager):
+    return database_manager.create_session(db_url)
