@@ -3,7 +3,7 @@ from sqlite3 import OperationalError
 from uuid import uuid4
 
 import sqlalchemy.types as types
-from sqlalchemy import Boolean, Column, Integer, String, create_engine, inspect
+from sqlalchemy import Boolean, Column, Integer, BigInteger, String, create_engine, inspect
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 from sqlalchemy.sql import text
 
@@ -83,8 +83,8 @@ class CommonColumns:
     max_retries = Column(Integer, default=0)
     min_retry_interval_millis = Column(Integer, default=0)
     output_filename_template = Column(String(256))
-    update_time = Column(Integer, default=get_utc_timestamp, onupdate=get_utc_timestamp)
-    create_time = Column(Integer, default=get_utc_timestamp)
+    update_time = Column(BigInteger().with_variant(Integer, "sqlite"), default=get_utc_timestamp, onupdate=get_utc_timestamp)
+    create_time = Column(BigInteger().with_variant(Integer, "sqlite"), default=get_utc_timestamp)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
     package_input_folder = Column(Boolean)
@@ -98,8 +98,8 @@ class Job(CommonColumns, Base):
     job_definition_id = Column(String(36))
     status = Column(String(64), default=Status.STOPPED)
     status_message = Column(String(1024))
-    start_time = Column(Integer)
-    end_time = Column(Integer)
+    start_time = Column(BigInteger().with_variant(Integer, "sqlite"))
+    end_time = Column(BigInteger().with_variant(Integer, "sqlite"))
     url = Column(String(256), default=generate_jobs_url)
     pid = Column(Integer)
     idempotency_token = Column(String(256))
@@ -114,7 +114,6 @@ class JobDefinition(CommonColumns, Base):
     schedule = Column(String(256))
     timezone = Column(String(36))
     url = Column(String(256), default=generate_job_definitions_url)
-    create_time = Column(Integer, default=get_utc_timestamp)
     active = Column(Boolean, default=True)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
