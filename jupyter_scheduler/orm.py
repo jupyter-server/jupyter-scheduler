@@ -3,7 +3,15 @@ from sqlite3 import OperationalError
 from uuid import uuid4
 
 import sqlalchemy.types as types
-from sqlalchemy import Boolean, Column, Integer, BigInteger, String, create_engine, inspect
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Column,
+    Integer,
+    String,
+    create_engine,
+    inspect,
+)
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 from sqlalchemy.sql import text
 
@@ -83,7 +91,11 @@ class CommonColumns:
     max_retries = Column(Integer, default=0)
     min_retry_interval_millis = Column(Integer, default=0)
     output_filename_template = Column(String(256))
-    update_time = Column(BigInteger().with_variant(Integer, "sqlite"), default=get_utc_timestamp, onupdate=get_utc_timestamp)
+    update_time = Column(
+        BigInteger().with_variant(Integer, "sqlite"),
+        default=get_utc_timestamp,
+        onupdate=get_utc_timestamp,
+    )
     create_time = Column(BigInteger().with_variant(Integer, "sqlite"), default=get_utc_timestamp)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
