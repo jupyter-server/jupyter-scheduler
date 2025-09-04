@@ -61,7 +61,7 @@ class Downloader:
             output_filepath = os.path.join(self.output_dir, self.output_filenames[output_format])
             if not os.path.exists(output_filepath) or self.redownload:
                 yield input_filepath, output_filepath
-        
+
         if self.staging_paths:
             staging_dir = os.path.dirname(next(iter(self.staging_paths.values())))
             if os.path.exists(staging_dir):
@@ -69,7 +69,7 @@ class Downloader:
                 for output_format in output_formats:
                     if output_format in self.staging_paths:
                         explicit_files.add(os.path.basename(self.staging_paths[output_format]))
-                
+
                 for file_name in os.listdir(staging_dir):
                     file_path = os.path.join(staging_dir, file_name)
                     if os.path.isfile(file_path) and file_name not in explicit_files:
@@ -77,7 +77,7 @@ class Downloader:
                         output_filepath = os.path.join(self.output_dir, file_name)
                         if not os.path.exists(output_filepath) or self.redownload:
                             yield input_filepath, output_filepath
-        
+
         if self.include_staging_files:
             staging_dir = os.path.dirname(self.staging_paths["input"])
             for file_relative_path in self.output_filenames["files"]:
