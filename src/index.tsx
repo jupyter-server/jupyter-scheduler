@@ -93,7 +93,7 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
   activate: activatePlugin
 };
 const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
-  id: '@jupyterlab/scheduler:IAdvancedOptions', 
+  id: '@jupyterlab/scheduler:IAdvancedOptions',
   autoStart: true,
   provides: Scheduler.IAdvancedOptions,
   activate: (app: JupyterFrontEnd) => {
@@ -203,11 +203,11 @@ function activatePlugin(
   console.log('   Override token expected:', Scheduler.IAdvancedOptionsOverride);
   console.log('   Override received:', advancedOptionsOverride);
   console.log('   Default received:', advancedOptionsDefault);
-  
+
   // Use override if available, otherwise use default
   const advancedOptions = advancedOptionsOverride || advancedOptionsDefault;
   console.log('   Using:', advancedOptions);
-  
+
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
   verifyServerExtension({ api, translator });
