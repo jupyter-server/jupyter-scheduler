@@ -89,6 +89,7 @@ class CommonColumns:
     # Any default values specified for new columns will be ignored during the migration process.
     package_input_folder = Column(Boolean)
     packaged_files = Column(JsonType, default=[])
+    environment_variables = Column(JsonType(4096))
 
 
 class Job(CommonColumns, Base):
