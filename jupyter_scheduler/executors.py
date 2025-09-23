@@ -5,7 +5,7 @@ import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import fsspec
 import nbconvert
@@ -37,11 +37,13 @@ class ExecutionManager(ABC):
         db_url: str,
         staging_paths: Dict[str, str],
         database_manager_class,
+        job_data: Optional[Dict] = None,  # NEW: Optional job data for passing metadata
     ):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
+        self.job_data = job_data  # Store for use by subclasses
 
         self.database_manager = self._create_database_manager(database_manager_class)
 

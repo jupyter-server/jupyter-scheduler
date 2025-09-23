@@ -489,6 +489,20 @@ class Scheduler(BaseScheduler):
             #
             # See: https://github.com/python/cpython/issues/66285
             # See also: https://github.com/jupyter/jupyter_core/pull/362
+            # Serialize job data for cross-process passing
+            job_data = {
+                'job_id': job.job_id,
+                'name': job.name if hasattr(job, 'name') else None,
+                'input_filename': job.input_filename if hasattr(job, 'input_filename') else None,
+                'runtime_environment_name': job.runtime_environment_name if hasattr(job, 'runtime_environment_name') else None,
+                'runtime_environment_parameters': job.runtime_environment_parameters if hasattr(job, 'runtime_environment_parameters') else None,
+                'output_formats': job.output_formats if hasattr(job, 'output_formats') else [],
+                'parameters': job.parameters if hasattr(job, 'parameters') else None,
+                'tags': job.tags if hasattr(job, 'tags') else [],
+                'package_input_folder': job.package_input_folder if hasattr(job, 'package_input_folder') else False,
+                'packaged_files': job.packaged_files if hasattr(job, 'packaged_files') else [],
+            }
+
             mp_ctx = mp.get_context("spawn")
             p = mp_ctx.Process(
                 target=self.execution_manager_class(
@@ -497,6 +511,7 @@ class Scheduler(BaseScheduler):
                     root_dir=self.root_dir,
                     db_url=self.db_url,
                     database_manager_class=self.database_manager_class,
+                    job_data=job_data,
                 ).process
             )
             p.start()
