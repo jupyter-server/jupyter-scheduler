@@ -100,6 +100,7 @@ export interface ICreateJobModel
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
   packageInputFolder?: boolean;
+  environmentVariables?: { [key: string]: string };
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {

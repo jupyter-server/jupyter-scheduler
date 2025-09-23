@@ -46,6 +46,11 @@ export namespace Scheduler {
     '@jupyterlab/scheduler:IAdvancedOptions'
   );
 
+  // Override token for extensions that want to provide custom advanced options
+  export const IAdvancedOptionsOverride = new Token<IAdvancedOptions>(
+    '@jupyterlab/scheduler:IAdvancedOptionsOverride'
+  );
+
   export interface IEvent {
     name: string;
   }

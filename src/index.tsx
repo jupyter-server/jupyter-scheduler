@@ -82,20 +82,24 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     INotebookTracker,
     ITranslator,
     ILayoutRestorer,
-    Scheduler.IAdvancedOptions,
     Scheduler.TelemetryHandler
   ],
-  optional: [ILauncher],
+  optional: [
+    ILauncher,
+    Scheduler.IAdvancedOptionsOverride,
+    Scheduler.IAdvancedOptions
+  ],
   autoStart: true,
   activate: activatePlugin
 };
-
-// Disable this plugin and replace with custom plugin to change the advanced options UI
 const advancedOptions: JupyterFrontEndPlugin<Scheduler.IAdvancedOptions> = {
   id: '@jupyterlab/scheduler:IAdvancedOptions',
   autoStart: true,
   provides: Scheduler.IAdvancedOptions,
   activate: (app: JupyterFrontEnd) => {
+    console.log('🔄 DEFAULT jupyter-scheduler advanced options plugin is activating');
+    console.log('   Plugin ID: @jupyterlab/scheduler:IAdvancedOptions');
+    console.log('   Note: This should be disabled by K8s extension via disabledExtensions');
     return AdvancedOptions;
   }
 };
@@ -190,10 +194,20 @@ function activatePlugin(
   notebookTracker: INotebookTracker,
   translator: ITranslator,
   restorer: ILayoutRestorer,
-  advancedOptions: Scheduler.IAdvancedOptions,
   telemetryHandler: Scheduler.TelemetryHandler,
-  launcher: ILauncher | null
+  launcher: ILauncher | null,
+  advancedOptionsOverride: Scheduler.IAdvancedOptions | null,
+  advancedOptionsDefault: Scheduler.IAdvancedOptions | null
 ): void {
+  console.log('🔍 SCHEDULER PLUGIN ADVANCED OPTIONS RESOLUTION:');
+  console.log('   Override token expected:', Scheduler.IAdvancedOptionsOverride);
+  console.log('   Override received:', advancedOptionsOverride);
+  console.log('   Default received:', advancedOptionsDefault);
+
+  // Use override if available, otherwise use default
+  const advancedOptions = advancedOptionsOverride || advancedOptionsDefault;
+  console.log('   Using:', advancedOptions);
+
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
   verifyServerExtension({ api, translator });
@@ -237,7 +251,7 @@ function activatePlugin(
         app,
         translator,
         eventLogger,
-        advancedOptions: advancedOptions
+        advancedOptions: advancedOptions || AdvancedOptions
       });
       // Create new main area widget
       mainAreaWidget = new MainAreaWidget<NotebookJobsPanel>({
@@ -371,6 +385,9 @@ function activatePlugin(
     });
   }
 }
+
+console.log('📦 DEFAULT jupyter-scheduler extension is being loaded...');
+console.log('   Plugins: schedulerPlugin, advancedOptions, telemetry');
 
 const plugins: JupyterFrontEndPlugin<any>[] = [
   schedulerPlugin,

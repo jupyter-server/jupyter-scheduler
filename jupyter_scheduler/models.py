@@ -77,6 +77,7 @@ class CreateJob(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    environment_variables: Optional[Dict[str, str]] = None
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
@@ -128,6 +129,7 @@ class DescribeJob(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    environment_variables: Optional[Dict[str, str]] = None
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
@@ -193,6 +195,7 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
+    environment_variables: Optional[Dict[str, str]] = None
 
 
 class DeleteJob(BaseModel):
@@ -204,6 +207,7 @@ class CreateJobDefinition(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    environment_variables: Optional[Dict[str, str]] = None
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
@@ -226,6 +230,7 @@ class DescribeJobDefinition(BaseModel):
     input_filename: str = None
     runtime_environment_name: str
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    environment_variables: Optional[Dict[str, str]] = None
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
@@ -248,6 +253,7 @@ class DescribeJobDefinition(BaseModel):
 class UpdateJobDefinition(BaseModel):
     runtime_environment_name: Optional[str]
     runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    environment_variables: Optional[Dict[str, str]] = None
     output_formats: Optional[List[str]] = None
     parameters: Optional[Dict[str, str]] = None
     tags: Optional[Tags] = None
