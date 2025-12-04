@@ -62,7 +62,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     const trans = options.translator.load('jupyterlab');
 
     this.title.icon = options.titleIcon ?? calendarMonthIcon;
-    this.title.caption = options.title ?? trans.__('Notebook Jobs');
+    this.title.caption = options.title ?? trans.__('Jobs');
     this._description = options.description ?? trans.__('Job Runs');
     this._app = options.app;
     this._translator = options.translator;
@@ -72,7 +72,7 @@ export class NotebookJobsPanel extends VDomRenderer<JobsModel> {
     this._last_input_drop_target = null;
 
     this.node.setAttribute('role', 'region');
-    this.node.setAttribute('aria-label', trans.__('Notebook Jobs'));
+    this.node.setAttribute('aria-label', trans.__('Jobs'));
   }
 
   removeDragHoverClass = (event: Event): void => {

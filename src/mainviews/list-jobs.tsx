@@ -159,8 +159,8 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
     () =>
       props.emptyRowMessage ??
       trans.__(
-        'There are no notebook jobs. Notebook jobs run files in the background, immediately or on a schedule. ' +
-          'To create a notebook job, right-click on a notebook in the file browser and select "Create Notebook Job".'
+        'There are no jobs. Jobs run files in the background, immediately or on a schedule. ' +
+          'To create a job, right-click on a supported file in the file browser and select "Create Job".'
       ),
     [props.emptyRowMessage, trans]
   );
@@ -280,8 +280,8 @@ function ListJobDefinitionsTable(props: ListJobDefinitionsTableProps) {
   const emptyRowMessage = useMemo(
     () =>
       trans.__(
-        'There are no notebook job definitions. Notebook job definitions run files in the background on a schedule. ' +
-          'To create a notebook job definition, right-click on a notebook in the file browser and select "Create Notebook Job".'
+        'There are no job definitions. Job definitions run files in the background on a schedule. ' +
+          'To create a job definition, right-click on a supported file in the file browser and select "Create Job".'
       ),
     [trans]
   );
@@ -324,9 +324,9 @@ export interface IListJobsProps {
 export function NotebookJobsList(props: IListJobsProps): JSX.Element {
   const trans = useTranslator('jupyterlab');
 
-  const jobsHeader = useMemo(() => trans.__('Notebook Jobs'), [trans]);
+  const jobsHeader = useMemo(() => trans.__('Jobs'), [trans]);
   const jobDefinitionsHeader = useMemo(
-    () => trans.__('Notebook Job Definitions'),
+    () => trans.__('Job Definitions'),
     [trans]
   );
 

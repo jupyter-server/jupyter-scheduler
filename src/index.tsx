@@ -245,7 +245,7 @@ function activatePlugin(
       });
       mainAreaWidget.id = NotebookJobsPanelId;
       mainAreaWidget.title.icon = calendarMonthIcon;
-      mainAreaWidget.title.label = trans.__('Notebook Jobs');
+      mainAreaWidget.title.label = trans.__('Jobs');
       mainAreaWidget.title.closable = true;
     }
 
@@ -283,7 +283,7 @@ function activatePlugin(
       const filePath =
         getSelectedFilePath(widget, app.serviceManager.contents) ?? '';
 
-      // Update the job form inside the notebook jobs widget
+      // Update the job form inside the jobs widget
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
       newCreateModel.jobName = MakeNameValid(
@@ -296,7 +296,7 @@ function activatePlugin(
         createJobModel: newCreateModel
       });
     },
-    label: trans.__('Create Notebook Job'),
+    label: trans.__('Create Job'),
     icon: calendarAddOnIcon
   });
 
@@ -309,7 +309,7 @@ function activatePlugin(
         getSelectedFilePath(widget, app.serviceManager.contents) ?? '';
       const fileName = getSelectedFileBaseName(widget) ?? '';
 
-      // Update the job form inside the notebook jobs widget
+      // Update the job form inside the jobs widget
       const newCreateModel = emptyCreateJobModel();
       newCreateModel.inputFile = filePath;
       newCreateModel.jobName = MakeNameValid(fileName);
@@ -320,7 +320,7 @@ function activatePlugin(
         createJobModel: newCreateModel
       });
     },
-    label: trans.__('Create a notebook job'),
+    label: trans.__('Create a job'),
     icon: calendarAddOnIcon
   });
 
@@ -359,7 +359,7 @@ function activatePlugin(
           jobsView: JobsView.ListJobs
         });
       },
-      label: trans.__('Notebook Jobs'),
+      label: trans.__('Jobs'),
       icon: eventNoteIcon
     });
 
