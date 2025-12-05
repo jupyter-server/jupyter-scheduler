@@ -125,8 +125,8 @@ export function DetailView(props: IDetailViewProps): JSX.Element {
           }}
         >
           {props.jobsView === JobsView.JobDetail
-            ? trans.__('Notebook Jobs')
-            : trans.__('Notebook Job Definitions')}
+            ? trans.__('Jobs')
+            : trans.__('Job Definitions')}
         </Link>
         <Typography color="text.primary">
           {props.jobsView === JobsView.JobDetail

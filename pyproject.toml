@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "jupyter_scheduler"
 version = "2.11.0"
-description = "A JupyterLab extension for running notebook jobs"
+description = "A JupyterLab extension for running jobs"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"

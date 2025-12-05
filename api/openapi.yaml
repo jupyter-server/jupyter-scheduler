@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Jupyter Scheduler API
   version: 2.7.1
-  description: API for Jupyter Scheduler, a JupyterLab extension for running notebook jobs.
+  description: API for Jupyter Scheduler, a JupyterLab extension for running jobs.
 servers:
   - url: /scheduler
 security:

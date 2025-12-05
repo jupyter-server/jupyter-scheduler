@@ -2,14 +2,13 @@
 
 [![Github Actions Status](https://github.com/jupyter-server/jupyter-scheduler/workflows/Build/badge.svg)](https://github.com/jupyter-server/jupyter-scheduler/actions/workflows/build.yml)[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jupyter-server/jupyter-scheduler/main?urlpath=lab)
 
-A JupyterLab extension for running notebook jobs. Documentation is available on
+A JupyterLab extension for running jobs. Documentation is available on
 [ReadTheDocs](https://jupyter-scheduler.readthedocs.io).
 
 This extension is composed of a Python package named `jupyter_scheduler`
 for the server extension and a NPM package named `@jupyterlab/scheduler`
 for the frontend extension. Installation of this extension provides a
-REST API to run, query, stop and delete
-notebook jobs; the UI provides an interface to create, list and view job
+REST API to run, query, stop and delete jobs; the UI provides an interface to create, list and view job
 details.
 
 ## Requirements

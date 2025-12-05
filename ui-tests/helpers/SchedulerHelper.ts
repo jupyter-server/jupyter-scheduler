@@ -3,8 +3,8 @@ import type { Locator, TestInfo } from '@playwright/test';
 
 enum SELECTORS {
   // tbutton = toolbar button
-  CREATE_JOB_TBUTTON = 'button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a notebook job"]',
-  LAUNCHER_CARD = 'div.jp-LauncherCard[title="Notebook Jobs"]',
+  CREATE_JOB_TBUTTON = 'button.jp-ToolbarButtonComponent[data-command="scheduling:create-from-notebook"][title="Create a job"]',
+  LAUNCHER_CARD = 'div.jp-LauncherCard[title="Jobs"]',
   LIST_VIEW_TIMES = 'td.MuiTableCell-body:has-text(" AM"), td.MuiTableCell-body:has-text(" PM")',
   NOTEBOOK_TOOLBAR = '.jp-NotebookPanel-toolbar[aria-label="notebook actions"]',
   ENABLE_DEBUGGER_TBUTTON = '.jp-DebuggerBugButton',
@@ -54,7 +54,7 @@ export class SchedulerHelper {
   ) {}
 
   /**
-   * JupyterLab launcher "Notebook Jobs" card locator
+   * JupyterLab launcher "Jobs" card locator
    */
   get launcherCard() {
     return this.page.locator(SELECTORS.LAUNCHER_CARD);
@@ -68,7 +68,7 @@ export class SchedulerHelper {
   }
 
   /**
-   *  Locates "Create a notebook job" button in notebook toolbar
+   *  Locates "Create a job" button in notebook toolbar
    */
   get createJobTbutton() {
     return this.page.locator(SELECTORS.CREATE_JOB_TBUTTON);
@@ -124,7 +124,7 @@ export class SchedulerHelper {
   async openCreateJobFromFilebrowser() {
     await this.page.sidebar.openTab('filebrowser');
     await this.notebookFbListing.click({ button: 'right' });
-    await this.page.getByText('Create Notebook Job').click();
+    await this.page.getByText('Create Job').click();
     await this._waitForCreateJobLoaded();
   }
 
