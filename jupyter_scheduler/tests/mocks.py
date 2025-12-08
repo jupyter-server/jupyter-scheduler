@@ -16,7 +16,7 @@ class MockExecutionManager(ExecutionManager):
     def process(self):
         pass
 
-    def supported_features(cls) -> Dict[JobFeature, bool]:
+    def supported_features(self) -> Dict[JobFeature, bool]:
         return {
             JobFeature.job_name: True,
             JobFeature.output_formats: True,
