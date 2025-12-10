@@ -93,9 +93,7 @@ def discover_backends(
 
         # Validate the backend class has required attributes
         if not hasattr(backend_class, "id"):
-            log.warning(
-                f"Backend '{ep.name}' does not define 'id' attribute. Skipping."
-            )
+            log.warning(f"Backend '{ep.name}' does not define 'id' attribute. Skipping.")
             continue
 
         backend_id = backend_class.id
@@ -146,8 +144,7 @@ def get_default_backend_id(
     """
     if not available_backends:
         raise ValueError(
-            "No scheduler backends available. "
-            "Ensure at least one backend package is installed."
+            "No scheduler backends available. " "Ensure at least one backend package is installed."
         )
 
     # Explicit configuration takes precedence

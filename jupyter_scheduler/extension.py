@@ -12,7 +12,10 @@ import asyncio
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
-from traitlets import Bool, Dict as TDict, List as TList, Type, Unicode, default
+from traitlets import Bool
+from traitlets import Dict as TDict
+from traitlets import List as TList
+from traitlets import Type, Unicode, default
 
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.backend_utils import discover_backends, get_default_backend_id

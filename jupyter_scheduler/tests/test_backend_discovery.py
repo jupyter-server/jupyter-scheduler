@@ -1,15 +1,16 @@
 """Unit tests for backend discovery via entry points."""
 
-import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
 
-from jupyter_scheduler.base_backend import BaseBackend
+import pytest
+
 from jupyter_scheduler.backend_utils import (
+    ENTRY_POINT_GROUP,
     discover_backends,
     get_default_backend_id,
-    ENTRY_POINT_GROUP,
 )
 from jupyter_scheduler.backends import LocalBackend
+from jupyter_scheduler.base_backend import BaseBackend
 
 
 class MockBackend(BaseBackend):

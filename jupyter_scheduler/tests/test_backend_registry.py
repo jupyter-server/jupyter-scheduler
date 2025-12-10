@@ -1,10 +1,15 @@
 """Unit tests for BackendRegistry."""
 
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+from jupyter_scheduler.backend_registry import (
+    BackendInstance,
+    BackendRegistry,
+    import_class,
+)
 from jupyter_scheduler.backends import BackendConfig, DescribeBackend
-from jupyter_scheduler.backend_registry import BackendRegistry, BackendInstance, import_class
 
 
 class TestImportClass:
@@ -298,9 +303,7 @@ class TestBackendRegistry:
 
     @patch("jupyter_scheduler.backend_registry.create_tables")
     @patch("jupyter_scheduler.backend_registry.import_class")
-    def test_contains_operator(
-        self, mock_import, mock_create_tables, local_backend_config
-    ):
+    def test_contains_operator(self, mock_import, mock_create_tables, local_backend_config):
         """Contains operator works correctly."""
         mock_scheduler_class = MagicMock()
         mock_scheduler_class.return_value = MagicMock()
@@ -393,9 +396,7 @@ class TestBackendRegistry:
 
     @patch("jupyter_scheduler.backend_registry.create_tables")
     @patch("jupyter_scheduler.backend_registry.import_class")
-    def test_extension_map_normalizes_extensions(
-        self, mock_import, mock_create_tables
-    ):
+    def test_extension_map_normalizes_extensions(self, mock_import, mock_create_tables):
         """Extension map normalizes extensions (lowercase, no leading dot)."""
         config = BackendConfig(
             id="test",

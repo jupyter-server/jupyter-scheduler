@@ -16,7 +16,6 @@ from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.orm import create_tables
 from jupyter_scheduler.scheduler import BaseScheduler
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -98,9 +97,7 @@ class BackendRegistry:
         """
         for cfg in self._configs:
             try:
-                instance = self._create_backend(
-                    cfg, root_dir, environments_manager, db_url, config
-                )
+                instance = self._create_backend(cfg, root_dir, environments_manager, db_url, config)
                 self._backends[cfg.id] = instance
 
                 # Build extension map for auto-selection
