@@ -1,11 +1,13 @@
 import json
 import re
+from typing import Optional
 
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
 
+from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.environments import EnvironmentRetrievalError
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
@@ -34,6 +36,7 @@ class JobHandlersMixin:
     _scheduler = None
     _environments_manager = None
     _execution_manager_class = None
+    _backend_registry = None
 
     @property
     def scheduler(self):
@@ -41,6 +44,13 @@ class JobHandlersMixin:
             self._scheduler = self.settings.get("scheduler")
 
         return self._scheduler
+
+    @property
+    def backend_registry(self) -> Optional[BackendRegistry]:
+        if self._backend_registry is None:
+            self._backend_registry = self.settings.get("backend_registry")
+
+        return self._backend_registry
 
     @property
     def environments_manager(self):
@@ -230,7 +240,27 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def post(self):
         payload = self.get_json_body()
         try:
-            job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload)))
+            # Determine which backend to use
+            registry = self.backend_registry
+            backend_id = payload.get("backend")
+
+            if registry and len(registry) > 0:
+                if backend_id:
+                    backend = registry.get_backend(backend_id)
+                    if not backend:
+                        raise HTTPError(400, f"Unknown backend: {backend_id}")
+                else:
+                    # Auto-select based on file extension
+                    backend = registry.get_for_file(payload.get("input_uri", ""))
+
+                # Ensure backend ID is stored with the job
+                payload["backend"] = backend.config.id
+                scheduler = backend.scheduler
+            else:
+                # Fallback to default scheduler (backwards compatibility)
+                scheduler = self.scheduler
+
+            job_id = await ensure_async(scheduler.create_job(CreateJob(**payload)))
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -247,7 +277,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             self.log.exception(e)
             raise HTTPError(500, "Unexpected error occurred during creation of job.") from e
         else:
-            self.finish(json.dumps(dict(job_id=job_id)))
+            response = {"job_id": job_id}
+            if "backend" in payload:
+                response["backend"] = payload["backend"]
+            self.finish(json.dumps(response))
 
     @authenticated
     async def patch(self, job_id):
@@ -415,3 +448,27 @@ class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
         else:
             self.set_status(204)
             self.finish()
+
+
+class BackendsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    """Handler for listing available backends.
+
+    GET /scheduler/backends - Returns list of available execution backends.
+    """
+
+    @authenticated
+    async def get(self):
+        """List available backends."""
+        try:
+            registry = self.backend_registry
+            if registry is None:
+                raise HTTPError(500, "Backend registry not initialized")
+
+            backends = registry.list_backends()
+            self.finish(json.dumps([b.dict() for b in backends]))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(500, "Unexpected error occurred while listing backends.") from e

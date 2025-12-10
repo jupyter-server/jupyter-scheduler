@@ -223,6 +223,10 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
       {
         value: props.model.environment,
         label: trans.__('Environment')
+      },
+      {
+        value: props.model.backend || 'local',
+        label: trans.__('Backend')
       }
     ],
     [

@@ -134,6 +134,10 @@ export function ListJobsTable(props: IListJobsTableProps): JSX.Element {
       name: trans.__('Status')
     },
     {
+      sortField: 'backend',
+      name: trans.__('Backend')
+    },
+    {
       sortField: null, // Non sortable
       name: trans.__('Actions')
     }

@@ -170,6 +170,7 @@ export function buildJobRow(
     </>,
     <Timestamp job={job} />,
     translateStatus(job.status),
+    job.backend || 'local',
     <Stack spacing={1} direction="row">
       <ConfirmDeleteButton
         name={job.name}

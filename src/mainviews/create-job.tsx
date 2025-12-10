@@ -6,6 +6,7 @@ import React, {
   useRef
 } from 'react';
 
+import { BackendPicker } from '../components/backend-picker';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
@@ -84,6 +85,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     Scheduler.IRuntimeEnvironment[]
   >([]);
 
+  // Cache backend list.
+  const [backendList, setBackendList] = useState<Scheduler.IBackend[]>([]);
+
   const [advancedOptionsExpanded, setAdvancedOptionsExpanded] =
     useState<boolean>(false);
 
@@ -133,6 +137,30 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     };
 
     setList();
+  }, []);
+
+  // Retrieve the backend list once.
+  useEffect(() => {
+    const fetchBackends = async () => {
+      try {
+        const backends = await api.getBackends();
+        setBackendList(backends);
+
+        // Auto-select default backend if not set
+        if (!props.model.backend && backends.length > 0) {
+          const defaultBackend =
+            backends.find(b => b.is_default) || backends[0];
+          props.handleModelChange({
+            ...props.model,
+            backend: defaultBackend.id
+          });
+        }
+      } catch (e) {
+        console.error('Failed to fetch backends:', e);
+      }
+    };
+
+    fetchBackends();
   }, []);
 
   const envsByName = useMemo(() => {
@@ -322,7 +350,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      backend: props.model.backend
     };
 
     if (props.model.parameters !== undefined) {
@@ -498,6 +527,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               readOnly: true,
               startAdornment: homeAdornment
             }}
+          />
+          <BackendPicker
+            label={trans.__('Execution backend')}
+            name="backend"
+            id={`${formPrefix}backend`}
+            onChange={handleSelectChange}
+            backendList={backendList}
+            value={props.model.backend || ''}
+            inputFile={props.model.inputFile}
           />
           <EnvironmentPicker
             label={trans.__('Environment')}

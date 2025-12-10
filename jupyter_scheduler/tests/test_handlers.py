@@ -677,3 +677,90 @@ async def test_delete_job_definition_for_unexpected_error(jp_fetch):
         assert expected_http_error(
             e, 500, "Unexpected error occurred while deleting the job definition."
         )
+
+
+# Tests for BackendsHandler
+
+
+async def test_get_backends(jp_fetch):
+    """GET /scheduler/backends returns list of backends."""
+    response = await jp_fetch("scheduler", "backends", method="GET")
+
+    assert response.code == 200
+    backends = json.loads(response.body)
+    assert len(backends) >= 1
+    # Default local backend should always be present
+    assert backends[0]["id"] == "local"
+    assert backends[0]["name"] == "Local Execution"
+    assert backends[0]["is_default"] is True
+
+
+async def test_get_backends_returns_expected_fields(jp_fetch):
+    """GET /scheduler/backends returns all expected fields."""
+    response = await jp_fetch("scheduler", "backends", method="GET")
+
+    assert response.code == 200
+    backends = json.loads(response.body)
+    assert len(backends) >= 1
+
+    backend = backends[0]
+    assert "id" in backend
+    assert "name" in backend
+    assert "description" in backend
+    assert "file_extensions" in backend
+    assert "is_default" in backend
+
+
+# Tests for JobHandler backend routing
+
+
+async def test_post_job_with_backend(jp_fetch):
+    """POST job with explicit backend routes correctly."""
+    job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+    payload = {
+        "name": "test job",
+        "input_uri": "notebook.ipynb",
+        "runtime_environment_name": "env_a",
+        "backend": "local",
+    }
+    with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
+        mock_create_job.return_value = job_id
+        response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
+
+        assert response.code == 200
+        body = json.loads(response.body)
+        assert body["job_id"] == job_id
+        assert body["backend"] == "local"
+
+
+async def test_post_job_without_backend_uses_default(jp_fetch):
+    """POST job without backend auto-selects based on file extension."""
+    job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+    payload = {
+        "name": "test job",
+        "input_uri": "notebook.ipynb",
+        "runtime_environment_name": "env_a",
+    }
+    with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
+        mock_create_job.return_value = job_id
+        response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
+
+        assert response.code == 200
+        body = json.loads(response.body)
+        assert body["job_id"] == job_id
+        # Should auto-select default backend
+        assert body["backend"] == "local"
+
+
+async def test_post_job_with_invalid_backend(jp_fetch):
+    """POST job with unknown backend returns 400 error."""
+    payload = {
+        "name": "test job",
+        "input_uri": "notebook.ipynb",
+        "runtime_environment_name": "env_a",
+        "backend": "nonexistent_backend",
+    }
+    with pytest.raises(HTTPClientError) as e:
+        await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
+
+    assert expected_http_error(e, 400, "Unknown backend: nonexistent_backend")
