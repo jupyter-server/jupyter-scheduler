@@ -1,14 +1,22 @@
+"""Jupyter Scheduler extension application.
+
+This module provides the SchedulerApp extension that integrates with JupyterLab
+to enable notebook scheduling capabilities. It handles:
+- Backend discovery via Python entry points
+- Configuration through traitlets (allow/block lists, default backend)
+- Initialization of scheduler instances for each backend
+"""
+
 import asyncio
-import warnings
 
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
-from traitlets import Bool, List as TList, Type, Unicode, default
+from traitlets import Bool, Dict as TDict, List as TList, Type, Unicode, default
 
 from jupyter_scheduler.backend_registry import BackendRegistry
+from jupyter_scheduler.backend_utils import discover_backends, get_default_backend_id
 from jupyter_scheduler.backends import BackendConfig
-from jupyter_scheduler.orm import create_tables
 
 from .handlers import (
     BackendsHandler,
@@ -50,18 +58,50 @@ class SchedulerApp(ExtensionApp):
     def _db_url_default(self):
         return f"sqlite:///{jupyter_data_dir()}/scheduler.sqlite"
 
-    backends = TList(
+    # === Backend Discovery Configuration ===
+
+    allowed_backends = TList(
+        trait=Unicode(),
+        default_value=None,
+        allow_none=True,
         config=True,
         help=_i18n(
-            """List of backend configurations. Each backend bundles a scheduler_class,
-            execution_manager_class, and optionally database_manager_class. When multiple
-            backends are configured, users can select which backend to use when creating jobs."""
+            """List of backend IDs to allow. If set, only backends in this list
+            will be available. If None (default), all discovered backends are allowed."""
         ),
     )
 
-    @default("backends")
-    def _default_backends(self):
-        return []
+    blocked_backends = TList(
+        trait=Unicode(),
+        default_value=None,
+        allow_none=True,
+        config=True,
+        help=_i18n(
+            """List of backend IDs to block. Backends in this list will not be
+            available even if installed. Useful for hiding backends in specific deployments."""
+        ),
+    )
+
+    default_backend = Unicode(
+        default_value=None,
+        allow_none=True,
+        config=True,
+        help=_i18n(
+            """Default backend ID to use when creating jobs. If not set, uses 'local'
+            if available, otherwise the first available backend."""
+        ),
+    )
+
+    backend_config = TDict(
+        config=True,
+        help=_i18n(
+            """Per-backend configuration overrides, keyed by backend ID.
+            Example: {'k8s': {'db_url': 'postgresql://...'}}
+            Supported keys: db_url, metadata."""
+        ),
+    )
+
+    # === Legacy Configuration (maintained for backwards compatibility) ===
 
     environment_manager_class = Type(
         default_value="jupyter_scheduler.environments.CondaEnvironmentManager",
@@ -75,7 +115,8 @@ class SchedulerApp(ExtensionApp):
         klass="jupyter_scheduler.scheduler.BaseScheduler",
         config=True,
         help=_i18n(
-            "The scheduler class to use. Deprecated: use 'backends' configuration instead."
+            """The scheduler class for the local backend. This allows customization
+            of the local scheduler implementation without defining a full backend."""
         ),
     )
 
@@ -86,57 +127,89 @@ class SchedulerApp(ExtensionApp):
         help=_i18n("The job files manager class to use."),
     )
 
-    def _build_backend_configs(self) -> list:
-        """Build backend configurations from settings.
+    def _build_backend_configs(self, backend_classes: dict) -> list:
+        """Build BackendConfig objects from discovered backend classes.
 
-        Supports both new `backends` config and legacy `scheduler_class` trait
-        for backwards compatibility.
+        Merges discovered backend class attributes with any per-backend
+        configuration overrides from backend_config traitlet.
+
+        Parameters
+        ----------
+        backend_classes : dict
+            Mapping of backend_id -> backend class from discover_backends()
 
         Returns
         -------
         list
-            List of BackendConfig objects
+            List of BackendConfig objects ready for registry initialization
         """
-        if self.backends:
-            # Use new backends configuration
-            return [BackendConfig(**cfg) for cfg in self.backends]
+        configs = []
 
-        # Legacy mode: create single backend from scheduler_class
-        # Get execution_manager_class from scheduler if configured
-        exec_manager_class = "jupyter_scheduler.executors.DefaultExecutionManager"
+        for backend_id, backend_class in backend_classes.items():
+            # Get per-backend overrides from configuration
+            overrides = self.backend_config.get(backend_id, {})
 
-        # Check if scheduler_class has execution_manager_class configured
-        scheduler_class_name = (
-            self.scheduler_class
-            if isinstance(self.scheduler_class, str)
-            else f"{self.scheduler_class.__module__}.{self.scheduler_class.__name__}"
-        )
+            # Handle scheduler_class override for local backend
+            # This maintains backwards compatibility with scheduler_class traitlet
+            scheduler_class_path = backend_class.scheduler_class
+            if backend_id == "local" and self.scheduler_class:
+                # User may have configured a custom scheduler class
+                if isinstance(self.scheduler_class, str):
+                    scheduler_class_path = self.scheduler_class
+                elif self.scheduler_class.__module__ != "jupyter_scheduler.scheduler":
+                    # Non-default scheduler class configured
+                    scheduler_class_path = (
+                        f"{self.scheduler_class.__module__}.{self.scheduler_class.__name__}"
+                    )
 
-        return [
-            BackendConfig(
-                id="local",
-                name="Local Execution",
-                description="Execute notebooks locally on the Jupyter server",
-                scheduler_class=scheduler_class_name,
-                execution_manager_class=exec_manager_class,
-                file_extensions=["ipynb"],
-                is_default=True,
-                priority=0,
+            config = BackendConfig(
+                id=backend_class.id,
+                name=backend_class.name,
+                description=backend_class.description,
+                scheduler_class=scheduler_class_path,
+                execution_manager_class=backend_class.execution_manager_class,
+                database_manager_class=backend_class.database_manager_class,
+                db_url=overrides.get("db_url"),
+                file_extensions=list(backend_class.file_extensions),
+                is_default=False,  # Set below after determining default
+                priority=backend_class.priority,
+                metadata=overrides.get("metadata"),
             )
-        ]
+            configs.append(config)
+
+        return configs
 
     def initialize_settings(self):
         super().initialize_settings()
 
-        environments_manager = self.environment_manager_class()
+        # Discover backends via entry points
+        backend_classes = discover_backends(
+            log=self.log,
+            allowed_backends=self.allowed_backends,
+            blocked_backends=self.blocked_backends,
+        )
 
-        # Build backend configurations
-        backend_configs = self._build_backend_configs()
+        if not backend_classes:
+            raise ValueError(
+                "No scheduler backends available. The 'local' backend should be "
+                "registered via entry points. Check your jupyter_scheduler installation."
+            )
+
+        # Build configuration objects from discovered backends
+        backend_configs = self._build_backend_configs(backend_classes)
 
         # Determine default backend
-        default_id = next(
-            (c.id for c in backend_configs if c.is_default), backend_configs[0].id
+        default_id = get_default_backend_id(
+            backend_classes,
+            configured_default=self.default_backend,
         )
+
+        # Mark the default backend
+        for config in backend_configs:
+            config.is_default = config.id == default_id
+
+        # Initialize environment manager
+        environments_manager = self.environment_manager_class()
 
         # Create and initialize the backend registry
         registry = BackendRegistry(backend_configs, default_id)
@@ -155,8 +228,8 @@ class SchedulerApp(ExtensionApp):
 
         self.settings.update(
             environments_manager=environments_manager,
-            scheduler=scheduler,  # Backwards compatibility
-            backend_registry=registry,  # New multi-backend support
+            scheduler=scheduler,  # Backwards compatibility with handlers expecting single scheduler
+            backend_registry=registry,
             job_files_manager=job_files_manager,
         )
 
@@ -165,3 +238,8 @@ class SchedulerApp(ExtensionApp):
         for backend in registry.list_backend_instances():
             if hasattr(backend.scheduler, "task_runner") and backend.scheduler.task_runner:
                 loop.create_task(backend.scheduler.task_runner.start())
+
+        self.log.info(
+            f"Initialized {len(backend_configs)} backend(s): "
+            f"{[c.id for c in backend_configs]} (default: {default_id})"
+        )

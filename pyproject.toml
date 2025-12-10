@@ -58,6 +58,9 @@ docs = [
 [project.urls]
 Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
 
+[project.entry-points."jupyter_scheduler.backends"]
+local = "jupyter_scheduler.backends:LocalBackend"
+
 [tool.check-wheel-contents]
 ignore = ["W002"]
 
