@@ -17,6 +17,18 @@ class JupyterServerNotebookBackend(BaseBackend):
     priority = 0
 
 
+class JupyterServerPythonBackend(BaseBackend):
+    """Built-in backend executing Python scripts via subprocess on the Jupyter server."""
+
+    id = "jupyter_server_py"
+    name = "Python Script"
+    description = "Execute Python scripts on the Jupyter server"
+    scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
+    execution_manager_class = "jupyter_scheduler.python_executor.PythonScriptExecutionManager"
+    file_extensions = ["py"]
+    priority = 0
+
+
 @dataclass
 class BackendConfig:
     """Runtime configuration for an initialized backend instance."""

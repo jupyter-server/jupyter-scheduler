@@ -60,6 +60,7 @@ Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
 
 [project.entry-points."jupyter_scheduler.backends"]
 jupyter_server_nb = "jupyter_scheduler.backends:JupyterServerNotebookBackend"
+jupyter_server_py = "jupyter_scheduler.backends:JupyterServerPythonBackend"
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
