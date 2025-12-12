@@ -478,4 +478,5 @@ const plugins: JupyterFrontEndPlugin<any>[] = [
 ];
 
 export { JobsView };
+export { default as AdvancedOptions } from './advanced-options';
 export default plugins;
