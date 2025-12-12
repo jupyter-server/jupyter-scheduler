@@ -34,7 +34,11 @@ from .handlers import (
 )
 
 JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+(?:-\w+)+)"
-JOB_ID_REGEX = r"(?P<job_id>\w+(?:-\w+)+)"
+# Job IDs can be:
+# - Legacy format: UUID like "abc123-def456-..."
+# - Encoded format: "backend:uuid" like "local:abc123-def456-..." or "k8s:xyz789"
+# Note: colon may be URL-encoded as %3A
+JOB_ID_REGEX = r"(?P<job_id>[\w:%-]+)"
 
 
 class SchedulerApp(ExtensionApp):

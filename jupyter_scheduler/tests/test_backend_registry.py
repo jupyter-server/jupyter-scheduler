@@ -333,19 +333,27 @@ class TestBackendRegistry:
         assert all(isinstance(i, BackendInstance) for i in instances)
 
     @patch("jupyter_scheduler.backend_registry.create_tables")
-    def test_skips_create_tables_for_k8s_url(self, mock_create_tables, local_backend_config):
-        """Does not create tables for k8s:// URLs."""
-        local_backend_config.db_url = "k8s://default"
+    def test_skips_create_tables_for_custom_database_manager(self, mock_create_tables):
+        """Does not create tables when backend has custom database_manager_class."""
+        config = BackendConfig(
+            id="k8s",
+            name="K8s Backend",
+            description="Backend with custom storage",
+            scheduler_class="jupyter_scheduler.scheduler.Scheduler",
+            execution_manager_class="jupyter_scheduler.executors.DefaultExecutionManager",
+            database_manager_class="some_package.K8sDatabaseManager",
+            db_url="k8s://default",
+        )
 
         with patch("jupyter_scheduler.backend_registry.import_class") as mock_import:
             mock_scheduler_class = MagicMock()
             mock_scheduler_class.return_value = MagicMock()
             mock_import.return_value = mock_scheduler_class
 
-            registry = BackendRegistry([local_backend_config], "local")
+            registry = BackendRegistry([config], "k8s")
             registry.initialize("/tmp", MagicMock(), "sqlite:///global.db")
 
-            # Should not call create_tables because backend uses k8s://
+            # Should not call create_tables because backend has custom database_manager_class
             mock_create_tables.assert_not_called()
 
     @patch("jupyter_scheduler.backend_registry.create_tables")

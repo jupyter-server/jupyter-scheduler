@@ -1,6 +1,7 @@
 import json
 import re
 from typing import Optional
+from urllib.parse import unquote
 
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
@@ -9,6 +10,7 @@ from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.environments import EnvironmentRetrievalError
+from jupyter_scheduler.job_id import decode_job_id, encode_job_id
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
     InputUriError,
@@ -58,6 +60,32 @@ class JobHandlersMixin:
             self._environments_manager = self.settings.get("environments_manager")
 
         return self._environments_manager
+
+    def get_scheduler_for_job_id(self, job_id: str):
+        """Get the appropriate scheduler for a job ID.
+
+        Decodes the backend from the job ID prefix and returns the corresponding
+        scheduler. Falls back to the default scheduler for legacy IDs.
+
+        Args:
+            job_id: The composite job ID (e.g., 'k8s:abc123' or legacy 'abc123')
+                    May be URL-encoded (e.g., 'k8s%3Aabc123')
+
+        Returns:
+            Tuple of (scheduler, decoded_uuid)
+        """
+        # URL-decode the job_id in case it contains encoded characters like %3A for ':'
+        decoded_job_id = unquote(job_id)
+        backend_id, uuid = decode_job_id(decoded_job_id)
+        registry = self.backend_registry
+
+        if registry and len(registry) > 0:
+            backend = registry.get_backend(backend_id)
+            if backend:
+                return backend.scheduler, uuid
+
+        # Fallback to default scheduler
+        return self.scheduler, uuid
 
     @property
     def execution_manager_class(self):
@@ -133,8 +161,28 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def post(self):
         payload = self.get_json_body()
         try:
+            # Determine which backend to use
+            registry = self.backend_registry
+            backend_id = payload.get("backend")
+
+            if registry and len(registry) > 0:
+                if backend_id:
+                    backend = registry.get_backend(backend_id)
+                    if not backend:
+                        raise HTTPError(400, f"Unknown backend: {backend_id}")
+                else:
+                    # Auto-select based on file extension
+                    backend = registry.get_for_file(payload.get("input_uri", ""))
+
+                # Ensure backend ID is stored with the job definition
+                payload["backend"] = backend.config.id
+                scheduler = backend.scheduler
+            else:
+                # Fallback to default scheduler (backwards compatibility)
+                scheduler = self.scheduler
+
             job_definition_id = await ensure_async(
-                self.scheduler.create_job_definition(CreateJobDefinition(**payload))
+                scheduler.create_job_definition(CreateJobDefinition(**payload))
             )
         except ValidationError as e:
             self.log.exception(e)
@@ -145,6 +193,9 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
+        except HTTPError:
+            # Re-raise HTTPError as-is (e.g., 400 for invalid backend)
+            raise
         except Exception as e:
             self.log.exception(e)
             raise HTTPError(
@@ -199,7 +250,8 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def get(self, job_id=None):
         if job_id:
             try:
-                job = await ensure_async(self.scheduler.get_job(job_id))
+                scheduler, uuid = self.get_scheduler_for_job_id(job_id)
+                job = await ensure_async(scheduler.get_job(uuid))
             except SchedulerError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -260,7 +312,13 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 # Fallback to default scheduler (backwards compatibility)
                 scheduler = self.scheduler
 
-            job_id = await ensure_async(scheduler.create_job(CreateJob(**payload)))
+            raw_job_id = await ensure_async(scheduler.create_job(CreateJob(**payload)))
+            # Encode backend into job ID for O(1) routing on subsequent operations
+            backend_id = payload.get("backend")
+            if backend_id:
+                job_id = encode_job_id(backend_id, raw_job_id)
+            else:
+                job_id = raw_job_id
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -273,6 +331,9 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
+        except HTTPError:
+            # Re-raise HTTPError as-is (e.g., 400 for invalid backend)
+            raise
         except Exception as e:
             self.log.exception(e)
             raise HTTPError(500, "Unexpected error occurred during creation of job.") from e
@@ -296,10 +357,11 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             )
 
         try:
+            scheduler, uuid = self.get_scheduler_for_job_id(job_id)
             if status:
-                await ensure_async(self.scheduler.stop_job(job_id))
+                await ensure_async(scheduler.stop_job(uuid))
             else:
-                await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
+                await ensure_async(scheduler.update_job(uuid, UpdateJob(**payload)))
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -316,7 +378,8 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def delete(self, job_id):
         try:
-            await ensure_async(self.scheduler.delete_job(job_id))
+            scheduler, uuid = self.get_scheduler_for_job_id(job_id)
+            await ensure_async(scheduler.delete_job(uuid))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -356,7 +419,8 @@ class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         job_ids = self.get_query_arguments("job_id")
         try:
             for job_id in job_ids:
-                await ensure_async(self.scheduler.delete_job(job_id))
+                scheduler, uuid = self.get_scheduler_for_job_id(job_id)
+                await ensure_async(scheduler.delete_job(uuid))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e

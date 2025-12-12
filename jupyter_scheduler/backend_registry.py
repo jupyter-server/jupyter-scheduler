@@ -9,8 +9,6 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type
 
-from traitlets.config import LoggingConfigurable
-
 from jupyter_scheduler.backends import BackendConfig, DescribeBackend
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.orm import create_tables
@@ -145,9 +143,9 @@ class BackendRegistry:
         # Use backend-specific db_url if provided, otherwise use global
         backend_db_url = cfg.db_url or global_db_url
 
-        # Create database tables if using SQLAlchemy-based scheduler
-        # Skip if db_url suggests non-SQLAlchemy backend (e.g., k8s://)
-        if backend_db_url and not backend_db_url.startswith(("k8s://", "kubernetes://")):
+        # Create SQL tables only if backend uses default SQLAlchemy storage.
+        # Backends with custom database_manager_class handle their own storage.
+        if backend_db_url and cfg.database_manager_class is None:
             create_tables(backend_db_url)
 
         # Instantiate the scheduler

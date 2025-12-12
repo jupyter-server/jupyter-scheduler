@@ -215,6 +215,7 @@ class CreateJobDefinition(BaseModel):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
     package_input_folder: Optional[bool] = None
+    backend: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -242,6 +243,7 @@ class DescribeJobDefinition(BaseModel):
     active: bool
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
+    backend: Optional[str] = None
 
     class Config:
         orm_mode = True

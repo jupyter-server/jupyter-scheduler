@@ -10,6 +10,7 @@ from jupyter_scheduler.exceptions import (
     SchedulerError,
 )
 from jupyter_scheduler.handlers import compute_sort_model
+from jupyter_scheduler.job_id import encode_job_id
 from jupyter_scheduler.models import (
     CountJobsQuery,
     DescribeJob,
@@ -25,7 +26,7 @@ from jupyter_scheduler.tests.utils import expected_http_error
 
 
 @pytest.mark.parametrize(
-    "job_id,payload",
+    "raw_job_id,payload,expected_backend",
     [
         (
             "542e0fac-1274-4a78-8340-a850bdb559c8",
@@ -36,6 +37,7 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "runtime_environment_name": "",
                 "name": "job_a",
             },
+            "test",  # test backend has highest priority for .ipynb files
         ),
         (
             "4c6cd4e0-49ce-4b58-843d-2fa02f7468b1",
@@ -49,17 +51,21 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "parameters": {"a": 1, "b": 2, "foo": "bar", "test": True},
                 "name": "job_a",
             },
+            "test",  # test backend has highest priority for .ipynb files
         ),
     ],
 )
-async def test_post_jobs(jp_fetch, job_id, payload):
+async def test_post_jobs(jp_fetch, raw_job_id, payload, expected_backend):
     with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
-        mock_create_job.return_value = job_id
+        mock_create_job.return_value = raw_job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
-        assert body["job_id"] == job_id
+        # Job ID should be encoded with backend prefix
+        expected_job_id = encode_job_id(expected_backend, raw_job_id)
+        assert body["job_id"] == expected_job_id
+        assert body["backend"] == expected_backend
 
 
 async def test_post_jobs_for_invalid_input_uri(jp_fetch):
@@ -114,13 +120,15 @@ async def test_post_jobs_for_unexpected_error(jp_fetch):
 
 async def test_get_jobs_for_single_job(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_get_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        # Use encoded job_id with backend prefix for the request
+        encoded_job_id = encode_job_id("local", raw_job_id)
         mock_get_job.return_value = DescribeJob(
             name="job_a",
             input_filename="input_a",
             output_prefix="output_a",
             runtime_environment_name="environment_a",
-            job_id=job_id,
+            job_id=raw_job_id,
             job_files=[
                 {
                     "display_name": "Notebook",
@@ -132,12 +140,13 @@ async def test_get_jobs_for_single_job(jp_fetch):
             create_time=1664305872620,
             update_time=1664305872620,
         )
-        response = await jp_fetch("scheduler", "jobs", job_id, method="GET")
+        response = await jp_fetch("scheduler", "jobs", encoded_job_id, method="GET")
 
-        mock_get_job.assert_called_once_with(job_id)
+        # Handler should decode job_id and call scheduler with raw UUID
+        mock_get_job.assert_called_once_with(raw_job_id)
         assert response.code == 200
         body = json.loads(response.body)
-        assert body["job_id"] == job_id
+        assert body["job_id"] == raw_job_id
         assert body["input_filename"]
         assert body["job_files"]
 
@@ -242,20 +251,20 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
 async def test_get_job_for_scheduler_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_get_job:
         mock_get_job.side_effect = SchedulerError("Scheduler error")
+        # Use encoded job_id with backend prefix
+        encoded_job_id = encode_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
-            await jp_fetch(
-                "scheduler", "jobs", "542e0fac-1274-4a78-8340-a850bdb559c8", method="GET"
-            )
+            await jp_fetch("scheduler", "jobs", encoded_job_id, method="GET")
         assert expected_http_error(e, 500, "Scheduler error")
 
 
 async def test_get_job_for_unexpected_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_list_jobs:
         mock_list_jobs.side_effect = ValueError("Unexpected error")
+        # Use encoded job_id with backend prefix
+        encoded_job_id = encode_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
-            await jp_fetch(
-                "scheduler", "jobs", "542e0fac-1274-4a78-8340-a850bdb559c8", method="GET"
-            )
+            await jp_fetch("scheduler", "jobs", encoded_job_id, method="GET")
         assert expected_http_error(e, 500, "Unexpected error occurred while getting job details.")
 
 
@@ -287,20 +296,22 @@ async def test_get_jobs_for_unexpected_error(jp_fetch):
 
 async def test_patch_jobs_for_status(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
         body = {"status": "STOPPED"}
         response = await jp_fetch(
-            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
+            "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 204
-        mock_stop_job.assert_called_once_with(job_id)
+        mock_stop_job.assert_called_once_with(raw_job_id)
 
 
 async def test_patch_jobs_for_invalid_status(jp_fetch):
     with pytest.raises(HTTPClientError) as e:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
         body = {"status": "IN_PROGRESS"}
-        await jp_fetch("scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body))
+        await jp_fetch("scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps(body))
 
     assert expected_http_error(
         e,
@@ -311,34 +322,37 @@ async def test_patch_jobs_for_invalid_status(jp_fetch):
 
 async def test_patch_jobs(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
         body = {"name": "hello world", "compute_type": "compute_type_a"}
         response = await jp_fetch(
-            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps(body)
+            "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 204
-        mock_update_job.assert_called_once_with(job_id, UpdateJob(**body))
+        mock_update_job.assert_called_once_with(raw_job_id, UpdateJob(**body))
 
 
 async def test_patch_jobs_for_stop_job(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
         response = await jp_fetch(
-            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
+            "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
         )
 
-        mock_stop_job.assert_called_once_with(job_id)
+        mock_stop_job.assert_called_once_with(raw_job_id)
         assert response.code == 204
 
 
 async def test_patch_jobs_for_name_update(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
         response = await jp_fetch(
-            "scheduler", "jobs", job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
+            "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
         )
 
-        mock_stop_job.assert_called_once_with(job_id)
+        mock_stop_job.assert_called_once_with(raw_job_id)
         assert response.code == 204
 
 
@@ -358,11 +372,12 @@ async def test_patch_jobs_for_validation_error(jp_fetch):
 async def test_patch_jobs_for_scheduler_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
         mock_update_job.side_effect = SchedulerError("Scheduler error")
+        encoded_job_id = encode_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch(
                 "scheduler",
                 "jobs",
-                "542e0fac-1274-4a78-8340-a850bdb559c8",
+                encoded_job_id,
                 method="PATCH",
                 body=json.dumps({"name": "job_b"}),
             )
@@ -372,11 +387,12 @@ async def test_patch_jobs_for_scheduler_error(jp_fetch):
 async def test_patch_jobs_for_unexpected_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
         mock_update_job.side_effect = ValueError("Unexpected error")
+        encoded_job_id = encode_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch(
                 "scheduler",
                 "jobs",
-                "542e0fac-1274-4a78-8340-a850bdb559c8",
+                encoded_job_id,
                 method="PATCH",
                 body=json.dumps({"name": "job_b"}),
             )
@@ -385,10 +401,11 @@ async def test_patch_jobs_for_unexpected_error(jp_fetch):
 
 async def test_delete_job(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
-        response = await jp_fetch("scheduler", "jobs", job_id, method="DELETE")
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
+        response = await jp_fetch("scheduler", "jobs", encoded_job_id, method="DELETE")
 
-        mock_delete_job.assert_called_once_with(job_id)
+        mock_delete_job.assert_called_once_with(raw_job_id)
         assert response.code == 204
 
 
@@ -396,8 +413,9 @@ async def test_delete_job_for_scheduler_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
         mock_delete_job.side_effect = SchedulerError("Scheduler error")
         with pytest.raises(HTTPClientError) as e:
-            job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
-            response = await jp_fetch("scheduler", "jobs", job_id, method="DELETE")
+            raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+            encoded_job_id = encode_job_id("local", raw_job_id)
+            await jp_fetch("scheduler", "jobs", encoded_job_id, method="DELETE")
         assert expected_http_error(e, 500, "Scheduler error")
 
 
@@ -405,19 +423,21 @@ async def test_delete_job_for_unexpected_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
         mock_delete_job.side_effect = ValueError("Unexpected error")
         with pytest.raises(HTTPClientError) as e:
-            job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
-            response = await jp_fetch("scheduler", "jobs", job_id, method="DELETE")
+            raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+            encoded_job_id = encode_job_id("local", raw_job_id)
+            await jp_fetch("scheduler", "jobs", encoded_job_id, method="DELETE")
         assert expected_http_error(e, 500, "Unexpected error occurred while deleting the job.")
 
 
 async def test_batch_delete(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.delete_job") as mock_delete_job:
-        job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+        encoded_job_id = encode_job_id("local", raw_job_id)
         response = await jp_fetch(
-            "scheduler", "batch", "jobs", method="DELETE", params={"job_id": job_id}
+            "scheduler", "batch", "jobs", method="DELETE", params={"job_id": encoded_job_id}
         )
 
-        mock_delete_job.assert_called_once_with(job_id)
+        mock_delete_job.assert_called_once_with(raw_job_id)
         assert response.code == 204
 
 
@@ -689,10 +709,11 @@ async def test_get_backends(jp_fetch):
     assert response.code == 200
     backends = json.loads(response.body)
     assert len(backends) >= 1
-    # Default local backend should always be present
-    assert backends[0]["id"] == "local"
-    assert backends[0]["name"] == "Local Execution"
-    assert backends[0]["is_default"] is True
+    # Find the local backend (default) - it may not be first in the list
+    local_backend = next((b for b in backends if b["id"] == "local"), None)
+    assert local_backend is not None, "Local backend should always be present"
+    assert local_backend["name"] == "Local Execution"
+    assert local_backend["is_default"] is True
 
 
 async def test_get_backends_returns_expected_fields(jp_fetch):
@@ -716,7 +737,7 @@ async def test_get_backends_returns_expected_fields(jp_fetch):
 
 async def test_post_job_with_backend(jp_fetch):
     """POST job with explicit backend routes correctly."""
-    job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+    raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
     payload = {
         "name": "test job",
         "input_uri": "notebook.ipynb",
@@ -724,32 +745,37 @@ async def test_post_job_with_backend(jp_fetch):
         "backend": "local",
     }
     with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
-        mock_create_job.return_value = job_id
+        mock_create_job.return_value = raw_job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
-        assert body["job_id"] == job_id
+        # Job ID should be encoded with backend prefix
+        expected_job_id = encode_job_id("local", raw_job_id)
+        assert body["job_id"] == expected_job_id
         assert body["backend"] == "local"
 
 
 async def test_post_job_without_backend_uses_default(jp_fetch):
     """POST job without backend auto-selects based on file extension."""
-    job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
+    raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
     payload = {
         "name": "test job",
         "input_uri": "notebook.ipynb",
         "runtime_environment_name": "env_a",
     }
     with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
-        mock_create_job.return_value = job_id
+        mock_create_job.return_value = raw_job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
-        assert body["job_id"] == job_id
-        # Should auto-select default backend
-        assert body["backend"] == "local"
+        # Auto-selected backend's ID should be encoded in job ID
+        # test backend has highest priority for ipynb
+        expected_job_id = encode_job_id("test", raw_job_id)
+        assert body["job_id"] == expected_job_id
+        # Should auto-select test backend (highest priority for .ipynb)
+        assert body["backend"] == "test"
 
 
 async def test_post_job_with_invalid_backend(jp_fetch):
