@@ -63,9 +63,7 @@ class PythonScriptExecutionManager(ExecutionManager):
         if new_files:
             with self.db_session() as session:
                 current = set(
-                    session.query(Job.packaged_files)
-                    .filter(Job.job_id == self.job_id)
-                    .scalar()
+                    session.query(Job.packaged_files).filter(Job.job_id == self.job_id).scalar()
                     or []
                 )
                 session.query(Job).filter(Job.job_id == self.job_id).update(

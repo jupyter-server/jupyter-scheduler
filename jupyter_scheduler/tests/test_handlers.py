@@ -709,6 +709,7 @@ async def test_delete_job_definition_for_unexpected_error(jp_fetch):
 
 # Tests for BackendsHandler
 
+
 async def test_get_backends(jp_fetch):
     response = await jp_fetch("scheduler", "backends", method="GET")
 
@@ -716,7 +717,9 @@ async def test_get_backends(jp_fetch):
     backends = json.loads(response.body)
     assert len(backends) >= 1
     jupyter_server_nb_backend = next((b for b in backends if b["id"] == "jupyter_server_nb"), None)
-    assert jupyter_server_nb_backend is not None, "Jupyter Server (Notebook) backend should always be present"
+    assert (
+        jupyter_server_nb_backend is not None
+    ), "Jupyter Server (Notebook) backend should always be present"
     assert jupyter_server_nb_backend["name"] == "Jupyter Server (Notebook)"
     assert jupyter_server_nb_backend["is_default"] is True
 
@@ -737,6 +740,7 @@ async def test_get_backends_returns_expected_fields(jp_fetch):
 
 
 # Tests for JobHandler backend routing
+
 
 async def test_post_job_with_backend(jp_fetch):
     raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
