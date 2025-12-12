@@ -71,6 +71,10 @@ class PythonScriptExecutionManager(ExecutionManager):
                 )
                 session.commit()
 
+    def validate(cls, input_path: str) -> bool:
+        """Python scripts don't require kernel validation like notebooks."""
+        return True
+
     @classmethod
     def supported_features(cls) -> Dict[JobFeature, bool]:
         return {
