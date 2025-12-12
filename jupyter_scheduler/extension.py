@@ -36,8 +36,7 @@ from .handlers import (
 JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+(?:-\w+)+)"
 # Job IDs can be:
 # - Legacy format: UUID like "abc123-def456-..."
-# - Encoded format: "backend:uuid" like "local:abc123-def456-..." or "k8s:xyz789"
-# Note: colon may be URL-encoded as %3A
+# - Encoded format: "backend_id:uuid" like "jupyter_server_nb:abc123-def456-..."
 JOB_ID_REGEX = r"(?P<job_id>[\w:%-]+)"
 
 
@@ -64,8 +63,6 @@ class SchedulerApp(ExtensionApp):
     @default("db_url")
     def _db_url_default(self):
         return f"sqlite:///{jupyter_data_dir()}/scheduler.sqlite"
-
-    # === Backend Discovery Configuration ===
 
     allowed_backends = TList(
         trait=Unicode(),
@@ -107,8 +104,6 @@ class SchedulerApp(ExtensionApp):
             Supported keys: db_url, metadata."""
         ),
     )
-
-    # === Legacy Configuration (maintained for backwards compatibility) ===
 
     environment_manager_class = Type(
         default_value="jupyter_scheduler.environments.CondaEnvironmentManager",
@@ -189,7 +184,6 @@ class SchedulerApp(ExtensionApp):
     def initialize_settings(self):
         super().initialize_settings()
 
-        # Discover backends via entry points
         backend_classes = discover_backends(
             log=self.log,
             allowed_backends=self.allowed_backends,
@@ -202,23 +196,18 @@ class SchedulerApp(ExtensionApp):
                 "registered via entry points. Check your jupyter_scheduler installation."
             )
 
-        # Build configuration objects from discovered backends
         backend_configs = self._build_backend_configs(backend_classes)
 
-        # Determine default backend
         default_id = get_default_backend_id(
             backend_classes,
             configured_default=self.default_backend,
         )
 
-        # Mark the default backend
         for config in backend_configs:
             config.is_default = config.id == default_id
 
-        # Initialize environment manager
         environments_manager = self.environment_manager_class()
 
-        # Create and initialize the backend registry
         registry = BackendRegistry(backend_configs, default_id)
         registry.initialize(
             root_dir=self.serverapp.root_dir,
@@ -227,7 +216,6 @@ class SchedulerApp(ExtensionApp):
             config=self.config,
         )
 
-        # Get the default backend for backwards compatibility
         default_backend = registry.get_default()
         scheduler = default_backend.scheduler
 
@@ -240,7 +228,6 @@ class SchedulerApp(ExtensionApp):
             job_files_manager=job_files_manager,
         )
 
-        # Start task runners for all backends that have them
         loop = asyncio.get_event_loop()
         for backend in registry.list_backend_instances():
             if hasattr(backend.scheduler, "task_runner") and backend.scheduler.task_runner:

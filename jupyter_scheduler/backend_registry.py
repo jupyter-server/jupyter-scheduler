@@ -1,10 +1,3 @@
-"""Backend registry for managing multiple backend configurations.
-
-This module provides a registry for managing multiple scheduler backends.
-Each backend is a complete execution environment with its own scheduler,
-execution manager, and optionally database manager.
-"""
-
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type
@@ -18,18 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def import_class(class_path: str) -> Type:
-    """Import a class from a fully qualified class path.
-
-    Parameters
-    ----------
-    class_path : str
-        Fully qualified class path (e.g., "jupyter_scheduler.scheduler.Scheduler")
-
-    Returns
-    -------
-    Type
-        The imported class
-    """
+    """Import a class from a fully qualified path like 'module.submodule.ClassName'."""
     module_path, class_name = class_path.rsplit(".", 1)
     module = __import__(module_path, fromlist=[class_name])
     return getattr(module, class_name)
@@ -37,35 +19,14 @@ def import_class(class_path: str) -> Type:
 
 @dataclass
 class BackendInstance:
-    """A running instance of a backend with initialized scheduler.
-
-    Attributes
-    ----------
-    config : BackendConfig
-        The configuration used to create this backend
-    scheduler : BaseScheduler
-        The initialized scheduler instance for this backend
-    """
+    """A running backend with its configuration and initialized scheduler."""
 
     config: BackendConfig
     scheduler: BaseScheduler
 
 
 class BackendRegistry:
-    """Registry managing multiple backend configurations.
-
-    This class is responsible for:
-    - Storing and managing multiple backend configurations
-    - Creating and initializing backend instances (schedulers)
-    - Routing requests to the appropriate backend based on ID or file extension
-
-    Parameters
-    ----------
-    configs : List[BackendConfig]
-        List of backend configurations to register
-    default_backend : str
-        The ID of the default backend to use when none is specified
-    """
+    """Registry for storing, initializing, and routing to scheduler backends."""
 
     def __init__(self, configs: List[BackendConfig], default_backend: str):
         self._configs = configs
@@ -80,19 +41,7 @@ class BackendRegistry:
         db_url: str,
         config: Optional[Any] = None,
     ):
-        """Instantiate all backends from configs.
-
-        Parameters
-        ----------
-        root_dir : str
-            The Jupyter server root directory
-        environments_manager : EnvironmentManager
-            The environment manager instance to use
-        db_url : str
-            Default database URL (used if backend doesn't specify its own)
-        config : Any, optional
-            Traitlets config object
-        """
+        """Instantiate all backends from configs."""
         for cfg in self._configs:
             try:
                 instance = self._create_backend(cfg, root_dir, environments_manager, db_url, config)
@@ -118,26 +67,7 @@ class BackendRegistry:
         global_db_url: str,
         config: Optional[Any] = None,
     ) -> BackendInstance:
-        """Create a backend instance from configuration.
-
-        Parameters
-        ----------
-        cfg : BackendConfig
-            The backend configuration
-        root_dir : str
-            The Jupyter server root directory
-        environments_manager : EnvironmentManager
-            The environment manager instance
-        global_db_url : str
-            Default database URL (used if backend doesn't specify its own)
-        config : Any, optional
-            Traitlets config object
-
-        Returns
-        -------
-        BackendInstance
-            The initialized backend instance
-        """
+        """Create a backend instance from configuration."""
         scheduler_class = import_class(cfg.scheduler_class)
 
         # Use backend-specific db_url if provided, otherwise use global
@@ -163,75 +93,30 @@ class BackendRegistry:
         return BackendInstance(config=cfg, scheduler=scheduler)
 
     def get_backend(self, backend_id: str) -> Optional[BackendInstance]:
-        """Get a backend by its ID.
-
-        Parameters
-        ----------
-        backend_id : str
-            The backend ID to look up
-
-        Returns
-        -------
-        BackendInstance or None
-            The backend instance if found, None otherwise
-        """
+        """Get a backend by ID, or None if not found."""
         return self._backends.get(backend_id)
 
     def get_default(self) -> BackendInstance:
-        """Get the default backend.
-
-        Returns
-        -------
-        BackendInstance
-            The default backend instance
-
-        Raises
-        ------
-        KeyError
-            If the default backend is not found
-        """
+        """Get the default backend."""
         if self._default not in self._backends:
             raise KeyError(f"Default backend '{self._default}' not found in registry")
         return self._backends[self._default]
 
     def get_for_file(self, input_uri: str) -> BackendInstance:
-        """Auto-select backend based on file extension.
-
-        If multiple backends support the file type, returns the one with
-        highest priority. If no backend matches the extension, returns
-        the default backend.
-
-        Parameters
-        ----------
-        input_uri : str
-            The input file URI/path
-
-        Returns
-        -------
-        BackendInstance
-            The selected backend instance
-        """
-        # Extract file extension
+        """Auto-select backend by file extension (highest priority wins), or return default."""
         ext = ""
         if "." in input_uri:
             ext = input_uri.rsplit(".", 1)[-1].lower()
 
         candidates = self._extension_map.get(ext, [])
         if candidates:
-            # Return highest priority backend
             candidate_instances = [self._backends[bid] for bid in candidates]
             return max(candidate_instances, key=lambda b: b.config.priority)
 
         return self.get_default()
 
     def list_backends(self) -> List[DescribeBackend]:
-        """Return list of backends for API/UI.
-
-        Returns
-        -------
-        List[DescribeBackend]
-            List of backend descriptions for frontend consumption
-        """
+        """Return backend descriptions for API/UI consumption."""
         return [
             DescribeBackend(
                 id=b.config.id,
@@ -244,19 +129,11 @@ class BackendRegistry:
         ]
 
     def list_backend_instances(self) -> List[BackendInstance]:
-        """Return list of all backend instances.
-
-        Returns
-        -------
-        List[BackendInstance]
-            List of all backend instances
-        """
+        """Return all backend instances."""
         return list(self._backends.values())
 
     def __len__(self) -> int:
-        """Return the number of registered backends."""
         return len(self._backends)
 
     def __contains__(self, backend_id: str) -> bool:
-        """Check if a backend ID is registered."""
         return backend_id in self._backends

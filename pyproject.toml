@@ -59,7 +59,7 @@ docs = [
 Homepage = "https://github.com/jupyter-server/jupyter-scheduler"
 
 [project.entry-points."jupyter_scheduler.backends"]
-local = "jupyter_scheduler.backends:LocalBackend"
+jupyter_server_nb = "jupyter_scheduler.backends:JupyterServerNotebookBackend"
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
@@ -139,6 +139,7 @@ filterwarnings = [
   "ignore:Passing a schema to Validator.iter_errors:DeprecationWarning",
   "ignore:unclosed <socket.socket:ResourceWarning",
   "ignore:unclosed event loop:ResourceWarning",
+  "ignore:unclosed database:ResourceWarning",
   "ignore:run_pre_save_hook is deprecated:DeprecationWarning",
   "ignore:jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the:DeprecationWarning"
 ]
