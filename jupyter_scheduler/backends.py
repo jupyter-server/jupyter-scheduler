@@ -9,7 +9,7 @@ class JupyterServerNotebookBackend(BaseBackend):
     """Built-in backend executing notebooks via nbconvert on the Jupyter server."""
 
     id = "jupyter_server_nb"
-    name = "Jupyter Server (Notebook)"
+    name = "Jupyter Server Notebook"
     description = "Execute notebooks on the Jupyter server"
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
     execution_manager_class = "jupyter_scheduler.executors.DefaultExecutionManager"
@@ -21,7 +21,7 @@ class JupyterServerPythonBackend(BaseBackend):
     """Built-in backend executing Python scripts via subprocess on the Jupyter server."""
 
     id = "jupyter_server_py"
-    name = "Python Script"
+    name = "Jupyter Server Python"
     description = "Execute Python scripts on the Jupyter server"
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
     execution_manager_class = "jupyter_scheduler.python_executor.PythonScriptExecutionManager"
