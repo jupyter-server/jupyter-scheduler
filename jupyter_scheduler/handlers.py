@@ -308,6 +308,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 # Ensure backend ID is stored with the job
                 payload["backend"] = backend.config.id
                 scheduler = backend.scheduler
+
+                # Set default output_formats for Python backend
+                if backend.config.id == "jupyter_server_py" and not payload.get("output_formats"):
+                    payload["output_formats"] = ["stdout", "stderr"]
             else:
                 # Fallback to default scheduler (backwards compatibility)
                 scheduler = self.scheduler

@@ -33,17 +33,14 @@ class PythonScriptExecutionManager(ExecutionManager):
             env=env,
         )
 
-        # Capture side effect files (same pattern as DefaultExecutionManager)
-        self.add_side_effects_files(staging_dir)
-
-        # Write stdout/stderr to staging directory
-        stdout_path = os.path.join(staging_dir, "stdout.log")
-        stderr_path = os.path.join(staging_dir, "stderr.log")
-
-        with fsspec.open(stdout_path, "w", encoding="utf-8") as f:
+        # Write stdout/stderr to staging_paths (keys match output_formats)
+        with fsspec.open(self.staging_paths["stdout"], "w", encoding="utf-8") as f:
             f.write(result.stdout)
-        with fsspec.open(stderr_path, "w", encoding="utf-8") as f:
+        with fsspec.open(self.staging_paths["stderr"], "w", encoding="utf-8") as f:
             f.write(result.stderr)
+
+        # Capture any additional side effect files AFTER writing stdout/stderr
+        self.add_side_effects_files(staging_dir)
 
         if result.returncode != 0:
             raise RuntimeError(
