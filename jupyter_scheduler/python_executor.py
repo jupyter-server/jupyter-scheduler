@@ -33,11 +33,13 @@ class PythonScriptExecutionManager(ExecutionManager):
             env=env,
         )
 
-        # Write stdout/stderr to staging_paths (keys match output_formats)
-        with fsspec.open(self.staging_paths["stdout"], "w", encoding="utf-8") as f:
-            f.write(result.stdout)
-        with fsspec.open(self.staging_paths["stderr"], "w", encoding="utf-8") as f:
-            f.write(result.stderr)
+        # Only write stdout/stderr if there's content
+        if result.stdout:
+            with fsspec.open(self.staging_paths["stdout"], "w", encoding="utf-8") as f:
+                f.write(result.stdout)
+        if result.stderr:
+            with fsspec.open(self.staging_paths["stderr"], "w", encoding="utf-8") as f:
+                f.write(result.stderr)
 
         # Capture any additional side effect files AFTER writing stdout/stderr
         self.add_side_effects_files(staging_dir)
