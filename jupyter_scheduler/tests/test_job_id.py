@@ -2,11 +2,7 @@
 
 import pytest
 
-from jupyter_scheduler.job_id import (
-    LEGACY_BACKEND_ID,
-    decode_job_id,
-    encode_job_id,
-)
+from jupyter_scheduler.job_id import LEGACY_BACKEND_ID, decode_job_id, encode_job_id
 
 
 class TestEncodeJobId:

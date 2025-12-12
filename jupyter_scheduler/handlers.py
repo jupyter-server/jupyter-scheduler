@@ -10,12 +10,12 @@ from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.environments import EnvironmentRetrievalError
-from jupyter_scheduler.job_id import decode_job_id, encode_job_id
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
     InputUriError,
     SchedulerError,
 )
+from jupyter_scheduler.job_id import decode_job_id, encode_job_id
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,

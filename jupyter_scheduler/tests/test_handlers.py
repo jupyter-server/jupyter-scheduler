@@ -337,7 +337,11 @@ async def test_patch_jobs_for_stop_job(jp_fetch):
         raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         encoded_job_id = encode_job_id("local", raw_job_id)
         response = await jp_fetch(
-            "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
+            "scheduler",
+            "jobs",
+            encoded_job_id,
+            method="PATCH",
+            body=json.dumps({"status": "STOPPED"}),
         )
 
         mock_stop_job.assert_called_once_with(raw_job_id)
@@ -349,7 +353,11 @@ async def test_patch_jobs_for_name_update(jp_fetch):
         raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
         encoded_job_id = encode_job_id("local", raw_job_id)
         response = await jp_fetch(
-            "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps({"status": "STOPPED"})
+            "scheduler",
+            "jobs",
+            encoded_job_id,
+            method="PATCH",
+            body=json.dumps({"status": "STOPPED"}),
         )
 
         mock_stop_job.assert_called_once_with(raw_job_id)
