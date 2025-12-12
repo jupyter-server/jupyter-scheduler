@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   FormControl,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -21,8 +22,8 @@ export type BackendPickerProps = {
 };
 
 export function BackendPicker(props: BackendPickerProps): JSX.Element | null {
-  // Hide while loading (length === 0) or if only one backend (no choice to make)
-  if (props.backendList.length <= 1) {
+  // Hide only while loading
+  if (props.backendList.length === 0) {
     return null;
   }
 
@@ -35,12 +36,14 @@ export function BackendPicker(props: BackendPickerProps): JSX.Element | null {
       )
     : props.backendList;
 
-  // Hide if only one backend matches the file type
-  if (filteredBackends.length <= 1) {
+  // Hide only if no backends match (edge case)
+  if (filteredBackends.length === 0) {
     return null;
   }
 
   const labelId = `${props.id}-label`;
+  const isDisabled = filteredBackends.length === 1;
+  const selectedBackend = filteredBackends.find(b => b.id === props.value);
 
   return (
     <FormControl>
@@ -52,6 +55,7 @@ export function BackendPicker(props: BackendPickerProps): JSX.Element | null {
         id={props.id}
         onChange={props.onChange}
         value={props.value}
+        disabled={isDisabled}
       >
         {filteredBackends.map((backend, idx) => (
           <MenuItem value={backend.id} title={backend.description} key={idx}>
@@ -59,6 +63,9 @@ export function BackendPicker(props: BackendPickerProps): JSX.Element | null {
           </MenuItem>
         ))}
       </Select>
+      {selectedBackend && (
+        <FormHelperText>{selectedBackend.description}</FormHelperText>
+      )}
     </FormControl>
   );
 }
