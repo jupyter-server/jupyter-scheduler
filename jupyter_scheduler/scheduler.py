@@ -324,13 +324,16 @@ class BaseScheduler(LoggingConfigurable):
         for output_format in model.output_formats:
             filename = output_filenames[output_format]
             output_path = os.path.join(output_dir, filename)
-            job_files.append(
-                JobFile(
-                    display_name=mapping[output_format],
-                    file_format=output_format,
-                    file_path=output_path if self.file_exists(output_path) else None,
+            file_exists = self.file_exists(output_path)
+            # Only add job file if it exists (handles optional outputs like stdout/stderr)
+            if file_exists:
+                job_files.append(
+                    JobFile(
+                        display_name=mapping[output_format],
+                        file_format=output_format,
+                        file_path=output_path,
+                    )
                 )
-            )
 
         # Add input file
         filename = model.input_filename
