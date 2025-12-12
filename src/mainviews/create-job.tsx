@@ -146,13 +146,25 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         const backends = await api.getBackends();
         setBackendList(backends);
 
-        // Auto-select default backend if not set
+        // Auto-select backend by file extension, fall back to default
         if (!props.model.backend && backends.length > 0) {
-          const defaultBackend =
-            backends.find(b => b.is_default) || backends[0];
+          const fileExt = props.model.inputFile
+            ?.split('.')
+            .pop()
+            ?.toLowerCase();
+
+          // Find backend that matches file extension
+          const matchingBackend = fileExt
+            ? backends.find(b => b.file_extensions.includes(fileExt))
+            : null;
+
+          // Fall back to default or first
+          const selectedBackend =
+            matchingBackend || backends.find(b => b.is_default) || backends[0];
+
           props.handleModelChange({
             ...props.model,
-            backend: defaultBackend.id
+            backend: selectedBackend.id
           });
         }
       } catch (e) {
