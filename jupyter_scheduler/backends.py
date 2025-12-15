@@ -57,3 +57,15 @@ class DescribeBackend(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SageMakerHyperPodBackend(BaseBackend):
+    """Demo backend simulating SageMaker HyperPod execution."""
+
+    id = "sagemaker_hyperpod"
+    name = "SageMaker HyperPod"
+    description = "Execute Python scripts on SageMaker HyperPod cluster"
+    scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
+    execution_manager_class = "jupyter_scheduler.python_executor.PythonScriptExecutionManager"
+    file_extensions = ["py"]
+    priority = 50
