@@ -219,7 +219,7 @@ class SchedulerApp(ExtensionApp):
         default_backend = registry.get_default()
         scheduler = default_backend.scheduler
 
-        job_files_manager = self.job_files_manager_class(scheduler=scheduler)
+        job_files_manager = self.job_files_manager_class(backend_registry=registry)
 
         self.settings.update(
             environments_manager=environments_manager,

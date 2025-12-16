@@ -1,27 +1,74 @@
+import logging
 import os
 import random
 import tarfile
 from multiprocessing import Process
-from typing import Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
 
 import fsspec
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
+from jupyter_scheduler.job_id import parse_job_id
 from jupyter_scheduler.scheduler import BaseScheduler
+
+if TYPE_CHECKING:
+    from jupyter_scheduler.backend_registry import BackendRegistry
+
+logger = logging.getLogger(__name__)
 
 
 class JobFilesManager:
-    scheduler = None
+    """Manages downloading job output files from staging to local output directory.
 
-    def __init__(self, scheduler: Type[BaseScheduler]):
+    Supports both legacy single-scheduler mode and multi-backend mode.
+
+    Args:
+        scheduler: (Deprecated) Single scheduler instance. Use backend_registry instead.
+        backend_registry: Registry of all backend schedulers. When provided, job IDs
+            are decoded to route to the correct backend's scheduler.
+    """
+
+    def __init__(
+        self,
+        scheduler: Optional[Type[BaseScheduler]] = None,
+        backend_registry: Optional["BackendRegistry"] = None,
+    ):
         self.scheduler = scheduler
+        self.backend_registry = backend_registry
+
+    def _get_scheduler_for_job(self, job_id: str) -> Tuple[BaseScheduler, str]:
+        """Get the appropriate scheduler and decoded job ID.
+
+        Returns:
+            Tuple of (scheduler, decoded_job_id)
+        """
+        if self.backend_registry:
+            backend_id, uuid = parse_job_id(job_id)
+            backend = self.backend_registry.get_backend(backend_id)
+            if backend:
+                return backend.scheduler, uuid
+            # Fall back to default backend if specific one not found
+            logger.warning(f"Backend '{backend_id}' not found, using default backend")
+            return self.backend_registry.get_default().scheduler, uuid
+
+        # Legacy mode: use single scheduler with original job_id
+        return self.scheduler, job_id
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
-        job = await ensure_async(self.scheduler.get_job(job_id, False))
-        staging_paths = await ensure_async(self.scheduler.get_staging_paths(job))
-        output_filenames = self.scheduler.get_job_filenames(job)
-        output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
+        """Copy job output files from staging area to local output directory.
+
+        Args:
+            job_id: Job identifier (may be encoded as 'backend_id:uuid' or legacy UUID)
+            redownload: If True, re-download files even if they already exist locally
+        """
+        scheduler, _ = self._get_scheduler_for_job(job_id)
+
+        # Use original job_id since database stores full 'backend:uuid' format
+        job = await ensure_async(scheduler.get_job(job_id, False))
+        staging_paths = await ensure_async(scheduler.get_staging_paths(job))
+        output_filenames = scheduler.get_job_filenames(job)
+        output_dir = scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
         p = Process(
             target=Downloader(

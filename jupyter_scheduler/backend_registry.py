@@ -84,6 +84,7 @@ class BackendRegistry:
             environments_manager=environments_manager,
             db_url=backend_db_url,
             config=config,
+            backend_id=cfg.id,
         )
 
         # Override execution_manager_class if specified in config

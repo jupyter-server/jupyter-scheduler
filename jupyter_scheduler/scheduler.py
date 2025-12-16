@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 from typing import Dict, List, Optional, Type, Union
+from uuid import uuid4
 
 import fsspec
 import psutil
@@ -38,6 +39,7 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
+from jupyter_scheduler.job_id import make_job_id
 from jupyter_scheduler.orm import Job, JobDefinition, create_session
 from jupyter_scheduler.utils import (
     copy_directory,
@@ -96,11 +98,17 @@ class BaseScheduler(LoggingConfigurable):
     )
 
     def __init__(
-        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
+        self,
+        root_dir: str,
+        environments_manager: Type[EnvironmentManager],
+        config=None,
+        backend_id: str = None,
+        **kwargs,
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
         self.environments_manager = environments_manager
+        self.backend_id = backend_id
 
     def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
@@ -408,10 +416,15 @@ class Scheduler(BaseScheduler):
         environments_manager: Type[EnvironmentManager],
         db_url: str,
         config=None,
+        backend_id: str = None,
         **kwargs,
     ):
         super().__init__(
-            root_dir=root_dir, environments_manager=environments_manager, config=config, **kwargs
+            root_dir=root_dir,
+            environments_manager=environments_manager,
+            config=config,
+            backend_id=backend_id,
+            **kwargs,
         )
         self.db_url = db_url
         if self.task_runner_class:
@@ -467,7 +480,15 @@ class Scheduler(BaseScheduler):
             if not model.output_formats:
                 model.output_formats = []
 
-            job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
+            # Generate full job_id with backend prefix
+            uuid = str(uuid4())
+            full_job_id = make_job_id(self.backend_id, uuid) if self.backend_id else uuid
+
+            job = Job(
+                job_id=full_job_id,
+                backend=self.backend_id,
+                **model.dict(exclude_none=True, exclude={"input_uri", "backend"}),
+            )
 
             session.add(job)
             session.commit()

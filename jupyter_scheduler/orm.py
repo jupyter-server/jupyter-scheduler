@@ -94,7 +94,7 @@ class CommonColumns:
 class Job(CommonColumns, Base):
     __tablename__ = "jobs"
     __table_args__ = {"extend_existing": True}
-    job_id = Column(String(36), primary_key=True, default=generate_uuid)
+    job_id = Column(String(128), primary_key=True, default=generate_uuid)
     job_definition_id = Column(String(36))
     status = Column(String(64), default=Status.STOPPED)
     status_message = Column(String(1024))

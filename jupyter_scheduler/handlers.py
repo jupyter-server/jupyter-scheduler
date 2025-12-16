@@ -15,7 +15,7 @@ from jupyter_scheduler.exceptions import (
     InputUriError,
     SchedulerError,
 )
-from jupyter_scheduler.job_id import decode_job_id, encode_job_id
+from jupyter_scheduler.job_id import make_job_id, parse_job_id
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -25,6 +25,7 @@ from jupyter_scheduler.models import (
     CreateJobFromDefinition,
     ListJobDefinitionsQuery,
     ListJobsQuery,
+    ListJobsResponse,
     SortDirection,
     SortField,
     Status,
@@ -76,7 +77,7 @@ class JobHandlersMixin:
         """
         # URL-decode the job_id in case it contains encoded characters like %3A for ':'
         decoded_job_id = unquote(job_id)
-        backend_id, uuid = decode_job_id(decoded_job_id)
+        backend_id, uuid = parse_job_id(decoded_job_id)
         registry = self.backend_registry
 
         if registry and len(registry) > 0:
@@ -275,7 +276,38 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                     next_token=self.get_query_argument("next_token", None),
                 )
-                list_jobs_response = await ensure_async(self.scheduler.list_jobs(list_jobs_query))
+
+                registry = self.backend_registry
+                if registry and len(registry) > 0:
+                    # Query jobs from default scheduler (all backends share same DB)
+                    # Job IDs are already stored as 'backend:uuid' format
+                    default_backend = registry.get_default()
+                    list_jobs_response = await ensure_async(
+                        default_backend.scheduler.list_jobs(list_jobs_query)
+                    )
+
+                    # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
+                    # This allows backend-specific schedulers (like BraketScheduler) to sync status
+                    for i, job in enumerate(list_jobs_response.jobs):
+                        if job.status in (Status.QUEUED, Status.IN_PROGRESS):
+                            backend_id, _ = parse_job_id(job.job_id)
+                            backend = registry.get_backend(backend_id)
+                            if backend and backend.scheduler != default_backend.scheduler:
+                                # Call backend's get_job which triggers status sync
+                                try:
+                                    synced_job = await ensure_async(
+                                        backend.scheduler.get_job(job.job_id, job_files=False)
+                                    )
+                                    list_jobs_response.jobs[i] = synced_job
+                                except Exception as e:
+                                    self.log.warning(
+                                        f"Failed to sync status for job {job.job_id}: {e}"
+                                    )
+                else:
+                    # Fallback to default scheduler (backwards compatibility)
+                    list_jobs_response = await ensure_async(
+                        self.scheduler.list_jobs(list_jobs_query)
+                    )
             except ValidationError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -313,7 +345,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 if not payload.get("output_formats"):
                     input_uri = payload.get("input_uri", "")
                     if input_uri.endswith(".py"):
-                        payload["output_formats"] = ["stdout", "stderr"]
+                        payload["output_formats"] = ["stdout", "stderr", "json"]
                     elif input_uri.endswith(".qasm"):
                         payload["output_formats"] = ["json"]
                     elif input_uri.endswith(".ipynb"):
@@ -326,7 +358,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             # Encode backend into job ID for O(1) routing on subsequent operations
             backend_id = payload.get("backend")
             if backend_id:
-                job_id = encode_job_id(backend_id, raw_job_id)
+                job_id = make_job_id(backend_id, raw_job_id)
             else:
                 job_id = raw_job_id
         except ValidationError as e:

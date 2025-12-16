@@ -71,7 +71,7 @@ class CondaEnvironmentManager(EnvironmentManager):
             "html": "HTML",
             "stdout": "Output",
             "stderr": "Errors",
-            "json": "Results",
+            "json": "JSON",
         }
 
 
@@ -101,7 +101,7 @@ class StaticEnvironmentManager(EnvironmentManager):
             "html": "HTML",
             "stdout": "Output",
             "stderr": "Errors",
-            "json": "Results",
+            "json": "JSON",
         }
 
 
