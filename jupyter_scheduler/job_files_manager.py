@@ -3,13 +3,13 @@ import os
 import random
 import tarfile
 from multiprocessing import Process
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Type
 
 import fsspec
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
-from jupyter_scheduler.job_id import parse_job_id
+from jupyter_scheduler.job_id import LEGACY_BACKEND_ID
 from jupyter_scheduler.scheduler import BaseScheduler
 
 if TYPE_CHECKING:
@@ -37,23 +37,16 @@ class JobFilesManager:
         self.scheduler = scheduler
         self.backend_registry = backend_registry
 
-    def _get_scheduler_for_job(self, job_id: str) -> Tuple[BaseScheduler, str]:
-        """Get the appropriate scheduler and decoded job ID.
-
-        Returns:
-            Tuple of (scheduler, decoded_job_id)
-        """
+    def _get_scheduler(self, job_id: str) -> BaseScheduler:
+        """Get the appropriate scheduler for a job ID."""
         if self.backend_registry:
-            backend_id, uuid = parse_job_id(job_id)
+            backend_id = job_id.split(":", 1)[0] if ":" in job_id else LEGACY_BACKEND_ID
             backend = self.backend_registry.get_backend(backend_id)
             if backend:
-                return backend.scheduler, uuid
-            # Fall back to default backend if specific one not found
+                return backend.scheduler
             logger.warning(f"Backend '{backend_id}' not found, using default backend")
-            return self.backend_registry.get_default().scheduler, uuid
-
-        # Legacy mode: use single scheduler with original job_id
-        return self.scheduler, job_id
+            return self.backend_registry.get_default().scheduler
+        return self.scheduler
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         """Copy job output files from staging area to local output directory.
@@ -62,9 +55,7 @@ class JobFilesManager:
             job_id: Job identifier (may be encoded as 'backend_id:uuid' or legacy UUID)
             redownload: If True, re-download files even if they already exist locally
         """
-        scheduler, _ = self._get_scheduler_for_job(job_id)
-
-        # Use original job_id since database stores full 'backend:uuid' format
+        scheduler = self._get_scheduler(job_id)
         job = await ensure_async(scheduler.get_job(job_id, False))
         staging_paths = await ensure_async(scheduler.get_staging_paths(job))
         output_filenames = scheduler.get_job_filenames(job)
