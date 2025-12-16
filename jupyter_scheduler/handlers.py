@@ -273,7 +273,11 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     # This allows backend-specific schedulers (like BraketScheduler) to sync status
                     for i, job in enumerate(list_jobs_response.jobs):
                         if job.status in (Status.QUEUED, Status.IN_PROGRESS):
-                            backend_id = job.job_id.split(":", 1)[0] if ":" in job.job_id else "jupyter_server_nb"
+                            backend_id = (
+                                job.job_id.split(":", 1)[0]
+                                if ":" in job.job_id
+                                else "jupyter_server_nb"
+                            )
                             backend = registry.get_backend(backend_id)
                             if backend and backend.scheduler != default_backend.scheduler:
                                 # Call backend's get_job which triggers status sync
