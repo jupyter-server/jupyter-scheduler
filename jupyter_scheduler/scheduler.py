@@ -22,6 +22,7 @@ from jupyter_scheduler.exceptions import (
     InputUriError,
     SchedulerError,
 )
+from jupyter_scheduler.job_id import make_job_id
 from jupyter_scheduler.models import (
     CountJobsQuery,
     CreateJob,
@@ -39,7 +40,6 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.job_id import make_job_id
 from jupyter_scheduler.orm import Job, JobDefinition, create_session
 from jupyter_scheduler.utils import (
     copy_directory,
