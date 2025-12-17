@@ -33,12 +33,16 @@ class PythonScriptExecutionManager(ExecutionManager):
             env=env,
         )
 
+        # Derive stdout/stderr paths from staging directory if not provided
+        stdout_path = self.staging_paths.get("stdout") or os.path.join(staging_dir, "stdout.log")
+        stderr_path = self.staging_paths.get("stderr") or os.path.join(staging_dir, "stderr.log")
+
         # Only write stdout/stderr if there's content
         if result.stdout:
-            with fsspec.open(self.staging_paths["stdout"], "w", encoding="utf-8") as f:
+            with fsspec.open(stdout_path, "w", encoding="utf-8") as f:
                 f.write(result.stdout)
         if result.stderr:
-            with fsspec.open(self.staging_paths["stderr"], "w", encoding="utf-8") as f:
+            with fsspec.open(stderr_path, "w", encoding="utf-8") as f:
                 f.write(result.stderr)
 
         # Capture any additional side effect files AFTER writing stdout/stderr

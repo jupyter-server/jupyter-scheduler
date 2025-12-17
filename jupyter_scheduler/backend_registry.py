@@ -124,6 +124,7 @@ class BackendRegistry:
                 name=b.config.name,
                 description=b.config.description,
                 file_extensions=b.config.file_extensions,
+                output_formats=b.config.output_formats,
                 is_default=b.config.is_default,
             )
             for b in self._backends.values()

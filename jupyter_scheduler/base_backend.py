@@ -11,6 +11,7 @@ class BaseBackend:
     execution_manager_class: ClassVar[str]
     database_manager_class: ClassVar[Optional[str]] = None
     file_extensions: ClassVar[List[str]] = []
+    output_formats: ClassVar[List[Dict[str, str]]] = []
     priority: ClassVar[int] = 0
 
     @classmethod
@@ -24,5 +25,6 @@ class BaseBackend:
             "execution_manager_class": cls.execution_manager_class,
             "database_manager_class": cls.database_manager_class,
             "file_extensions": list(cls.file_extensions),
+            "output_formats": list(cls.output_formats),
             "priority": cls.priority,
         }

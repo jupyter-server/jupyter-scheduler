@@ -14,6 +14,10 @@ class JupyterServerNotebookBackend(BaseBackend):
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
     execution_manager_class = "jupyter_scheduler.executors.DefaultExecutionManager"
     file_extensions = ["ipynb"]
+    output_formats = [
+        {"name": "ipynb", "label": "Notebook", "description": "Executed notebook with outputs"},
+        {"name": "html", "label": "HTML", "description": "HTML export of notebook"},
+    ]
     priority = 0
 
 
@@ -26,6 +30,11 @@ class JupyterServerPythonBackend(BaseBackend):
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
     execution_manager_class = "jupyter_scheduler.python_executor.PythonScriptExecutionManager"
     file_extensions = ["py"]
+    output_formats = [
+        {"name": "stdout", "label": "Output", "description": "Standard output from script"},
+        {"name": "stderr", "label": "Errors", "description": "Standard error from script"},
+        {"name": "json", "label": "JSON", "description": "JSON result if script produces one"},
+    ]
     priority = 0
 
 
@@ -41,6 +50,7 @@ class BackendConfig:
     database_manager_class: Optional[str] = None
     db_url: Optional[str] = None
     file_extensions: List[str] = field(default_factory=list)
+    output_formats: List[Dict[str, str]] = field(default_factory=list)
     is_default: bool = False
     priority: int = 0
     metadata: Optional[Dict[str, Any]] = None
@@ -53,6 +63,7 @@ class DescribeBackend(BaseModel):
     name: str
     description: str
     file_extensions: List[str]
+    output_formats: List[Dict[str, str]]
     is_default: bool
 
     class Config:
@@ -68,4 +79,9 @@ class SageMakerHyperPodBackend(BaseBackend):
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
     execution_manager_class = "jupyter_scheduler.python_executor.PythonScriptExecutionManager"
     file_extensions = ["py"]
+    output_formats = [
+        {"name": "stdout", "label": "Output", "description": "Standard output from script"},
+        {"name": "stderr", "label": "Errors", "description": "Standard error from script"},
+        {"name": "json", "label": "JSON", "description": "JSON result if script produces one"},
+    ]
     priority = 50

@@ -48,10 +48,12 @@ class TestBaseBackend:
             "execution_manager_class",
             "database_manager_class",
             "file_extensions",
+            "output_formats",
             "priority",
         }
         assert set(result.keys()) == expected_keys
         assert isinstance(result["file_extensions"], list)
+        assert isinstance(result["output_formats"], list)
         assert result["id"] == MockBackend.id
 
 

@@ -544,6 +544,7 @@ export namespace Scheduler {
   export interface IOutputFormat {
     name: string;
     label: string;
+    description?: string;
   }
 
   export interface IBackend {
@@ -551,6 +552,7 @@ export namespace Scheduler {
     name: string;
     description: string;
     file_extensions: string[];
+    output_formats: IOutputFormat[];
     is_default: boolean;
   }
 }

@@ -173,6 +173,7 @@ class SchedulerApp(ExtensionApp):
                 database_manager_class=backend_class.database_manager_class,
                 db_url=overrides.get("db_url"),
                 file_extensions=list(backend_class.file_extensions),
+                output_formats=list(backend_class.output_formats),
                 is_default=False,  # Set below after determining default
                 priority=backend_class.priority,
                 metadata=overrides.get("metadata"),

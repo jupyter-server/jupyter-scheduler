@@ -193,18 +193,17 @@ class TestJobFilesManagerMultiBackend:
         assert manager.scheduler == mock_scheduler
         assert manager.backend_registry == mock_registry
 
-    def test_get_scheduler_for_job_legacy_mode(self):
-        """Legacy mode uses scheduler directly with original job_id."""
+    def test_get_scheduler_legacy_mode(self):
+        """Legacy mode uses scheduler directly."""
         mock_scheduler = Mock()
         manager = JobFilesManager(scheduler=mock_scheduler)
 
-        scheduler, job_id = manager._get_scheduler_for_job("uuid-123")
+        scheduler = manager._get_scheduler("uuid-123")
 
         assert scheduler == mock_scheduler
-        assert job_id == "uuid-123"
 
-    def test_get_scheduler_for_job_with_encoded_id(self):
-        """Multi-backend mode decodes job_id and routes to correct backend."""
+    def test_get_scheduler_with_encoded_id(self):
+        """Multi-backend mode routes to correct backend based on job_id prefix."""
         mock_braket_scheduler = Mock()
         mock_backend = Mock()
         mock_backend.scheduler = mock_braket_scheduler
@@ -214,13 +213,12 @@ class TestJobFilesManagerMultiBackend:
 
         manager = JobFilesManager(backend_registry=mock_registry)
 
-        scheduler, job_id = manager._get_scheduler_for_job("braket_qasm_device:uuid-456")
+        scheduler = manager._get_scheduler("braket_qasm_device:uuid-456")
 
         mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
         assert scheduler == mock_braket_scheduler
-        assert job_id == "uuid-456"
 
-    def test_get_scheduler_for_job_with_legacy_uuid(self):
+    def test_get_scheduler_with_legacy_uuid(self):
         """Multi-backend mode handles legacy UUIDs (no colon)."""
         mock_default_scheduler = Mock()
         mock_default_backend = Mock()
@@ -231,14 +229,13 @@ class TestJobFilesManagerMultiBackend:
 
         manager = JobFilesManager(backend_registry=mock_registry)
 
-        scheduler, job_id = manager._get_scheduler_for_job("uuid-789-no-colon")
+        scheduler = manager._get_scheduler("uuid-789-no-colon")
 
-        # decode_job_id returns (LEGACY_BACKEND_ID, original_uuid) for UUIDs without colon
+        # Job IDs without colon use LEGACY_BACKEND_ID
         mock_registry.get_backend.assert_called_once_with(LEGACY_BACKEND_ID)
         assert scheduler == mock_default_scheduler
-        assert job_id == "uuid-789-no-colon"
 
-    def test_get_scheduler_for_job_backend_not_found(self):
+    def test_get_scheduler_backend_not_found(self):
         """Falls back to default backend if specified backend not found."""
         mock_default_scheduler = Mock()
         mock_default_backend = Mock()
@@ -250,16 +247,16 @@ class TestJobFilesManagerMultiBackend:
 
         manager = JobFilesManager(backend_registry=mock_registry)
 
-        scheduler, job_id = manager._get_scheduler_for_job("nonexistent_backend:uuid-000")
+        scheduler = manager._get_scheduler("nonexistent_backend:uuid-000")
 
         mock_registry.get_backend.assert_called_once_with("nonexistent_backend")
         mock_registry.get_default.assert_called_once()
         assert scheduler == mock_default_scheduler
-        assert job_id == "uuid-000"
 
 
 async def test_copy_from_staging_with_backend_registry():
-    """copy_from_staging correctly decodes job_id and uses right scheduler."""
+    """copy_from_staging routes to correct backend scheduler."""
+    encoded_job_id = "braket_qasm_device:test-uuid"
     job = DescribeJob(
         name="braket_job",
         job_id="test-uuid",
@@ -270,7 +267,7 @@ async def test_copy_from_staging_with_backend_registry():
             JobFile(display_name="JSON", file_format="json"),
             JobFile(display_name="input", file_format="input"),
         ],
-        url="scheduler/jobs/braket_qasm_device:test-uuid",
+        url=f"scheduler/jobs/{encoded_job_id}",
         create_time=1,
         update_time=1,
     )
@@ -300,8 +297,9 @@ async def test_copy_from_staging_with_backend_registry():
             mock_registry.get_backend.return_value = mock_backend
 
             manager = JobFilesManager(backend_registry=mock_registry)
-            await manager.copy_from_staging("braket_qasm_device:test-uuid")
+            await manager.copy_from_staging(encoded_job_id)
 
-            # Verify job_id was decoded before passing to scheduler
-            mock_scheduler.get_job.assert_called_once_with("test-uuid", False)
+            # Verify correct backend was selected and scheduler was called with full job_id
+            mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
+            mock_scheduler.get_job.assert_called_once_with(encoded_job_id, False)
             mock_downloader.assert_called_once()

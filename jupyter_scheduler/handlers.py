@@ -328,15 +328,12 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 payload["backend"] = backend.config.id
                 scheduler = backend.scheduler
 
-                # Set default output_formats based on file type
+                # Set default output_formats from backend if not specified
                 if not payload.get("output_formats"):
-                    input_uri = payload.get("input_uri", "")
-                    if input_uri.endswith(".py"):
-                        payload["output_formats"] = ["stdout", "stderr", "json"]
-                    elif input_uri.endswith(".qasm"):
-                        payload["output_formats"] = ["json"]
-                    elif input_uri.endswith(".ipynb"):
-                        payload["output_formats"] = ["ipynb", "html"]
+                    if backend.config.output_formats:
+                        payload["output_formats"] = [
+                            f["name"] for f in backend.config.output_formats
+                        ]
             else:
                 # Fallback to default scheduler (backwards compatibility)
                 scheduler = self.scheduler

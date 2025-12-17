@@ -13,8 +13,8 @@ import { ComputeTypePicker } from '../components/compute-type-picker';
 import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
 import {
-  OutputFormatPicker,
-  outputFormatsForEnvironment
+  outputFormatsForBackend,
+  OutputFormatPicker
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
@@ -122,16 +122,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           newComputeType = envList[0].default_compute_type;
         }
 
-        const outputFormats = outputFormatsForEnvironment(
-          envList,
-          envList[0].name
-        )?.map(format => format.name);
-
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
-          computeType: newComputeType,
-          outputFormats: outputFormats
+          computeType: newComputeType
         });
       }
     };
@@ -162,9 +156,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           const selectedBackend =
             matchingBackend || backends.find(b => b.is_default) || backends[0];
 
+          // Get output formats from selected backend
+          const outputFormats = selectedBackend.output_formats?.map(
+            format => format.name
+          );
+
           props.handleModelChange({
             ...props.model,
-            backend: selectedBackend.id
+            backend: selectedBackend.id,
+            outputFormats: outputFormats
           });
         }
       } catch (e) {
@@ -250,16 +250,22 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         newComputeType = envObj.default_compute_type;
       }
 
-      const newEnvOutputFormats = outputFormatsForEnvironment(
-        environmentList,
-        target.value
-      )?.map(format => format.name);
-
       props.handleModelChange({
         ...props.model,
         environment: target.value,
-        computeType: newComputeType,
-        outputFormats: newEnvOutputFormats
+        computeType: newComputeType
+      });
+    } else if (target.name === 'backend') {
+      // When backend changes, update output formats from new backend
+      const backendObj = backendList.find(b => b.id === target.value);
+      const newOutputFormats = backendObj?.output_formats?.map(
+        format => format.name
+      );
+
+      props.handleModelChange({
+        ...props.model,
+        backend: target.value,
+        outputFormats: newOutputFormats
       });
     } else {
       // otherwise, just set the model
@@ -268,9 +274,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const outputFormatsList = outputFormatsForEnvironment(
-      environmentList,
-      props.model.environment
+    const outputFormatsList = outputFormatsForBackend(
+      backendList,
+      props.model.backend || ''
     );
     if (outputFormatsList === null) {
       return; // No data about output formats; give up
@@ -566,8 +572,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             name="outputFormat"
             id={`${formPrefix}outputFormat`}
             onChange={handleOutputFormatsChange}
-            environmentList={environmentList}
-            environment={props.model.environment}
+            backendList={backendList}
+            backend={props.model.backend || ''}
             value={props.model.outputFormats || []}
           />
           <ComputeTypePicker

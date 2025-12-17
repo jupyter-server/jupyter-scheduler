@@ -142,8 +142,8 @@ async def test_get_jobs_for_single_job(jp_fetch):
         )
         response = await jp_fetch("scheduler", "jobs", encoded_job_id, method="GET")
 
-        # Handler should decode job_id and call scheduler with raw UUID
-        mock_get_job.assert_called_once_with(raw_job_id)
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_get_job.assert_called_once_with(encoded_job_id)
         assert response.code == 200
         body = json.loads(response.body)
         assert body["job_id"] == raw_job_id
@@ -303,7 +303,8 @@ async def test_patch_jobs_for_status(jp_fetch):
             "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 204
-        mock_stop_job.assert_called_once_with(raw_job_id)
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_stop_job.assert_called_once_with(encoded_job_id)
 
 
 async def test_patch_jobs_for_invalid_status(jp_fetch):
@@ -329,7 +330,8 @@ async def test_patch_jobs(jp_fetch):
             "scheduler", "jobs", encoded_job_id, method="PATCH", body=json.dumps(body)
         )
         assert response.code == 204
-        mock_update_job.assert_called_once_with(raw_job_id, UpdateJob(**body))
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_update_job.assert_called_once_with(encoded_job_id, UpdateJob(**body))
 
 
 async def test_patch_jobs_for_stop_job(jp_fetch):
@@ -344,7 +346,8 @@ async def test_patch_jobs_for_stop_job(jp_fetch):
             body=json.dumps({"status": "STOPPED"}),
         )
 
-        mock_stop_job.assert_called_once_with(raw_job_id)
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_stop_job.assert_called_once_with(encoded_job_id)
         assert response.code == 204
 
 
@@ -360,7 +363,8 @@ async def test_patch_jobs_for_name_update(jp_fetch):
             body=json.dumps({"status": "STOPPED"}),
         )
 
-        mock_stop_job.assert_called_once_with(raw_job_id)
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_stop_job.assert_called_once_with(encoded_job_id)
         assert response.code == 204
 
 
@@ -413,7 +417,8 @@ async def test_delete_job(jp_fetch):
         encoded_job_id = make_job_id("jupyter_server_nb", raw_job_id)
         response = await jp_fetch("scheduler", "jobs", encoded_job_id, method="DELETE")
 
-        mock_delete_job.assert_called_once_with(raw_job_id)
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_delete_job.assert_called_once_with(encoded_job_id)
         assert response.code == 204
 
 
@@ -445,7 +450,8 @@ async def test_batch_delete(jp_fetch):
             "scheduler", "batch", "jobs", method="DELETE", params={"job_id": encoded_job_id}
         )
 
-        mock_delete_job.assert_called_once_with(raw_job_id)
+        # Handler passes full job_id (with backend prefix) to scheduler
+        mock_delete_job.assert_called_once_with(encoded_job_id)
         assert response.code == 204
 
 
@@ -736,6 +742,7 @@ async def test_get_backends_returns_expected_fields(jp_fetch):
     assert "name" in backend
     assert "description" in backend
     assert "file_extensions" in backend
+    assert "output_formats" in backend
     assert "is_default" in backend
 
 
