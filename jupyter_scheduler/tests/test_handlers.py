@@ -351,23 +351,6 @@ async def test_patch_jobs_for_stop_job(jp_fetch):
         assert response.code == 204
 
 
-async def test_patch_jobs_for_name_update(jp_fetch):
-    with patch("jupyter_scheduler.scheduler.Scheduler.stop_job") as mock_stop_job:
-        raw_job_id = "542e0fac-1274-4a78-8340-a850bdb559c8"
-        encoded_job_id = make_job_id("jupyter_server_nb", raw_job_id)
-        response = await jp_fetch(
-            "scheduler",
-            "jobs",
-            encoded_job_id,
-            method="PATCH",
-            body=json.dumps({"status": "STOPPED"}),
-        )
-
-        # Handler passes full job_id (with backend prefix) to scheduler
-        mock_stop_job.assert_called_once_with(encoded_job_id)
-        assert response.code == 204
-
-
 @pytest.mark.skip("Can't produce a validation error currently, but leaving this here for future")
 async def test_patch_jobs_for_validation_error(jp_fetch):
     with pytest.raises(HTTPClientError) as e:

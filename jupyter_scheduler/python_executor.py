@@ -33,9 +33,8 @@ class PythonScriptExecutionManager(ExecutionManager):
             env=env,
         )
 
-        # Derive stdout/stderr paths from staging directory if not provided
-        stdout_path = self.staging_paths.get("stdout") or os.path.join(staging_dir, "stdout.log")
-        stderr_path = self.staging_paths.get("stderr") or os.path.join(staging_dir, "stderr.log")
+        stdout_path = self.staging_paths["stdout"]
+        stderr_path = self.staging_paths["stderr"]
 
         # Only write stdout/stderr if there's content
         if result.stdout:
