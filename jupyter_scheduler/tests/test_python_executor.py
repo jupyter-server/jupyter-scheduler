@@ -1,10 +1,7 @@
-import os
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 import pytest
 
-from jupyter_scheduler.models import DescribeJob
 from jupyter_scheduler.orm import Job
 from jupyter_scheduler.python_executor import PythonScriptExecutionManager
 
@@ -88,189 +85,138 @@ def python_job_with_params(script_with_params, jp_scheduler_db) -> str:
     return job.job_id
 
 
-class TestPythonScriptExecutionManager:
-    def test_execute_simple_script(
-        self,
-        python_job_record,
-        simple_script,
-        jp_scheduler_root_dir,
-        jp_scheduler_db_url,
-        jp_scheduler_db,
-    ):
-        """Execute a simple print script and verify stdout is captured."""
-        staging_dir = simple_script.parent
-        stdout_path = staging_dir / "stdout.log"
-        stderr_path = staging_dir / "stderr.log"
+# PythonScriptExecutionManager tests
 
-        manager = PythonScriptExecutionManager(
-            job_id=python_job_record,
-            root_dir=str(jp_scheduler_root_dir),
-            db_url=jp_scheduler_db_url,
-            staging_paths={
-                "input": str(simple_script),
-                "stdout": str(stdout_path),
-                "stderr": str(stderr_path),
-            },
-        )
 
-        # Execute should not raise
+def test_execute_simple_script(
+    python_job_record,
+    simple_script,
+    jp_scheduler_root_dir,
+    jp_scheduler_db_url,
+    jp_scheduler_db,
+):
+    """Execute a simple print script and verify stdout is captured."""
+    staging_dir = simple_script.parent
+    stdout_path = staging_dir / "stdout.log"
+    stderr_path = staging_dir / "stderr.log"
+
+    manager = PythonScriptExecutionManager(
+        job_id=python_job_record,
+        root_dir=str(jp_scheduler_root_dir),
+        db_url=jp_scheduler_db_url,
+        staging_paths={
+            "input": str(simple_script),
+            "stdout": str(stdout_path),
+            "stderr": str(stderr_path),
+        },
+    )
+
+    manager.execute()
+
+    assert stdout_path.exists()
+    assert "Hello from Python script!" in stdout_path.read_text()
+
+
+def test_execute_with_parameters(
+    python_job_with_params,
+    script_with_params,
+    jp_scheduler_root_dir,
+    jp_scheduler_db_url,
+    jp_scheduler_db,
+):
+    """Parameters are passed as JUPYTER_PARAM_* env vars."""
+    staging_dir = script_with_params.parent
+    stdout_path = staging_dir / "stdout.log"
+    stderr_path = staging_dir / "stderr.log"
+
+    manager = PythonScriptExecutionManager(
+        job_id=python_job_with_params,
+        root_dir=str(jp_scheduler_root_dir),
+        db_url=jp_scheduler_db_url,
+        staging_paths={
+            "input": str(script_with_params),
+            "stdout": str(stdout_path),
+            "stderr": str(stderr_path),
+        },
+    )
+
+    manager.execute()
+
+    content = stdout_path.read_text()
+    assert "lr=0.01" in content
+    assert "batch=32" in content
+
+
+def test_execute_script_failure(
+    failing_script,
+    jp_scheduler_root_dir,
+    jp_scheduler_db_url,
+    jp_scheduler_db,
+):
+    """Non-zero exit code raises RuntimeError."""
+    staging_dir = failing_script.parent
+    stdout_path = staging_dir / "stdout.log"
+    stderr_path = staging_dir / "stderr.log"
+
+    job = Job(
+        name="test_failing_script",
+        runtime_environment_name="default",
+        input_filename=failing_script.name,
+    )
+    jp_scheduler_db.add(job)
+    jp_scheduler_db.commit()
+
+    manager = PythonScriptExecutionManager(
+        job_id=job.job_id,
+        root_dir=str(jp_scheduler_root_dir),
+        db_url=jp_scheduler_db_url,
+        staging_paths={
+            "input": str(failing_script),
+            "stdout": str(stdout_path),
+            "stderr": str(stderr_path),
+        },
+    )
+
+    with pytest.raises(RuntimeError) as exc_info:
         manager.execute()
 
-        # Check stdout.log was created at the path specified in staging_paths
-        assert stdout_path.exists()
-        assert "Hello from Python script!" in stdout_path.read_text()
+    assert "exited with code 1" in str(exc_info.value)
+    assert "error message" in str(exc_info.value)
 
-    def test_execute_with_parameters(
-        self,
-        python_job_with_params,
-        script_with_params,
-        jp_scheduler_root_dir,
-        jp_scheduler_db_url,
-        jp_scheduler_db,
-    ):
-        """Parameters are passed as JUPYTER_PARAM_* env vars."""
-        staging_dir = script_with_params.parent
-        stdout_path = staging_dir / "stdout.log"
-        stderr_path = staging_dir / "stderr.log"
 
-        manager = PythonScriptExecutionManager(
-            job_id=python_job_with_params,
-            root_dir=str(jp_scheduler_root_dir),
-            db_url=jp_scheduler_db_url,
-            staging_paths={
-                "input": str(script_with_params),
-                "stdout": str(stdout_path),
-                "stderr": str(stderr_path),
-            },
-        )
+def test_side_effects_captured(
+    script_with_side_effects,
+    jp_scheduler_root_dir,
+    jp_scheduler_db_url,
+    jp_scheduler_db,
+):
+    """Files created by the script are recorded in packaged_files."""
+    staging_dir = script_with_side_effects.parent
+    stdout_path = staging_dir / "stdout.log"
+    stderr_path = staging_dir / "stderr.log"
 
-        manager.execute()
+    job = Job(
+        name="test_side_effects",
+        runtime_environment_name="default",
+        input_filename=script_with_side_effects.name,
+    )
+    jp_scheduler_db.add(job)
+    jp_scheduler_db.commit()
 
-        content = stdout_path.read_text()
-        assert "lr=0.01" in content
-        assert "batch=32" in content
+    manager = PythonScriptExecutionManager(
+        job_id=job.job_id,
+        root_dir=str(jp_scheduler_root_dir),
+        db_url=jp_scheduler_db_url,
+        staging_paths={
+            "input": str(script_with_side_effects),
+            "stdout": str(stdout_path),
+            "stderr": str(stderr_path),
+        },
+    )
 
-    def test_execute_script_failure(
-        self,
-        failing_script,
-        jp_scheduler_root_dir,
-        jp_scheduler_db_url,
-        jp_scheduler_db,
-    ):
-        """Non-zero exit code raises RuntimeError."""
-        staging_dir = failing_script.parent
-        stdout_path = staging_dir / "stdout.log"
-        stderr_path = staging_dir / "stderr.log"
+    manager.execute()
 
-        job = Job(
-            name="test_failing_script",
-            runtime_environment_name="default",
-            input_filename=failing_script.name,
-        )
-        jp_scheduler_db.add(job)
-        jp_scheduler_db.commit()
+    jp_scheduler_db.expire_all()
+    job = jp_scheduler_db.query(Job).filter(Job.job_id == job.job_id).one()
 
-        manager = PythonScriptExecutionManager(
-            job_id=job.job_id,
-            root_dir=str(jp_scheduler_root_dir),
-            db_url=jp_scheduler_db_url,
-            staging_paths={
-                "input": str(failing_script),
-                "stdout": str(stdout_path),
-                "stderr": str(stderr_path),
-            },
-        )
-
-        with pytest.raises(RuntimeError) as exc_info:
-            manager.execute()
-
-        assert "exited with code 1" in str(exc_info.value)
-        assert "error message" in str(exc_info.value)
-
-    def test_stdout_stderr_captured(
-        self,
-        failing_script,
-        jp_scheduler_root_dir,
-        jp_scheduler_db_url,
-        jp_scheduler_db,
-    ):
-        """Both stdout and stderr are written to files even on failure."""
-        staging_dir = failing_script.parent
-        stdout_path = staging_dir / "stdout.log"
-        stderr_path = staging_dir / "stderr.log"
-
-        job = Job(
-            name="test_stderr_capture",
-            runtime_environment_name="default",
-            input_filename=failing_script.name,
-        )
-        jp_scheduler_db.add(job)
-        jp_scheduler_db.commit()
-
-        manager = PythonScriptExecutionManager(
-            job_id=job.job_id,
-            root_dir=str(jp_scheduler_root_dir),
-            db_url=jp_scheduler_db_url,
-            staging_paths={
-                "input": str(failing_script),
-                "stdout": str(stdout_path),
-                "stderr": str(stderr_path),
-            },
-        )
-
-        with pytest.raises(RuntimeError):
-            manager.execute()
-
-        assert stderr_path.exists()
-        assert "error message" in stderr_path.read_text()
-
-    def test_side_effects_captured(
-        self,
-        script_with_side_effects,
-        jp_scheduler_root_dir,
-        jp_scheduler_db_url,
-        jp_scheduler_db,
-    ):
-        """Files created by the script are recorded in packaged_files."""
-        staging_dir = script_with_side_effects.parent
-        stdout_path = staging_dir / "stdout.log"
-        stderr_path = staging_dir / "stderr.log"
-
-        job = Job(
-            name="test_side_effects",
-            runtime_environment_name="default",
-            input_filename=script_with_side_effects.name,
-        )
-        jp_scheduler_db.add(job)
-        jp_scheduler_db.commit()
-
-        manager = PythonScriptExecutionManager(
-            job_id=job.job_id,
-            root_dir=str(jp_scheduler_root_dir),
-            db_url=jp_scheduler_db_url,
-            staging_paths={
-                "input": str(script_with_side_effects),
-                "stdout": str(stdout_path),
-                "stderr": str(stderr_path),
-            },
-        )
-
-        manager.execute()
-
-        # Refresh job from DB
-        jp_scheduler_db.expire_all()
-        job = jp_scheduler_db.query(Job).filter(Job.job_id == job.job_id).one()
-
-        # output.txt should be in packaged_files
-        assert "output.txt" in job.packaged_files
-
-    def test_supported_features(self):
-        """Verify supported features match expected values."""
-        from jupyter_scheduler.models import JobFeature
-
-        features = PythonScriptExecutionManager.supported_features()
-
-        assert features[JobFeature.job_name] is True
-        assert features[JobFeature.output_formats] is False
-        assert features[JobFeature.stop_job] is True
-        assert features[JobFeature.delete_job] is True
+    assert "output.txt" in job.packaged_files

@@ -2,8 +2,6 @@ import filecmp
 import os
 import shutil
 import tarfile
-import time
-from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -165,93 +163,99 @@ def test_downloader_download(downloader_parameters):
             assert filecmp.cmp(out_filepath, staging_paths[format])
 
 
-class TestJobFilesManagerMultiBackend:
-    """Tests for JobFilesManager multi-backend support."""
+# JobFilesManager multi-backend tests
 
-    def test_init_with_scheduler_only(self):
-        """Legacy mode: Initialize with single scheduler."""
-        mock_scheduler = Mock()
-        manager = JobFilesManager(scheduler=mock_scheduler)
 
-        assert manager.scheduler == mock_scheduler
-        assert manager.backend_registry is None
+def test_init_with_scheduler_only():
+    """Legacy mode: Initialize with single scheduler."""
+    mock_scheduler = Mock()
+    manager = JobFilesManager(scheduler=mock_scheduler)
 
-    def test_init_with_backend_registry(self):
-        """Multi-backend mode: Initialize with backend registry."""
-        mock_registry = Mock()
-        manager = JobFilesManager(backend_registry=mock_registry)
+    assert manager.scheduler == mock_scheduler
+    assert manager.backend_registry is None
 
-        assert manager.scheduler is None
-        assert manager.backend_registry == mock_registry
 
-    def test_init_with_both_parameters(self):
-        """Both parameters provided - registry takes precedence in routing."""
-        mock_scheduler = Mock()
-        mock_registry = Mock()
-        manager = JobFilesManager(scheduler=mock_scheduler, backend_registry=mock_registry)
+def test_init_with_backend_registry():
+    """Multi-backend mode: Initialize with backend registry."""
+    mock_registry = Mock()
+    manager = JobFilesManager(backend_registry=mock_registry)
 
-        assert manager.scheduler == mock_scheduler
-        assert manager.backend_registry == mock_registry
+    assert manager.scheduler is None
+    assert manager.backend_registry == mock_registry
 
-    def test_get_scheduler_legacy_mode(self):
-        """Legacy mode uses scheduler directly."""
-        mock_scheduler = Mock()
-        manager = JobFilesManager(scheduler=mock_scheduler)
 
-        scheduler = manager._get_scheduler("uuid-123")
+def test_init_with_both_parameters():
+    """Both parameters provided - registry takes precedence in routing."""
+    mock_scheduler = Mock()
+    mock_registry = Mock()
+    manager = JobFilesManager(scheduler=mock_scheduler, backend_registry=mock_registry)
 
-        assert scheduler == mock_scheduler
+    assert manager.scheduler == mock_scheduler
+    assert manager.backend_registry == mock_registry
 
-    def test_get_scheduler_with_encoded_id(self):
-        """Multi-backend mode routes to correct backend based on job_id prefix."""
-        mock_braket_scheduler = Mock()
-        mock_backend = Mock()
-        mock_backend.scheduler = mock_braket_scheduler
 
-        mock_registry = Mock()
-        mock_registry.get_backend.return_value = mock_backend
+def test_get_scheduler_legacy_mode():
+    """Legacy mode uses scheduler directly."""
+    mock_scheduler = Mock()
+    manager = JobFilesManager(scheduler=mock_scheduler)
 
-        manager = JobFilesManager(backend_registry=mock_registry)
+    scheduler = manager._get_scheduler("uuid-123")
 
-        scheduler = manager._get_scheduler("braket_qasm_device:uuid-456")
+    assert scheduler == mock_scheduler
 
-        mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
-        assert scheduler == mock_braket_scheduler
 
-    def test_get_scheduler_with_legacy_uuid(self):
-        """Multi-backend mode handles legacy UUIDs (no colon)."""
-        mock_default_scheduler = Mock()
-        mock_default_backend = Mock()
-        mock_default_backend.scheduler = mock_default_scheduler
+def test_get_scheduler_with_encoded_id():
+    """Multi-backend mode routes to correct backend based on job_id prefix."""
+    mock_braket_scheduler = Mock()
+    mock_backend = Mock()
+    mock_backend.scheduler = mock_braket_scheduler
 
-        mock_registry = Mock()
-        mock_registry.get_backend.return_value = mock_default_backend
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = mock_backend
 
-        manager = JobFilesManager(backend_registry=mock_registry)
+    manager = JobFilesManager(backend_registry=mock_registry)
 
-        scheduler = manager._get_scheduler("uuid-789-no-colon")
+    scheduler = manager._get_scheduler("braket_qasm_device:uuid-456")
 
-        # Job IDs without colon use LEGACY_BACKEND_ID
-        mock_registry.get_backend.assert_called_once_with(LEGACY_BACKEND_ID)
-        assert scheduler == mock_default_scheduler
+    mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
+    assert scheduler == mock_braket_scheduler
 
-    def test_get_scheduler_backend_not_found(self):
-        """Falls back to default backend if specified backend not found."""
-        mock_default_scheduler = Mock()
-        mock_default_backend = Mock()
-        mock_default_backend.scheduler = mock_default_scheduler
 
-        mock_registry = Mock()
-        mock_registry.get_backend.return_value = None  # Backend not found
-        mock_registry.get_default.return_value = mock_default_backend
+def test_get_scheduler_with_legacy_uuid():
+    """Multi-backend mode handles legacy UUIDs (no colon)."""
+    mock_default_scheduler = Mock()
+    mock_default_backend = Mock()
+    mock_default_backend.scheduler = mock_default_scheduler
 
-        manager = JobFilesManager(backend_registry=mock_registry)
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = mock_default_backend
 
-        scheduler = manager._get_scheduler("nonexistent_backend:uuid-000")
+    manager = JobFilesManager(backend_registry=mock_registry)
 
-        mock_registry.get_backend.assert_called_once_with("nonexistent_backend")
-        mock_registry.get_default.assert_called_once()
-        assert scheduler == mock_default_scheduler
+    scheduler = manager._get_scheduler("uuid-789-no-colon")
+
+    # Job IDs without colon use LEGACY_BACKEND_ID
+    mock_registry.get_backend.assert_called_once_with(LEGACY_BACKEND_ID)
+    assert scheduler == mock_default_scheduler
+
+
+def test_get_scheduler_backend_not_found():
+    """Falls back to default backend if specified backend not found."""
+    mock_default_scheduler = Mock()
+    mock_default_backend = Mock()
+    mock_default_backend.scheduler = mock_default_scheduler
+
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = None  # Backend not found
+    mock_registry.get_default.return_value = mock_default_backend
+
+    manager = JobFilesManager(backend_registry=mock_registry)
+
+    scheduler = manager._get_scheduler("nonexistent_backend:uuid-000")
+
+    mock_registry.get_backend.assert_called_once_with("nonexistent_backend")
+    mock_registry.get_default.assert_called_once()
+    assert scheduler == mock_default_scheduler
 
 
 async def test_copy_from_staging_with_backend_registry():
