@@ -331,9 +331,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 # Set default output_formats from backend if not specified
                 if not payload.get("output_formats"):
                     if backend.config.output_formats:
-                        payload["output_formats"] = [
-                            f["id"] for f in backend.config.output_formats
-                        ]
+                        payload["output_formats"] = [f["id"] for f in backend.config.output_formats]
             else:
                 # Fallback to default scheduler (backwards compatibility)
                 scheduler = self.scheduler
