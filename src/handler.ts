@@ -542,7 +542,7 @@ export namespace Scheduler {
   }
 
   export interface IOutputFormat {
-    name: string;
+    id: string;
     label: string;
     description?: string;
   }

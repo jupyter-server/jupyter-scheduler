@@ -158,7 +158,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
           // Get output formats from selected backend
           const outputFormats = selectedBackend.output_formats?.map(
-            format => format.name
+            format => format.id
           );
 
           props.handleModelChange({
@@ -259,7 +259,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       // When backend changes, update output formats from new backend
       const backendObj = backendList.find(b => b.id === target.value);
       const newOutputFormats = backendObj?.output_formats?.map(
-        format => format.name
+        format => format.id
       );
 
       props.handleModelChange({
@@ -293,12 +293,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     // Go from unchecked to checked
     if (isChecked && !wasChecked) {
-      // Get the output format matching the given name
-      const newFormat = outputFormatsList.find(of => of.name === formatName);
+      // Get the output format matching the given id
+      const newFormat = outputFormatsList.find(of => of.id === formatName);
       if (newFormat) {
         props.handleModelChange({
           ...props.model,
-          outputFormats: [...oldOutputFormats, newFormat.name]
+          outputFormats: [...oldOutputFormats, newFormat.id]
         });
       }
     }

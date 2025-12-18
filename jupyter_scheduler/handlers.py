@@ -332,7 +332,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 if not payload.get("output_formats"):
                     if backend.config.output_formats:
                         payload["output_formats"] = [
-                            f["name"] for f in backend.config.output_formats
+                            f["id"] for f in backend.config.output_formats
                         ]
             else:
                 # Fallback to default scheduler (backwards compatibility)
@@ -491,7 +491,7 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
         for environment in environments:
             env = environment.dict()
             formats = env["output_formats"]
-            env["output_formats"] = [{"name": f, "label": output_formats[f]} for f in formats]
+            env["output_formats"] = [{"id": f, "label": output_formats[f]} for f in formats]
             response.append(env)
 
         self.finish(json.dumps(response))

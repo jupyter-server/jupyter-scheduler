@@ -56,9 +56,9 @@ export function OutputFormatPicker(
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={props.value.some(sof => of.name === sof)}
-                  id={`${props.id}-${of.name}`}
-                  value={of.name}
+                  checked={props.value.some(sof => of.id === sof)}
+                  id={`${props.id}-${of.id}`}
+                  value={of.id}
                   onChange={props.onChange}
                 />
               }
