@@ -203,6 +203,8 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
+    status_message: Optional[str] = None
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
 
 
 class DeleteJob(BaseModel):
