@@ -67,8 +67,7 @@ def test_initialize_creates_backends(
     mock_import, mock_create_tables, jupyter_server_nb_backend_config
 ):
     mock_scheduler_class = MagicMock()
-    mock_scheduler_instance = MagicMock()
-    mock_scheduler_class.return_value = mock_scheduler_instance
+    mock_scheduler_class.return_value = MagicMock()
     mock_import.return_value = mock_scheduler_class
 
     mock_env_manager = MagicMock()
@@ -90,8 +89,7 @@ def test_initialize_creates_backends(
 @patch("jupyter_scheduler.backend_registry.import_class")
 def test_get_backend_by_id(mock_import, mock_create_tables, jupyter_server_nb_backend_config):
     mock_scheduler_class = MagicMock()
-    mock_scheduler_instance = MagicMock()
-    mock_scheduler_class.return_value = mock_scheduler_instance
+    mock_scheduler_class.return_value = MagicMock()
     mock_import.return_value = mock_scheduler_class
 
     registry = BackendRegistry([jupyter_server_nb_backend_config], "jupyter_server_nb")
