@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  useEffect,
-  useMemo,
-  useState,
-  useRef
-} from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState, useRef } from 'react';
 
 import { BackendPicker } from '../components/backend-picker';
 import { Heading } from '../components/heading';
@@ -133,47 +127,56 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     setList();
   }, []);
 
-  // Retrieve the backend list once.
+  // Retrieve backend list and select appropriate backend atomically
   useEffect(() => {
-    const fetchBackends = async () => {
-      try {
-        const backends = await api.getBackends();
+    api
+      .getBackends()
+      .then(backends => {
         setBackendList(backends);
 
-        // Auto-select backend by file extension, fall back to default
-        if (!props.model.backend && backends.length > 0) {
-          const fileExt = props.model.inputFile
-            ?.split('.')
-            .pop()
-            ?.toLowerCase();
+        if (backends.length === 0) return;
 
-          // Find backend that matches file extension
-          const matchingBackend = fileExt
-            ? backends.find(b => b.file_extensions.includes(fileExt))
-            : null;
+        const fileExt = props.model.inputFile?.split('.').pop()?.toLowerCase();
+        const validBackends = fileExt
+          ? backends.filter(
+              b =>
+                b.file_extensions.length === 0 ||
+                b.file_extensions.includes(fileExt)
+            )
+          : backends;
 
-          // Fall back to default or first
-          const selectedBackend =
-            matchingBackend || backends.find(b => b.is_default) || backends[0];
-
-          // Get output formats from selected backend
-          const outputFormats = selectedBackend.output_formats?.map(
-            format => format.id
-          );
-
-          props.handleModelChange({
-            ...props.model,
-            backend: selectedBackend.id,
-            outputFormats: outputFormats
-          });
+        // Only update if current backend is invalid for this file type
+        if (!validBackends.some(b => b.id === props.model.backend)) {
+          const selected =
+            validBackends.find(b => b.is_default) || validBackends[0];
+          if (selected) {
+            props.handleModelChange({
+              ...props.model,
+              backend: selected.id,
+              outputFormats: selected.output_formats?.map(f => f.id)
+            });
+          }
         }
-      } catch (e) {
-        console.error('Failed to fetch backends:', e);
-      }
-    };
-
-    fetchBackends();
+      })
+      .catch(e => console.error('Failed to fetch backends:', e));
   }, []);
+
+  // Derive display backend for BackendPicker (ensures valid value is always shown)
+  const displayBackend = useMemo(() => {
+    if (backendList.length === 0) return props.model.backend || '';
+
+    const fileExt = props.model.inputFile?.split('.').pop()?.toLowerCase();
+    const validBackends = fileExt
+      ? backendList.filter(
+          b =>
+            b.file_extensions.length === 0 || b.file_extensions.includes(fileExt)
+        )
+      : backendList;
+
+    return validBackends.some(b => b.id === props.model.backend)
+      ? props.model.backend
+      : (validBackends.find(b => b.is_default) || validBackends[0])?.id || '';
+  }, [backendList, props.model.inputFile, props.model.backend]);
 
   const envsByName = useMemo(() => {
     const obj: Record<string, Scheduler.IRuntimeEnvironment> = {};
@@ -552,7 +555,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}backend`}
             onChange={handleSelectChange}
             backendList={backendList}
-            value={props.model.backend || ''}
+            value={displayBackend || ''}
             inputFile={props.model.inputFile}
           />
           <EnvironmentPicker
@@ -626,13 +629,17 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               </FormLabel>
             </AccordionSummary>
             <AccordionDetails id={`${formPrefix}create-panel-content`}>
-              <props.advancedOptions
-                jobsView={JobsView.CreateForm}
-                model={props.model}
-                handleModelChange={props.handleModelChange}
-                errors={advancedOptionsErrors}
-                handleErrorsChange={setAdvancedOptionsErrors}
-              />
+              {displayBackend ? (
+                <props.advancedOptions
+                  jobsView={JobsView.CreateForm}
+                  model={{ ...props.model, backend: displayBackend }}
+                  handleModelChange={props.handleModelChange}
+                  errors={advancedOptionsErrors}
+                  handleErrorsChange={setAdvancedOptionsErrors}
+                />
+              ) : (
+                <CircularProgress size={20} />
+              )}
             </AccordionDetails>
           </Accordion>
           <CreateScheduleOptions
