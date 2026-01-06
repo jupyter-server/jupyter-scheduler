@@ -4,6 +4,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from jupyter_scheduler.managers import SQLAlchemyDatabaseManager
 from jupyter_scheduler.orm import Base
 from jupyter_scheduler.scheduler import Scheduler
 from jupyter_scheduler.tests.mocks import MockEnvironmentManager
@@ -59,6 +60,8 @@ def jp_scheduler(jp_scheduler_db_url, jp_scheduler_root_dir, jp_scheduler_db):
         db_url=jp_scheduler_db_url,
         root_dir=str(jp_scheduler_root_dir),
         environments_manager=MockEnvironmentManager(),
+        database_manager=SQLAlchemyDatabaseManager(),
+        database_manager_class="jupyter_scheduler.managers.SQLAlchemyDatabaseManager",
     )
 
 

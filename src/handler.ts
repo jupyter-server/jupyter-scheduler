@@ -364,6 +364,7 @@ export namespace Scheduler {
     schedule?: string;
     timezone?: string;
     package_input_folder?: boolean;
+    environment_variables?: { [key: string]: string };
   }
 
   export interface IUpdateJobDefinition {
@@ -418,6 +419,7 @@ export namespace Scheduler {
     output_formats?: string[];
     compute_type?: string;
     package_input_folder?: boolean;
+    environment_variables?: { [key: string]: string };
   }
 
   export interface ICreateJobFromDefinition {

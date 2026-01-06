@@ -89,6 +89,7 @@ class CommonColumns:
     # Any default values specified for new columns will be ignored during the migration process.
     package_input_folder = Column(Boolean)
     packaged_files = Column(JsonType, default=[])
+    environment_variables = Column(JsonType(4096))
 
 
 class Job(CommonColumns, Base):
@@ -146,21 +147,9 @@ def update_db_schema(engine, Base):
             connection.execute(alter_statement)
 
 
-def create_tables(db_url, drop_tables=False, Base=Base):
-    engine = create_engine(db_url)
-    update_db_schema(engine, Base)
-
-    try:
-        if drop_tables:
-            Base.metadata.drop_all(engine)
-    except OperationalError:
-        pass
-    finally:
-        Base.metadata.create_all(engine)
+def create_tables(db_url, drop_tables=False, Base=Base, *, database_manager):
+    database_manager.create_tables(db_url, drop_tables, Base)
 
 
-def create_session(db_url):
-    engine = create_engine(db_url, echo=False)
-    Session = sessionmaker(bind=engine)
-
-    return Session
+def create_session(db_url, database_manager):
+    return database_manager.create_session(db_url)

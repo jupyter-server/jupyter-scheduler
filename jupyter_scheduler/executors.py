@@ -1,10 +1,11 @@
+import importlib
 import io
 import os
 import shutil
 import tarfile
 import traceback
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import fsspec
 import nbconvert
@@ -29,11 +30,31 @@ class ExecutionManager(ABC):
     _model = None
     _db_session = None
 
-    def __init__(self, job_id: str, root_dir: str, db_url: str, staging_paths: Dict[str, str]):
+    def __init__(
+        self,
+        job_id: str,
+        root_dir: str,
+        db_url: str,
+        staging_paths: Dict[str, str],
+        database_manager_class,
+        job_data: Optional[Dict] = None,  # NEW: Optional job data for passing metadata
+    ):
         self.job_id = job_id
         self.staging_paths = staging_paths
         self.root_dir = root_dir
         self.db_url = db_url
+        self.job_data = job_data  # Store for use by subclasses
+
+        self.database_manager = self._create_database_manager(database_manager_class)
+
+    def _create_database_manager(self, database_manager_class):
+        try:
+            module_name, class_name = database_manager_class.rsplit(".", 1)
+            module = importlib.import_module(module_name)
+            DatabaseManagerClass = getattr(module, class_name)
+            return DatabaseManagerClass()
+        except (ValueError, ImportError, AttributeError) as e:
+            raise ValueError(f"Invalid database_manager_class '{database_manager_class}': {e}")
 
     @property
     def model(self):
@@ -46,7 +67,7 @@ class ExecutionManager(ABC):
     @property
     def db_session(self):
         if self._db_session is None:
-            self._db_session = create_session(self.db_url)
+            self._db_session = create_session(self.db_url, self.database_manager)
 
         return self._db_session
 

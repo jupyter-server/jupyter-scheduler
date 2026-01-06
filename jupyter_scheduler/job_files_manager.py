@@ -57,13 +57,44 @@ class Downloader:
         """A generator that produces filepaths"""
         output_formats = self.output_formats + ["input"]
         for output_format in output_formats:
+            # Skip if this format is not in staging_paths (e.g., input file for CronJob jobs)
+            if output_format not in self.staging_paths:
+                continue
             input_filepath = self.staging_paths[output_format]
             output_filepath = os.path.join(self.output_dir, self.output_filenames[output_format])
             if not os.path.exists(output_filepath) or self.redownload:
                 yield input_filepath, output_filepath
+
+        if self.staging_paths:
+            staging_dir = os.path.dirname(next(iter(self.staging_paths.values())))
+            if os.path.exists(staging_dir):
+                explicit_files = set()
+                for output_format in output_formats:
+                    if output_format in self.staging_paths:
+                        explicit_files.add(os.path.basename(self.staging_paths[output_format]))
+
+                for file_name in os.listdir(staging_dir):
+                    file_path = os.path.join(staging_dir, file_name)
+                    if os.path.isfile(file_path) and file_name not in explicit_files:
+                        input_filepath = file_path
+                        output_filepath = os.path.join(self.output_dir, file_name)
+                        if not os.path.exists(output_filepath) or self.redownload:
+                            yield input_filepath, output_filepath
+
         if self.include_staging_files:
-            staging_dir = os.path.dirname(self.staging_paths["input"])
-            for file_relative_path in self.output_filenames["files"]:
+            # Handle missing "input" key gracefully - it may not exist for CronJob jobs
+            if "input" in self.staging_paths:
+                staging_dir = os.path.dirname(self.staging_paths["input"])
+            elif self.staging_paths:
+                # Fall back to any available staging path directory
+                staging_dir = os.path.dirname(next(iter(self.staging_paths.values())))
+            else:
+                # No staging paths available, skip
+                return
+
+            # Handle missing "files" key gracefully - it may not exist if packaged_files was empty
+            files_list = self.output_filenames.get("files", [])
+            for file_relative_path in files_list:
                 input_filepath = os.path.join(staging_dir, file_relative_path)
                 output_filepath = os.path.join(self.output_dir, file_relative_path)
                 if not os.path.exists(output_filepath) or self.redownload:

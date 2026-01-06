@@ -13,7 +13,16 @@ from jupyter_scheduler.orm import (
 
 
 @pytest.fixture
-def initial_db(jp_scheduler_db_url) -> tuple[Type[DeclarativeMeta], sessionmaker, str]:
+def database_manager():
+    from jupyter_scheduler.managers import SQLAlchemyDatabaseManager
+
+    return SQLAlchemyDatabaseManager()
+
+
+@pytest.fixture
+def initial_db(
+    jp_scheduler_db_url, database_manager
+) -> tuple[Type[DeclarativeMeta], sessionmaker, str]:
     TestBase = declarative_base()
 
     class MockInitialJob(TestBase):
@@ -24,9 +33,9 @@ def initial_db(jp_scheduler_db_url) -> tuple[Type[DeclarativeMeta], sessionmaker
 
     initial_job = MockInitialJob(runtime_environment_name="abc", input_filename="input.ipynb")
 
-    create_tables(db_url=jp_scheduler_db_url, Base=TestBase)
+    create_tables(db_url=jp_scheduler_db_url, Base=TestBase, database_manager=database_manager)
 
-    Session = create_session(jp_scheduler_db_url)
+    Session = create_session(jp_scheduler_db_url, database_manager)
     session = Session()
 
     session.add(initial_job)
@@ -52,7 +61,9 @@ def updated_job_model(initial_db) -> Type[DeclarativeMeta]:
     return MockUpdatedJob
 
 
-def test_create_tables_with_new_column(jp_scheduler_db_url, initial_db, updated_job_model):
+def test_create_tables_with_new_column(
+    jp_scheduler_db_url, initial_db, updated_job_model, database_manager
+):
     TestBase, Session, initial_job_id = initial_db
 
     session = Session()
@@ -61,7 +72,7 @@ def test_create_tables_with_new_column(jp_scheduler_db_url, initial_db, updated_
     session.close()
 
     JobModel = updated_job_model
-    create_tables(db_url=jp_scheduler_db_url, Base=TestBase)
+    create_tables(db_url=jp_scheduler_db_url, Base=TestBase, database_manager=database_manager)
 
     session = Session()
     updated_columns = {col["name"] for col in inspect(session.bind).get_columns("jobs")}

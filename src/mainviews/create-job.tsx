@@ -322,7 +322,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      environment_variables: props.model.environmentVariables
     };
 
     if (props.model.parameters !== undefined) {
@@ -371,7 +372,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
       timezone: props.model.timezone,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      environment_variables: props.model.environmentVariables
     };
 
     if (props.model.parameters !== undefined) {
