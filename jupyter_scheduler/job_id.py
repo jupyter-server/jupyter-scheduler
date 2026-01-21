@@ -12,7 +12,7 @@ from typing import Tuple
 LEGACY_BACKEND_ID = "jupyter_server_nb"
 
 # Valid backend ID pattern: starts with letter, contains alphanumeric, underscore, or hyphen
-BACKEND_ID_PATTERN = re.compile(r'^[a-zA-Z][a-zA-Z0-9_-]*$')
+BACKEND_ID_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]*$")
 
 
 def validate_backend_id(backend_id: str) -> None:
@@ -23,7 +23,7 @@ def validate_backend_id(backend_id: str) -> None:
     """
     if not backend_id:
         raise ValueError("Backend ID cannot be empty")
-    if ':' in backend_id:
+    if ":" in backend_id:
         raise ValueError(f"Backend ID cannot contain ':': {backend_id}")
     if not BACKEND_ID_PATTERN.match(backend_id):
         raise ValueError(
