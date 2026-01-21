@@ -11,14 +11,6 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
-class OutputFormatDescriptor(BaseModel):
-    """Describes an output format a backend can produce."""
-
-    name: str  # e.g., "tar.gz", "json", "logs"
-    label: str  # e.g., "Job Artifacts", "Results JSON"
-    description: str = ""  # Optional tooltip/help text
-
-
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda
