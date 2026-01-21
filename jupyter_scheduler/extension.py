@@ -14,7 +14,6 @@ from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.transutils import _i18n
 from traitlets import Bool
 from traitlets import Dict as TDict
-from traitlets import List as TList
 from traitlets import Type, Unicode, default
 
 from jupyter_scheduler.backend_registry import BackendRegistry
@@ -65,36 +64,13 @@ class SchedulerApp(ExtensionApp):
     def _db_url_default(self):
         return f"sqlite:///{jupyter_data_dir()}/scheduler.sqlite"
 
-    allowed_backends = TList(
-        trait=Unicode(),
-        default_value=None,
-        allow_none=True,
-        config=True,
-        help=_i18n(
-            """List of backend IDs to allow. If set, only backends in this list
-            will be available. If None (default), all discovered backends are allowed."""
-        ),
-    )
-
-    blocked_backends = TList(
-        trait=Unicode(),
-        default_value=None,
-        allow_none=True,
-        config=True,
-        help=_i18n(
-            """List of backend IDs to block. Backends in this list will not be
-            available even if installed. Useful for hiding backends in specific deployments."""
-        ),
-    )
-
     default_backend = Unicode(
         default_value=None,
         allow_none=True,
         config=True,
         help=_i18n(
             """Default backend ID to use when creating jobs. If not set, uses
-            'jupyter_server_nb' if available. If 'jupyter_server_nb' is blocked
-            or unavailable, this must be set explicitly."""
+            'jupyter_server_nb' if available."""
         ),
     )
 
@@ -187,11 +163,7 @@ class SchedulerApp(ExtensionApp):
     def initialize_settings(self):
         super().initialize_settings()
 
-        backend_classes = discover_backends(
-            log=self.log,
-            allowed_backends=self.allowed_backends,
-            blocked_backends=self.blocked_backends,
-        )
+        backend_classes = discover_backends(log=self.log)
 
         if not backend_classes:
             raise ValueError(

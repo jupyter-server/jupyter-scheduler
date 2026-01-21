@@ -1,6 +1,6 @@
 import logging
 from importlib.metadata import entry_points
-from typing import Dict, List, Optional, Type
+from typing import Dict, Optional, Type
 
 from jupyter_scheduler.backends import DEFAULT_FALLBACK_BACKEND_ID
 from jupyter_scheduler.base_backend import BaseBackend
@@ -12,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 def discover_backends(
     log: Optional[logging.Logger] = None,
-    allowed_backends: Optional[List[str]] = None,
-    blocked_backends: Optional[List[str]] = None,
 ) -> Dict[str, Type[BaseBackend]]:
     """Discover backends registered in the 'jupyter_scheduler.backends' entry point group."""
     if log is None:
@@ -49,17 +47,6 @@ def discover_backends(
             continue
 
         backend_id = backend_class.id
-
-        # Apply block list
-        if blocked_backends and backend_id in blocked_backends:
-            log.debug(f"Backend '{backend_id}' is blocked by configuration.")
-            continue
-
-        # Apply allow list (if specified, only allowed backends pass)
-        if allowed_backends is not None and backend_id not in allowed_backends:
-            log.debug(f"Backend '{backend_id}' is not in allowed list.")
-            continue
-
         backends[backend_id] = backend_class
         log.info(f"Registered backend '{backend_id}' ({backend_class.name})")
 

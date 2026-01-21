@@ -145,68 +145,6 @@ def test_skips_backend_without_id_attribute():
     assert JUPYTER_SERVER_NB_BACKEND_ID in backends
 
 
-def test_blocked_backends_are_excluded():
-    mock_eps = MagicMock()
-    mock_eps.select.return_value = [
-        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
-        _create_mock_entry_point("mock", MockBackend),
-    ]
-
-    with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(blocked_backends=[JUPYTER_SERVER_NB_BACKEND_ID])
-
-    assert len(backends) == 1
-    assert "mock" in backends
-    assert JUPYTER_SERVER_NB_BACKEND_ID not in backends
-
-
-def test_allowed_backends_whitelist():
-    mock_eps = MagicMock()
-    mock_eps.select.return_value = [
-        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
-        _create_mock_entry_point("mock", MockBackend),
-        _create_mock_entry_point("high_priority", HighPriorityBackend),
-    ]
-
-    with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(allowed_backends=[JUPYTER_SERVER_NB_BACKEND_ID, "mock"])
-
-    assert len(backends) == 2
-    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
-    assert "mock" in backends
-    assert "high_priority" not in backends
-
-
-def test_allowed_and_blocked_can_coexist():
-    mock_eps = MagicMock()
-    mock_eps.select.return_value = [
-        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
-        _create_mock_entry_point("mock", MockBackend),
-        _create_mock_entry_point("high_priority", HighPriorityBackend),
-    ]
-
-    with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(
-            allowed_backends=[JUPYTER_SERVER_NB_BACKEND_ID, "mock"],
-            blocked_backends=[JUPYTER_SERVER_NB_BACKEND_ID],
-        )
-
-    assert len(backends) == 1
-    assert "mock" in backends
-
-
-def test_empty_result_when_all_blocked():
-    mock_eps = MagicMock()
-    mock_eps.select.return_value = [
-        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
-    ]
-
-    with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(blocked_backends=[JUPYTER_SERVER_NB_BACKEND_ID])
-
-    assert len(backends) == 0
-
-
 def test_logs_discovery():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
