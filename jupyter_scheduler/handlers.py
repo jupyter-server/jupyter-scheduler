@@ -29,6 +29,7 @@ async def call_async(scheduler, method: str, *args, **kwargs):
     logger.debug(f"Falling back to thread pool: {scheduler.__class__.__name__}.{method}")
     return await asyncio.to_thread(getattr(scheduler, method), *args, **kwargs)
 
+
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.environments import EnvironmentRetrievalError
 from jupyter_scheduler.exceptions import (
@@ -148,9 +149,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                     next_token=self.get_query_argument("next_token", None),
                 )
-                list_response = await call_async(
-                    self.scheduler, "list_job_definitions", list_query
-                )
+                list_response = await call_async(self.scheduler, "list_job_definitions", list_query)
             except ValidationError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -506,7 +505,9 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
         """Returns names of available runtime environments and output formats mappings"""
         try:
             environments = await asyncio.to_thread(self.environments_manager.list_environments)
-            output_formats = await asyncio.to_thread(self.environments_manager.output_formats_mapping)
+            output_formats = await asyncio.to_thread(
+                self.environments_manager.output_formats_mapping
+            )
         except EnvironmentRetrievalError as e:
             raise HTTPError(500, str(e))
 
