@@ -19,7 +19,10 @@ from traitlets import Type, Unicode, default
 
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.backend_utils import discover_backends, get_default_backend_id
-from jupyter_scheduler.backends import BackendConfig
+from jupyter_scheduler.backends import (
+    BackendConfig,
+    JUPYTER_SERVER_NB_BACKEND_ID,
+)
 
 from .handlers import (
     BackendsHandler,
@@ -34,9 +37,7 @@ from .handlers import (
 )
 
 JOB_DEFINITION_ID_REGEX = r"(?P<job_definition_id>\w+(?:-\w+)+)"
-# Job IDs can be:
-# - Legacy format: UUID like "abc123-def456-..."
-# - Encoded format: "backend_id:uuid" like "jupyter_server_nb:abc123-def456-..."
+# Job IDs are in format "backend_id:uuid" like "jupyter_server_nb:abc123-def456-..."
 JOB_ID_REGEX = r"(?P<job_id>[\w:%-]+)"
 
 
@@ -91,8 +92,9 @@ class SchedulerApp(ExtensionApp):
         allow_none=True,
         config=True,
         help=_i18n(
-            """Default backend ID to use when creating jobs. If not set, uses 'local'
-            if available, otherwise the first available backend."""
+            """Default backend ID to use when creating jobs. If not set, uses
+            'jupyter_server_nb' if available. If 'jupyter_server_nb' is blocked
+            or unavailable, this must be set explicitly."""
         ),
     )
 
@@ -151,10 +153,10 @@ class SchedulerApp(ExtensionApp):
             # Get per-backend overrides from configuration
             overrides = self.backend_config.get(backend_id, {})
 
-            # Handle scheduler_class override for local backend
+            # Handle scheduler_class override for the default notebook backend
             # This maintains backwards compatibility with scheduler_class traitlet
             scheduler_class_path = backend_class.scheduler_class
-            if backend_id == "local" and self.scheduler_class:
+            if backend_id == JUPYTER_SERVER_NB_BACKEND_ID and self.scheduler_class:
                 # User may have configured a custom scheduler class
                 if isinstance(self.scheduler_class, str):
                     scheduler_class_path = self.scheduler_class
@@ -193,8 +195,8 @@ class SchedulerApp(ExtensionApp):
 
         if not backend_classes:
             raise ValueError(
-                "No scheduler backends available. The 'local' backend should be "
-                "registered via entry points. Check your jupyter_scheduler installation."
+                f"No scheduler backends available. The '{JUPYTER_SERVER_NB_BACKEND_ID}' backend "
+                "should be registered via entry points. Check your jupyter_scheduler installation."
             )
 
         backend_configs = self._build_backend_configs(backend_classes)

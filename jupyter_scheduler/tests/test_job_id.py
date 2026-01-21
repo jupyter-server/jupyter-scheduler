@@ -3,7 +3,6 @@
 import pytest
 
 from jupyter_scheduler.job_id import (
-    LEGACY_BACKEND_ID,
     make_job_id,
     parse_job_id,
     validate_backend_id,
@@ -37,9 +36,9 @@ class TestParseJobId:
         assert uuid == "uuid-456"
 
     def test_handles_legacy_format(self):
-        """Legacy job IDs (no colon) should map to LEGACY_BACKEND_ID."""
+        """Legacy job IDs (no colon) return None backend_id."""
         backend, uuid = parse_job_id("legacy-uuid-only")
-        assert backend == LEGACY_BACKEND_ID
+        assert backend is None
         assert uuid == "legacy-uuid-only"
 
     def test_handles_uuid_with_colons(self):

@@ -37,7 +37,7 @@ from jupyter_scheduler.exceptions import (
     InputUriError,
     SchedulerError,
 )
-from jupyter_scheduler.job_id import LEGACY_BACKEND_ID, make_job_id, parse_job_id
+from jupyter_scheduler.job_id import make_job_id, parse_job_id
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -86,13 +86,13 @@ class JobHandlersMixin:
 
     def get_scheduler(self, job_id: str):
         """Get the appropriate scheduler for a job ID."""
-        registry = self.backend_registry
-        if registry and len(registry) > 0:
-            backend_id, _ = parse_job_id(job_id)
-            backend = registry.get_backend(backend_id)
+        backend_id, _ = parse_job_id(job_id)
+        if backend_id:
+            backend = self.backend_registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler
-        return self.scheduler
+        # Legacy job ID (no colon) or unknown backend: use default
+        return self.backend_registry.get_default().scheduler
 
     @property
     def execution_manager_class(self):
@@ -169,24 +169,19 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         payload = self.get_json_body()
         try:
             # Determine which backend to use
-            registry = self.backend_registry
             backend_id = payload.get("backend")
 
-            if registry and len(registry) > 0:
-                if backend_id:
-                    backend = registry.get_backend(backend_id)
-                    if not backend:
-                        raise HTTPError(400, f"Unknown backend: {backend_id}")
-                else:
-                    # Auto-select based on file extension
-                    backend = registry.get_for_file(payload.get("input_uri", ""))
-
-                # Ensure backend ID is stored with the job definition
-                payload["backend"] = backend.config.id
-                scheduler = backend.scheduler
+            if backend_id:
+                backend = self.backend_registry.get_backend(backend_id)
+                if not backend:
+                    raise HTTPError(400, f"Unknown backend: {backend_id}")
             else:
-                # Fallback to default scheduler (backwards compatibility)
-                scheduler = self.scheduler
+                # Auto-select based on file extension
+                backend = self.backend_registry.get_for_file(payload.get("input_uri", ""))
+
+            # Ensure backend ID is stored with the job definition
+            payload["backend"] = backend.config.id
+            scheduler = backend.scheduler
 
             job_definition_id = await call_async(
                 scheduler, "create_job_definition", CreateJobDefinition(**payload)
@@ -284,37 +279,31 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     next_token=self.get_query_argument("next_token", None),
                 )
 
-                registry = self.backend_registry
-                if registry and len(registry) > 0:
-                    # Query jobs from default scheduler (all backends share same DB)
-                    # Job IDs are already stored as 'backend:uuid' format
-                    default_backend = registry.get_default()
-                    list_jobs_response = await call_async(
-                        default_backend.scheduler, "list_jobs", list_jobs_query
-                    )
+                # Query jobs from default scheduler (all backends share same DB)
+                # Job IDs are already stored as 'backend:uuid' format
+                default_backend = self.backend_registry.get_default()
+                list_jobs_response = await call_async(
+                    default_backend.scheduler, "list_jobs", list_jobs_query
+                )
 
-                    # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
-                    # This allows backend-specific schedulers (like BraketScheduler) to sync status
-                    for i, job in enumerate(list_jobs_response.jobs):
-                        if job.status in (Status.QUEUED, Status.IN_PROGRESS):
-                            backend_id, _ = parse_job_id(job.job_id)
-                            backend = registry.get_backend(backend_id)
-                            if backend and backend.scheduler != default_backend.scheduler:
-                                # Call backend's get_job which triggers status sync
-                                try:
-                                    synced_job = await call_async(
-                                        backend.scheduler, "get_job", job.job_id, job_files=False
-                                    )
-                                    list_jobs_response.jobs[i] = synced_job
-                                except Exception as e:
-                                    self.log.warning(
-                                        f"Failed to sync status for job {job.job_id}: {e}"
-                                    )
-                else:
-                    # Fallback to default scheduler (backwards compatibility)
-                    list_jobs_response = await call_async(
-                        self.scheduler, "list_jobs", list_jobs_query
-                    )
+                # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
+                # This allows backend-specific schedulers (like BraketScheduler) to sync status
+                for i, job in enumerate(list_jobs_response.jobs):
+                    if job.status in (Status.QUEUED, Status.IN_PROGRESS):
+                        backend_id, _ = parse_job_id(job.job_id)
+                        # Legacy jobs (backend_id=None) stay with default backend
+                        backend = self.backend_registry.get_backend(backend_id) if backend_id else None
+                        if backend and backend.scheduler != default_backend.scheduler:
+                            # Call backend's get_job which triggers status sync
+                            try:
+                                synced_job = await call_async(
+                                    backend.scheduler, "get_job", job.job_id, job_files=False
+                                )
+                                list_jobs_response.jobs[i] = synced_job
+                            except Exception as e:
+                                self.log.warning(
+                                    f"Failed to sync status for job {job.job_id}: {e}"
+                                )
             except ValidationError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -332,37 +321,28 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         payload = self.get_json_body()
         try:
             # Determine which backend to use
-            registry = self.backend_registry
             backend_id = payload.get("backend")
 
-            if registry and len(registry) > 0:
-                if backend_id:
-                    backend = registry.get_backend(backend_id)
-                    if not backend:
-                        raise HTTPError(400, f"Unknown backend: {backend_id}")
-                else:
-                    # Auto-select based on file extension
-                    backend = registry.get_for_file(payload.get("input_uri", ""))
-
-                # Ensure backend ID is stored with the job
-                payload["backend"] = backend.config.id
-                scheduler = backend.scheduler
-
-                # Set default output_formats from backend if not specified
-                if not payload.get("output_formats"):
-                    if backend.config.output_formats:
-                        payload["output_formats"] = [f["id"] for f in backend.config.output_formats]
+            if backend_id:
+                backend = self.backend_registry.get_backend(backend_id)
+                if not backend:
+                    raise HTTPError(400, f"Unknown backend: {backend_id}")
             else:
-                # Fallback to default scheduler (backwards compatibility)
-                scheduler = self.scheduler
+                # Auto-select based on file extension
+                backend = self.backend_registry.get_for_file(payload.get("input_uri", ""))
+
+            # Ensure backend ID is stored with the job
+            payload["backend"] = backend.config.id
+            scheduler = backend.scheduler
+
+            # Set default output_formats from backend if not specified
+            if not payload.get("output_formats"):
+                if backend.config.output_formats:
+                    payload["output_formats"] = [f["id"] for f in backend.config.output_formats]
 
             raw_job_id = await call_async(scheduler, "create_job", CreateJob(**payload))
             # Encode backend into job ID for O(1) routing on subsequent operations
-            backend_id = payload.get("backend")
-            if backend_id:
-                job_id = make_job_id(backend_id, raw_job_id)
-            else:
-                job_id = raw_job_id
+            job_id = make_job_id(backend.config.id, raw_job_id)
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e

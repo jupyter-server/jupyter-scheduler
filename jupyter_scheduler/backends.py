@@ -4,11 +4,18 @@ from typing import Any, Dict, List, Optional
 from jupyter_scheduler.base_backend import BaseBackend
 from jupyter_scheduler.pydantic_v1 import BaseModel
 
+# Canonical backend IDs - use these constants instead of hardcoded strings
+JUPYTER_SERVER_NB_BACKEND_ID = "jupyter_server_nb"
+JUPYTER_SERVER_PY_BACKEND_ID = "jupyter_server_py"
+
+# Default fallback when no explicit default is configured
+DEFAULT_FALLBACK_BACKEND_ID = JUPYTER_SERVER_NB_BACKEND_ID
+
 
 class JupyterServerNotebookBackend(BaseBackend):
     """Built-in backend executing notebooks via nbconvert on the Jupyter server."""
 
-    id = "jupyter_server_nb"
+    id = JUPYTER_SERVER_NB_BACKEND_ID
     name = "Jupyter Server Notebook"
     description = "Execute notebooks on the Jupyter server"
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
@@ -24,7 +31,7 @@ class JupyterServerNotebookBackend(BaseBackend):
 class JupyterServerPythonBackend(BaseBackend):
     """Built-in backend executing Python scripts via subprocess on the Jupyter server."""
 
-    id = "jupyter_server_py"
+    id = JUPYTER_SERVER_PY_BACKEND_ID
     name = "Jupyter Server Python"
     description = "Execute Python scripts on the Jupyter server"
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"

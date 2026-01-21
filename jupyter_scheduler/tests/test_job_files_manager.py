@@ -7,14 +7,14 @@ from unittest.mock import Mock, patch
 import pytest
 
 from jupyter_scheduler.job_files_manager import Downloader, JobFilesManager
-from jupyter_scheduler.job_id import LEGACY_BACKEND_ID
 from jupyter_scheduler.models import DescribeJob, JobFile
 
 
 async def test_copy_from_staging():
+    encoded_job_id = "local:job-1"
     job = DescribeJob(
         name="job_1",
-        job_id="1",
+        job_id="job-1",
         input_filename="helloworld.ipynb",
         runtime_environment_name="env_a",
         output_formats=["ipynb", "html"],
@@ -23,40 +23,48 @@ async def test_copy_from_staging():
             JobFile(display_name="HTML", file_format="html"),
             JobFile(display_name="input", file_format="input"),
         ],
-        url="scheduler/jobs/1",
+        url=f"scheduler/jobs/{encoded_job_id}",
         create_time=1,
         update_time=1,
     )
 
     staging_paths = {
-        "ipynb": "1/helloworld-1.ipynb",
-        "html": "1/helloworld-1.html",
-        "input": "1/helloworld.ipynb",
+        "ipynb": "job-1/helloworld-1.ipynb",
+        "html": "job-1/helloworld-1.html",
+        "input": "job-1/helloworld.ipynb",
     }
     job_filenames = {
         "ipynb": "helloworld.ipynb",
         "html": "helloworld.html",
         "input": "helloworld.ipynb",
     }
-    output_dir = "jobs/1"
+    output_dir = "jobs/job-1"
     with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
         with patch("jupyter_scheduler.job_files_manager.Process") as mock_process:
-            with patch("jupyter_scheduler.scheduler.Scheduler") as mock_scheduler:
-                mock_scheduler.get_job.return_value = job
-                mock_scheduler.get_staging_paths.return_value = staging_paths
-                mock_scheduler.get_local_output_path.return_value = output_dir
-                mock_scheduler.get_job_filenames.return_value = job_filenames
-                manager = JobFilesManager(scheduler=mock_scheduler)
-                await manager.copy_from_staging(1)
+            mock_scheduler = Mock()
+            mock_scheduler.get_job.return_value = job
+            mock_scheduler.get_staging_paths.return_value = staging_paths
+            mock_scheduler.get_local_output_path.return_value = output_dir
+            mock_scheduler.get_job_filenames.return_value = job_filenames
 
-                mock_downloader.assert_called_once_with(
-                    output_formats=job.output_formats,
-                    output_filenames=job_filenames,
-                    staging_paths=staging_paths,
-                    output_dir=output_dir,
-                    redownload=False,
-                    include_staging_files=None,
-                )
+            mock_backend = Mock()
+            mock_backend.scheduler = mock_scheduler
+
+            mock_registry = Mock()
+            mock_registry.get_backend.return_value = mock_backend
+
+            manager = JobFilesManager(backend_registry=mock_registry)
+            await manager.copy_from_staging(encoded_job_id)
+
+            mock_registry.get_backend.assert_called_once_with("local")
+            mock_downloader.assert_called_once_with(
+                output_formats=job.output_formats,
+                output_filenames=job_filenames,
+                staging_paths=staging_paths,
+                output_dir=output_dir,
+                redownload=False,
+                include_staging_files=None,
+            )
 
 
 @pytest.fixture
@@ -166,46 +174,16 @@ def test_downloader_download(downloader_parameters):
 # JobFilesManager multi-backend tests
 
 
-def test_init_with_scheduler_only():
-    """Legacy mode: Initialize with single scheduler."""
-    mock_scheduler = Mock()
-    manager = JobFilesManager(scheduler=mock_scheduler)
-
-    assert manager.scheduler == mock_scheduler
-    assert manager.backend_registry is None
-
-
 def test_init_with_backend_registry():
-    """Multi-backend mode: Initialize with backend registry."""
+    """Initialize with backend registry."""
     mock_registry = Mock()
     manager = JobFilesManager(backend_registry=mock_registry)
 
-    assert manager.scheduler is None
     assert manager.backend_registry == mock_registry
-
-
-def test_init_with_both_parameters():
-    """Both parameters provided - registry takes precedence in routing."""
-    mock_scheduler = Mock()
-    mock_registry = Mock()
-    manager = JobFilesManager(scheduler=mock_scheduler, backend_registry=mock_registry)
-
-    assert manager.scheduler == mock_scheduler
-    assert manager.backend_registry == mock_registry
-
-
-def test_get_scheduler_legacy_mode():
-    """Legacy mode uses scheduler directly."""
-    mock_scheduler = Mock()
-    manager = JobFilesManager(scheduler=mock_scheduler)
-
-    scheduler = manager._get_scheduler("uuid-123")
-
-    assert scheduler == mock_scheduler
 
 
 def test_get_scheduler_with_encoded_id():
-    """Multi-backend mode routes to correct backend based on job_id prefix."""
+    """Routes to correct backend based on job_id prefix."""
     mock_braket_scheduler = Mock()
     mock_backend = Mock()
     mock_backend.scheduler = mock_braket_scheduler
@@ -221,21 +199,19 @@ def test_get_scheduler_with_encoded_id():
     assert scheduler == mock_braket_scheduler
 
 
-def test_get_scheduler_with_legacy_uuid():
-    """Multi-backend mode handles legacy UUIDs (no colon)."""
+def test_get_scheduler_handles_legacy_format():
+    """Legacy job IDs (no colon) should route to default backend."""
     mock_default_scheduler = Mock()
     mock_default_backend = Mock()
     mock_default_backend.scheduler = mock_default_scheduler
 
     mock_registry = Mock()
-    mock_registry.get_backend.return_value = mock_default_backend
+    mock_registry.get_default.return_value = mock_default_backend
 
     manager = JobFilesManager(backend_registry=mock_registry)
-
     scheduler = manager._get_scheduler("uuid-789-no-colon")
 
-    # Job IDs without colon use LEGACY_BACKEND_ID
-    mock_registry.get_backend.assert_called_once_with(LEGACY_BACKEND_ID)
+    mock_registry.get_default.assert_called_once()
     assert scheduler == mock_default_scheduler
 
 

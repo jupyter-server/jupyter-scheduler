@@ -7,7 +7,10 @@ from jupyter_scheduler.backend_utils import (
     discover_backends,
     get_default_backend_id,
 )
-from jupyter_scheduler.backends import JupyterServerNotebookBackend
+from jupyter_scheduler.backends import (
+    JUPYTER_SERVER_NB_BACKEND_ID,
+    JupyterServerNotebookBackend,
+)
 from jupyter_scheduler.base_backend import BaseBackend
 
 SCHEDULER_CLASS = "jupyter_scheduler.scheduler.Scheduler"
@@ -73,7 +76,7 @@ def test_to_dict_returns_expected_structure():
 def test_discovers_registered_backends():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         _create_mock_entry_point("mock", MockBackend),
     ]
 
@@ -81,9 +84,9 @@ def test_discovers_registered_backends():
         backends = discover_backends()
 
     assert len(backends) == 2
-    assert "jupyter_server_nb" in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
     assert "mock" in backends
-    assert backends["jupyter_server_nb"] is JupyterServerNotebookBackend
+    assert backends[JUPYTER_SERVER_NB_BACKEND_ID] is JupyterServerNotebookBackend
     assert backends["mock"] is MockBackend
 
 
@@ -94,7 +97,7 @@ def test_handles_import_error_gracefully():
     failing_ep.load.side_effect = ImportError("missing_package")
 
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         failing_ep,
     ]
 
@@ -102,7 +105,7 @@ def test_handles_import_error_gracefully():
         backends = discover_backends()
 
     assert len(backends) == 1
-    assert "jupyter_server_nb" in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
     assert "missing_deps" not in backends
 
 
@@ -113,7 +116,7 @@ def test_handles_generic_exception_gracefully():
     failing_ep.load.side_effect = RuntimeError("Something went wrong")
 
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         failing_ep,
     ]
 
@@ -121,7 +124,7 @@ def test_handles_generic_exception_gracefully():
         backends = discover_backends()
 
     assert len(backends) == 1
-    assert "jupyter_server_nb" in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
 
 
 def test_skips_backend_without_id_attribute():
@@ -131,7 +134,7 @@ def test_skips_backend_without_id_attribute():
         name = "Bad"
 
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         _create_mock_entry_point("bad", BadBackend),
     ]
 
@@ -139,37 +142,37 @@ def test_skips_backend_without_id_attribute():
         backends = discover_backends()
 
     assert len(backends) == 1
-    assert "jupyter_server_nb" in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
 
 
 def test_blocked_backends_are_excluded():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         _create_mock_entry_point("mock", MockBackend),
     ]
 
     with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(blocked_backends=["jupyter_server_nb"])
+        backends = discover_backends(blocked_backends=[JUPYTER_SERVER_NB_BACKEND_ID])
 
     assert len(backends) == 1
     assert "mock" in backends
-    assert "jupyter_server_nb" not in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID not in backends
 
 
 def test_allowed_backends_whitelist():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         _create_mock_entry_point("mock", MockBackend),
         _create_mock_entry_point("high_priority", HighPriorityBackend),
     ]
 
     with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(allowed_backends=["jupyter_server_nb", "mock"])
+        backends = discover_backends(allowed_backends=[JUPYTER_SERVER_NB_BACKEND_ID, "mock"])
 
     assert len(backends) == 2
-    assert "jupyter_server_nb" in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
     assert "mock" in backends
     assert "high_priority" not in backends
 
@@ -177,15 +180,15 @@ def test_allowed_backends_whitelist():
 def test_allowed_and_blocked_can_coexist():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         _create_mock_entry_point("mock", MockBackend),
         _create_mock_entry_point("high_priority", HighPriorityBackend),
     ]
 
     with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
         backends = discover_backends(
-            allowed_backends=["jupyter_server_nb", "mock"],
-            blocked_backends=["jupyter_server_nb"],
+            allowed_backends=[JUPYTER_SERVER_NB_BACKEND_ID, "mock"],
+            blocked_backends=[JUPYTER_SERVER_NB_BACKEND_ID],
         )
 
     assert len(backends) == 1
@@ -195,11 +198,11 @@ def test_allowed_and_blocked_can_coexist():
 def test_empty_result_when_all_blocked():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
     ]
 
     with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        backends = discover_backends(blocked_backends=["jupyter_server_nb"])
+        backends = discover_backends(blocked_backends=[JUPYTER_SERVER_NB_BACKEND_ID])
 
     assert len(backends) == 0
 
@@ -207,7 +210,7 @@ def test_empty_result_when_all_blocked():
 def test_logs_discovery():
     mock_eps = MagicMock()
     mock_eps.select.return_value = [
-        _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
     ]
     mock_logger = MagicMock()
 
@@ -220,7 +223,7 @@ def test_logs_discovery():
 def test_python39_entry_points_format():
     mock_eps = {
         ENTRY_POINT_GROUP: [
-            _create_mock_entry_point("jupyter_server_nb", JupyterServerNotebookBackend),
+            _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
         ]
     }
 
@@ -228,14 +231,14 @@ def test_python39_entry_points_format():
         backends = discover_backends()
 
     assert len(backends) == 1
-    assert "jupyter_server_nb" in backends
+    assert JUPYTER_SERVER_NB_BACKEND_ID in backends
 
 
 # get_default_backend_id tests
 
 
 def test_returns_configured_default_when_available():
-    backends = {"jupyter_server_nb": JupyterServerNotebookBackend, "mock": MockBackend}
+    backends = {JUPYTER_SERVER_NB_BACKEND_ID: JupyterServerNotebookBackend, "mock": MockBackend}
 
     result = get_default_backend_id(backends, configured_default="mock")
 
@@ -243,31 +246,31 @@ def test_returns_configured_default_when_available():
 
 
 def test_ignores_configured_default_when_not_available():
-    backends = {"jupyter_server_nb": JupyterServerNotebookBackend, "mock": MockBackend}
+    backends = {JUPYTER_SERVER_NB_BACKEND_ID: JupyterServerNotebookBackend, "mock": MockBackend}
 
     result = get_default_backend_id(backends, configured_default="nonexistent")
 
-    assert result == "jupyter_server_nb"
+    assert result == JUPYTER_SERVER_NB_BACKEND_ID
 
 
-def test_prefers_jupyter_server_nb_when_no_config():
+def test_prefers_default_fallback_backend_when_no_config():
     backends = {
-        "jupyter_server_nb": JupyterServerNotebookBackend,
+        JUPYTER_SERVER_NB_BACKEND_ID: JupyterServerNotebookBackend,
         "mock": MockBackend,
         "other": HighPriorityBackend,
     }
 
     result = get_default_backend_id(backends, configured_default=None)
 
-    assert result == "jupyter_server_nb"
+    assert result == JUPYTER_SERVER_NB_BACKEND_ID
 
 
-def test_returns_first_sorted_when_jupyter_server_nb_unavailable():
+def test_raises_when_default_fallback_unavailable():
+    """When jupyter_server_nb unavailable and no default configured, raise error."""
     backends = {"zebra": MockBackend, "alpha": HighPriorityBackend}
 
-    result = get_default_backend_id(backends, configured_default=None)
-
-    assert result == "alpha"
+    with pytest.raises(ValueError, match="Set SchedulerApp.default_backend explicitly"):
+        get_default_backend_id(backends, configured_default=None)
 
 
 def test_raises_when_no_backends_available():
@@ -277,9 +280,18 @@ def test_raises_when_no_backends_available():
         get_default_backend_id(backends, configured_default=None)
 
 
-def test_single_backend_is_default():
+def test_raises_when_single_non_default_backend():
+    """Even with single backend, require explicit config if it's not jupyter_server_nb."""
     backends = {"only_one": MockBackend}
 
-    result = get_default_backend_id(backends, configured_default=None)
+    with pytest.raises(ValueError, match="Set SchedulerApp.default_backend explicitly"):
+        get_default_backend_id(backends, configured_default=None)
+
+
+def test_single_backend_works_with_explicit_config():
+    """Single non-default backend works when explicitly configured."""
+    backends = {"only_one": MockBackend}
+
+    result = get_default_backend_id(backends, configured_default="only_one")
 
     assert result == "only_one"

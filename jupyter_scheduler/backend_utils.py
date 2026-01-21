@@ -2,6 +2,7 @@ import logging
 from importlib.metadata import entry_points
 from typing import Dict, List, Optional, Type
 
+from jupyter_scheduler.backends import DEFAULT_FALLBACK_BACKEND_ID
 from jupyter_scheduler.base_backend import BaseBackend
 
 ENTRY_POINT_GROUP = "jupyter_scheduler.backends"
@@ -69,7 +70,20 @@ def get_default_backend_id(
     available_backends: Dict[str, Type[BaseBackend]],
     configured_default: Optional[str] = None,
 ) -> str:
-    """Select default backend: configured > 'jupyter_server_nb' > first alphabetically."""
+    """Select default backend with priority: configured > DEFAULT_FALLBACK_BACKEND_ID > error.
+
+    Args:
+        available_backends: Dict of backend_id -> backend class
+        configured_default: Admin-configured default backend ID (optional)
+
+    Returns:
+        The backend ID to use as default
+
+    Raises:
+        ValueError: If no backends available, or if DEFAULT_FALLBACK_BACKEND_ID is
+            unavailable and no default is configured. Admins who customize backends
+            must explicitly set SchedulerApp.default_backend.
+    """
     if not available_backends:
         raise ValueError("No scheduler backends available.")
 
@@ -82,7 +96,12 @@ def get_default_backend_id(
             f"Available: {list(available_backends.keys())}"
         )
 
-    if "jupyter_server_nb" in available_backends:
-        return "jupyter_server_nb"
+    if DEFAULT_FALLBACK_BACKEND_ID in available_backends:
+        return DEFAULT_FALLBACK_BACKEND_ID
 
-    return sorted(available_backends.keys())[0]
+    # No silent fallback - require explicit configuration
+    raise ValueError(
+        f"Default backend '{DEFAULT_FALLBACK_BACKEND_ID}' not available. "
+        f"Set SchedulerApp.default_backend explicitly. "
+        f"Available backends: {list(available_backends.keys())}"
+    )

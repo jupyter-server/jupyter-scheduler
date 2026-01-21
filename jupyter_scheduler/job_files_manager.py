@@ -3,7 +3,7 @@ import os
 import random
 import tarfile
 from multiprocessing import Process
-from typing import TYPE_CHECKING, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import fsspec
 from jupyter_server.utils import ensure_async
@@ -21,32 +21,24 @@ logger = logging.getLogger(__name__)
 class JobFilesManager:
     """Manages downloading job output files from staging to local output directory.
 
-    Supports both legacy single-scheduler mode and multi-backend mode.
-
     Args:
-        scheduler: (Deprecated) Single scheduler instance. Use backend_registry instead.
-        backend_registry: Registry of all backend schedulers. When provided, job IDs
-            are decoded to route to the correct backend's scheduler.
+        backend_registry: Registry of all backend schedulers. Job IDs are decoded
+            to route to the correct backend's scheduler.
     """
 
-    def __init__(
-        self,
-        scheduler: Optional[Type[BaseScheduler]] = None,
-        backend_registry: Optional["BackendRegistry"] = None,
-    ):
-        self.scheduler = scheduler
+    def __init__(self, backend_registry: "BackendRegistry"):
         self.backend_registry = backend_registry
 
     def _get_scheduler(self, job_id: str) -> BaseScheduler:
         """Get the appropriate scheduler for a job ID."""
-        if self.backend_registry:
-            backend_id, _ = parse_job_id(job_id)
+        backend_id, _ = parse_job_id(job_id)
+        if backend_id:
             backend = self.backend_registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler
             logger.warning(f"Backend '{backend_id}' not found, using default backend")
-            return self.backend_registry.get_default().scheduler
-        return self.scheduler
+        # Legacy job ID (no colon) or unknown backend: use default
+        return self.backend_registry.get_default().scheduler
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         """Copy job output files from staging area to local output directory.
