@@ -16,6 +16,10 @@ import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
+import {
+  filterBackendsByFile,
+  selectDefaultBackend
+} from '../util/backend-utils';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
@@ -127,7 +131,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     setList();
   }, []);
 
-  // Retrieve backend list and select appropriate backend atomically
+  // Retrieve backend list and select appropriate backend on mount
   useEffect(() => {
     api
       .getBackends()
@@ -136,19 +140,14 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
         if (backends.length === 0) return;
 
-        const fileExt = props.model.inputFile?.split('.').pop()?.toLowerCase();
-        const validBackends = fileExt
-          ? backends.filter(
-              b =>
-                b.file_extensions.length === 0 ||
-                b.file_extensions.includes(fileExt)
-            )
-          : backends;
+        const validBackends = filterBackendsByFile(
+          backends,
+          props.model.inputFile
+        );
 
         // Only update if current backend is invalid for this file type
         if (!validBackends.some(b => b.id === props.model.backend)) {
-          const selected =
-            validBackends.find(b => b.is_default) || validBackends[0];
+          const selected = selectDefaultBackend(validBackends);
           if (selected) {
             props.handleModelChange({
               ...props.model,
@@ -159,23 +158,20 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         }
       })
       .catch(e => console.error('Failed to fetch backends:', e));
-  }, []);
+  }, []); // Intentional: fetch only on mount
 
   // Derive display backend for BackendPicker (ensures valid value is always shown)
   const displayBackend = useMemo(() => {
     if (backendList.length === 0) return props.model.backend || '';
 
-    const fileExt = props.model.inputFile?.split('.').pop()?.toLowerCase();
-    const validBackends = fileExt
-      ? backendList.filter(
-          b =>
-            b.file_extensions.length === 0 || b.file_extensions.includes(fileExt)
-        )
-      : backendList;
+    const validBackends = filterBackendsByFile(
+      backendList,
+      props.model.inputFile
+    );
 
     return validBackends.some(b => b.id === props.model.backend)
       ? props.model.backend
-      : (validBackends.find(b => b.is_default) || validBackends[0])?.id || '';
+      : selectDefaultBackend(validBackends)?.id || '';
   }, [backendList, props.model.inputFile, props.model.backend]);
 
   const envsByName = useMemo(() => {
@@ -421,7 +417,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
       timezone: props.model.timezone,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      backend: props.model.backend
     };
 
     if (props.model.parameters !== undefined) {

@@ -37,7 +37,7 @@ from jupyter_scheduler.exceptions import (
     InputUriError,
     SchedulerError,
 )
-from jupyter_scheduler.job_id import LEGACY_BACKEND_ID, make_job_id
+from jupyter_scheduler.job_id import LEGACY_BACKEND_ID, make_job_id, parse_job_id
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -88,7 +88,7 @@ class JobHandlersMixin:
         """Get the appropriate scheduler for a job ID."""
         registry = self.backend_registry
         if registry and len(registry) > 0:
-            backend_id = job_id.split(":", 1)[0] if ":" in job_id else LEGACY_BACKEND_ID
+            backend_id, _ = parse_job_id(job_id)
             backend = registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler
@@ -297,11 +297,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     # This allows backend-specific schedulers (like BraketScheduler) to sync status
                     for i, job in enumerate(list_jobs_response.jobs):
                         if job.status in (Status.QUEUED, Status.IN_PROGRESS):
-                            backend_id = (
-                                job.job_id.split(":", 1)[0]
-                                if ":" in job.job_id
-                                else "jupyter_server_nb"
-                            )
+                            backend_id, _ = parse_job_id(job.job_id)
                             backend = registry.get_backend(backend_id)
                             if backend and backend.scheduler != default_backend.scheduler:
                                 # Call backend's get_job which triggers status sync

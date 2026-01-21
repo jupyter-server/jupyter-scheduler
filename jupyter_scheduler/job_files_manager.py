@@ -9,7 +9,7 @@ import fsspec
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
-from jupyter_scheduler.job_id import LEGACY_BACKEND_ID
+from jupyter_scheduler.job_id import parse_job_id
 from jupyter_scheduler.scheduler import BaseScheduler
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class JobFilesManager:
     def _get_scheduler(self, job_id: str) -> BaseScheduler:
         """Get the appropriate scheduler for a job ID."""
         if self.backend_registry:
-            backend_id = job_id.split(":", 1)[0] if ":" in job_id else LEGACY_BACKEND_ID
+            backend_id, _ = parse_job_id(job_id)
             backend = self.backend_registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler

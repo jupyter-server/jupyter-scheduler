@@ -376,6 +376,7 @@ export namespace Scheduler {
     schedule?: string;
     timezone?: string;
     package_input_folder?: boolean;
+    backend?: string;
   }
 
   export interface IUpdateJobDefinition {

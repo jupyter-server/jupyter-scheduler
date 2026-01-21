@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 
 import { Scheduler } from '../handler';
+import { filterBackendsByFile } from '../util/backend-utils';
 
 export type BackendPickerProps = {
   label: string;
@@ -22,21 +23,18 @@ export type BackendPickerProps = {
 };
 
 export function BackendPicker(props: BackendPickerProps): JSX.Element | null {
-  // Hide only while loading
+  // Hide while loading
   if (props.backendList.length === 0) {
     return null;
   }
 
-  // Filter by file extension if inputFile provided
-  const fileExt = props.inputFile?.split('.').pop()?.toLowerCase();
-  const filteredBackends = fileExt
-    ? props.backendList.filter(
-        b =>
-          b.file_extensions.length === 0 || b.file_extensions.includes(fileExt)
-      )
-    : props.backendList;
+  // Filter by file extension
+  const filteredBackends = filterBackendsByFile(
+    props.backendList,
+    props.inputFile
+  );
 
-  // Hide only if no backends match (edge case)
+  // Hide if no backends match (edge case)
   if (filteredBackends.length === 0) {
     return null;
   }
@@ -57,8 +55,12 @@ export function BackendPicker(props: BackendPickerProps): JSX.Element | null {
         value={props.value}
         disabled={isDisabled}
       >
-        {filteredBackends.map((backend, idx) => (
-          <MenuItem value={backend.id} title={backend.description} key={idx}>
+        {filteredBackends.map(backend => (
+          <MenuItem
+            value={backend.id}
+            title={backend.description}
+            key={backend.id}
+          >
             {backend.name}
           </MenuItem>
         ))}
