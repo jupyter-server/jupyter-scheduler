@@ -11,6 +11,17 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
+class OutputFormat(BaseModel):
+    """Describes an output format a backend can produce.
+
+    Matches TypeScript IOutputFormat interface in handler.ts.
+    """
+
+    id: str  # Format identifier (e.g., "ipynb", "html", "stdout")
+    label: str  # Display name (e.g., "Notebook", "HTML")
+    description: str = ""  # Optional tooltip text
+
+
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda

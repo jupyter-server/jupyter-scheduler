@@ -1,4 +1,8 @@
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional
+
+if TYPE_CHECKING:
+    # Import for type hints only (avoids circular import at runtime)
+    from jupyter_scheduler.models import OutputFormat
 
 
 class BaseBackend:
@@ -20,11 +24,14 @@ class BaseBackend:
         Fully qualified class name for custom database manager.
     file_extensions : List[str]
         File extensions this backend can execute (e.g., ["ipynb", "py"]).
-    output_formats : List[Dict[str, str]]
-        Output file formats produced by this backend. Each format is a dict with:
-        - id: Format identifier used as key in staging_paths (e.g., "ipynb", "json")
-        - label: Human-readable name shown in UI (e.g., "Notebook", "Results")
-        - description: Optional tooltip text explaining the format
+    output_formats : List[OutputFormat]
+        Output formats this backend can produce. Each format needs:
+        - id: Format identifier (e.g., "ipynb", "html")
+        - label: Human-readable name shown in UI
+        - description: Optional tooltip text (defaults to "")
+
+        Note: Validated via OutputFormat model at API serialization.
+        Typos like {"laabel": ...} will raise errors at runtime.
     priority : int
         Priority for backend selection when multiple backends support a file type.
         Higher values = higher priority (selected first).
@@ -37,7 +44,7 @@ class BaseBackend:
     execution_manager_class: ClassVar[str]
     database_manager_class: ClassVar[Optional[str]] = None
     file_extensions: ClassVar[List[str]] = []
-    output_formats: ClassVar[List[Dict[str, str]]] = []
+    output_formats: ClassVar[List["OutputFormat"]] = []
     priority: ClassVar[int] = 0
 
     @classmethod

@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from jupyter_scheduler.base_backend import BaseBackend
+from jupyter_scheduler.models import OutputFormat
 from jupyter_scheduler.pydantic_v1 import BaseModel
 
 # Canonical backend IDs - use these constants instead of hardcoded strings
@@ -70,7 +71,7 @@ class DescribeBackend(BaseModel):
     name: str
     description: str
     file_extensions: List[str]
-    output_formats: List[Dict[str, str]]
+    output_formats: List[OutputFormat]
     is_default: bool
 
     class Config:
