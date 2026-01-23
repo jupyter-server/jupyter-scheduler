@@ -30,15 +30,19 @@ class JobFilesManager:
         self.backend_registry = backend_registry
 
     def _get_scheduler(self, job_id: str) -> BaseScheduler:
-        """Get the appropriate scheduler for a job ID."""
+        """Get the appropriate scheduler for a job ID.
+
+        Raises:
+            ValueError: If the backend specified in the job ID is not available.
+        """
         backend_id, _ = parse_job_id(job_id)
-        if backend_id:
-            backend = self.backend_registry.get_backend(backend_id)
-            if backend:
-                return backend.scheduler
-            logger.warning(f"Backend '{backend_id}' not found, using legacy job backend")
-        # Legacy job ID (no colon) or unknown backend: use legacy job backend
-        return self.backend_registry.get_legacy_job_backend().scheduler
+        if not backend_id:
+            # Legacy job ID (no colon): use legacy job backend
+            return self.backend_registry.get_legacy_job_backend().scheduler
+        backend = self.backend_registry.get_backend(backend_id)
+        if backend:
+            return backend.scheduler
+        raise ValueError(f"Backend '{backend_id}' not available")
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         """Copy job output files from staging area to local output directory.

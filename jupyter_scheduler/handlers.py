@@ -85,13 +85,18 @@ class JobHandlersMixin:
         return self._environments_manager
 
     def get_scheduler(self, job_id: str):
-        """Get the appropriate scheduler for a job ID."""
+        """Get the appropriate scheduler for a job ID.
+
+        Raises:
+            HTTPError: If the backend specified in the job ID is not available.
+        """
         backend_id, _ = parse_job_id(job_id)
         if backend_id:
             backend = self.backend_registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler
-        # Legacy job ID (no colon) or unknown backend: use legacy job backend
+            raise HTTPError(400, f"Backend '{backend_id}' not available")
+        # Legacy job ID (no colon): use legacy job backend
         return self.backend_registry.get_legacy_job_backend().scheduler
 
     @property

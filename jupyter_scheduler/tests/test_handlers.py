@@ -250,8 +250,8 @@ async def test_get_jobs(jp_fetch, params, list_query, jobs_list):
 async def test_get_job_for_scheduler_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_get_job:
         mock_get_job.side_effect = SchedulerError("Scheduler error")
-        # Use encoded job_id with backend prefix
-        encoded_job_id = make_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
+        # Use encoded job_id with backend prefix (must use registered backend)
+        encoded_job_id = make_job_id("jupyter_server_nb", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch("scheduler", "jobs", encoded_job_id, method="GET")
         assert expected_http_error(e, 500, "Scheduler error")
@@ -260,8 +260,8 @@ async def test_get_job_for_scheduler_error(jp_fetch):
 async def test_get_job_for_unexpected_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.get_job") as mock_list_jobs:
         mock_list_jobs.side_effect = ValueError("Unexpected error")
-        # Use encoded job_id with backend prefix
-        encoded_job_id = make_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
+        # Use encoded job_id with backend prefix (must use registered backend)
+        encoded_job_id = make_job_id("jupyter_server_nb", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch("scheduler", "jobs", encoded_job_id, method="GET")
         assert expected_http_error(e, 500, "Unexpected error occurred while getting job details.")
@@ -353,7 +353,8 @@ async def test_patch_jobs_for_stop_job(jp_fetch):
 async def test_patch_jobs_for_scheduler_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
         mock_update_job.side_effect = SchedulerError("Scheduler error")
-        encoded_job_id = make_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
+        # Use registered backend to avoid "backend not available" error
+        encoded_job_id = make_job_id("jupyter_server_nb", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch(
                 "scheduler",
@@ -368,7 +369,8 @@ async def test_patch_jobs_for_scheduler_error(jp_fetch):
 async def test_patch_jobs_for_unexpected_error(jp_fetch):
     with patch("jupyter_scheduler.scheduler.Scheduler.update_job") as mock_update_job:
         mock_update_job.side_effect = ValueError("Unexpected error")
-        encoded_job_id = make_job_id("local", "542e0fac-1274-4a78-8340-a850bdb559c8")
+        # Use registered backend to avoid "backend not available" error
+        encoded_job_id = make_job_id("jupyter_server_nb", "542e0fac-1274-4a78-8340-a850bdb559c8")
         with pytest.raises(HTTPClientError) as e:
             await jp_fetch(
                 "scheduler",
