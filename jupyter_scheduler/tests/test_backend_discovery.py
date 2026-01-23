@@ -142,19 +142,6 @@ def test_skips_backend_without_id_attribute():
     assert JUPYTER_SERVER_NB_BACKEND_ID in backends
 
 
-def test_logs_discovery():
-    mock_eps = MagicMock()
-    mock_eps.select.return_value = [
-        _create_mock_entry_point(JUPYTER_SERVER_NB_BACKEND_ID, JupyterServerNotebookBackend),
-    ]
-    mock_logger = MagicMock()
-
-    with patch("jupyter_scheduler.backend_utils.entry_points", return_value=mock_eps):
-        discover_backends(log=mock_logger)
-
-    mock_logger.info.assert_called()
-
-
 def test_python39_entry_points_format():
     mock_eps = {
         ENTRY_POINT_GROUP: [

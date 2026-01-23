@@ -18,13 +18,11 @@ class PythonScriptExecutionManager(ExecutionManager):
         job = self.model
         staging_dir = os.path.dirname(self.staging_paths["input"])
 
-        # Build environment with job parameters as JUPYTER_PARAM_* vars
         env = os.environ.copy()
         if job.parameters:
             for key, value in job.parameters.items():
                 env[f"JUPYTER_PARAM_{key}"] = str(value)
 
-        # Execute script using sys.executable (guaranteed to work in all environments)
         result = subprocess.run(
             [sys.executable, self.staging_paths["input"]],
             cwd=staging_dir,
@@ -36,7 +34,6 @@ class PythonScriptExecutionManager(ExecutionManager):
         stdout_path = self.staging_paths["stdout"]
         stderr_path = self.staging_paths["stderr"]
 
-        # Only write stdout/stderr if there's content
         if result.stdout:
             with fsspec.open(stdout_path, "w", encoding="utf-8") as f:
                 f.write(result.stdout)

@@ -26,11 +26,9 @@ def discover_backends(
         backend_eps = eps.get(ENTRY_POINT_GROUP, [])
 
     for ep in backend_eps:
-        # Attempt to load the backend class
         try:
             backend_class = ep.load()
         except ImportError as e:
-            # Missing dependency - provide actionable message
             missing_package = getattr(e, "name", str(e))
             log.warning(
                 f"Unable to load backend '{ep.name}': missing dependency '{missing_package}'. "
@@ -41,7 +39,6 @@ def discover_backends(
             log.warning(f"Unable to load backend '{ep.name}': {e}")
             continue
 
-        # Validate the backend class has required attributes
         if not hasattr(backend_class, "id"):
             log.warning(f"Backend '{ep.name}' does not define 'id' attribute. Skipping.")
             continue

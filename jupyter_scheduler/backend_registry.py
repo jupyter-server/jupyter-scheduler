@@ -53,7 +53,6 @@ class BackendRegistry:
                 instance = self._create_backend(cfg, root_dir, environments_manager, db_url, config)
                 self._backends[cfg.id] = instance
 
-                # Build extension map for auto-selection
                 for ext in cfg.file_extensions:
                     ext_lower = ext.lower().lstrip(".")
                     if ext_lower not in self._extension_map:
@@ -76,7 +75,6 @@ class BackendRegistry:
         """Create a backend instance from configuration."""
         scheduler_class = import_class(cfg.scheduler_class)
 
-        # Use backend-specific db_url if provided, otherwise use global
         backend_db_url = cfg.db_url or global_db_url
 
         # Create SQL tables only if backend uses default SQLAlchemy storage.
@@ -84,7 +82,6 @@ class BackendRegistry:
         if backend_db_url and cfg.database_manager_class is None:
             create_tables(backend_db_url)
 
-        # Instantiate the scheduler
         scheduler = scheduler_class(
             root_dir=root_dir,
             environments_manager=environments_manager,
@@ -93,7 +90,6 @@ class BackendRegistry:
             backend_id=cfg.id,
         )
 
-        # Override execution_manager_class if specified in config
         if cfg.execution_manager_class:
             scheduler.execution_manager_class = import_class(cfg.execution_manager_class)
 
