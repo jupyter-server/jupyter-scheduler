@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 
 __all__ = ["__version__"]
 

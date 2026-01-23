@@ -45,7 +45,6 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "output_prefix": "scheduled_outputs",
                 "idempotency_token": "",
                 "runtime_environment_name": "",
-                "name": "Scheduled Notebook B",
                 "job_definition_id": "7790f93c-4c2c-41b2-9085-daa93915d81c",
                 "parameters": {"a": 1, "b": 2, "foo": "bar", "test": True},
                 "name": "job_a",

@@ -3,7 +3,6 @@ class SchedulerError(Exception):
     that are not defined here
     """
 
-    pass
 
 
 class InputUriError(Exception):

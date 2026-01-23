@@ -23,7 +23,6 @@ class EnvironmentManager(ABC):
         supported by this environment manager. This should include all
         supported output formats, not just by individual environments.
         """
-        pass
 
 
 class CondaEnvironmentManager(EnvironmentManager):
@@ -40,7 +39,7 @@ class CondaEnvironmentManager(EnvironmentManager):
             envs = json.loads(envs).get("envs", [])
         except subprocess.CalledProcessError as e:
             envs = []
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             envs = []
 
         current_python_root = sys.prefix
