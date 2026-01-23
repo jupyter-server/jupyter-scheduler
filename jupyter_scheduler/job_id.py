@@ -4,28 +4,11 @@ Job IDs encode the backend identifier for O(1) routing.
 Format: "backend_id:uuid" (new) or "uuid" (legacy, pre-multiple-backends)
 """
 
-import re
-from typing import Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
 
-# Valid backend ID pattern: starts with letter, contains alphanumeric, underscore, or hyphen
-BACKEND_ID_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]*$")
-
-
-def validate_backend_id(backend_id: str) -> None:
-    """Validate that a backend ID is well-formed.
-
-    Raises:
-        ValueError: If backend_id is invalid (empty, contains colon, or wrong format)
-    """
-    if not backend_id:
-        raise ValueError("Backend ID cannot be empty")
-    if ":" in backend_id:
-        raise ValueError(f"Backend ID cannot contain ':': {backend_id}")
-    if not BACKEND_ID_PATTERN.match(backend_id):
-        raise ValueError(
-            f"Invalid backend ID format: {backend_id}. "
-            "Must start with a letter and contain only alphanumeric, underscore, or hyphen."
-        )
+if TYPE_CHECKING:
+    from jupyter_scheduler.backend_registry import BackendRegistry
+    from jupyter_scheduler.scheduler import BaseScheduler
 
 
 def make_job_id(backend_id: str, uuid: str) -> str:
@@ -48,3 +31,28 @@ def parse_job_id(job_id: str) -> Tuple[Optional[str], str]:
         return None, job_id
     backend_id, uuid = job_id.split(":", 1)
     return backend_id, uuid
+
+
+def resolve_scheduler(
+    job_id: str, backend_registry: "BackendRegistry"
+) -> "BaseScheduler":
+    """Resolve the scheduler for a job ID.
+
+    Args:
+        job_id: Job ID in format "backend_id:uuid" or legacy "uuid"
+        backend_registry: Registry containing all backend instances
+
+    Returns:
+        The scheduler for the backend encoded in the job ID, or the legacy
+        job backend for pre-3.0 job IDs (no colon).
+
+    Raises:
+        ValueError: If backend specified in job ID is not available.
+    """
+    backend_id, _ = parse_job_id(job_id)
+    if not backend_id:
+        return backend_registry.get_legacy_job_backend().scheduler
+    backend = backend_registry.get_backend(backend_id)
+    if backend:
+        return backend.scheduler
+    raise ValueError(f"Backend '{backend_id}' not available")

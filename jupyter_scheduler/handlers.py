@@ -8,6 +8,32 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from tornado.web import HTTPError, authenticated
 
+from jupyter_scheduler.backend_registry import BackendRegistry
+from jupyter_scheduler.environments import EnvironmentRetrievalError
+from jupyter_scheduler.exceptions import (
+    IdempotencyTokenError,
+    InputUriError,
+    SchedulerError,
+)
+from jupyter_scheduler.job_id import make_job_id, parse_job_id, resolve_scheduler
+from jupyter_scheduler.models import (
+    DEFAULT_MAX_ITEMS,
+    DEFAULT_SORT,
+    CountJobsQuery,
+    CreateJob,
+    CreateJobDefinition,
+    CreateJobFromDefinition,
+    ListJobDefinitionsQuery,
+    ListJobsQuery,
+    ListJobsResponse,
+    SortDirection,
+    SortField,
+    Status,
+    UpdateJob,
+    UpdateJobDefinition,
+)
+from jupyter_scheduler.pydantic_v1 import ValidationError
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,33 +56,6 @@ async def call_async(scheduler, method: str, *args, **kwargs):
     return await asyncio.to_thread(getattr(scheduler, method), *args, **kwargs)
 
 
-from jupyter_scheduler.backend_registry import BackendRegistry
-from jupyter_scheduler.environments import EnvironmentRetrievalError
-from jupyter_scheduler.exceptions import (
-    IdempotencyTokenError,
-    InputUriError,
-    SchedulerError,
-)
-from jupyter_scheduler.job_id import make_job_id, parse_job_id
-from jupyter_scheduler.models import (
-    DEFAULT_MAX_ITEMS,
-    DEFAULT_SORT,
-    CountJobsQuery,
-    CreateJob,
-    CreateJobDefinition,
-    CreateJobFromDefinition,
-    ListJobDefinitionsQuery,
-    ListJobsQuery,
-    ListJobsResponse,
-    SortDirection,
-    SortField,
-    Status,
-    UpdateJob,
-    UpdateJobDefinition,
-)
-from jupyter_scheduler.pydantic_v1 import ValidationError
-
-
 class JobHandlersMixin:
     _scheduler = None
     _environments_manager = None
@@ -65,23 +64,20 @@ class JobHandlersMixin:
 
     @property
     def scheduler(self):
-        if not self._scheduler:
+        if self._scheduler is None:
             self._scheduler = self.settings.get("scheduler")
-
         return self._scheduler
 
     @property
     def backend_registry(self) -> Optional[BackendRegistry]:
         if self._backend_registry is None:
             self._backend_registry = self.settings.get("backend_registry")
-
         return self._backend_registry
 
     @property
     def environments_manager(self):
         if self._environments_manager is None:
             self._environments_manager = self.settings.get("environments_manager")
-
         return self._environments_manager
 
     def get_scheduler(self, job_id: str):
@@ -90,20 +86,42 @@ class JobHandlersMixin:
         Raises:
             HTTPError: If the backend specified in the job ID is not available.
         """
-        backend_id, _ = parse_job_id(job_id)
+        try:
+            return resolve_scheduler(job_id, self.backend_registry)
+        except ValueError as e:
+            raise HTTPError(400, str(e))
+
+    def resolve_backend_for_job(self, payload: dict):
+        """Resolve the backend for creating a new job or job definition.
+
+        If payload contains 'backend', validates and returns that backend.
+        Otherwise, auto-selects based on file extension from 'input_uri'.
+
+        Args:
+            payload: Request payload with optional 'backend' and 'input_uri' fields
+
+        Returns:
+            BackendInstance for the resolved backend
+
+        Raises:
+            HTTPError: If specified backend is unknown or no backend supports the file type.
+        """
+        backend_id = payload.get("backend")
         if backend_id:
             backend = self.backend_registry.get_backend(backend_id)
-            if backend:
-                return backend.scheduler
-            raise HTTPError(400, f"Backend '{backend_id}' not available")
-        # Legacy job ID (no colon): use legacy job backend
-        return self.backend_registry.get_legacy_job_backend().scheduler
+            if not backend:
+                raise HTTPError(400, f"Unknown backend: {backend_id}")
+            return backend
+        # Auto-select based on file extension
+        try:
+            return self.backend_registry.get_for_file(payload.get("input_uri", ""))
+        except ValueError as e:
+            raise HTTPError(400, str(e)) from e
 
     @property
     def execution_manager_class(self):
-        if not self._execution_manager_class:
+        if self._execution_manager_class is None:
             self._execution_manager_class = self.scheduler.execution_manager_class
-
         return self._execution_manager_class
 
 
@@ -173,21 +191,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def post(self):
         payload = self.get_json_body()
         try:
-            # Determine which backend to use
-            backend_id = payload.get("backend")
-
-            if backend_id:
-                backend = self.backend_registry.get_backend(backend_id)
-                if not backend:
-                    raise HTTPError(400, f"Unknown backend: {backend_id}")
-            else:
-                # Auto-select based on file extension
-                try:
-                    backend = self.backend_registry.get_for_file(payload.get("input_uri", ""))
-                except ValueError as e:
-                    raise HTTPError(400, str(e)) from e
-
-            # Ensure backend ID is stored with the job definition
+            backend = self.resolve_backend_for_job(payload)
             payload["backend"] = backend.config.id
             scheduler = backend.scheduler
 
@@ -328,18 +332,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def post(self):
         payload = self.get_json_body()
         try:
-            # Determine which backend to use
-            backend_id = payload.get("backend")
-
-            if backend_id:
-                backend = self.backend_registry.get_backend(backend_id)
-                if not backend:
-                    raise HTTPError(400, f"Unknown backend: {backend_id}")
-            else:
-                # Auto-select based on file extension
-                backend = self.backend_registry.get_for_file(payload.get("input_uri", ""))
-
-            # Ensure backend ID is stored with the job
+            backend = self.resolve_backend_for_job(payload)
             payload["backend"] = backend.config.id
             scheduler = backend.scheduler
 

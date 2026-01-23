@@ -1,8 +1,10 @@
 """Tests for job ID encoding and parsing utilities."""
 
+from unittest.mock import MagicMock
+
 import pytest
 
-from jupyter_scheduler.job_id import make_job_id, parse_job_id, validate_backend_id
+from jupyter_scheduler.job_id import make_job_id, parse_job_id, resolve_scheduler
 
 
 class TestMakeJobId:
@@ -53,41 +55,44 @@ class TestParseJobId:
         assert uuid == original_uuid
 
 
-class TestValidateBackendId:
-    """Tests for validate_backend_id function."""
+class TestResolveScheduler:
+    """Tests for resolve_scheduler function."""
 
-    def test_accepts_valid_ids(self):
-        """Valid backend IDs should not raise."""
-        valid_ids = [
-            "local",
-            "jupyter_server_nb",
-            "jupyter_server_py",
-            "my-backend",
-            "Backend123",
-            "a",
-            "A1_test-name",
-        ]
-        for backend_id in valid_ids:
-            validate_backend_id(backend_id)  # Should not raise
+    def test_returns_scheduler_for_known_backend(self):
+        """Should return scheduler from backend registry for known backend."""
+        mock_scheduler = MagicMock()
+        mock_backend = MagicMock()
+        mock_backend.scheduler = mock_scheduler
 
-    def test_rejects_empty(self):
-        """Empty string should raise ValueError."""
+        mock_registry = MagicMock()
+        mock_registry.get_backend.return_value = mock_backend
+
+        result = resolve_scheduler("my_backend:uuid-123", mock_registry)
+
+        mock_registry.get_backend.assert_called_once_with("my_backend")
+        assert result == mock_scheduler
+
+    def test_returns_legacy_backend_for_uuid_only(self):
+        """Legacy job IDs (no colon) should route to legacy job backend."""
+        mock_scheduler = MagicMock()
+        mock_backend = MagicMock()
+        mock_backend.scheduler = mock_scheduler
+
+        mock_registry = MagicMock()
+        mock_registry.get_legacy_job_backend.return_value = mock_backend
+
+        result = resolve_scheduler("uuid-only-no-colon", mock_registry)
+
+        mock_registry.get_legacy_job_backend.assert_called_once()
+        mock_registry.get_backend.assert_not_called()
+        assert result == mock_scheduler
+
+    def test_raises_for_unknown_backend(self):
+        """Should raise ValueError when backend is not available."""
+        mock_registry = MagicMock()
+        mock_registry.get_backend.return_value = None
+
         with pytest.raises(ValueError):
-            validate_backend_id("")
+            resolve_scheduler("unknown_backend:uuid-123", mock_registry)
 
-    def test_rejects_colons(self):
-        """Backend ID with colon should raise ValueError."""
-        with pytest.raises(ValueError):
-            validate_backend_id("invalid:id")
-
-    def test_rejects_starting_with_number(self):
-        """Backend ID starting with number should raise ValueError."""
-        with pytest.raises(ValueError):
-            validate_backend_id("123backend")
-
-    def test_rejects_special_characters(self):
-        """Backend ID with special chars should raise ValueError."""
-        invalid_ids = ["back end", "backend@test", "backend.test", "backend/test"]
-        for backend_id in invalid_ids:
-            with pytest.raises(ValueError):
-                validate_backend_id(backend_id)
+        mock_registry.get_backend.assert_called_once_with("unknown_backend")

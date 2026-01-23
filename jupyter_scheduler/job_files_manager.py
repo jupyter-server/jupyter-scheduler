@@ -9,7 +9,7 @@ import fsspec
 from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
-from jupyter_scheduler.job_id import parse_job_id
+from jupyter_scheduler.job_id import resolve_scheduler
 from jupyter_scheduler.scheduler import BaseScheduler
 
 if TYPE_CHECKING:
@@ -35,14 +35,7 @@ class JobFilesManager:
         Raises:
             ValueError: If the backend specified in the job ID is not available.
         """
-        backend_id, _ = parse_job_id(job_id)
-        if not backend_id:
-            # Legacy job ID (no colon): use legacy job backend
-            return self.backend_registry.get_legacy_job_backend().scheduler
-        backend = self.backend_registry.get_backend(backend_id)
-        if backend:
-            return backend.scheduler
-        raise ValueError(f"Backend '{backend_id}' not available")
+        return resolve_scheduler(job_id, self.backend_registry)
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         """Copy job output files from staging area to local output directory.
@@ -136,8 +129,8 @@ class Downloader:
                     with fsspec.open(input_filepath) as input_file:
                         with fsspec.open(output_filepath, mode="wb") as output_file:
                             output_file.write(input_file.read())
-                except Exception as e:
-                    pass
+                except Exception:
+                    logger.error(f"Failed to download {input_filepath}")
 
 
 class JobFilesManagerWithErrors(JobFilesManager):
