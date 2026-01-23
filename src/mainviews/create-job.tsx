@@ -144,7 +144,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       .then(backends => {
         setBackendList(backends);
 
-        if (backends.length === 0) return;
+        if (backends.length === 0) {
+          return;
+        }
 
         const validBackends = filterBackendsByFile(
           backends,
@@ -168,7 +170,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
   // Derive display backend for BackendPicker (ensures valid value is always shown)
   const displayBackend = useMemo(() => {
-    if (backendList.length === 0) return props.model.backend || '';
+    if (backendList.length === 0) {
+      return props.model.backend || '';
+    }
 
     const validBackends = filterBackendsByFile(
       backendList,
