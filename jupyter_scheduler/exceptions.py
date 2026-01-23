@@ -4,7 +4,6 @@ class SchedulerError(Exception):
     """
 
 
-
 class InputUriError(Exception):
     def __init__(self, input_uri: str):
         self.input_uri = input_uri
