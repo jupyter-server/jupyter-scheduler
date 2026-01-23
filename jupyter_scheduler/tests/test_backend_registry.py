@@ -201,30 +201,6 @@ def test_get_for_file_uses_preferred_backend(
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
-def test_get_for_file_uses_alphabetical_when_no_preference(
-    mock_import,
-    mock_create_tables,
-    jupyter_server_nb_backend_config,
-    mock_backend_config,
-):
-    """Alphabetical by name is used when no preference configured."""
-    mock_scheduler_class = MagicMock()
-    mock_scheduler_class.return_value = MagicMock()
-    mock_import.return_value = mock_scheduler_class
-
-    registry = BackendRegistry(
-        [jupyter_server_nb_backend_config, mock_backend_config],
-        "jupyter_server_nb",
-    )
-    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
-
-    backend = registry.get_for_file("notebook.ipynb")
-    # "Jupyter Server Nb" comes before "Mock" alphabetically
-    assert backend.config.id == "jupyter_server_nb"
-
-
-@patch("jupyter_scheduler.backend_registry.create_tables")
-@patch("jupyter_scheduler.backend_registry.import_class")
 def test_get_for_file_falls_back_to_alphabetical(
     mock_import,
     mock_create_tables,
