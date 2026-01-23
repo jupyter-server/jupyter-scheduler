@@ -2,11 +2,7 @@
 
 import pytest
 
-from jupyter_scheduler.job_id import (
-    make_job_id,
-    parse_job_id,
-    validate_backend_id,
-)
+from jupyter_scheduler.job_id import make_job_id, parse_job_id, validate_backend_id
 
 
 class TestMakeJobId:

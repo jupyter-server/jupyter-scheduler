@@ -18,10 +18,7 @@ from traitlets import Type, Unicode, default
 
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.backend_utils import discover_backends, get_legacy_job_backend_id
-from jupyter_scheduler.backends import (
-    BackendConfig,
-    JUPYTER_SERVER_NB_BACKEND_ID,
-)
+from jupyter_scheduler.backends import JUPYTER_SERVER_NB_BACKEND_ID, BackendConfig
 
 from .handlers import (
     BackendsHandler,

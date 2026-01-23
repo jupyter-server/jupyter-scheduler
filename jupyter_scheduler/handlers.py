@@ -295,7 +295,9 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     if job.status in (Status.QUEUED, Status.IN_PROGRESS):
                         backend_id, _ = parse_job_id(job.job_id)
                         # Legacy jobs (backend_id=None) stay with legacy backend
-                        backend = self.backend_registry.get_backend(backend_id) if backend_id else None
+                        backend = (
+                            self.backend_registry.get_backend(backend_id) if backend_id else None
+                        )
                         if backend and backend.scheduler != legacy_backend.scheduler:
                             # Call backend's get_job which triggers status sync
                             try:
@@ -304,9 +306,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                                 )
                                 list_jobs_response.jobs[i] = synced_job
                             except Exception as e:
-                                self.log.warning(
-                                    f"Failed to sync status for job {job.job_id}: {e}"
-                                )
+                                self.log.warning(f"Failed to sync status for job {job.job_id}: {e}")
             except ValidationError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
