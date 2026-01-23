@@ -1,12 +1,3 @@
-"""Jupyter Scheduler extension application.
-
-This module provides the SchedulerApp extension that integrates with JupyterLab
-to enable notebook scheduling capabilities. It handles:
-- Backend discovery via Python entry points
-- Configuration through traitlets (allow/block lists, default backend)
-- Initialization of scheduler instances for each backend
-"""
-
 import asyncio
 
 from jupyter_core.paths import jupyter_data_dir
@@ -114,21 +105,7 @@ class SchedulerApp(ExtensionApp):
     )
 
     def _build_backend_configs(self, backend_classes: dict) -> list:
-        """Build BackendConfig objects from discovered backend classes.
-
-        Merges discovered backend class attributes with any per-backend
-        configuration overrides from backend_config traitlet.
-
-        Parameters
-        ----------
-        backend_classes : dict
-            Mapping of backend_id -> backend class from discover_backends()
-
-        Returns
-        -------
-        list
-            List of BackendConfig objects ready for registry initialization
-        """
+        """Build BackendConfig objects from discovered backends, applying per-backend overrides."""
         configs = []
 
         for backend_id, backend_class in backend_classes.items():

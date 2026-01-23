@@ -110,14 +110,7 @@ class BackendRegistry:
         return self._backends[self._legacy_job_backend]
 
     def get_for_file(self, input_uri: str) -> BackendInstance:
-        """Auto-select backend by file extension.
-
-        Selection order:
-        1. Preferred backend for this extension (from config)
-        2. Alphabetical by backend name
-
-        Raises ValueError if no backend supports the file extension.
-        """
+        """Auto-select backend by file extension. Prefers configured backend, else alphabetical."""
         ext = ""
         if "." in input_uri:
             ext = input_uri.rsplit(".", 1)[-1].lower()
@@ -136,11 +129,7 @@ class BackendRegistry:
         return min(candidate_instances, key=lambda b: b.config.name)
 
     def list_backends(self) -> List[DescribeBackend]:
-        """Return backend descriptions sorted alphabetically by name for UI.
-
-        Frontend uses first item as default. Use preferred_backends config
-        to control which backend is pre-selected per file extension.
-        """
+        """Return backend descriptions sorted alphabetically by name. Frontend uses first as default."""
         backends_sorted = sorted(self._backends.values(), key=lambda b: b.config.name)
         return [
             DescribeBackend(

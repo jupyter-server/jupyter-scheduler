@@ -8,7 +8,7 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from tornado.web import HTTPError, authenticated
 
-from jupyter_scheduler.backend_registry import BackendRegistry
+from jupyter_scheduler.backend_registry import BackendInstance, BackendRegistry
 from jupyter_scheduler.environments import EnvironmentRetrievalError
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
@@ -38,16 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 async def call_async(scheduler, method: str, *args, **kwargs):
-    """Call async method if available, else run sync method in thread pool.
-
-    This helper enables non-blocking scheduler operations by:
-    1. Calling the native async method (*_async) if the scheduler provides one
-    2. Falling back to running the sync method in a thread pool via asyncio.to_thread()
-
-    This allows schedulers like BraketScheduler to provide optimized async implementations
-    (e.g., parallel status sync) while maintaining backwards compatibility with schedulers
-    that only have sync methods.
-    """
+    """Call scheduler method async. Uses native *_async method if available, else runs in thread pool."""
     async_method = f"{method}_async"
     if hasattr(scheduler, async_method):
         logger.debug(f"Using native async method: {scheduler.__class__.__name__}.{async_method}")
@@ -81,31 +72,14 @@ class JobHandlersMixin:
         return self._environments_manager
 
     def get_scheduler(self, job_id: str):
-        """Get the appropriate scheduler for a job ID.
-
-        Raises:
-            HTTPError: If the backend specified in the job ID is not available.
-        """
+        """Get scheduler for a job ID. Raises HTTPError(400) if backend unavailable."""
         try:
             return resolve_scheduler(job_id, self.backend_registry)
         except ValueError as e:
             raise HTTPError(400, str(e))
 
-    def resolve_backend_for_job(self, payload: dict):
-        """Resolve the backend for creating a new job or job definition.
-
-        If payload contains 'backend', validates and returns that backend.
-        Otherwise, auto-selects based on file extension from 'input_uri'.
-
-        Args:
-            payload: Request payload with optional 'backend' and 'input_uri' fields
-
-        Returns:
-            BackendInstance for the resolved backend
-
-        Raises:
-            HTTPError: If specified backend is unknown or no backend supports the file type.
-        """
+    def resolve_backend_for_job(self, payload: dict) -> BackendInstance:
+        """Resolve backend from payload['backend'] or auto-select by file extension."""
         backend_id = payload.get("backend")
         if backend_id:
             backend = self.backend_registry.get_backend(backend_id)

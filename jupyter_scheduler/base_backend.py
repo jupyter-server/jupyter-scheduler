@@ -6,33 +6,7 @@ if TYPE_CHECKING:
 
 
 class BaseBackend:
-    """Base class defining backend capabilities via class attributes.
-
-    Attributes
-    ----------
-    id : str
-        Unique identifier for the backend (e.g., "jupyter_server_nb").
-    name : str
-        Human-readable display name for the backend.
-    description : str
-        Description shown in the UI when selecting backends.
-    scheduler_class : str
-        Fully qualified class name for the scheduler implementation.
-    execution_manager_class : str
-        Fully qualified class name for the execution manager.
-    database_manager_class : str, optional
-        Fully qualified class name for custom database manager.
-    file_extensions : List[str]
-        File extensions this backend can execute (e.g., ["ipynb", "py"]).
-    output_formats : List[OutputFormat]
-        Output formats this backend can produce. Each format needs:
-        - id: Format identifier (e.g., "ipynb", "html")
-        - label: Human-readable name shown in UI
-        - description: Optional tooltip text (defaults to "")
-
-        Note: Validated via OutputFormat model at API serialization.
-        Typos like {"laabel": ...} will raise errors at runtime.
-    """
+    """Base class for scheduler backends. Subclasses define capabilities via class attributes."""
 
     id: ClassVar[str]
     name: ClassVar[str]

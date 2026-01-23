@@ -189,8 +189,7 @@ test.describe('Multi-Backend Picker (Mocked)', () => {
     // Intercept the job creation request
     const [createRequest] = await Promise.all([
       page.waitForRequest(
-        req =>
-          req.url().includes('/scheduler/jobs') && req.method() === 'POST'
+        req => req.url().includes('/scheduler/jobs') && req.method() === 'POST'
       ),
       page.click('button:has-text("Create")')
     ]);

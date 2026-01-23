@@ -1,11 +1,6 @@
 import React, { ChangeEvent } from 'react';
 
-import {
-  Checkbox,
-  FormControlLabel,
-  InputLabel,
-  Tooltip
-} from '@mui/material';
+import { Checkbox, FormControlLabel, InputLabel, Tooltip } from '@mui/material';
 
 import { Stack } from './stack';
 
