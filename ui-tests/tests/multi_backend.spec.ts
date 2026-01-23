@@ -109,3 +109,115 @@ test.describe('Multi-Backend Support', () => {
     await scheduler.cleanup();
   });
 });
+
+/**
+ * Tests for multi-backend picker UI with mocked backends.
+ * These tests mock the /scheduler/backends API to simulate multiple backends.
+ */
+test.describe('Multi-Backend Picker (Mocked)', () => {
+  let scheduler: SchedulerHelper;
+
+  const mockBackends = [
+    {
+      id: 'jupyter_server_nb',
+      name: 'Jupyter Server Notebook',
+      description: 'Execute notebooks locally',
+      file_extensions: ['ipynb'],
+      output_formats: [{ id: 'ipynb', label: 'Notebook', description: '' }]
+    },
+    {
+      id: 'k8s_backend',
+      name: 'Kubernetes',
+      description: 'Execute notebooks on K8s cluster',
+      file_extensions: ['ipynb'],
+      output_formats: [{ id: 'ipynb', label: 'Notebook', description: '' }]
+    }
+  ];
+
+  test.beforeEach(async ({ page }, testInfo) => {
+    // Mock the backends API BEFORE navigating
+    await page.route('**/scheduler/backends', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(mockBackends)
+      });
+    });
+
+    scheduler = new SchedulerHelper(page, testInfo);
+    await page.goto();
+  });
+
+  test('backend picker visible with multiple backends', async ({ page }) => {
+    await scheduler.createNotebook();
+    await scheduler.openCreateJobFromFilebrowser();
+
+    // MUI Select renders as a div with role="combobox"
+    const backendSelect = page.locator('#jp-create-job-backend');
+    await expect(backendSelect).toBeVisible();
+    // With 2 backends, picker should be enabled
+    await expect(backendSelect).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('backend picker shows all options', async ({ page }) => {
+    await scheduler.createNotebook();
+    await scheduler.openCreateJobFromFilebrowser();
+
+    // Click to open the MUI Select dropdown
+    await page.click('#jp-create-job-backend');
+
+    // MUI Select options appear in a listbox
+    const listbox = page.getByRole('listbox');
+    await expect(listbox).toBeVisible();
+
+    // Verify all backends are listed
+    await expect(listbox.getByText('Jupyter Server Notebook')).toBeVisible();
+    await expect(listbox.getByText('Kubernetes')).toBeVisible();
+  });
+
+  test('backend switching updates request payload', async ({ page }) => {
+    await scheduler.createNotebook();
+    await scheduler.openCreateJobFromFilebrowser();
+
+    // Fill job name first
+    await page.fill('input[name=jobName]', 'K8sJob');
+
+    // Open backend picker and switch to K8s backend
+    await page.click('#jp-create-job-backend');
+    await page.getByRole('option', { name: 'Kubernetes' }).click();
+
+    // Intercept the job creation request
+    const [createRequest] = await Promise.all([
+      page.waitForRequest(
+        req =>
+          req.url().includes('/scheduler/jobs') && req.method() === 'POST'
+      ),
+      page.click('button:has-text("Create")')
+    ]);
+
+    // Verify the request uses the selected backend
+    const postData = createRequest.postDataJSON();
+    expect(postData.backend).toBe('k8s_backend');
+  });
+
+  test('backend description shown as helper text', async ({ page }) => {
+    await scheduler.createNotebook();
+    await scheduler.openCreateJobFromFilebrowser();
+
+    // Default selection should show first backend's description
+    await expect(page.getByText('Execute notebooks locally')).toBeVisible();
+
+    // Switch to K8s backend
+    await page.click('#jp-create-job-backend');
+    await page.getByRole('option', { name: 'Kubernetes' }).click();
+
+    // Description should update to K8s backend's description
+    await expect(
+      page.getByText('Execute notebooks on K8s cluster')
+    ).toBeVisible();
+  });
+
+  test.afterEach(async () => {
+    await scheduler.cleanup();
+  });
+});
