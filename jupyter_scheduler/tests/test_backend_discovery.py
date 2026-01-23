@@ -5,7 +5,7 @@ import pytest
 from jupyter_scheduler.backend_utils import (
     ENTRY_POINT_GROUP,
     discover_backends,
-    get_default_backend_id,
+    get_legacy_job_backend_id,
 )
 from jupyter_scheduler.backends import (
     JUPYTER_SERVER_NB_BACKEND_ID,
@@ -25,18 +25,16 @@ class MockBackend(BaseBackend):
     scheduler_class = SCHEDULER_CLASS
     execution_manager_class = EXECUTION_MANAGER_CLASS
     file_extensions = ["ipynb", "py"]
-    priority = 10
 
 
-class HighPriorityBackend(BaseBackend):
-    """Mock backend with high priority for testing priority selection."""
+class AnotherBackend(BaseBackend):
+    """Another mock backend for testing."""
 
-    id = "high_priority"
-    name = "High Priority"
+    id = "another"
+    name = "Another Backend"
     scheduler_class = SCHEDULER_CLASS
     execution_manager_class = EXECUTION_MANAGER_CLASS
     file_extensions = ["ipynb"]
-    priority = 100
 
 
 def _create_mock_entry_point(name: str, backend_class):
@@ -62,7 +60,6 @@ def test_to_dict_returns_expected_structure():
         "database_manager_class",
         "file_extensions",
         "output_formats",
-        "priority",
     }
     assert set(result.keys()) == expected_keys
     assert isinstance(result["file_extensions"], list)
@@ -172,21 +169,21 @@ def test_python39_entry_points_format():
     assert JUPYTER_SERVER_NB_BACKEND_ID in backends
 
 
-# get_default_backend_id tests
+# get_legacy_job_backend_id tests
 
 
-def test_returns_configured_default_when_available():
+def test_returns_configured_legacy_backend_when_available():
     backends = {JUPYTER_SERVER_NB_BACKEND_ID: JupyterServerNotebookBackend, "mock": MockBackend}
 
-    result = get_default_backend_id(backends, configured_default="mock")
+    result = get_legacy_job_backend_id(backends, legacy_job_backend="mock")
 
     assert result == "mock"
 
 
-def test_ignores_configured_default_when_not_available():
+def test_ignores_configured_legacy_backend_when_not_available():
     backends = {JUPYTER_SERVER_NB_BACKEND_ID: JupyterServerNotebookBackend, "mock": MockBackend}
 
-    result = get_default_backend_id(backends, configured_default="nonexistent")
+    result = get_legacy_job_backend_id(backends, legacy_job_backend="nonexistent")
 
     assert result == JUPYTER_SERVER_NB_BACKEND_ID
 
@@ -195,41 +192,41 @@ def test_prefers_default_fallback_backend_when_no_config():
     backends = {
         JUPYTER_SERVER_NB_BACKEND_ID: JupyterServerNotebookBackend,
         "mock": MockBackend,
-        "other": HighPriorityBackend,
+        "other": AnotherBackend,
     }
 
-    result = get_default_backend_id(backends, configured_default=None)
+    result = get_legacy_job_backend_id(backends, legacy_job_backend=None)
 
     assert result == JUPYTER_SERVER_NB_BACKEND_ID
 
 
 def test_raises_when_default_fallback_unavailable():
-    """When jupyter_server_nb unavailable and no default configured, raise error."""
-    backends = {"zebra": MockBackend, "alpha": HighPriorityBackend}
+    """When jupyter_server_nb unavailable and no legacy_job_backend configured, raise error."""
+    backends = {"zebra": MockBackend, "alpha": AnotherBackend}
 
-    with pytest.raises(ValueError, match="Set SchedulerApp.default_backend explicitly"):
-        get_default_backend_id(backends, configured_default=None)
+    with pytest.raises(ValueError):
+        get_legacy_job_backend_id(backends, legacy_job_backend=None)
 
 
 def test_raises_when_no_backends_available():
     backends = {}
 
-    with pytest.raises(ValueError, match="No scheduler backends available"):
-        get_default_backend_id(backends, configured_default=None)
+    with pytest.raises(ValueError):
+        get_legacy_job_backend_id(backends, legacy_job_backend=None)
 
 
 def test_raises_when_single_non_default_backend():
     """Even with single backend, require explicit config if it's not jupyter_server_nb."""
     backends = {"only_one": MockBackend}
 
-    with pytest.raises(ValueError, match="Set SchedulerApp.default_backend explicitly"):
-        get_default_backend_id(backends, configured_default=None)
+    with pytest.raises(ValueError):
+        get_legacy_job_backend_id(backends, legacy_job_backend=None)
 
 
 def test_single_backend_works_with_explicit_config():
     """Single non-default backend works when explicitly configured."""
     backends = {"only_one": MockBackend}
 
-    result = get_default_backend_id(backends, configured_default="only_one")
+    result = get_legacy_job_backend_id(backends, legacy_job_backend="only_one")
 
     assert result == "only_one"

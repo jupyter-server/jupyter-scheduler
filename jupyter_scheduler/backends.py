@@ -26,7 +26,6 @@ class JupyterServerNotebookBackend(BaseBackend):
         {"id": "ipynb", "label": "Notebook", "description": "Executed notebook with outputs"},
         {"id": "html", "label": "HTML", "description": "HTML export of notebook"},
     ]
-    priority = 0
 
 
 class JupyterServerPythonBackend(BaseBackend):
@@ -43,7 +42,6 @@ class JupyterServerPythonBackend(BaseBackend):
         {"id": "stderr", "label": "Errors", "description": "Standard error from script"},
         {"id": "json", "label": "JSON", "description": "JSON result if script produces one"},
     ]
-    priority = 0
 
 
 @dataclass
@@ -59,20 +57,21 @@ class BackendConfig:
     db_url: Optional[str] = None
     file_extensions: List[str] = field(default_factory=list)
     output_formats: List[Dict[str, str]] = field(default_factory=list)
-    is_default: bool = False
-    priority: int = 0
     metadata: Optional[Dict[str, Any]] = None
 
 
 class DescribeBackend(BaseModel):
-    """API response model for GET /scheduler/backends."""
+    """API response model for GET /scheduler/backends.
+
+    Backends are returned sorted alphabetically by name for consistent UI ordering.
+    Use preferred_backends config to control which backend is pre-selected per file extension.
+    """
 
     id: str
     name: str
     description: str
     file_extensions: List[str]
     output_formats: List[OutputFormat]
-    is_default: bool
 
     class Config:
         orm_mode = True

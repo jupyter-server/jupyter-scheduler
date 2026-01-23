@@ -19,10 +19,11 @@ export function filterBackendsByFile(
 
 /**
  * Select the default backend from a list.
- * Returns the backend marked as default, or falls back to the first one.
+ * Server returns backends sorted alphabetically by name, so first item is pre-selected.
+ * Use preferred_backends server config to control which backend is pre-selected per extension.
  */
 export function selectDefaultBackend(
   backends: Scheduler.IBackend[]
 ): Scheduler.IBackend | undefined {
-  return backends.find(b => b.is_default) || backends[0];
+  return backends[0];
 }

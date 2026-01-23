@@ -32,9 +32,6 @@ class BaseBackend:
 
         Note: Validated via OutputFormat model at API serialization.
         Typos like {"laabel": ...} will raise errors at runtime.
-    priority : int
-        Priority for backend selection when multiple backends support a file type.
-        Higher values = higher priority (selected first).
     """
 
     id: ClassVar[str]
@@ -45,7 +42,6 @@ class BaseBackend:
     database_manager_class: ClassVar[Optional[str]] = None
     file_extensions: ClassVar[List[str]] = []
     output_formats: ClassVar[List["OutputFormat"]] = []
-    priority: ClassVar[int] = 0
 
     @classmethod
     def to_dict(cls) -> Dict[str, Any]:
@@ -59,5 +55,4 @@ class BaseBackend:
             "database_manager_class": cls.database_manager_class,
             "file_extensions": list(cls.file_extensions),
             "output_formats": list(cls.output_formats),
-            "priority": cls.priority,
         }

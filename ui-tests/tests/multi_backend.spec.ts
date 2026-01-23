@@ -70,13 +70,16 @@ test.describe('Multi-Backend Support', () => {
     expect(Array.isArray(backends)).toBe(true);
     expect(backends.length).toBeGreaterThanOrEqual(1);
 
-    // Verify default backend is present
-    const defaultBackend = backends.find(
-      (b: { is_default: boolean }) => b.is_default
-    );
-    expect(defaultBackend).toBeDefined();
-    expect(defaultBackend.id).toBe('local');
-    expect(defaultBackend.name).toBe('Local Execution');
+    // Verify first backend is jupyter_server_nb (server returns sorted alphabetically)
+    const firstBackend = backends[0];
+    expect(firstBackend.id).toBe('jupyter_server_nb');
+    expect(firstBackend.name).toBe('Jupyter Server Notebook');
+
+    // Verify backend has required fields (no is_default)
+    expect(firstBackend).toHaveProperty('id');
+    expect(firstBackend).toHaveProperty('name');
+    expect(firstBackend).toHaveProperty('file_extensions');
+    expect(firstBackend).toHaveProperty('output_formats');
   });
 
   test('job creation includes backend in request', async ({ page }) => {
@@ -99,7 +102,7 @@ test.describe('Multi-Backend Support', () => {
     // Verify the request includes backend field
     const postData = createRequest.postDataJSON();
     expect(postData).toHaveProperty('backend');
-    expect(postData.backend).toBe('local');
+    expect(postData.backend).toBe('jupyter_server_nb');
   });
 
   test.afterEach(async () => {

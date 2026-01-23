@@ -17,7 +17,7 @@ from traitlets import Dict as TDict
 from traitlets import Type, Unicode, default
 
 from jupyter_scheduler.backend_registry import BackendRegistry
-from jupyter_scheduler.backend_utils import discover_backends, get_default_backend_id
+from jupyter_scheduler.backend_utils import discover_backends, get_legacy_job_backend_id
 from jupyter_scheduler.backends import (
     BackendConfig,
     JUPYTER_SERVER_NB_BACKEND_ID,
@@ -64,13 +64,13 @@ class SchedulerApp(ExtensionApp):
     def _db_url_default(self):
         return f"sqlite:///{jupyter_data_dir()}/scheduler.sqlite"
 
-    default_backend = Unicode(
+    legacy_job_backend = Unicode(
         default_value=None,
         allow_none=True,
         config=True,
         help=_i18n(
-            """Default backend ID to use when creating jobs. If not set, uses
-            'jupyter_server_nb' if available."""
+            "Backend for jobs with UUID-only job IDs created before "
+            "multi-backend support (added in 3.0.0)."
         ),
     )
 
@@ -80,6 +80,15 @@ class SchedulerApp(ExtensionApp):
             """Per-backend configuration overrides, keyed by backend ID.
             Example: {'k8s': {'db_url': 'postgresql://...'}}
             Supported keys: db_url, metadata."""
+        ),
+    )
+
+    preferred_backends = TDict(
+        config=True,
+        help=_i18n(
+            "Backend selected by default when creating a job for each file extension, "
+            "when multiple backends support the same extension. "
+            "Example: {'ipynb': 'jupyter_server_nb'}"
         ),
     )
 
@@ -152,8 +161,6 @@ class SchedulerApp(ExtensionApp):
                 db_url=overrides.get("db_url"),
                 file_extensions=list(backend_class.file_extensions),
                 output_formats=list(backend_class.output_formats),
-                is_default=False,  # Set below after determining default
-                priority=backend_class.priority,
                 metadata=overrides.get("metadata"),
             )
             configs.append(config)
@@ -173,17 +180,14 @@ class SchedulerApp(ExtensionApp):
 
         backend_configs = self._build_backend_configs(backend_classes)
 
-        default_id = get_default_backend_id(
+        default_id = get_legacy_job_backend_id(
             backend_classes,
-            configured_default=self.default_backend,
+            legacy_job_backend=self.legacy_job_backend,
         )
-
-        for config in backend_configs:
-            config.is_default = config.id == default_id
 
         environments_manager = self.environment_manager_class()
 
-        registry = BackendRegistry(backend_configs, default_id)
+        registry = BackendRegistry(backend_configs, default_id, self.preferred_backends)
         registry.initialize(
             root_dir=self.serverapp.root_dir,
             environments_manager=environments_manager,
@@ -191,14 +195,14 @@ class SchedulerApp(ExtensionApp):
             config=self.config,
         )
 
-        default_backend = registry.get_default()
-        scheduler = default_backend.scheduler
+        legacy_backend = registry.get_legacy_job_backend()
+        scheduler = legacy_backend.scheduler
 
         job_files_manager = self.job_files_manager_class(backend_registry=registry)
 
         self.settings.update(
             environments_manager=environments_manager,
-            scheduler=scheduler,  # Backwards compatibility with handlers expecting single scheduler
+            scheduler=scheduler,  # Backwards compatibility with handlers expecting single scheduler (uses legacy job backend)
             backend_registry=registry,
             job_files_manager=job_files_manager,
         )
@@ -210,5 +214,5 @@ class SchedulerApp(ExtensionApp):
 
         self.log.info(
             f"Initialized {len(backend_configs)} backend(s): "
-            f"{[c.id for c in backend_configs]} (default: {default_id})"
+            f"{[c.id for c in backend_configs]} (legacy_job_backend: {default_id})"
         )

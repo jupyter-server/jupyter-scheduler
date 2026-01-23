@@ -554,6 +554,5 @@ export namespace Scheduler {
     description: string;
     file_extensions: string[];
     output_formats: IOutputFormat[];
-    is_default: boolean;
   }
 }

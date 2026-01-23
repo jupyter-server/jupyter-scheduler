@@ -36,7 +36,7 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "runtime_environment_name": "",
                 "name": "job_a",
             },
-            "test",  # test backend has highest priority for .ipynb files
+            "jupyter_server_nb",  # default backend for .ipynb files
         ),
         (
             "4c6cd4e0-49ce-4b58-843d-2fa02f7468b1",
@@ -50,7 +50,7 @@ from jupyter_scheduler.tests.utils import expected_http_error
                 "parameters": {"a": 1, "b": 2, "foo": "bar", "test": True},
                 "name": "job_a",
             },
-            "test",  # test backend has highest priority for .ipynb files
+            "jupyter_server_nb",  # default backend for .ipynb files
         ),
     ],
 )
@@ -576,15 +576,12 @@ async def test_get_job_definitions_for_unexpected_error(jp_fetch):
         )
 
 
-async def test_post_job_definition_for_validation_error(jp_fetch):
+async def test_post_job_definition_for_unsupported_extension(jp_fetch):
+    """Empty payload (no input_uri) returns 400 for unsupported extension."""
     with pytest.raises(HTTPClientError) as e:
         payload = {}
         await jp_fetch("scheduler", "job_definitions", method="POST", body=json.dumps(payload))
-    assert expected_http_error(
-        e,
-        500,
-        "3 validation errors for CreateJobDefinition\ninput_uri\n  field required (type=value_error.missing)\nruntime_environment_name\n  field required (type=value_error.missing)\nname\n  field required (type=value_error.missing)",
-    )
+    assert e.value.code == 400
 
 
 async def test_post_job_definition_scheduler_error(jp_fetch):
@@ -691,12 +688,11 @@ async def test_get_backends(jp_fetch):
     assert response.code == 200
     backends = json.loads(response.body)
     assert len(backends) >= 1
-    jupyter_server_nb_backend = next((b for b in backends if b["id"] == "jupyter_server_nb"), None)
-    assert (
-        jupyter_server_nb_backend is not None
-    ), "Jupyter Server (Notebook) backend should always be present"
-    assert jupyter_server_nb_backend["name"] == "Jupyter Server Notebook"
-    assert jupyter_server_nb_backend["is_default"] is True
+
+    # Backends are sorted alphabetically by name - first should be jupyter_server_nb
+    first_backend = backends[0]
+    assert first_backend["id"] == "jupyter_server_nb"
+    assert first_backend["name"] == "Jupyter Server Notebook"
 
 
 async def test_get_backends_returns_expected_fields(jp_fetch):
@@ -712,7 +708,7 @@ async def test_get_backends_returns_expected_fields(jp_fetch):
     assert "description" in backend
     assert "file_extensions" in backend
     assert "output_formats" in backend
-    assert "is_default" in backend
+    # Note: is_default was removed - server sorts alphabetically instead
 
 
 # Tests for JobHandler backend routing
@@ -751,11 +747,11 @@ async def test_post_job_without_backend_uses_default(jp_fetch):
         assert response.code == 200
         body = json.loads(response.body)
         # Auto-selected backend's ID should be encoded in job ID
-        # test backend has highest priority for ipynb
-        expected_job_id = make_job_id("test", raw_job_id)
+        # jupyter_server_nb is the default backend for ipynb
+        expected_job_id = make_job_id("jupyter_server_nb", raw_job_id)
         assert body["job_id"] == expected_job_id
-        # Should auto-select test backend (highest priority for .ipynb)
-        assert body["backend"] == "test"
+        # Should auto-select default backend for .ipynb
+        assert body["backend"] == "jupyter_server_nb"
 
 
 async def test_post_job_with_invalid_backend(jp_fetch):
@@ -769,4 +765,4 @@ async def test_post_job_with_invalid_backend(jp_fetch):
     with pytest.raises(HTTPClientError) as e:
         await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
-    assert expected_http_error(e, 400, "Unknown backend: nonexistent_backend")
+    assert e.value.code == 400

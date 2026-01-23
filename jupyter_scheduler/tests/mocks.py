@@ -8,7 +8,7 @@ from jupyter_scheduler.task_runner import BaseTaskRunner
 
 
 class MockTestBackend(BaseBackend):
-    """High-priority test backend for .ipynb files."""
+    """Test backend for .ipynb files."""
 
     id = "test"
     name = "Test Backend"
@@ -16,7 +16,6 @@ class MockTestBackend(BaseBackend):
     scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
     execution_manager_class = "jupyter_scheduler.tests.mocks.MockExecutionManager"
     file_extensions = ["ipynb"]
-    priority = 100  # Higher than jupyter_server_nb (0)
 
 
 class MockExecutionManager(ExecutionManager):

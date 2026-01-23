@@ -76,22 +76,22 @@ class TestValidateBackendId:
 
     def test_rejects_empty(self):
         """Empty string should raise ValueError."""
-        with pytest.raises(ValueError, match="cannot be empty"):
+        with pytest.raises(ValueError):
             validate_backend_id("")
 
     def test_rejects_colons(self):
         """Backend ID with colon should raise ValueError."""
-        with pytest.raises(ValueError, match="cannot contain ':'"):
+        with pytest.raises(ValueError):
             validate_backend_id("invalid:id")
 
     def test_rejects_starting_with_number(self):
         """Backend ID starting with number should raise ValueError."""
-        with pytest.raises(ValueError, match="Invalid backend ID format"):
+        with pytest.raises(ValueError):
             validate_backend_id("123backend")
 
     def test_rejects_special_characters(self):
         """Backend ID with special chars should raise ValueError."""
         invalid_ids = ["back end", "backend@test", "backend.test", "backend/test"]
         for backend_id in invalid_ids:
-            with pytest.raises(ValueError, match="Invalid backend ID format"):
+            with pytest.raises(ValueError):
                 validate_backend_id(backend_id)

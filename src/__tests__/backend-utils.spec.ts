@@ -14,24 +14,21 @@ describe('filterBackendsByFile', () => {
       name: 'Notebook',
       description: 'Run notebooks',
       file_extensions: ['ipynb'],
-      output_formats: [{ id: 'ipynb', label: 'Notebook' }],
-      is_default: true
+      output_formats: [{ id: 'ipynb', label: 'Notebook' }]
     },
     {
       id: 'jupyter_server_py',
       name: 'Python',
       description: 'Run Python scripts',
       file_extensions: ['py'],
-      output_formats: [{ id: 'stdout', label: 'Output' }],
-      is_default: false
+      output_formats: [{ id: 'stdout', label: 'Output' }]
     },
     {
       id: 'universal',
       name: 'Universal',
       description: 'Runs any file',
       file_extensions: [], // Empty = supports all
-      output_formats: [{ id: 'logs', label: 'Logs' }],
-      is_default: false
+      output_formats: [{ id: 'logs', label: 'Logs' }]
     }
   ];
 
@@ -78,53 +75,24 @@ describe('filterBackendsByFile', () => {
 });
 
 describe('selectDefaultBackend', () => {
-  it('returns backend with is_default=true', () => {
-    const backends: Scheduler.IBackend[] = [
-      {
-        id: 'first',
-        name: 'First',
-        description: '',
-        file_extensions: [],
-        output_formats: [],
-        is_default: false
-      },
-      {
-        id: 'default',
-        name: 'Default',
-        description: '',
-        file_extensions: [],
-        output_formats: [],
-        is_default: true
-      },
-      {
-        id: 'last',
-        name: 'Last',
-        description: '',
-        file_extensions: [],
-        output_formats: [],
-        is_default: false
-      }
-    ];
-    expect(selectDefaultBackend(backends)?.id).toBe('default');
-  });
+  // Note: preferred_backends logic is server-side (tested in Python).
+  // Frontend simply uses first backend from the sorted list the server provides.
 
-  it('falls back to first backend if no default', () => {
+  it('returns first backend from list', () => {
     const backends: Scheduler.IBackend[] = [
       {
         id: 'first',
-        name: 'First',
+        name: 'First Backend',
         description: '',
         file_extensions: [],
-        output_formats: [],
-        is_default: false
+        output_formats: []
       },
       {
         id: 'second',
-        name: 'Second',
+        name: 'Second Backend',
         description: '',
         file_extensions: [],
-        output_formats: [],
-        is_default: false
+        output_formats: []
       }
     ];
     expect(selectDefaultBackend(backends)?.id).toBe('first');

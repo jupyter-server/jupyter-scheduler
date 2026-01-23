@@ -13,7 +13,7 @@ pytest_plugins = ("jupyter_server.pytest_plugin", "pytest_jupyter.jupyter_server
 
 
 def _mock_discover_backends(*args, **kwargs):
-    """Return test backends for testing - includes high-priority test backend."""
+    """Return test backends for testing."""
     from jupyter_scheduler.backends import JupyterServerNotebookBackend
 
     return {"jupyter_server_nb": JupyterServerNotebookBackend, "test": MockTestBackend}

@@ -200,38 +200,38 @@ def test_get_scheduler_with_encoded_id():
 
 
 def test_get_scheduler_handles_legacy_format():
-    """Legacy job IDs (no colon) should route to default backend."""
-    mock_default_scheduler = Mock()
-    mock_default_backend = Mock()
-    mock_default_backend.scheduler = mock_default_scheduler
+    """Legacy job IDs (no colon) should route to legacy job backend."""
+    mock_legacy_scheduler = Mock()
+    mock_legacy_backend = Mock()
+    mock_legacy_backend.scheduler = mock_legacy_scheduler
 
     mock_registry = Mock()
-    mock_registry.get_default.return_value = mock_default_backend
+    mock_registry.get_legacy_job_backend.return_value = mock_legacy_backend
 
     manager = JobFilesManager(backend_registry=mock_registry)
     scheduler = manager._get_scheduler("uuid-789-no-colon")
 
-    mock_registry.get_default.assert_called_once()
-    assert scheduler == mock_default_scheduler
+    mock_registry.get_legacy_job_backend.assert_called_once()
+    assert scheduler == mock_legacy_scheduler
 
 
 def test_get_scheduler_backend_not_found():
-    """Falls back to default backend if specified backend not found."""
-    mock_default_scheduler = Mock()
-    mock_default_backend = Mock()
-    mock_default_backend.scheduler = mock_default_scheduler
+    """Falls back to legacy job backend if specified backend not found."""
+    mock_legacy_scheduler = Mock()
+    mock_legacy_backend = Mock()
+    mock_legacy_backend.scheduler = mock_legacy_scheduler
 
     mock_registry = Mock()
     mock_registry.get_backend.return_value = None  # Backend not found
-    mock_registry.get_default.return_value = mock_default_backend
+    mock_registry.get_legacy_job_backend.return_value = mock_legacy_backend
 
     manager = JobFilesManager(backend_registry=mock_registry)
 
     scheduler = manager._get_scheduler("nonexistent_backend:uuid-000")
 
     mock_registry.get_backend.assert_called_once_with("nonexistent_backend")
-    mock_registry.get_default.assert_called_once()
-    assert scheduler == mock_default_scheduler
+    mock_registry.get_legacy_job_backend.assert_called_once()
+    assert scheduler == mock_legacy_scheduler
 
 
 async def test_copy_from_staging_with_backend_registry():

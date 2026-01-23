@@ -28,10 +28,16 @@ class BackendInstance:
 class BackendRegistry:
     """Registry for storing, initializing, and routing to scheduler backends."""
 
-    def __init__(self, configs: List[BackendConfig], default_backend: str):
+    def __init__(
+        self,
+        configs: List[BackendConfig],
+        legacy_job_backend: str,
+        preferred_backends: Optional[Dict[str, str]] = None,
+    ):
         self._configs = configs
         self._backends: Dict[str, BackendInstance] = {}
-        self._default = default_backend
+        self._legacy_job_backend = legacy_job_backend
+        self._preferred_backends = preferred_backends or {}
         self._extension_map: Dict[str, List[str]] = {}
 
     def initialize(
@@ -97,27 +103,45 @@ class BackendRegistry:
         """Get a backend by ID, or None if not found."""
         return self._backends.get(backend_id)
 
-    def get_default(self) -> BackendInstance:
-        """Get the default backend."""
-        if self._default not in self._backends:
-            raise KeyError(f"Default backend '{self._default}' not found in registry")
-        return self._backends[self._default]
+    def get_legacy_job_backend(self) -> BackendInstance:
+        """Get the backend for routing legacy jobs (UUID-only IDs from pre-3.0)."""
+        if self._legacy_job_backend not in self._backends:
+            raise KeyError(f"Legacy job backend '{self._legacy_job_backend}' not found in registry")
+        return self._backends[self._legacy_job_backend]
 
     def get_for_file(self, input_uri: str) -> BackendInstance:
-        """Auto-select backend by file extension (highest priority wins), or return default."""
+        """Auto-select backend by file extension.
+
+        Selection order:
+        1. Preferred backend for this extension (from config)
+        2. Alphabetical by backend name
+
+        Raises ValueError if no backend supports the file extension.
+        """
         ext = ""
         if "." in input_uri:
             ext = input_uri.rsplit(".", 1)[-1].lower()
 
         candidates = self._extension_map.get(ext, [])
-        if candidates:
-            candidate_instances = [self._backends[bid] for bid in candidates]
-            return max(candidate_instances, key=lambda b: b.config.priority)
+        if not candidates:
+            raise ValueError(f"No backend supports file extension '.{ext}'")
 
-        return self.get_default()
+        # 1. Explicit preference for this extension
+        preferred = self._preferred_backends.get(ext)
+        if preferred and preferred in candidates:
+            return self._backends[preferred]
+
+        # 2. Alphabetical by name
+        candidate_instances = [self._backends[bid] for bid in candidates]
+        return min(candidate_instances, key=lambda b: b.config.name)
 
     def list_backends(self) -> List[DescribeBackend]:
-        """Return backend descriptions for API/UI consumption."""
+        """Return backend descriptions sorted alphabetically by name for UI.
+
+        Frontend uses first item as default. Use preferred_backends config
+        to control which backend is pre-selected per file extension.
+        """
+        backends_sorted = sorted(self._backends.values(), key=lambda b: b.config.name)
         return [
             DescribeBackend(
                 id=b.config.id,
@@ -125,9 +149,8 @@ class BackendRegistry:
                 description=b.config.description,
                 file_extensions=b.config.file_extensions,
                 output_formats=b.config.output_formats,
-                is_default=b.config.is_default,
             )
-            for b in self._backends.values()
+            for b in backends_sorted
         ]
 
     def list_backend_instances(self) -> List[BackendInstance]:

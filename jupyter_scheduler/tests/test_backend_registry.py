@@ -17,8 +17,6 @@ def make_backend_config(
     id: str,
     name: str = None,
     file_extensions: list = None,
-    is_default: bool = False,
-    priority: int = 0,
     **kwargs,
 ) -> BackendConfig:
     """Factory for BackendConfig with sensible defaults."""
@@ -29,25 +27,30 @@ def make_backend_config(
         scheduler_class=SCHEDULER_CLASS,
         execution_manager_class=EXECUTION_MANAGER_CLASS,
         file_extensions=file_extensions or ["ipynb"],
-        is_default=is_default,
-        priority=priority,
         **kwargs,
     )
 
 
 @pytest.fixture
 def jupyter_server_nb_backend_config():
-    return make_backend_config("jupyter_server_nb", is_default=True)
+    return make_backend_config("jupyter_server_nb", name="Jupyter Server Nb")
 
 
 @pytest.fixture
 def mock_backend_config():
-    return make_backend_config("mock", file_extensions=["ipynb", "py"], priority=10)
+    return make_backend_config("mock", file_extensions=["ipynb", "py"])
 
 
 @pytest.fixture
-def high_priority_backend_config():
-    return make_backend_config("high_priority", priority=100)
+def alpha_backend_config():
+    """Backend with name that comes first alphabetically."""
+    return make_backend_config("alpha", name="Alpha Backend", file_extensions=["ipynb"])
+
+
+@pytest.fixture
+def zulu_backend_config():
+    """Backend with name that comes last alphabetically."""
+    return make_backend_config("zulu", name="Zulu Backend", file_extensions=["ipynb"])
 
 
 # import_class tests
@@ -119,7 +122,7 @@ def test_get_backend_returns_none_for_unknown(
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
-def test_get_default_returns_configured_default(
+def test_get_legacy_job_backend_returns_configured(
     mock_import, mock_create_tables, jupyter_server_nb_backend_config
 ):
     mock_scheduler_class = MagicMock()
@@ -129,14 +132,13 @@ def test_get_default_returns_configured_default(
     registry = BackendRegistry([jupyter_server_nb_backend_config], "jupyter_server_nb")
     registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
-    default = registry.get_default()
-    assert default.config.id == "jupyter_server_nb"
-    assert default.config.is_default is True
+    legacy_backend = registry.get_legacy_job_backend()
+    assert legacy_backend.config.id == "jupyter_server_nb"
 
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
-def test_get_default_raises_for_missing(mock_import, mock_create_tables):
+def test_get_legacy_job_backend_raises_for_missing(mock_import, mock_create_tables):
     config = BackendConfig(
         id="other",
         name="Other",
@@ -151,8 +153,8 @@ def test_get_default_raises_for_missing(mock_import, mock_create_tables):
     registry = BackendRegistry([config], "nonexistent")
     registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
-    with pytest.raises(KeyError, match="Default backend 'nonexistent' not found"):
-        registry.get_default()
+    with pytest.raises(KeyError):
+        registry.get_legacy_job_backend()
 
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
@@ -175,30 +177,107 @@ def test_get_for_file_matches_extension(
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
-def test_get_for_file_returns_highest_priority(
+def test_get_for_file_uses_preferred_backend(
     mock_import,
     mock_create_tables,
     jupyter_server_nb_backend_config,
     mock_backend_config,
-    high_priority_backend_config,
 ):
+    """Preferred backend for extension takes precedence."""
     mock_scheduler_class = MagicMock()
     mock_scheduler_class.return_value = MagicMock()
     mock_import.return_value = mock_scheduler_class
 
     registry = BackendRegistry(
-        [jupyter_server_nb_backend_config, mock_backend_config, high_priority_backend_config],
+        [jupyter_server_nb_backend_config, mock_backend_config],
+        "jupyter_server_nb",
+        preferred_backends={"ipynb": "mock"},
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    backend = registry.get_for_file("notebook.ipynb")
+    assert backend.config.id == "mock"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_get_for_file_uses_alphabetical_when_no_preference(
+    mock_import,
+    mock_create_tables,
+    jupyter_server_nb_backend_config,
+    mock_backend_config,
+):
+    """Alphabetical by name is used when no preference configured."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    registry = BackendRegistry(
+        [jupyter_server_nb_backend_config, mock_backend_config],
         "jupyter_server_nb",
     )
     registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
     backend = registry.get_for_file("notebook.ipynb")
-    assert backend.config.id == "high_priority"
+    # "Jupyter Server Nb" comes before "Mock" alphabetically
+    assert backend.config.id == "jupyter_server_nb"
 
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
-def test_get_for_file_returns_default_for_unknown_extension(
+def test_get_for_file_falls_back_to_alphabetical(
+    mock_import,
+    mock_create_tables,
+    alpha_backend_config,
+    zulu_backend_config,
+):
+    """Falls back to alphabetical by name when default doesn't support extension."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    # Default is some other backend that doesn't support ipynb
+    other = make_backend_config("other", file_extensions=["py"])
+
+    registry = BackendRegistry(
+        [alpha_backend_config, zulu_backend_config, other],
+        "other",  # default doesn't support .ipynb
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    backend = registry.get_for_file("notebook.ipynb")
+    # Alpha Backend comes before Zulu Backend alphabetically
+    assert backend.config.id == "alpha"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_get_for_file_ignores_invalid_preference(
+    mock_import,
+    mock_create_tables,
+    jupyter_server_nb_backend_config,
+    mock_backend_config,
+):
+    """Invalid preferred backend is ignored, falls back to alphabetical."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    registry = BackendRegistry(
+        [jupyter_server_nb_backend_config, mock_backend_config],
+        "jupyter_server_nb",
+        preferred_backends={"ipynb": "nonexistent"},  # Invalid backend ID
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    backend = registry.get_for_file("notebook.ipynb")
+    # Falls back to alphabetical: "Jupyter Server Nb" < "Mock"
+    assert backend.config.id == "jupyter_server_nb"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_get_for_file_raises_for_unknown_extension(
     mock_import, mock_create_tables, jupyter_server_nb_backend_config
 ):
     mock_scheduler_class = MagicMock()
@@ -208,8 +287,8 @@ def test_get_for_file_returns_default_for_unknown_extension(
     registry = BackendRegistry([jupyter_server_nb_backend_config], "jupyter_server_nb")
     registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
-    backend = registry.get_for_file("data.csv")
-    assert backend.config.id == "jupyter_server_nb"
+    with pytest.raises(ValueError, match="No backend supports file extension '.csv'"):
+        registry.get_for_file("data.csv")
 
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
@@ -311,7 +390,6 @@ def test_extension_map_normalizes_extensions(mock_import, mock_create_tables):
         scheduler_class="jupyter_scheduler.scheduler.Scheduler",
         execution_manager_class="jupyter_scheduler.executors.DefaultExecutionManager",
         file_extensions=[".IPYNB", "PY", ".Qasm"],
-        is_default=True,
     )
 
     mock_scheduler_class = MagicMock()
@@ -327,3 +405,119 @@ def test_extension_map_normalizes_extensions(mock_import, mock_create_tables):
 
     backend = registry.get_for_file("test.IPYNB")
     assert backend.config.id == "test"
+
+
+# preferred_backends selection tests
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_preferred_backends_for_multiple_extensions(mock_import, mock_create_tables):
+    """Different extensions can have different preferred backends."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    ipynb_backend = make_backend_config("nb_backend", file_extensions=["ipynb"])
+    py_backend = make_backend_config("py_backend", file_extensions=["py"])
+    universal_backend = make_backend_config("universal", file_extensions=["ipynb", "py"])
+
+    registry = BackendRegistry(
+        [ipynb_backend, py_backend, universal_backend],
+        "nb_backend",
+        preferred_backends={"ipynb": "universal", "py": "py_backend"},
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    # .ipynb uses preferred "universal"
+    assert registry.get_for_file("notebook.ipynb").config.id == "universal"
+    # .py uses preferred "py_backend"
+    assert registry.get_for_file("script.py").config.id == "py_backend"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_preferred_backend_must_support_extension(mock_import, mock_create_tables):
+    """Preferred backend is ignored if it doesn't support the file extension."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    ipynb_only = make_backend_config("ipynb_only", file_extensions=["ipynb"])
+    py_only = make_backend_config("py_only", file_extensions=["py"])
+
+    registry = BackendRegistry(
+        [ipynb_only, py_only],
+        "ipynb_only",
+        # py_only doesn't support .ipynb, so this should be ignored
+        preferred_backends={"ipynb": "py_only"},
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    # Falls back to default since preferred doesn't support extension
+    assert registry.get_for_file("notebook.ipynb").config.id == "ipynb_only"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_selection_order_preferred_over_default(mock_import, mock_create_tables):
+    """Preferred backend takes precedence over default backend."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    default_backend = make_backend_config("default_be", file_extensions=["ipynb"])
+    preferred_backend = make_backend_config("preferred_be", file_extensions=["ipynb"])
+
+    registry = BackendRegistry(
+        [default_backend, preferred_backend],
+        "default_be",
+        preferred_backends={"ipynb": "preferred_be"},
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    # Preferred wins over default
+    assert registry.get_for_file("notebook.ipynb").config.id == "preferred_be"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_selection_order_alphabetical_when_no_preference(mock_import, mock_create_tables):
+    """Alphabetical sorting is used when no preferred_backends configured."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    # "AAA" comes before "ZZZ" alphabetically
+    aaa_backend = make_backend_config("aaa", name="AAA Backend", file_extensions=["ipynb"])
+    zzz_backend = make_backend_config("zzz", name="ZZZ Backend", file_extensions=["ipynb"])
+
+    registry = BackendRegistry(
+        [aaa_backend, zzz_backend],
+        "zzz",  # legacy_job_backend doesn't affect get_for_file selection
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    # Alphabetical wins: AAA < ZZZ
+    assert registry.get_for_file("notebook.ipynb").config.id == "aaa"
+
+
+@patch("jupyter_scheduler.backend_registry.create_tables")
+@patch("jupyter_scheduler.backend_registry.import_class")
+def test_empty_preferred_backends_dict(mock_import, mock_create_tables):
+    """Empty preferred_backends dict should work and fall back to alphabetical."""
+    mock_scheduler_class = MagicMock()
+    mock_scheduler_class.return_value = MagicMock()
+    mock_import.return_value = mock_scheduler_class
+
+    backend = make_backend_config("test_backend", file_extensions=["ipynb"])
+
+    registry = BackendRegistry(
+        [backend],
+        "test_backend",
+        preferred_backends={},  # Explicitly empty
+    )
+    registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+    # Only one backend available, so it's selected
+    assert registry.get_for_file("notebook.ipynb").config.id == "test_backend"

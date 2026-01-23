@@ -53,42 +53,21 @@ def discover_backends(
     return backends
 
 
-def get_default_backend_id(
+def get_legacy_job_backend_id(
     available_backends: Dict[str, Type[BaseBackend]],
-    configured_default: Optional[str] = None,
+    legacy_job_backend: Optional[str] = None,
 ) -> str:
-    """Select default backend with priority: configured > DEFAULT_FALLBACK_BACKEND_ID > error.
-
-    Args:
-        available_backends: Dict of backend_id -> backend class
-        configured_default: Admin-configured default backend ID (optional)
-
-    Returns:
-        The backend ID to use as default
-
-    Raises:
-        ValueError: If no backends available, or if DEFAULT_FALLBACK_BACKEND_ID is
-            unavailable and no default is configured. Admins who customize backends
-            must explicitly set SchedulerApp.default_backend.
-    """
+    """Get backend ID for routing legacy jobs (UUID-only IDs from pre-3.0)."""
     if not available_backends:
         raise ValueError("No scheduler backends available.")
 
-    if configured_default and configured_default in available_backends:
-        return configured_default
-
-    if configured_default and configured_default not in available_backends:
-        logger.warning(
-            f"Configured default_backend '{configured_default}' not found. "
-            f"Available: {list(available_backends.keys())}"
-        )
+    if legacy_job_backend and legacy_job_backend in available_backends:
+        return legacy_job_backend
 
     if DEFAULT_FALLBACK_BACKEND_ID in available_backends:
         return DEFAULT_FALLBACK_BACKEND_ID
 
-    # No silent fallback - require explicit configuration
     raise ValueError(
-        f"Default backend '{DEFAULT_FALLBACK_BACKEND_ID}' not available. "
-        f"Set SchedulerApp.default_backend explicitly. "
-        f"Available backends: {list(available_backends.keys())}"
+        f"No backend for legacy jobs. Set SchedulerApp.legacy_job_backend. "
+        f"Available: {list(available_backends.keys())}"
     )

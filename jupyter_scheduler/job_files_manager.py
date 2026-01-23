@@ -36,9 +36,9 @@ class JobFilesManager:
             backend = self.backend_registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler
-            logger.warning(f"Backend '{backend_id}' not found, using default backend")
-        # Legacy job ID (no colon) or unknown backend: use default
-        return self.backend_registry.get_default().scheduler
+            logger.warning(f"Backend '{backend_id}' not found, using legacy job backend")
+        # Legacy job ID (no colon) or unknown backend: use legacy job backend
+        return self.backend_registry.get_legacy_job_backend().scheduler
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
         """Copy job output files from staging area to local output directory.

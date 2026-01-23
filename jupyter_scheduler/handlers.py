@@ -91,8 +91,8 @@ class JobHandlersMixin:
             backend = self.backend_registry.get_backend(backend_id)
             if backend:
                 return backend.scheduler
-        # Legacy job ID (no colon) or unknown backend: use default
-        return self.backend_registry.get_default().scheduler
+        # Legacy job ID (no colon) or unknown backend: use legacy job backend
+        return self.backend_registry.get_legacy_job_backend().scheduler
 
     @property
     def execution_manager_class(self):
@@ -177,7 +177,10 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     raise HTTPError(400, f"Unknown backend: {backend_id}")
             else:
                 # Auto-select based on file extension
-                backend = self.backend_registry.get_for_file(payload.get("input_uri", ""))
+                try:
+                    backend = self.backend_registry.get_for_file(payload.get("input_uri", ""))
+                except ValueError as e:
+                    raise HTTPError(400, str(e)) from e
 
             # Ensure backend ID is stored with the job definition
             payload["backend"] = backend.config.id
@@ -279,11 +282,11 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     next_token=self.get_query_argument("next_token", None),
                 )
 
-                # Query jobs from default scheduler (all backends share same DB)
+                # Query jobs from legacy job backend (all backends share same DB)
                 # Job IDs are already stored as 'backend:uuid' format
-                default_backend = self.backend_registry.get_default()
+                legacy_backend = self.backend_registry.get_legacy_job_backend()
                 list_jobs_response = await call_async(
-                    default_backend.scheduler, "list_jobs", list_jobs_query
+                    legacy_backend.scheduler, "list_jobs", list_jobs_query
                 )
 
                 # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
@@ -291,9 +294,9 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 for i, job in enumerate(list_jobs_response.jobs):
                     if job.status in (Status.QUEUED, Status.IN_PROGRESS):
                         backend_id, _ = parse_job_id(job.job_id)
-                        # Legacy jobs (backend_id=None) stay with default backend
+                        # Legacy jobs (backend_id=None) stay with legacy backend
                         backend = self.backend_registry.get_backend(backend_id) if backend_id else None
-                        if backend and backend.scheduler != default_backend.scheduler:
+                        if backend and backend.scheduler != legacy_backend.scheduler:
                             # Call backend's get_job which triggers status sync
                             try:
                                 synced_job = await call_async(
