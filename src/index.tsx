@@ -83,13 +83,10 @@ const schedulerPlugin: JupyterFrontEndPlugin<void> = {
     INotebookTracker,
     ITranslator,
     ILayoutRestorer,
+    Scheduler.IAdvancedOptions,
     Scheduler.TelemetryHandler
   ],
-  optional: [
-    ILauncher,
-    Scheduler.IAdvancedOptionsOverride,
-    Scheduler.IAdvancedOptions
-  ],
+  optional: [ILauncher],
   autoStart: true,
   activate: activatePlugin
 };
@@ -194,13 +191,10 @@ function activatePlugin(
   notebookTracker: INotebookTracker,
   translator: ITranslator,
   restorer: ILayoutRestorer,
+  advancedOptions: Scheduler.IAdvancedOptions,
   telemetryHandler: Scheduler.TelemetryHandler,
-  launcher: ILauncher | null,
-  advancedOptionsOverride: Scheduler.IAdvancedOptions | null,
-  advancedOptionsDefault: Scheduler.IAdvancedOptions | null
+  launcher: ILauncher | null
 ): void {
-  const advancedOptions =
-    advancedOptionsOverride || advancedOptionsDefault || AdvancedOptions;
   const trans = translator.load('jupyterlab');
   const api = new SchedulerService({});
   verifyServerExtension({ api, translator });
@@ -478,5 +472,4 @@ const plugins: JupyterFrontEndPlugin<any>[] = [
 ];
 
 export { JobsView };
-export { default as AdvancedOptions } from './advanced-options';
 export default plugins;
