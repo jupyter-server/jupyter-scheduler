@@ -22,10 +22,7 @@ import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
-import {
-  filterBackendsByFile,
-  selectDefaultBackend
-} from '../util/backend-utils';
+import { filterBackendsByFile } from '../util/backend-utils';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
@@ -155,7 +152,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
         // Only update if current backend is invalid for this file type
         if (!validBackends.some(b => b.id === props.model.backend)) {
-          const selected = selectDefaultBackend(validBackends);
+          // Server returns backends sorted by preference; first is pre-selected
+          const selected = validBackends[0];
           if (selected) {
             props.handleModelChange({
               ...props.model,
@@ -181,7 +179,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     return validBackends.some(b => b.id === props.model.backend)
       ? props.model.backend
-      : selectDefaultBackend(validBackends)?.id || '';
+      : validBackends[0]?.id || '';
   }, [backendList, props.model.inputFile, props.model.backend]);
 
   const envsByName = useMemo(() => {

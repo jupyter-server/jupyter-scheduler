@@ -1,10 +1,7 @@
 /**
  * Tests for backend utility functions.
  */
-import {
-  filterBackendsByFile,
-  selectDefaultBackend
-} from '../util/backend-utils';
+import { filterBackendsByFile } from '../util/backend-utils';
 import { Scheduler } from '../handler';
 
 describe('filterBackendsByFile', () => {
@@ -22,83 +19,47 @@ describe('filterBackendsByFile', () => {
       description: 'Run Python scripts',
       file_extensions: ['py'],
       output_formats: [{ id: 'stdout', label: 'Output' }]
-    },
-    {
-      id: 'universal',
-      name: 'Universal',
-      description: 'Runs any file',
-      file_extensions: [], // Empty = supports all
-      output_formats: [{ id: 'logs', label: 'Logs' }]
     }
   ];
 
   it('returns all backends when inputFile is undefined', () => {
     const result = filterBackendsByFile(mockBackends, undefined);
-    expect(result).toHaveLength(3);
+    expect(result).toHaveLength(2);
   });
 
   it('returns all backends when inputFile is empty string', () => {
     const result = filterBackendsByFile(mockBackends, '');
-    expect(result).toHaveLength(3);
+    expect(result).toHaveLength(2);
   });
 
   it('filters to backends supporting .ipynb extension', () => {
     const result = filterBackendsByFile(mockBackends, 'notebook.ipynb');
-    expect(result.map(b => b.id)).toEqual(['jupyter_server_nb', 'universal']);
+    expect(result.map(b => b.id)).toEqual(['jupyter_server_nb']);
   });
 
   it('filters to backends supporting .py extension', () => {
     const result = filterBackendsByFile(mockBackends, 'script.py');
-    expect(result.map(b => b.id)).toEqual(['jupyter_server_py', 'universal']);
+    expect(result.map(b => b.id)).toEqual(['jupyter_server_py']);
   });
 
-  it('includes backends with empty file_extensions (universal)', () => {
+  it('returns empty array for unknown extension', () => {
     const result = filterBackendsByFile(mockBackends, 'data.xyz');
-    expect(result.map(b => b.id)).toEqual(['universal']);
+    expect(result).toEqual([]);
   });
 
-  it('handles file without extension (returns only universal)', () => {
+  it('returns empty array for file without extension', () => {
     const result = filterBackendsByFile(mockBackends, 'Makefile');
-    // 'Makefile'.split('.').pop() returns 'makefile' - no backend matches except universal
-    expect(result.map(b => b.id)).toEqual(['universal']);
+    // 'Makefile'.split('.').pop() returns 'makefile' - no backend matches
+    expect(result).toEqual([]);
   });
 
   it('handles file path with directories', () => {
     const result = filterBackendsByFile(mockBackends, 'path/to/notebook.ipynb');
-    expect(result.map(b => b.id)).toEqual(['jupyter_server_nb', 'universal']);
+    expect(result.map(b => b.id)).toEqual(['jupyter_server_nb']);
   });
 
   it('is case-insensitive for extensions', () => {
     const result = filterBackendsByFile(mockBackends, 'notebook.IPYNB');
-    expect(result.map(b => b.id)).toEqual(['jupyter_server_nb', 'universal']);
-  });
-});
-
-describe('selectDefaultBackend', () => {
-  // Note: preferred_backends logic is server-side (tested in Python).
-  // Frontend simply uses first backend from the sorted list the server provides.
-
-  it('returns first backend from list', () => {
-    const backends: Scheduler.IBackend[] = [
-      {
-        id: 'first',
-        name: 'First Backend',
-        description: '',
-        file_extensions: [],
-        output_formats: []
-      },
-      {
-        id: 'second',
-        name: 'Second Backend',
-        description: '',
-        file_extensions: [],
-        output_formats: []
-      }
-    ];
-    expect(selectDefaultBackend(backends)?.id).toBe('first');
-  });
-
-  it('returns undefined for empty array', () => {
-    expect(selectDefaultBackend([])).toBeUndefined();
+    expect(result.map(b => b.id)).toEqual(['jupyter_server_nb']);
   });
 });
