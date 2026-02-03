@@ -1,11 +1,10 @@
 import logging
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Type
 
 from jupyter_scheduler.backends import BackendConfig, DescribeBackend
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.orm import create_tables
-from jupyter_scheduler.scheduler import BaseScheduler
+from jupyter_scheduler.pydantic_v1 import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +16,11 @@ def import_class(class_path: str) -> Type:
     return getattr(module, class_name)
 
 
-@dataclass
-class BackendInstance:
+class BackendInstance(BaseModel):
     """A running backend with its configuration and initialized scheduler."""
 
     config: BackendConfig
-    scheduler: BaseScheduler
+    scheduler: Any  # BaseScheduler at runtime, but Any to support test mocks
 
 
 class BackendRegistry:
@@ -111,20 +109,20 @@ class BackendRegistry:
         if "." in input_uri:
             ext = input_uri.rsplit(".", 1)[-1].lower()
 
-        candidates = self._extension_map.get(ext, [])
-        if not candidates:
+        candidate_ids = self._extension_map.get(ext, [])
+        if not candidate_ids:
             raise ValueError(f"No backend supports file extension '.{ext}'")
 
-        # 1. Explicit preference for this extension
-        preferred = self._preferred_backends.get(ext)
-        if preferred and preferred in candidates:
-            return self._backends[preferred]
+        # 1. Check explicit preference for this extension
+        preferred_id = self._preferred_backends.get(ext)
+        if preferred_id and preferred_id in candidate_ids:
+            return self._backends[preferred_id]
 
-        # 2. Alphabetical by name
-        candidate_instances = [self._backends[bid] for bid in candidates]
+        # 2. Otherwise return min by name (first alphabetically)
+        candidate_instances = [self._backends[bid] for bid in candidate_ids]
         return min(candidate_instances, key=lambda b: b.config.name)
 
-    def list_backends(self) -> List[DescribeBackend]:
+    def describe_backends(self) -> List[DescribeBackend]:
         """Return backend descriptions sorted alphabetically by name. Frontend uses first as default."""
         backends_sorted = sorted(self._backends.values(), key=lambda b: b.config.name)
         return [
@@ -138,7 +136,8 @@ class BackendRegistry:
             for b in backends_sorted
         ]
 
-    def list_backend_instances(self) -> List[BackendInstance]:
+    @property
+    def backends(self) -> List[BackendInstance]:
         """Return all backend instances."""
         return list(self._backends.values())
 

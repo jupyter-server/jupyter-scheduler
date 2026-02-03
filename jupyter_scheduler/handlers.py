@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import re
@@ -6,6 +5,7 @@ from typing import Optional
 
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
+from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.backend_registry import BackendInstance, BackendRegistry
@@ -35,16 +35,6 @@ from jupyter_scheduler.models import (
 from jupyter_scheduler.pydantic_v1 import ValidationError
 
 logger = logging.getLogger(__name__)
-
-
-async def call_async(scheduler, method: str, *args, **kwargs):
-    """Call scheduler method async. Uses native *_async method if available, else runs in thread pool."""
-    async_method = f"{method}_async"
-    if hasattr(scheduler, async_method):
-        logger.debug(f"Using native async method: {scheduler.__class__.__name__}.{async_method}")
-        return await getattr(scheduler, async_method)(*args, **kwargs)
-    logger.debug(f"Falling back to thread pool: {scheduler.__class__.__name__}.{method}")
-    return await asyncio.to_thread(getattr(scheduler, method), *args, **kwargs)
 
 
 class JobHandlersMixin:
@@ -120,8 +110,8 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def get(self, job_definition_id=None):
         if job_definition_id:
             try:
-                job_definition = await call_async(
-                    self.scheduler, "get_job_definition", job_definition_id
+                job_definition = await ensure_async(
+                    self.scheduler.get_job_definition(job_definition_id)
                 )
             except SchedulerError as e:
                 self.log.exception(e)
@@ -146,7 +136,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                     next_token=self.get_query_argument("next_token", None),
                 )
-                list_response = await call_async(self.scheduler, "list_job_definitions", list_query)
+                list_response = await ensure_async(self.scheduler.list_job_definitions(list_query))
             except ValidationError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -169,8 +159,8 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             payload["backend"] = backend.config.id
             scheduler = backend.scheduler
 
-            job_definition_id = await call_async(
-                scheduler, "create_job_definition", CreateJobDefinition(**payload)
+            job_definition_id = await ensure_async(
+                scheduler.create_job_definition(CreateJobDefinition(**payload))
             )
         except ValidationError as e:
             self.log.exception(e)
@@ -196,11 +186,10 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def patch(self, job_definition_id):
         payload = self.get_json_body()
         try:
-            await call_async(
-                self.scheduler,
-                "update_job_definition",
-                job_definition_id,
-                UpdateJobDefinition(**payload),
+            await ensure_async(
+                self.scheduler.update_job_definition(
+                    job_definition_id, UpdateJobDefinition(**payload)
+                )
             )
         except ValidationError as e:
             self.log.exception(e)
@@ -220,7 +209,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def delete(self, job_definition_id):
         try:
-            await call_async(self.scheduler, "delete_job_definition", job_definition_id)
+            await ensure_async(self.scheduler.delete_job_definition(job_definition_id))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -240,7 +229,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         if job_id:
             try:
                 scheduler = self.get_scheduler(job_id)
-                job = await call_async(scheduler, "get_job", job_id)
+                job = await ensure_async(scheduler.get_job(job_id))
             except SchedulerError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -268,8 +257,8 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 # Query jobs from legacy job backend (all backends share same DB)
                 # Job IDs are already stored as 'backend:uuid' format
                 legacy_backend = self.backend_registry.get_legacy_job_backend()
-                list_jobs_response = await call_async(
-                    legacy_backend.scheduler, "list_jobs", list_jobs_query
+                list_jobs_response = await ensure_async(
+                    legacy_backend.scheduler.list_jobs(list_jobs_query)
                 )
 
                 # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
@@ -284,8 +273,8 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                         if backend and backend.scheduler != legacy_backend.scheduler:
                             # Call backend's get_job which triggers status sync
                             try:
-                                synced_job = await call_async(
-                                    backend.scheduler, "get_job", job.job_id, job_files=False
+                                synced_job = await ensure_async(
+                                    backend.scheduler.get_job(job.job_id, job_files=False)
                                 )
                                 list_jobs_response.jobs[i] = synced_job
                             except Exception as e:
@@ -315,7 +304,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 if backend.config.output_formats:
                     payload["output_formats"] = [f["id"] for f in backend.config.output_formats]
 
-            raw_job_id = await call_async(scheduler, "create_job", CreateJob(**payload))
+            raw_job_id = await ensure_async(scheduler.create_job(CreateJob(**payload)))
             # Encode backend into job ID for O(1) routing on subsequent operations
             job_id = make_job_id(backend.config.id, raw_job_id)
         except ValidationError as e:
@@ -358,9 +347,9 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         try:
             scheduler = self.get_scheduler(job_id)
             if status:
-                await call_async(scheduler, "stop_job", job_id)
+                await ensure_async(scheduler.stop_job(job_id))
             else:
-                await call_async(scheduler, "update_job", job_id, UpdateJob(**payload))
+                await ensure_async(scheduler.update_job(job_id, UpdateJob(**payload)))
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -378,7 +367,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def delete(self, job_id):
         try:
             scheduler = self.get_scheduler(job_id)
-            await call_async(scheduler, "delete_job", job_id)
+            await ensure_async(scheduler.delete_job(job_id))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -396,8 +385,8 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
         payload = self.get_json_body()
         try:
             model = CreateJobFromDefinition(**payload)
-            job_id = await call_async(
-                self.scheduler, "create_job_from_definition", job_definition_id, model=model
+            job_id = await ensure_async(
+                self.scheduler.create_job_from_definition(job_definition_id, model=model)
             )
         except ValidationError as e:
             self.log.exception(e)
@@ -419,7 +408,7 @@ class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         try:
             for job_id in job_ids:
                 scheduler = self.get_scheduler(job_id)
-                await call_async(scheduler, "delete_job", job_id)
+                await ensure_async(scheduler.delete_job(job_id))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -439,7 +428,7 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             status=Status(status.upper()) if status else Status.IN_PROGRESS
         )
         try:
-            count = await call_async(self.scheduler, "count_jobs", count_jobs_query)
+            count = await ensure_async(self.scheduler.count_jobs(count_jobs_query))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -455,10 +444,8 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
     async def get(self):
         """Returns names of available runtime environments and output formats mappings"""
         try:
-            environments = await asyncio.to_thread(self.environments_manager.list_environments)
-            output_formats = await asyncio.to_thread(
-                self.environments_manager.output_formats_mapping
-            )
+            environments = await ensure_async(self.environments_manager.list_environments())
+            output_formats = await ensure_async(self.environments_manager.output_formats_mapping())
         except EnvironmentRetrievalError as e:
             raise HTTPError(500, str(e))
 
@@ -529,7 +516,7 @@ class BackendsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             if registry is None:
                 raise HTTPError(500, "Backend registry not initialized")
 
-            backends = registry.list_backends()
+            backends = registry.describe_backends()
             self.finish(json.dumps([b.dict() for b in backends]))
         except SchedulerError as e:
             self.log.exception(e)

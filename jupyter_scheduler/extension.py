@@ -56,10 +56,7 @@ class SchedulerApp(ExtensionApp):
         default_value=None,
         allow_none=True,
         config=True,
-        help=_i18n(
-            "Backend for jobs with UUID-only job IDs created before "
-            "multi-backend support (added in 3.0.0)."
-        ),
+        help=_i18n("ID of the backend to route jobs with UUID-only IDs (created before v3.0)."),
     )
 
     backend_config = TDict(
@@ -74,9 +71,10 @@ class SchedulerApp(ExtensionApp):
     preferred_backends = TDict(
         config=True,
         help=_i18n(
-            "Backend selected by default when creating a job for each file extension, "
+            "Defines backend selected by default when creating a job for each file extension, "
             "when multiple backends support the same extension. "
-            "Example: {'ipynb': 'jupyter_server_nb'}"
+            "Maps file extension (str) to backend ID (str). "
+            "Example: {'ipynb': 'jupyter_server_nb', 'py': 'jupyter_server_py'}"
         ),
     )
 
@@ -182,7 +180,7 @@ class SchedulerApp(ExtensionApp):
         )
 
         loop = asyncio.get_event_loop()
-        for backend in registry.list_backend_instances():
+        for backend in registry.backends:
             if hasattr(backend.scheduler, "task_runner") and backend.scheduler.task_runner:
                 loop.create_task(backend.scheduler.task_runner.start())
 

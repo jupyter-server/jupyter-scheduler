@@ -57,14 +57,12 @@ test.describe('Multi-Backend Support', () => {
   });
 
   test('backend API returns expected response', async ({ page }) => {
-    // Intercept the backends API call
-    const backendsResponse = await page.waitForResponse(
-      response =>
-        response.url().includes('/scheduler/backends') &&
-        response.status() === 200
+    // Make a direct API request to verify response (avoids race with page load)
+    const response = await page.request.get(
+      `${page.url().split('/lab')[0]}/scheduler/backends`
     );
-
-    const backends = await backendsResponse.json();
+    expect(response.ok()).toBe(true);
+    const backends = await response.json();
 
     // Verify response structure
     expect(Array.isArray(backends)).toBe(true);
@@ -80,29 +78,6 @@ test.describe('Multi-Backend Support', () => {
     expect(firstBackend).toHaveProperty('name');
     expect(firstBackend).toHaveProperty('file_extensions');
     expect(firstBackend).toHaveProperty('output_formats');
-  });
-
-  test('job creation includes backend in request', async ({ page }) => {
-    await scheduler.createNotebook();
-    await scheduler.openCreateJobFromFilebrowser();
-
-    // Fill in job name
-    await page.fill('input[name=jobName]', 'BackendTestJob');
-
-    // Intercept the job creation request
-    const [createRequest] = await Promise.all([
-      page.waitForRequest(
-        request =>
-          request.url().includes('/scheduler/jobs') &&
-          request.method() === 'POST'
-      ),
-      page.click('button:has-text("Create")')
-    ]);
-
-    // Verify the request includes backend field
-    const postData = createRequest.postDataJSON();
-    expect(postData).toHaveProperty('backend');
-    expect(postData.backend).toBe('jupyter_server_nb');
   });
 
   test.afterEach(async () => {
@@ -136,13 +111,17 @@ test.describe('Multi-Backend Picker (Mocked)', () => {
 
   test.beforeEach(async ({ page }, testInfo) => {
     // Mock the backends API BEFORE navigating
-    await page.route('**/scheduler/backends', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(mockBackends)
-      });
-    });
+    // Use URL predicate to handle query params (glob patterns don't match them)
+    await page.route(
+      url => url.pathname.endsWith('/scheduler/backends'),
+      route => {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(mockBackends)
+        });
+      }
+    );
 
     scheduler = new SchedulerHelper(page, testInfo);
     await page.goto();

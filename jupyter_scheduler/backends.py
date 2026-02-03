@@ -1,17 +1,15 @@
-from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from jupyter_scheduler.base_backend import BaseBackend
 from jupyter_scheduler.models import OutputFormat
-from jupyter_scheduler.pydantic_v1 import BaseModel
+from jupyter_scheduler.pydantic_v1 import BaseModel, Field
 
 JUPYTER_SERVER_NB_BACKEND_ID = "jupyter_server_nb"
 JUPYTER_SERVER_PY_BACKEND_ID = "jupyter_server_py"
 DEFAULT_FALLBACK_BACKEND_ID = JUPYTER_SERVER_NB_BACKEND_ID
 
 
-@dataclass
-class BackendConfig:
+class BackendConfig(BaseModel):
     """Runtime configuration for an initialized backend instance."""
 
     id: str
@@ -21,8 +19,8 @@ class BackendConfig:
     execution_manager_class: str
     database_manager_class: Optional[str] = None
     db_url: Optional[str] = None
-    file_extensions: List[str] = field(default_factory=list)
-    output_formats: List[Dict[str, str]] = field(default_factory=list)
+    file_extensions: List[str] = Field(default_factory=list)
+    output_formats: List[Dict[str, str]] = Field(default_factory=list)
     metadata: Optional[Dict[str, Any]] = None
 
 

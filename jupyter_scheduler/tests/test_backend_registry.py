@@ -269,7 +269,7 @@ def test_get_for_file_raises_for_unknown_extension(
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
-def test_list_backends_returns_all(
+def test_describe_backends_returns_all(
     mock_import, mock_create_tables, jupyter_server_nb_backend_config, mock_backend_config
 ):
     mock_scheduler_class = MagicMock()
@@ -281,7 +281,7 @@ def test_list_backends_returns_all(
     )
     registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
-    backends = registry.list_backends()
+    backends = registry.describe_backends()
     assert len(backends) == 2
     assert all(isinstance(b, DescribeBackend) for b in backends)
 
