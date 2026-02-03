@@ -2,10 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from jupyter_scheduler.backend_registry import (
-    BackendRegistry,
-    import_class,
-)
+from jupyter_scheduler.backend_registry import BackendRegistry, import_class
 from jupyter_scheduler.backends import BackendConfig, DescribeBackend
 
 SCHEDULER_CLASS = "jupyter_scheduler.scheduler.Scheduler"

@@ -26,11 +26,13 @@ def simple_script(python_script_staging_dir) -> Path:
 def script_with_params(python_script_staging_dir) -> Path:
     """Create a script that reads JUPYTER_PARAM_* env vars."""
     script_path = python_script_staging_dir / "param_script.py"
-    script_path.write_text("""import os
+    script_path.write_text(
+        """import os
 learning_rate = os.environ.get('JUPYTER_PARAM_learning_rate', 'not_set')
 batch_size = os.environ.get('JUPYTER_PARAM_batch_size', 'not_set')
 print(f"lr={learning_rate}, batch={batch_size}")
-""")
+"""
+    )
     return script_path
 
 
@@ -46,11 +48,13 @@ def failing_script(python_script_staging_dir) -> Path:
 def script_with_side_effects(python_script_staging_dir) -> Path:
     """Create a script that creates output files."""
     script_path = python_script_staging_dir / "side_effects_script.py"
-    script_path.write_text("""
+    script_path.write_text(
+        """
 with open('output.txt', 'w') as f:
     f.write('Generated output')
 print("Created output.txt")
-""")
+"""
+    )
     return script_path
 
 

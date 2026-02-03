@@ -58,20 +58,24 @@ class BaseScheduler(LoggingConfigurable):
 
     staging_path = Unicode(
         config=True,
-        help=_i18n("""Full path to staging location, where output
+        help=_i18n(
+            """Full path to staging location, where output
         files will be stored after job execution completes. This
         could be a local or remote path including cloud storage.
         Default value is jupyter data directory.
-        """),
+        """
+        ),
     )
 
     output_directory = Unicode(
         default_value="jobs",
         config=True,
-        help=_i18n("""Local path to the directory where job files
+        help=_i18n(
+            """Local path to the directory where job files
         will be downloaded. This directory will host sub-directories
         for each new job.
-        """),
+        """
+        ),
     )
 
     @default("staging_path")
@@ -457,9 +461,11 @@ class Scheduler(BaseScheduler):
         # Validate notebooks have a kernel (Python scripts and other file types skip this)
         if input_path.endswith(".ipynb"):
             if not self.execution_manager_class.validate(self.execution_manager_class, input_path):
-                raise SchedulerError("""There is no kernel associated with the notebook. Please open
+                raise SchedulerError(
+                    """There is no kernel associated with the notebook. Please open
                         the notebook, select a kernel, and re-submit the job to execute.
-                        """)
+                        """
+                )
 
         with self.db_session() as session:
             if model.idempotency_token:
