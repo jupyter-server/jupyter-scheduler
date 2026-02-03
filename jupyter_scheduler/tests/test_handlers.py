@@ -55,15 +55,16 @@ from jupyter_scheduler.tests.utils import expected_http_error
 )
 async def test_post_jobs(jp_fetch, raw_job_id, payload, expected_backend):
     with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
-        mock_create_job.return_value = raw_job_id
+        # Scheduler now returns full job_id with backend prefix
+        expected_job_id = make_job_id(expected_backend, raw_job_id)
+        mock_create_job.return_value = expected_job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
-        # Job ID should be encoded with backend prefix
-        expected_job_id = make_job_id(expected_backend, raw_job_id)
+        # Job ID should be in backend:uuid format
         assert body["job_id"] == expected_job_id
-        assert body["backend"] == expected_backend
+        assert body["backend_id"] == expected_backend
 
 
 async def test_post_jobs_for_invalid_input_uri(jp_fetch):
@@ -721,17 +722,18 @@ async def test_post_job_with_backend(jp_fetch):
         "name": "test job",
         "input_uri": "notebook.ipynb",
         "runtime_environment_name": "env_a",
-        "backend": "jupyter_server_nb",
+        "backend_id": "jupyter_server_nb",
     }
     with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
-        mock_create_job.return_value = raw_job_id
+        # Scheduler now returns full job_id with backend prefix
+        expected_job_id = make_job_id("jupyter_server_nb", raw_job_id)
+        mock_create_job.return_value = expected_job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
-        expected_job_id = make_job_id("jupyter_server_nb", raw_job_id)
         assert body["job_id"] == expected_job_id
-        assert body["backend"] == "jupyter_server_nb"
+        assert body["backend_id"] == "jupyter_server_nb"
 
 
 async def test_post_job_without_backend_uses_default(jp_fetch):
@@ -742,17 +744,18 @@ async def test_post_job_without_backend_uses_default(jp_fetch):
         "runtime_environment_name": "env_a",
     }
     with patch("jupyter_scheduler.scheduler.Scheduler.create_job") as mock_create_job:
-        mock_create_job.return_value = raw_job_id
+        # Scheduler now returns full job_id with backend prefix
+        expected_job_id = make_job_id("jupyter_server_nb", raw_job_id)
+        mock_create_job.return_value = expected_job_id
         response = await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))
 
         assert response.code == 200
         body = json.loads(response.body)
         # Auto-selected backend's ID should be encoded in job ID
         # jupyter_server_nb is the default backend for ipynb
-        expected_job_id = make_job_id("jupyter_server_nb", raw_job_id)
         assert body["job_id"] == expected_job_id
         # Should auto-select default backend for .ipynb
-        assert body["backend"] == "jupyter_server_nb"
+        assert body["backend_id"] == "jupyter_server_nb"
 
 
 async def test_post_job_with_invalid_backend(jp_fetch):
@@ -761,7 +764,7 @@ async def test_post_job_with_invalid_backend(jp_fetch):
         "name": "test job",
         "input_uri": "notebook.ipynb",
         "runtime_environment_name": "env_a",
-        "backend": "nonexistent_backend",
+        "backend_id": "nonexistent_backend",
     }
     with pytest.raises(HTTPClientError) as e:
         await jp_fetch("scheduler", "jobs", method="POST", body=json.dumps(payload))

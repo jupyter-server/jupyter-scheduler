@@ -97,7 +97,7 @@ class CreateJob(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     package_input_folder: Optional[bool] = None
-    backend: Optional[str] = None
+    backend_id: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -160,7 +160,7 @@ class DescribeJob(BaseModel):
     downloaded: bool = False
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
-    backend: Optional[str] = None
+    backend_id: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -228,7 +228,7 @@ class CreateJobDefinition(BaseModel):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
     package_input_folder: Optional[bool] = None
-    backend: Optional[str] = None
+    backend_id: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -256,7 +256,7 @@ class DescribeJobDefinition(BaseModel):
     active: bool
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
-    backend: Optional[str] = None
+    backend_id: Optional[str] = None
 
     class Config:
         orm_mode = True

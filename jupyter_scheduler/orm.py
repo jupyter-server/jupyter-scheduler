@@ -105,7 +105,7 @@ class Job(CommonColumns, Base):
     idempotency_token = Column(String(256))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
-    backend = Column(String(64))
+    backend_id = Column(String(64))
 
 
 class JobDefinition(CommonColumns, Base):
@@ -119,7 +119,7 @@ class JobDefinition(CommonColumns, Base):
     active = Column(Boolean, default=True)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
-    backend = Column(String(64))
+    backend_id = Column(String(64))
 
 
 def update_db_schema(engine, Base):

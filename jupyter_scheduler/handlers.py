@@ -15,7 +15,7 @@ from jupyter_scheduler.exceptions import (
     InputUriError,
     SchedulerError,
 )
-from jupyter_scheduler.job_id import make_job_id, parse_job_id, resolve_scheduler
+from jupyter_scheduler.job_id import parse_job_id, resolve_scheduler
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -69,8 +69,8 @@ class JobHandlersMixin:
             raise HTTPError(400, str(e))
 
     def resolve_backend_for_job(self, payload: dict) -> BackendInstance:
-        """Resolve backend from payload['backend'] or auto-select by file extension."""
-        backend_id = payload.get("backend")
+        """Resolve backend from payload['backend_id'] or auto-select by file extension."""
+        backend_id = payload.get("backend_id")
         if backend_id:
             backend = self.backend_registry.get_backend(backend_id)
             if not backend:
@@ -156,7 +156,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         payload = self.get_json_body()
         try:
             backend = self.resolve_backend_for_job(payload)
-            payload["backend"] = backend.config.id
+            payload["backend_id"] = backend.config.id
             scheduler = backend.scheduler
 
             job_definition_id = await ensure_async(
@@ -296,7 +296,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         payload = self.get_json_body()
         try:
             backend = self.resolve_backend_for_job(payload)
-            payload["backend"] = backend.config.id
+            payload["backend_id"] = backend.config.id
             scheduler = backend.scheduler
 
             # Set default output_formats from backend if not specified
@@ -304,9 +304,8 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 if backend.config.output_formats:
                     payload["output_formats"] = [f["id"] for f in backend.config.output_formats]
 
-            raw_job_id = await ensure_async(scheduler.create_job(CreateJob(**payload)))
-            # Encode backend into job ID for O(1) routing on subsequent operations
-            job_id = make_job_id(backend.config.id, raw_job_id)
+            job_id = await ensure_async(scheduler.create_job(CreateJob(**payload)))
+            # Job ID is already in backend:uuid format from scheduler (no wrapping needed)
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
@@ -327,8 +326,8 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(500, "Unexpected error occurred during creation of job.") from e
         else:
             response = {"job_id": job_id}
-            if "backend" in payload:
-                response["backend"] = payload["backend"]
+            if "backend_id" in payload:
+                response["backend_id"] = payload["backend_id"]
             self.finish(json.dumps(response))
 
     @authenticated

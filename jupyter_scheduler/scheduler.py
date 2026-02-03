@@ -486,8 +486,8 @@ class Scheduler(BaseScheduler):
 
             job = Job(
                 job_id=full_job_id,
-                backend=self.backend_id,
-                **model.dict(exclude_none=True, exclude={"input_uri", "backend"}),
+                backend_id=self.backend_id,
+                **model.dict(exclude_none=True, exclude={"input_uri", "backend_id"}),
             )
 
             session.add(job)
