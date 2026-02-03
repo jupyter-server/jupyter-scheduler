@@ -32,7 +32,7 @@ def root_dir_with_input_folder(static_test_files_dir, jp_scheduler_root_dir):
 
 
 def test_create_job_definition(jp_scheduler):
-    with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
+    with patch("jupyter_scheduler.scheduler.fsspec"):
         with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
             mock_file_exists.return_value = True
             job_definition_id = jp_scheduler.create_job_definition(
@@ -193,7 +193,7 @@ def test_get_job_definition(jp_scheduler, load_job_definitions):
 
 def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_2["job_definition_id"]
-    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner"):
         jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=False))
 
     active = (
@@ -207,7 +207,7 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
 
 def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_3["job_definition_id"]
-    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner"):
         jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=True))
 
     active = (
@@ -223,7 +223,7 @@ def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_
     job_definition_id = job_definition_1["job_definition_id"]
     schedule = "*/5 * * * *"
     timezone = "America/New_York"
-    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner"):
         update = UpdateJobDefinition(
             job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
         )

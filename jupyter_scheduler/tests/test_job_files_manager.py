@@ -40,7 +40,7 @@ async def test_copy_from_staging():
     }
     output_dir = "jobs/job-1"
     with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
-        with patch("jupyter_scheduler.job_files_manager.Process") as mock_process:
+        with patch("jupyter_scheduler.job_files_manager.Process"):
             mock_scheduler = Mock()
             mock_scheduler.get_job.return_value = job
             mock_scheduler.get_staging_paths.return_value = staging_paths
@@ -257,7 +257,7 @@ async def test_copy_from_staging_with_backend_registry():
     output_dir = "jobs/test-uuid"
 
     with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
-        with patch("jupyter_scheduler.job_files_manager.Process") as mock_process:
+        with patch("jupyter_scheduler.job_files_manager.Process"):
             mock_scheduler = Mock()
             mock_scheduler.get_job.return_value = job
             mock_scheduler.get_staging_paths.return_value = staging_paths

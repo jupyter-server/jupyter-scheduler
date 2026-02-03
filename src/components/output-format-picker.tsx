@@ -11,7 +11,7 @@ export type OutputFormatPickerProps = {
   label: string;
   name: string;
   id: string;
-  backend: string;
+  backend_id: string;
   backendList: Scheduler.IBackend[];
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string[];
@@ -19,9 +19,9 @@ export type OutputFormatPickerProps = {
 
 export function outputFormatsForBackend(
   backendList: Scheduler.IBackend[],
-  backend: string
+  backend_id: string
 ): Scheduler.IOutputFormat[] | null {
-  const backendObj = backendList.find(b => b.id === backend);
+  const backendObj = backendList.find(b => b.id === backend_id);
   if (!backendObj || !backendObj.output_formats) {
     return null;
   }
@@ -34,7 +34,7 @@ export function OutputFormatPicker(
 ): JSX.Element | null {
   const outputFormats = outputFormatsForBackend(
     props.backendList,
-    props.backend
+    props.backend_id
   );
 
   // Don't display anything, not even the label, if there are no output formats

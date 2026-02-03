@@ -227,7 +227,7 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ],
     [
       {
-        value: props.model.backend || 'local',
+        value: props.model.backend_id,
         label: trans.__('Backend')
       },
       {

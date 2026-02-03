@@ -37,7 +37,7 @@ class CondaEnvironmentManager(EnvironmentManager):
         try:
             envs = subprocess.check_output(["conda", "env", "list", "--json"])
             envs = json.loads(envs).get("envs", [])
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             envs = []
         except FileNotFoundError:
             envs = []

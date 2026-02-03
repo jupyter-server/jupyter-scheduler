@@ -151,13 +151,13 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         );
 
         // Only update if current backend is invalid for this file type
-        if (!validBackends.some(b => b.id === props.model.backend)) {
+        if (!validBackends.some(b => b.id === props.model.backend_id)) {
           // Server returns backends sorted by preference; first is pre-selected
           const selected = validBackends[0];
           if (selected) {
             props.handleModelChange({
               ...props.model,
-              backend: selected.id,
+              backend_id: selected.id,
               outputFormats: selected.output_formats?.map(f => f.id)
             });
           }
@@ -169,7 +169,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   // Derive display backend for BackendPicker (ensures valid value is always shown)
   const displayBackend = useMemo(() => {
     if (backendList.length === 0) {
-      return props.model.backend || '';
+      return props.model.backend_id || '';
     }
 
     const validBackends = filterBackendsByFile(
@@ -177,10 +177,10 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       props.model.inputFile
     );
 
-    return validBackends.some(b => b.id === props.model.backend)
-      ? props.model.backend
+    return validBackends.some(b => b.id === props.model.backend_id)
+      ? props.model.backend_id
       : validBackends[0]?.id || '';
-  }, [backendList, props.model.inputFile, props.model.backend]);
+  }, [backendList, props.model.inputFile, props.model.backend_id]);
 
   const envsByName = useMemo(() => {
     const obj: Record<string, Scheduler.IRuntimeEnvironment> = {};
@@ -283,7 +283,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const outputFormatsList = outputFormatsForBackend(
       backendList,
-      props.model.backend || ''
+      props.model.backend_id || ''
     );
     if (outputFormatsList === null) {
       return; // No data about output formats; give up
@@ -376,7 +376,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       package_input_folder: props.model.packageInputFolder,
-      backend: props.model.backend
+      backend_id: props.model.backend_id
     };
 
     if (props.model.parameters !== undefined) {
@@ -426,7 +426,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       schedule: props.model.schedule,
       timezone: props.model.timezone,
       package_input_folder: props.model.packageInputFolder,
-      backend: props.model.backend
+      backend_id: props.model.backend_id
     };
 
     if (props.model.parameters !== undefined) {
@@ -581,7 +581,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             id={`${formPrefix}outputFormat`}
             onChange={handleOutputFormatsChange}
             backendList={backendList}
-            backend={props.model.backend || ''}
+            backend_id={props.model.backend_id || ''}
             value={props.model.outputFormats || []}
           />
           <ComputeTypePicker

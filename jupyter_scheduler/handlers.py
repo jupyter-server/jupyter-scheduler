@@ -25,7 +25,6 @@ from jupyter_scheduler.models import (
     CreateJobFromDefinition,
     ListJobDefinitionsQuery,
     ListJobsQuery,
-    ListJobsResponse,
     SortDirection,
     SortField,
     Status,
@@ -230,6 +229,9 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             try:
                 scheduler = self.get_scheduler(job_id)
                 job = await ensure_async(scheduler.get_job(job_id))
+                # Populate backend_id for legacy jobs (NULL in DB)
+                if not job.backend_id:
+                    job.backend_id = self.backend_registry.get_legacy_job_backend().config.id
             except SchedulerError as e:
                 self.log.exception(e)
                 raise HTTPError(500, str(e)) from e
@@ -260,6 +262,11 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 list_jobs_response = await ensure_async(
                     legacy_backend.scheduler.list_jobs(list_jobs_query)
                 )
+
+                # Populate backend_id for legacy jobs (NULL in DB)
+                for job in list_jobs_response.jobs:
+                    if not job.backend_id:
+                        job.backend_id = legacy_backend.config.id
 
                 # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
                 # This allows backend-specific schedulers (like BraketScheduler) to sync status

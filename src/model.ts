@@ -100,8 +100,8 @@ export interface ICreateJobModel
   // Is the create button disabled due to a submission in progress?
   createInProgress?: boolean;
   packageInputFolder?: boolean;
-  // Execution backend ID (e.g., "local", "kubernetes")
-  backend?: string;
+  // Execution backend ID (e.g., "jupyter_server_nb", "jupyter_server_py")
+  backend_id?: string;
 }
 
 export const defaultScheduleFields: ModelWithScheduleFields = {
@@ -314,7 +314,7 @@ export interface IJobDetailModel {
   job_files: Scheduler.IJobFile[];
   downloaded: boolean;
   packageInputFolder?: boolean;
-  backend?: string;
+  backend_id?: string;
 }
 
 export interface IJobDefinitionModel {
@@ -392,7 +392,7 @@ export function convertDescribeJobtoJobDetail(
     endTime: describeJob.end_time,
     downloaded: describeJob.downloaded,
     packageInputFolder: describeJob.package_input_folder,
-    backend: describeJob.backend
+    backend_id: describeJob.backend_id
   };
 }
 

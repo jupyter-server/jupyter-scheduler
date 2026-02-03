@@ -155,7 +155,7 @@ async def load_data(jobs_count: int, job_defs_count: int, db_path: str):
         f"\nCreated {jobs_count} jobs and {job_defs_count} job definitions in the scheduler database"
     )
     click.echo(f"present at {db_path}. Copy the following command")
-    click.echo(f"to start JupyterLab with this database.\n")
+    click.echo("to start JupyterLab with this database.\n")
     click.echo(f"`jupyter lab --SchedulerApp.db_url={db_url}`\n")
 
 

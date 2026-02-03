@@ -10,8 +10,6 @@ import pytz
 from croniter import croniter
 from nbformat import NotebookNode
 
-from jupyter_scheduler.models import CreateJob
-
 
 class UUIDEncoder(json.JSONEncoder):
     def default(self, obj):

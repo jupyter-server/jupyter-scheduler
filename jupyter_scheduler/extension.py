@@ -61,11 +61,9 @@ class SchedulerApp(ExtensionApp):
 
     backend_config = TDict(
         config=True,
-        help=_i18n(
-            """Per-backend configuration overrides, keyed by backend ID.
+        help=_i18n("""Per-backend configuration overrides, keyed by backend ID.
             Example: {'k8s': {'db_url': 'postgresql://...'}}
-            Supported keys: db_url, metadata."""
-        ),
+            Supported keys: db_url, metadata."""),
     )
 
     preferred_backends = TDict(
@@ -89,10 +87,8 @@ class SchedulerApp(ExtensionApp):
         default_value="jupyter_scheduler.scheduler.Scheduler",
         klass="jupyter_scheduler.scheduler.BaseScheduler",
         config=True,
-        help=_i18n(
-            """The scheduler class for the local backend. This allows customization
-            of the local scheduler implementation without defining a full backend."""
-        ),
+        help=_i18n("""The scheduler class for the local backend. This allows customization
+            of the local scheduler implementation without defining a full backend."""),
     )
 
     job_files_manager_class = Type(

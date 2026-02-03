@@ -201,7 +201,9 @@ class TaskRunner(BaseTaskRunner):
 
     def populate_cache(self):
         with self.db_session() as session:
-            definitions = session.query(JobDefinition).filter(JobDefinition.schedule != None).all()
+            definitions = (
+                session.query(JobDefinition).filter(JobDefinition.schedule is not None).all()
+            )
 
         for definition in definitions:
             next_run_time = self.compute_next_run_time(definition.schedule, definition.timezone)

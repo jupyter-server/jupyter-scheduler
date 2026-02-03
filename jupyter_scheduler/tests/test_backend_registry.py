@@ -3,7 +3,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from jupyter_scheduler.backend_registry import (
-    BackendInstance,
     BackendRegistry,
     import_class,
 )
