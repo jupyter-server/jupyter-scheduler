@@ -14,7 +14,7 @@ from sqlalchemy import and_, asc, desc, func
 from traitlets import Instance
 from traitlets import Type as TType
 from traitlets import Unicode, default
-from traitlets.config import LoggingConfigurable
+from traitlets.config import Config, LoggingConfigurable
 
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.exceptions import (
@@ -101,7 +101,7 @@ class BaseScheduler(LoggingConfigurable):
         self,
         root_dir: str,
         environments_manager: Type[EnvironmentManager],
-        config=None,
+        config: Optional[Config] = None,
         backend_id: str = None,
         **kwargs,
     ):

@@ -13,7 +13,7 @@ from jupyter_scheduler.orm import Job
 class PythonScriptExecutionManager(ExecutionManager):
     """Execute Python scripts via subprocess."""
 
-    def execute(self):
+    def execute(self) -> None:
         """Execute the Python script and capture output."""
         job = self.model
         staging_dir = os.path.dirname(self.staging_paths["input"])
@@ -49,7 +49,7 @@ class PythonScriptExecutionManager(ExecutionManager):
                 f"Script exited with code {result.returncode}\nstderr: {result.stderr[:500]}"
             )
 
-    def add_side_effects_files(self, staging_dir: str):
+    def add_side_effects_files(self, staging_dir: str) -> None:
         """Scan for files created during execution and update job's packaged_files."""
         input_script = os.path.basename(self.staging_paths["input"])
         new_files = set()
