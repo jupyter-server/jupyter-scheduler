@@ -16,7 +16,6 @@ from jupyter_scheduler.exceptions import (
     SchedulerError,
 )
 from jupyter_scheduler.job_id import parse_job_id, resolve_scheduler
-from jupyter_scheduler.scheduler import BaseScheduler
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -33,6 +32,7 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.pydantic_v1 import ValidationError
+from jupyter_scheduler.scheduler import BaseScheduler
 
 logger = logging.getLogger(__name__)
 

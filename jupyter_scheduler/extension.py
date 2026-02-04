@@ -103,7 +103,9 @@ class SchedulerApp(ExtensionApp):
         help=_i18n("The job files manager class to use."),
     )
 
-    def _build_backend_configs(self, backend_classes: dict[str, type[BaseBackend]]) -> list[BackendConfig]:
+    def _build_backend_configs(
+        self, backend_classes: dict[str, type[BaseBackend]]
+    ) -> list[BackendConfig]:
         """Build BackendConfig objects from discovered backends, applying per-backend overrides."""
         configs = []
 

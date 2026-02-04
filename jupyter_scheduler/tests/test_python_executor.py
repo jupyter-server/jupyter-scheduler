@@ -30,13 +30,17 @@ def script_with_params(static_test_files_dir, python_script_staging_dir) -> Path
 @pytest.fixture
 def failing_script(static_test_files_dir, python_script_staging_dir) -> Path:
     """Copy failing script to staging."""
-    return Path(shutil.copy2(static_test_files_dir / "failing_script.py", python_script_staging_dir))
+    return Path(
+        shutil.copy2(static_test_files_dir / "failing_script.py", python_script_staging_dir)
+    )
 
 
 @pytest.fixture
 def script_with_side_effects(static_test_files_dir, python_script_staging_dir) -> Path:
     """Copy side effects script to staging."""
-    return Path(shutil.copy2(static_test_files_dir / "side_effects_script.py", python_script_staging_dir))
+    return Path(
+        shutil.copy2(static_test_files_dir / "side_effects_script.py", python_script_staging_dir)
+    )
 
 
 @pytest.fixture
