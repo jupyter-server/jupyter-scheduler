@@ -50,6 +50,8 @@ class BackendRegistry:
         for cfg in self._configs:
             if cfg.id in seen_ids:
                 raise ValueError(f"Duplicate backend ID: '{cfg.id}'")
+            if ":" in cfg.id:
+                raise ValueError(f"Backend ID cannot contain ':': '{cfg.id}'")
             seen_ids.add(cfg.id)
 
         for cfg in self._configs:

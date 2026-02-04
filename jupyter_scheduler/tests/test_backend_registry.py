@@ -95,6 +95,16 @@ def test_initialize_raises_for_duplicate_ids():
         registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
 
+def test_initialize_raises_for_backend_id_with_colon():
+    """Backend IDs cannot contain ':' as it's the job_id delimiter."""
+    config = make_backend_config("invalid:backend", name="Invalid Backend")
+
+    registry = BackendRegistry([config], "invalid:backend")
+
+    with pytest.raises(ValueError, match="Backend ID cannot contain ':'"):
+        registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
+
+
 @patch("jupyter_scheduler.backend_registry.create_tables")
 @patch("jupyter_scheduler.backend_registry.import_class")
 def test_get_backend_by_id(mock_import, mock_create_tables, jupyter_server_nb_backend_config):
