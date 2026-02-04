@@ -150,17 +150,16 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           props.model.inputFile
         );
 
-        // Only update if current backend is invalid for this file type
-        if (!validBackends.some(b => b.id === props.model.backend_id)) {
-          // Server returns backends sorted by preference; first is pre-selected
-          const selected = validBackends[0];
-          if (selected) {
-            props.handleModelChange({
-              ...props.model,
-              backend_id: selected.id,
-              outputFormats: selected.output_formats?.map(f => f.id)
-            });
-          }
+        //  Auto-select a valid backend when preferred backend doesn't support it
+        const currentBackendIsValid = validBackends.some(
+          b => b.id === props.model.backend_id
+        );
+        if (!currentBackendIsValid && validBackends.length) {
+          props.handleModelChange({
+            ...props.model,
+            backend_id: validBackends[0].id,
+            outputFormats: validBackends[0].output_formats?.map(f => f.id)
+          });
         }
       })
       .catch(e => console.error('Failed to fetch backends:', e));
