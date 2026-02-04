@@ -130,7 +130,7 @@ class Downloader:
                         with fsspec.open(output_filepath, mode="wb") as output_file:
                             output_file.write(input_file.read())
                 except Exception:
-                    logger.error(f"Failed to download {input_filepath}")
+                    logger.exception(f"Failed to download {input_filepath}")
 
 
 class JobFilesManagerWithErrors(JobFilesManager):
