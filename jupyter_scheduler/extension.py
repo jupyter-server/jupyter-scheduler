@@ -10,6 +10,7 @@ from traitlets import Type, Unicode, default
 from jupyter_scheduler.backend_registry import BackendRegistry
 from jupyter_scheduler.backend_utils import discover_backends, get_legacy_job_backend_id
 from jupyter_scheduler.backends import JUPYTER_SERVER_NB_BACKEND_ID, BackendConfig
+from jupyter_scheduler.base_backend import BaseBackend
 
 from .handlers import (
     BackendsHandler,
@@ -102,7 +103,7 @@ class SchedulerApp(ExtensionApp):
         help=_i18n("The job files manager class to use."),
     )
 
-    def _build_backend_configs(self, backend_classes: dict) -> list:
+    def _build_backend_configs(self, backend_classes: dict[str, type[BaseBackend]]) -> list[BackendConfig]:
         """Build BackendConfig objects from discovered backends, applying per-backend overrides."""
         configs = []
 

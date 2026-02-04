@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, List, Optional, Type
 
-from jupyter_scheduler.backends import BackendConfig, DescribeBackend
+from jupyter_scheduler.backends import BackendConfig, DescribeBackendResponse
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.orm import create_tables
 from jupyter_scheduler.pydantic_v1 import BaseModel
@@ -46,6 +46,12 @@ class BackendRegistry:
         config: Optional[Any] = None,
     ):
         """Instantiate all backends from configs."""
+        seen_ids = set()
+        for cfg in self._configs:
+            if cfg.id in seen_ids:
+                raise ValueError(f"Duplicate backend ID: '{cfg.id}'")
+            seen_ids.add(cfg.id)
+
         for cfg in self._configs:
             try:
                 instance = self._create_backend(cfg, root_dir, environments_manager, db_url, config)
@@ -70,7 +76,10 @@ class BackendRegistry:
         global_db_url: str,
         config: Optional[Any] = None,
     ) -> BackendInstance:
-        """Create a backend instance from configuration."""
+        """Import scheduler class, instantiate it, and return a BackendInstance.
+
+        Creates database tables if not found and backend uses default SQLAlchemy storage.
+        """
         scheduler_class = import_class(cfg.scheduler_class)
 
         backend_db_url = cfg.db_url or global_db_url
@@ -94,17 +103,25 @@ class BackendRegistry:
         return BackendInstance(config=cfg, scheduler=scheduler)
 
     def get_backend(self, backend_id: str) -> Optional[BackendInstance]:
-        """Get a backend by ID, or None if not found."""
+        """Return a backend with matching ID, None if none is found."""
         return self._backends.get(backend_id)
 
     def get_legacy_job_backend(self) -> BackendInstance:
-        """Get the backend for routing legacy jobs (UUID-only IDs from pre-3.0)."""
+        """Get the backend for routing legacy jobs (UUID-only IDs from pre-3.0).
+
+        Raises:
+            KeyError: If the configured legacy_job_backend ID is not found.
+        """
         if self._legacy_job_backend not in self._backends:
             raise KeyError(f"Legacy job backend '{self._legacy_job_backend}' not found in registry")
         return self._backends[self._legacy_job_backend]
 
     def get_for_file(self, input_uri: str) -> BackendInstance:
-        """Auto-select backend by file extension. Prefers configured backend, else alphabetical."""
+        """Auto-select backend by file extension. Prefers configured backend, else alphabetical.
+
+        Raises:
+            ValueError: If no backend supports the file extension.
+        """
         ext = ""
         if "." in input_uri:
             ext = input_uri.rsplit(".", 1)[-1].lower()
@@ -122,11 +139,11 @@ class BackendRegistry:
         candidate_instances = [self._backends[bid] for bid in candidate_ids]
         return min(candidate_instances, key=lambda b: b.config.name)
 
-    def describe_backends(self) -> List[DescribeBackend]:
+    def describe_backends(self) -> List[DescribeBackendResponse]:
         """Return backend descriptions sorted alphabetically by name. Frontend uses first as default."""
         backends_sorted = sorted(self._backends.values(), key=lambda b: b.config.name)
         return [
-            DescribeBackend(
+            DescribeBackendResponse(
                 id=b.config.id,
                 name=b.config.name,
                 description=b.config.description,

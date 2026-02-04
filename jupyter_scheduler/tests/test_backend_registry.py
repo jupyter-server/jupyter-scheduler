@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from jupyter_scheduler.backend_registry import BackendRegistry, import_class
-from jupyter_scheduler.backends import BackendConfig, DescribeBackend
+from jupyter_scheduler.backends import BackendConfig, DescribeBackendResponse
 
 SCHEDULER_CLASS = "jupyter_scheduler.scheduler.Scheduler"
 EXECUTION_MANAGER_CLASS = "jupyter_scheduler.executors.DefaultExecutionManager"
@@ -82,6 +82,17 @@ def test_initialize_creates_backends(
     assert len(registry) == 1
     assert "jupyter_server_nb" in registry
     mock_create_tables.assert_called_once_with("sqlite:///test.db")
+
+
+def test_initialize_raises_for_duplicate_ids():
+    """Duplicate backend IDs should raise ValueError."""
+    config1 = make_backend_config("duplicate_id", name="Backend 1")
+    config2 = make_backend_config("duplicate_id", name="Backend 2")
+
+    registry = BackendRegistry([config1, config2], "duplicate_id")
+
+    with pytest.raises(ValueError, match="Duplicate backend ID: 'duplicate_id'"):
+        registry.initialize("/tmp", MagicMock(), "sqlite:///test.db")
 
 
 @patch("jupyter_scheduler.backend_registry.create_tables")
@@ -279,7 +290,7 @@ def test_describe_backends_returns_all(
 
     backends = registry.describe_backends()
     assert len(backends) == 2
-    assert all(isinstance(b, DescribeBackend) for b in backends)
+    assert all(isinstance(b, DescribeBackendResponse) for b in backends)
 
     backend_ids = {b.id for b in backends}
     assert backend_ids == {"jupyter_server_nb", "mock"}

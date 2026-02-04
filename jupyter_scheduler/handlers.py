@@ -16,6 +16,7 @@ from jupyter_scheduler.exceptions import (
     SchedulerError,
 )
 from jupyter_scheduler.job_id import parse_job_id, resolve_scheduler
+from jupyter_scheduler.scheduler import BaseScheduler
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -60,7 +61,7 @@ class JobHandlersMixin:
             self._environments_manager = self.settings.get("environments_manager")
         return self._environments_manager
 
-    def get_scheduler(self, job_id: str):
+    def get_scheduler(self, job_id: str) -> BaseScheduler:
         """Get scheduler for a job ID. Raises HTTPError(400) if backend unavailable."""
         try:
             return resolve_scheduler(job_id, self.backend_registry)

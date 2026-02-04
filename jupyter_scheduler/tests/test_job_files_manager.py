@@ -256,24 +256,26 @@ async def test_copy_from_staging_with_backend_registry():
     }
     output_dir = "jobs/test-uuid"
 
-    with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
-        with patch("jupyter_scheduler.job_files_manager.Process"):
-            mock_scheduler = Mock()
-            mock_scheduler.get_job.return_value = job
-            mock_scheduler.get_staging_paths.return_value = staging_paths
-            mock_scheduler.get_local_output_path.return_value = output_dir
-            mock_scheduler.get_job_filenames.return_value = job_filenames
+    mock_scheduler = Mock()
+    mock_scheduler.get_job.return_value = job
+    mock_scheduler.get_staging_paths.return_value = staging_paths
+    mock_scheduler.get_local_output_path.return_value = output_dir
+    mock_scheduler.get_job_filenames.return_value = job_filenames
 
-            mock_backend = Mock()
-            mock_backend.scheduler = mock_scheduler
+    mock_backend = Mock()
+    mock_backend.scheduler = mock_scheduler
 
-            mock_registry = Mock()
-            mock_registry.get_backend.return_value = mock_backend
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = mock_backend
 
-            manager = JobFilesManager(backend_registry=mock_registry)
-            await manager.copy_from_staging(encoded_job_id)
+    manager = JobFilesManager(backend_registry=mock_registry)
 
-            # Verify correct backend was selected and scheduler was called with full job_id
-            mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
-            mock_scheduler.get_job.assert_called_once_with(encoded_job_id, False)
-            mock_downloader.assert_called_once()
+    with (
+        patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader,
+        patch("jupyter_scheduler.job_files_manager.Process"),
+    ):
+        await manager.copy_from_staging(encoded_job_id)
+
+    mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
+    mock_scheduler.get_job.assert_called_once_with(encoded_job_id, False)
+    mock_downloader.assert_called_once()

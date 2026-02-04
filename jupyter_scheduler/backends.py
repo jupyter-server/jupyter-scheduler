@@ -24,7 +24,7 @@ class BackendConfig(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
 
 
-class DescribeBackend(BaseModel):
+class DescribeBackendResponse(BaseModel):
     """API response model for GET /scheduler/backends.
 
     Backends are returned sorted alphabetically by name for consistent UI ordering.

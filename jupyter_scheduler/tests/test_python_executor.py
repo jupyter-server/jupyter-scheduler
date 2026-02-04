@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -8,54 +9,34 @@ from jupyter_scheduler.python_executor import PythonScriptExecutionManager
 
 @pytest.fixture
 def python_script_staging_dir(jp_scheduler_staging_dir) -> Path:
-    """Create a staging directory with a simple Python script."""
+    """Create a staging directory for Python script tests."""
     job_staging_dir = jp_scheduler_staging_dir / "job-py-1"
     job_staging_dir.mkdir()
     return job_staging_dir
 
 
 @pytest.fixture
-def simple_script(python_script_staging_dir) -> Path:
-    """Create a simple print script."""
-    script_path = python_script_staging_dir / "test_script.py"
-    script_path.write_text('print("Hello from Python script!")\n')
-    return script_path
+def simple_script(static_test_files_dir, python_script_staging_dir) -> Path:
+    """Copy test script to staging."""
+    return Path(shutil.copy2(static_test_files_dir / "test_script.py", python_script_staging_dir))
 
 
 @pytest.fixture
-def script_with_params(python_script_staging_dir) -> Path:
-    """Create a script that reads JUPYTER_PARAM_* env vars."""
-    script_path = python_script_staging_dir / "param_script.py"
-    script_path.write_text(
-        """import os
-learning_rate = os.environ.get('JUPYTER_PARAM_learning_rate', 'not_set')
-batch_size = os.environ.get('JUPYTER_PARAM_batch_size', 'not_set')
-print(f"lr={learning_rate}, batch={batch_size}")
-"""
-    )
-    return script_path
+def script_with_params(static_test_files_dir, python_script_staging_dir) -> Path:
+    """Copy param script to staging."""
+    return Path(shutil.copy2(static_test_files_dir / "param_script.py", python_script_staging_dir))
 
 
 @pytest.fixture
-def failing_script(python_script_staging_dir) -> Path:
-    """Create a script that exits with non-zero code."""
-    script_path = python_script_staging_dir / "failing_script.py"
-    script_path.write_text('import sys; print("error message", file=sys.stderr); sys.exit(1)\n')
-    return script_path
+def failing_script(static_test_files_dir, python_script_staging_dir) -> Path:
+    """Copy failing script to staging."""
+    return Path(shutil.copy2(static_test_files_dir / "failing_script.py", python_script_staging_dir))
 
 
 @pytest.fixture
-def script_with_side_effects(python_script_staging_dir) -> Path:
-    """Create a script that creates output files."""
-    script_path = python_script_staging_dir / "side_effects_script.py"
-    script_path.write_text(
-        """
-with open('output.txt', 'w') as f:
-    f.write('Generated output')
-print("Created output.txt")
-"""
-    )
-    return script_path
+def script_with_side_effects(static_test_files_dir, python_script_staging_dir) -> Path:
+    """Copy side effects script to staging."""
+    return Path(shutil.copy2(static_test_files_dir / "side_effects_script.py", python_script_staging_dir))
 
 
 @pytest.fixture
