@@ -171,22 +171,16 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(400, f"Validation error: {e}") from e
         except InputUriError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job definition: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job definition: {e}") from e
         except HTTPError:
             # Re-raise HTTPError as-is (e.g., 400 for invalid backend)
             raise
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job definition: {e}") from e
         else:
             self.finish(json.dumps(dict(job_definition_id=job_definition_id)))
 
@@ -204,14 +198,10 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while updating the job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while updating the job definition: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while updating the job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while updating the job definition: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -222,14 +212,10 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             await ensure_async(self.scheduler.delete_job_definition(job_definition_id))
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while deleting the job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job definition: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while deleting the job definition: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job definition: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -247,14 +233,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     job.backend_id = self.backend_registry.get_legacy_job_backend().config.id
             except SchedulerError as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, f"Unexpected error while getting job details: {e}"
-                ) from e
+                raise HTTPError(500, f"Unexpected error while getting job details: {e}") from e
             except Exception as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, f"Unexpected error while getting job details: {e}"
-                ) from e
+                raise HTTPError(500, f"Unexpected error while getting job details: {e}") from e
             else:
                 self.finish(job.json())
         else:
@@ -308,14 +290,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 raise HTTPError(400, f"Validation error: {e}") from e
             except SchedulerError as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, f"Unexpected error while getting jobs list: {e}"
-                ) from e
+                raise HTTPError(500, f"Unexpected error while getting jobs list: {e}") from e
             except Exception as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, f"Unexpected error while getting jobs list: {e}"
-                ) from e
+                raise HTTPError(500, f"Unexpected error while getting jobs list: {e}") from e
             else:
                 self.finish(list_jobs_response.json(exclude_none=True))
 
@@ -339,25 +317,19 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(400, f"Validation error: {e}") from e
         except InputUriError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         except IdempotencyTokenError as e:
             self.log.exception(e)
             raise HTTPError(409, str(e)) from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         except HTTPError:
             # Re-raise HTTPError as-is (e.g., 400 for invalid backend)
             raise
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         else:
             response = {"job_id": job_id}
             if "backend_id" in payload:
@@ -388,14 +360,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while updating the job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while updating the job: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while updating the job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while updating the job: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -407,14 +375,10 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             await ensure_async(scheduler.delete_job(job_id))
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while deleting the job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while deleting the job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -434,14 +398,10 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
             raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         else:
             self.finish(json.dumps(dict(job_id=job_id)))
 
@@ -456,14 +416,10 @@ class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 await ensure_async(scheduler.delete_job(job_id))
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during deletion of jobs: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during deletion of jobs: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during deletion of jobs: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error during deletion of jobs: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -480,14 +436,10 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             count = await ensure_async(self.scheduler.count_jobs(count_jobs_query))
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while getting job count: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while getting job count: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while getting job count: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while getting job count: {e}") from e
         else:
             self.finish(json.dumps(dict(count=count)))
 
@@ -500,9 +452,7 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
             environments = await ensure_async(self.environments_manager.list_environments())
             output_formats = await ensure_async(self.environments_manager.output_formats_mapping())
         except EnvironmentRetrievalError as e:
-            raise HTTPError(
-                500, f"Unexpected error while listing environments: {e}"
-            )
+            raise HTTPError(500, f"Unexpected error while listing environments: {e}")
 
         response = []
         for environment in environments:
@@ -551,9 +501,7 @@ class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
             await self.job_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while downloading files: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while downloading files: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -577,11 +525,7 @@ class BackendsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             self.finish(json.dumps([b.dict() for b in backends]))
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while listing backends: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while listing backends: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while listing backends: {e}"
-            ) from e
+            raise HTTPError(500, f"Unexpected error while listing backends: {e}") from e
