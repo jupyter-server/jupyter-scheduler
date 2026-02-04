@@ -141,9 +141,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 list_response = await ensure_async(self.scheduler.list_job_definitions(list_query))
             except ValidationError as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, f"Unexpected error while getting job definition list: {e}"
-                ) from e
+                raise HTTPError(400, f"Validation error: {e}") from e
             except SchedulerError as e:
                 self.log.exception(e)
                 raise HTTPError(
@@ -170,9 +168,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             )
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job definition: {e}"
-            ) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except InputUriError as e:
             self.log.exception(e)
             raise HTTPError(
@@ -205,9 +201,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             )
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while updating the job definition: {e}"
-            ) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(
@@ -311,9 +305,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                                 self.log.warning(f"Failed to sync status for job {job.job_id}: {e}")
             except ValidationError as e:
                 self.log.exception(e)
-                raise HTTPError(
-                    500, f"Unexpected error while getting jobs list: {e}"
-                ) from e
+                raise HTTPError(400, f"Validation error: {e}") from e
             except SchedulerError as e:
                 self.log.exception(e)
                 raise HTTPError(
@@ -344,9 +336,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             # Job ID is already in backend:uuid format from scheduler (no wrapping needed)
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except InputUriError as e:
             self.log.exception(e)
             raise HTTPError(
@@ -395,9 +385,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 await ensure_async(scheduler.update_job(job_id, UpdateJob(**payload)))
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error while updating the job: {e}"
-            ) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(
@@ -443,9 +431,7 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
             )
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, f"Unexpected error during creation of job: {e}"
-            ) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(
