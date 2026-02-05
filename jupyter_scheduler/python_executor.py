@@ -46,7 +46,7 @@ class PythonScriptExecutionManager(ExecutionManager):
 
         if result.returncode != 0:
             raise RuntimeError(
-                f"Script exited with code {result.returncode}\nstderr: {result.stderr[:500]}"
+                f"Script exited with code {result.returncode}. See 'Errors' output for full error trace."
             )
 
     def add_side_effects_files(self, staging_dir: str) -> None:
