@@ -103,7 +103,9 @@ async def test_post_jobs_for_idempotency_token_error(jp_fetch):
 
         assert e.value.code == 409
         body = json.loads(e.value.response.body.decode())
-        assert f"Job with Idempotency Token '{idempotency_token}' already exists." == body["message"]
+        assert (
+            f"Job with Idempotency Token '{idempotency_token}' already exists." == body["message"]
+        )
 
 
 async def test_post_jobs_for_unexpected_error(jp_fetch):
