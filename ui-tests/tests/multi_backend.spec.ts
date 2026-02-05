@@ -175,7 +175,7 @@ test.describe('Multi-Backend Picker (Mocked)', () => {
 
     // Verify the request uses the selected backend
     const postData = createRequest.postDataJSON();
-    expect(postData.backend).toBe('k8s_backend');
+    expect(postData.backend_id).toBe('k8s_backend');
   });
 
   test('backend description shown as helper text', async ({ page }) => {

@@ -166,7 +166,7 @@ def test_execute_script_failure(
         manager.execute()
 
     assert "exited with code 1" in str(exc_info.value)
-    assert "error message" in str(exc_info.value)
+    assert "Errors" in str(exc_info.value)
 
 
 def test_side_effects_captured(

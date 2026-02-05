@@ -270,7 +270,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
       props.handleModelChange({
         ...props.model,
-        backend: target.value,
+        backend_id: target.value,
         outputFormats: newOutputFormats
       });
     } else {
@@ -636,7 +636,7 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               {displayBackend ? (
                 <props.advancedOptions
                   jobsView={JobsView.CreateForm}
-                  model={{ ...props.model, backend: displayBackend }}
+                  model={{ ...props.model, backend_id: displayBackend }}
                   handleModelChange={props.handleModelChange}
                   errors={advancedOptionsErrors}
                   handleErrorsChange={setAdvancedOptionsErrors}
