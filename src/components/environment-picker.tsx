@@ -48,7 +48,7 @@ export function EnvironmentPicker(
         value={props.value}
       >
         {props.environmentList.map((env, idx) => (
-          <MenuItem value={env.label} title={env.description} key={idx}>
+          <MenuItem value={env.name} title={env.description} key={idx}>
             {env.name}
           </MenuItem>
         ))}

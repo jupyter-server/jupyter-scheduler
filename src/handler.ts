@@ -274,6 +274,18 @@ export class SchedulerService {
     }
   }
 
+  async getBackends(): Promise<Scheduler.IBackend[]> {
+    let data;
+    try {
+      data = await requestAPI(this.serverSettings, 'backends', {
+        method: 'GET'
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+    return data as Scheduler.IBackend[];
+  }
+
   async updateJobDefinition(
     jobDefId: string,
     model: Scheduler.IUpdateJobDefinition
@@ -364,6 +376,7 @@ export namespace Scheduler {
     schedule?: string;
     timezone?: string;
     package_input_folder?: boolean;
+    backend_id?: string;
   }
 
   export interface IUpdateJobDefinition {
@@ -391,6 +404,7 @@ export namespace Scheduler {
     update_time: number;
     active: boolean;
     package_input_folder?: boolean;
+    backend_id?: string;
   }
 
   export interface IEmailNotifications {
@@ -418,6 +432,7 @@ export namespace Scheduler {
     output_formats?: string[];
     compute_type?: string;
     package_input_folder?: boolean;
+    backend_id?: string;
   }
 
   export interface ICreateJobFromDefinition {
@@ -467,6 +482,7 @@ export namespace Scheduler {
     end_time?: number;
     downloaded: boolean;
     package_input_folder?: boolean;
+    backend_id?: string;
   }
 
   export interface ICreateJobResponse {
@@ -528,7 +544,16 @@ export namespace Scheduler {
   }
 
   export interface IOutputFormat {
-    name: string;
+    id: string;
     label: string;
+    description?: string;
+  }
+
+  export interface IBackend {
+    id: string;
+    name: string;
+    description: string;
+    file_extensions: string[];
+    output_formats: IOutputFormat[];
   }
 }

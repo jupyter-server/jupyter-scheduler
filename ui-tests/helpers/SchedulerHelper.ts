@@ -216,17 +216,24 @@ export class SchedulerHelper {
     expect(await target.screenshot(screenshotArgs)).toMatchSnapshot(filename);
   }
 
-  async standardizeListCreateTime() {
+  /**
+   * Intercepts list jobs API to normalize timestamps for snapshot tests.
+   */
+  async interceptListJobTimes() {
     await this.page.route('**/scheduler/*', async (route, req) => {
       if (req.url().includes('max_items')) {
         const res = await route.fetch();
         const json = await res.json();
-        json.jobs[0].create_time = 1;
+        for (const job of json.jobs ?? []) {
+          job.create_time = 1;
+        }
         route.fulfill({
           status: res.status(),
           headers: res.headers(),
           body: JSON.stringify(json)
         });
+      } else {
+        route.continue();
       }
     });
   }

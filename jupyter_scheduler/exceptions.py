@@ -3,8 +3,6 @@ class SchedulerError(Exception):
     that are not defined here
     """
 
-    pass
-
 
 class InputUriError(Exception):
     def __init__(self, input_uri: str):

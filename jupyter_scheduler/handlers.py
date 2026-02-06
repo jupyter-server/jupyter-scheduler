@@ -1,17 +1,20 @@
 import json
+import logging
 import re
+from typing import Optional
 
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
-from jupyter_server.utils import ensure_async
 from tornado.web import HTTPError, authenticated
 
+from jupyter_scheduler.backend_registry import BackendInstance, BackendRegistry
 from jupyter_scheduler.environments import EnvironmentRetrievalError
 from jupyter_scheduler.exceptions import (
     IdempotencyTokenError,
     InputUriError,
     SchedulerError,
 )
+from jupyter_scheduler.job_id import parse_job_id, resolve_scheduler
 from jupyter_scheduler.models import (
     DEFAULT_MAX_ITEMS,
     DEFAULT_SORT,
@@ -28,32 +31,60 @@ from jupyter_scheduler.models import (
     UpdateJobDefinition,
 )
 from jupyter_scheduler.pydantic_v1 import ValidationError
+from jupyter_scheduler.scheduler import BaseScheduler
+
+logger = logging.getLogger(__name__)
 
 
 class JobHandlersMixin:
     _scheduler = None
     _environments_manager = None
     _execution_manager_class = None
+    _backend_registry = None
 
     @property
     def scheduler(self):
-        if not self._scheduler:
+        if self._scheduler is None:
             self._scheduler = self.settings.get("scheduler")
-
         return self._scheduler
+
+    @property
+    def backend_registry(self) -> Optional[BackendRegistry]:
+        if self._backend_registry is None:
+            self._backend_registry = self.settings.get("backend_registry")
+        return self._backend_registry
 
     @property
     def environments_manager(self):
         if self._environments_manager is None:
             self._environments_manager = self.settings.get("environments_manager")
-
         return self._environments_manager
+
+    def get_scheduler(self, job_id: str) -> BaseScheduler:
+        """Get scheduler for a job ID. Raises HTTPError(400) if backend unavailable."""
+        try:
+            return resolve_scheduler(job_id, self.backend_registry)
+        except ValueError as e:
+            raise HTTPError(400, str(e))
+
+    def resolve_backend_for_job(self, payload: dict) -> BackendInstance:
+        """Resolve backend from payload['backend_id'] or auto-select by file extension."""
+        backend_id = payload.get("backend_id")
+        if backend_id:
+            backend = self.backend_registry.get_backend(backend_id)
+            if not backend:
+                raise HTTPError(404, f"Backend not found: {backend_id}")
+            return backend
+        # Auto-select based on file extension
+        try:
+            return self.backend_registry.get_for_file(payload.get("input_uri", ""))
+        except ValueError as e:
+            raise HTTPError(400, str(e)) from e
 
     @property
     def execution_manager_class(self):
-        if not self._execution_manager_class:
+        if self._execution_manager_class is None:
             self._execution_manager_class = self.scheduler.execution_manager_class
-
         return self._execution_manager_class
 
 
@@ -78,16 +109,16 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def get(self, job_definition_id=None):
         if job_definition_id:
             try:
-                job_definition = await ensure_async(
-                    self.scheduler.get_job_definition(job_definition_id)
-                )
+                job_definition = await self.scheduler.get_job_definition(job_definition_id)
             except SchedulerError as e:
                 self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
+                raise HTTPError(
+                    500, f"Unexpected error while getting job definition details: {e}"
+                ) from e
             except Exception as e:
                 self.log.exception(e)
                 raise HTTPError(
-                    500, "Unexpected error occurred while getting job definition details."
+                    500, f"Unexpected error while getting job definition details: {e}"
                 ) from e
             else:
                 self.finish(job_definition.json())
@@ -104,17 +135,19 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                     next_token=self.get_query_argument("next_token", None),
                 )
-                list_response = await ensure_async(self.scheduler.list_job_definitions(list_query))
+                list_response = await self.scheduler.list_job_definitions(list_query)
             except ValidationError as e:
                 self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
+                raise HTTPError(400, f"Validation error: {e}") from e
             except SchedulerError as e:
                 self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
+                raise HTTPError(
+                    500, f"Unexpected error while getting job definition list: {e}"
+                ) from e
             except Exception as e:
                 self.log.exception(e)
                 raise HTTPError(
-                    500, "Unexpected error occurred while getting job definition list."
+                    500, f"Unexpected error while getting job definition list: {e}"
                 ) from e
             else:
                 self.finish(list_response.json(exclude_none=True))
@@ -123,23 +156,28 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def post(self):
         payload = self.get_json_body()
         try:
-            job_definition_id = await ensure_async(
-                self.scheduler.create_job_definition(CreateJobDefinition(**payload))
+            backend = self.resolve_backend_for_job(payload)
+            payload["backend_id"] = backend.config.id
+            scheduler = backend.scheduler
+
+            job_definition_id = await scheduler.create_job_definition(
+                CreateJobDefinition(**payload)
             )
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except InputUriError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error during creation of job definition: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error during creation of job definition: {e}") from e
+        except HTTPError:
+            # Re-raise HTTPError as-is (e.g., 400 for invalid backend)
+            raise
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, "Unexpected error occurred during creation of job definition."
-            ) from e
+            raise HTTPError(500, f"Unexpected error during creation of job definition: {e}") from e
         else:
             self.finish(json.dumps(dict(job_definition_id=job_definition_id)))
 
@@ -147,22 +185,18 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def patch(self, job_definition_id):
         payload = self.get_json_body()
         try:
-            await ensure_async(
-                self.scheduler.update_job_definition(
-                    job_definition_id, UpdateJobDefinition(**payload)
-                )
+            await self.scheduler.update_job_definition(
+                job_definition_id, UpdateJobDefinition(**payload)
             )
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error while updating the job definition: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, "Unexpected error occurred while updating the job definition."
-            ) from e
+            raise HTTPError(500, f"Unexpected error while updating the job definition: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -170,15 +204,13 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def delete(self, job_definition_id):
         try:
-            await ensure_async(self.scheduler.delete_job_definition(job_definition_id))
+            await self.scheduler.delete_job_definition(job_definition_id)
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job definition: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(
-                500, "Unexpected error occurred while deleting the job definition."
-            ) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job definition: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -189,13 +221,17 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def get(self, job_id=None):
         if job_id:
             try:
-                job = await ensure_async(self.scheduler.get_job(job_id))
+                scheduler = self.get_scheduler(job_id)
+                job = await scheduler.get_job(job_id)
+                # Populate backend_id for legacy jobs (NULL in DB)
+                if not job.backend_id:
+                    job.backend_id = self.backend_registry.get_legacy_job_backend().config.id
             except SchedulerError as e:
                 self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
+                raise HTTPError(500, f"Unexpected error while getting job details: {e}") from e
             except Exception as e:
                 self.log.exception(e)
-                raise HTTPError(500, "Unexpected error occurred while getting job details.") from e
+                raise HTTPError(500, f"Unexpected error while getting job details: {e}") from e
             else:
                 self.finish(job.json())
         else:
@@ -213,16 +249,44 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     max_items=self.get_query_argument("max_items", DEFAULT_MAX_ITEMS),
                     next_token=self.get_query_argument("next_token", None),
                 )
-                list_jobs_response = await ensure_async(self.scheduler.list_jobs(list_jobs_query))
+
+                # Query jobs from legacy job backend (all backends share same DB)
+                # Job IDs are already stored as 'backend:uuid' format
+                legacy_backend = self.backend_registry.get_legacy_job_backend()
+                list_jobs_response = await legacy_backend.scheduler.list_jobs(list_jobs_query)
+
+                # Populate backend_id for legacy jobs (NULL in DB)
+                for job in list_jobs_response.jobs:
+                    if not job.backend_id:
+                        job.backend_id = legacy_backend.config.id
+
+                # For QUEUED/IN_PROGRESS jobs, route through their backend's scheduler
+                # This allows backend-specific schedulers (like BraketScheduler) to sync status
+                for i, job in enumerate(list_jobs_response.jobs):
+                    if job.status in (Status.QUEUED, Status.IN_PROGRESS):
+                        backend_id, _ = parse_job_id(job.job_id)
+                        # Legacy jobs (backend_id=None) stay with legacy backend
+                        backend = (
+                            self.backend_registry.get_backend(backend_id) if backend_id else None
+                        )
+                        if backend and backend.scheduler != legacy_backend.scheduler:
+                            # Call backend's get_job which triggers status sync
+                            try:
+                                synced_job = await backend.scheduler.get_job(
+                                    job.job_id, job_files=False
+                                )
+                                list_jobs_response.jobs[i] = synced_job
+                            except Exception as e:
+                                self.log.warning(f"Failed to sync status for job {job.job_id}: {e}")
             except ValidationError as e:
                 self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
+                raise HTTPError(400, f"Validation error: {e}") from e
             except SchedulerError as e:
                 self.log.exception(e)
-                raise HTTPError(500, str(e)) from e
+                raise HTTPError(500, f"Unexpected error while getting jobs list: {e}") from e
             except Exception as e:
                 self.log.exception(e)
-                raise HTTPError(500, "Unexpected error occurred while getting jobs list.") from e
+                raise HTTPError(500, f"Unexpected error while getting jobs list: {e}") from e
             else:
                 self.finish(list_jobs_response.json(exclude_none=True))
 
@@ -230,24 +294,40 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     async def post(self):
         payload = self.get_json_body()
         try:
-            job_id = await ensure_async(self.scheduler.create_job(CreateJob(**payload)))
+            backend = self.resolve_backend_for_job(payload)
+            payload["backend_id"] = backend.config.id
+            scheduler = backend.scheduler
+
+            # Set default output_formats from backend if not specified
+            if not payload.get("output_formats"):
+                if backend.config.output_formats:
+                    payload["output_formats"] = [f["id"] for f in backend.config.output_formats]
+
+            job_id = await scheduler.create_job(CreateJob(**payload))
+            # Job ID is already in backend:uuid format from scheduler (no wrapping needed)
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except InputUriError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         except IdempotencyTokenError as e:
             self.log.exception(e)
             raise HTTPError(409, str(e)) from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
+        except HTTPError:
+            # Re-raise HTTPError as-is (e.g., 400 for invalid backend)
+            raise
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred during creation of job.") from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         else:
-            self.finish(json.dumps(dict(job_id=job_id)))
+            response = {"job_id": job_id}
+            if "backend_id" in payload:
+                response["backend_id"] = payload["backend_id"]
+            self.finish(json.dumps(response))
 
     @authenticated
     async def patch(self, job_id):
@@ -263,19 +343,20 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             )
 
         try:
+            scheduler = self.get_scheduler(job_id)
             if status:
-                await ensure_async(self.scheduler.stop_job(job_id))
+                await scheduler.stop_job(job_id)
             else:
-                await ensure_async(self.scheduler.update_job(job_id, UpdateJob(**payload)))
+                await scheduler.update_job(job_id, UpdateJob(**payload))
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error while updating the job: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred while updating the job.") from e
+            raise HTTPError(500, f"Unexpected error while updating the job: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -283,13 +364,14 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
     @authenticated
     async def delete(self, job_id):
         try:
-            await ensure_async(self.scheduler.delete_job(job_id))
+            scheduler = self.get_scheduler(job_id)
+            await scheduler.delete_job(job_id)
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error while deleting the job: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred while deleting the job.") from e
+            raise HTTPError(500, f"Unexpected error while deleting the job: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -301,18 +383,16 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
         payload = self.get_json_body()
         try:
             model = CreateJobFromDefinition(**payload)
-            job_id = await ensure_async(
-                self.scheduler.create_job_from_definition(job_definition_id, model=model)
-            )
+            job_id = await self.scheduler.create_job_from_definition(job_definition_id, model=model)
         except ValidationError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(400, f"Validation error: {e}") from e
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred during creation of job.") from e
+            raise HTTPError(500, f"Unexpected error during creation of job: {e}") from e
         else:
             self.finish(json.dumps(dict(job_id=job_id)))
 
@@ -323,13 +403,14 @@ class BatchJobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
         job_ids = self.get_query_arguments("job_id")
         try:
             for job_id in job_ids:
-                await ensure_async(self.scheduler.delete_job(job_id))
+                scheduler = self.get_scheduler(job_id)
+                await scheduler.delete_job(job_id)
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error during deletion of jobs: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred during deletion of jobs.") from e
+            raise HTTPError(500, f"Unexpected error during deletion of jobs: {e}") from e
         else:
             self.set_status(204)
             self.finish()
@@ -343,13 +424,13 @@ class JobsCountHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
             status=Status(status.upper()) if status else Status.IN_PROGRESS
         )
         try:
-            count = await ensure_async(self.scheduler.count_jobs(count_jobs_query))
+            count = await self.scheduler.count_jobs(count_jobs_query)
         except SchedulerError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error while getting job count: {e}") from e
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, "Unexpected error occurred while getting job count.") from e
+            raise HTTPError(500, f"Unexpected error while getting job count: {e}") from e
         else:
             self.finish(json.dumps(dict(count=count)))
 
@@ -359,16 +440,16 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
     async def get(self):
         """Returns names of available runtime environments and output formats mappings"""
         try:
-            environments = await ensure_async(self.environments_manager.list_environments())
-            output_formats = await ensure_async(self.environments_manager.output_formats_mapping())
+            environments = self.environments_manager.list_environments()
+            output_formats = self.environments_manager.output_formats_mapping()
         except EnvironmentRetrievalError as e:
-            raise HTTPError(500, str(e))
+            raise HTTPError(500, f"Unexpected error while listing environments: {e}")
 
         response = []
         for environment in environments:
             env = environment.dict()
             formats = env["output_formats"]
-            env["output_formats"] = [{"name": f, "label": output_formats[f]} for f in formats]
+            env["output_formats"] = [{"id": f, "label": output_formats[f]} for f in formats]
             response.append(env)
 
         self.finish(json.dumps(response))
@@ -411,7 +492,31 @@ class FilesDownloadHandler(ExtensionHandlerMixin, APIHandler):
             await self.job_files_manager.copy_from_staging(job_id=job_id, redownload=redownload)
         except Exception as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
+            raise HTTPError(500, f"Unexpected error while downloading files: {e}") from e
         else:
             self.set_status(204)
             self.finish()
+
+
+class BackendsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
+    """Handler for listing available backends.
+
+    GET /scheduler/backends - Returns list of available execution backends.
+    """
+
+    @authenticated
+    async def get(self):
+        """List available backends."""
+        try:
+            registry = self.backend_registry
+            if registry is None:
+                raise HTTPError(500, "Backend registry not initialized")
+
+            backends = registry.describe_backends()
+            self.finish(json.dumps([b.dict() for b in backends]))
+        except SchedulerError as e:
+            self.log.exception(e)
+            raise HTTPError(500, f"Unexpected error while listing backends: {e}") from e
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(500, f"Unexpected error while listing backends: {e}") from e

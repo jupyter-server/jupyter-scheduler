@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import sqlalchemy.types as types
 from sqlalchemy import Boolean, Column, Integer, String, create_engine, inspect
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 from sqlalchemy.sql import text
 
@@ -94,7 +95,7 @@ class CommonColumns:
 class Job(CommonColumns, Base):
     __tablename__ = "jobs"
     __table_args__ = {"extend_existing": True}
-    job_id = Column(String(36), primary_key=True, default=generate_uuid)
+    job_id = Column(String(128), primary_key=True, default=generate_uuid)
     job_definition_id = Column(String(36))
     status = Column(String(64), default=Status.STOPPED)
     status_message = Column(String(1024))
@@ -105,6 +106,7 @@ class Job(CommonColumns, Base):
     idempotency_token = Column(String(256))
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
+    backend_id = Column(String(64))
 
 
 class JobDefinition(CommonColumns, Base):
@@ -118,6 +120,7 @@ class JobDefinition(CommonColumns, Base):
     active = Column(Boolean, default=True)
     # All new columns added to this table must be nullable to ensure compatibility during database migrations.
     # Any default values specified for new columns will be ignored during the migration process.
+    backend_id = Column(String(64))
 
 
 def update_db_schema(engine, Base):
@@ -160,7 +163,33 @@ def create_tables(db_url, drop_tables=False, Base=Base):
 
 
 def create_session(db_url):
+    """Create sync session factory (for migrations and task_runner cache)."""
     engine = create_engine(db_url, echo=False)
     Session = sessionmaker(bind=engine)
 
     return Session
+
+
+def create_async_session(db_url: str):
+    """Create async session factory with connection pooling.
+
+    Connection pooling improves performance by reusing database connections
+    instead of creating new ones for each query. SQLite doesn't support
+    traditional connection pooling, but we configure the engine for optimal
+    async operation with aiosqlite.
+
+    Args:
+        db_url: Database URL (e.g., "sqlite:///path/to/db.sqlite")
+
+    Returns:
+        Async session factory that can be used as context manager:
+            async with session_factory() as session:
+                result = await session.execute(select(Job))
+    """
+    async_url = db_url.replace("sqlite://", "sqlite+aiosqlite://")
+    engine = create_async_engine(
+        async_url,
+        echo=False,
+        pool_pre_ping=True,
+    )
+    return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

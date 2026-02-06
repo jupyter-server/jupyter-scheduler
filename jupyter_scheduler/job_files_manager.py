@@ -1,27 +1,53 @@
+import logging
 import os
 import random
 import tarfile
 from multiprocessing import Process
-from typing import Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import fsspec
-from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
+from jupyter_scheduler.job_id import resolve_scheduler
 from jupyter_scheduler.scheduler import BaseScheduler
+
+if TYPE_CHECKING:
+    from jupyter_scheduler.backend_registry import BackendRegistry
+
+logger = logging.getLogger(__name__)
 
 
 class JobFilesManager:
-    scheduler = None
+    """Manages downloading job output files from staging to local output directory.
 
-    def __init__(self, scheduler: Type[BaseScheduler]):
-        self.scheduler = scheduler
+    Args:
+        backend_registry: Registry of all backend schedulers. Job IDs are decoded
+            to route to the correct backend's scheduler.
+    """
+
+    def __init__(self, backend_registry: "BackendRegistry"):
+        self.backend_registry = backend_registry
+
+    def _get_scheduler(self, job_id: str) -> BaseScheduler:
+        """Get the appropriate scheduler for a job ID.
+
+        Raises:
+            ValueError: If the backend specified in the job ID is not available.
+        """
+        return resolve_scheduler(job_id, self.backend_registry)
 
     async def copy_from_staging(self, job_id: str, redownload: Optional[bool] = False):
-        job = await ensure_async(self.scheduler.get_job(job_id, False))
-        staging_paths = await ensure_async(self.scheduler.get_staging_paths(job))
-        output_filenames = self.scheduler.get_job_filenames(job)
-        output_dir = self.scheduler.get_local_output_path(model=job, root_dir_relative=True)
+        """Copy job output files from staging area to local output directory.
+
+        Args:
+            job_id: Job identifier (may be encoded as 'backend_id:uuid' or legacy UUID)
+            redownload: If True, re-download files even if they already exist locally
+        """
+        scheduler = self._get_scheduler(job_id)
+        job = await scheduler.get_job(job_id, False)
+        staging_paths = await scheduler.get_staging_paths(job)
+        output_filenames = scheduler.get_job_filenames(job)
+        output_dir = scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
         p = Process(
             target=Downloader(
@@ -102,8 +128,8 @@ class Downloader:
                     with fsspec.open(input_filepath) as input_file:
                         with fsspec.open(output_filepath, mode="wb") as output_file:
                             output_file.write(input_file.read())
-                except Exception as e:
-                    pass
+                except Exception:
+                    logger.exception(f"Failed to download {input_filepath}")
 
 
 class JobFilesManagerWithErrors(JobFilesManager):
@@ -127,4 +153,4 @@ class JobFilesManagerWithErrors(JobFilesManager):
         if self._should_raise_error():
             raise SchedulerError("Failed copy_from_staging because of a deliberate exception.")
         else:
-            return super().copy_from_staging(job_id, redownload)
+            return await super().copy_from_staging(job_id, redownload)

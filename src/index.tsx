@@ -14,6 +14,7 @@ import { ILauncher } from '@jupyterlab/launcher';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { Contents, ServerConnection } from '@jupyterlab/services';
 import { ITranslator } from '@jupyterlab/translation';
+import { DisposableSet } from '@lumino/disposable';
 
 import AdvancedOptions from './advanced-options';
 import {
@@ -370,6 +371,98 @@ function activatePlugin(
       }
     });
   }
+
+  // Dynamic context menu registration based on available backends
+  let contextMenuDisposables = new DisposableSet();
+
+  /**
+   * Get JupyterLab's data-file-type value for a given file extension.
+   * Uses DocumentRegistry to handle arbitrary extensions correctly.
+   */
+  const getFileTypeForExtension = (ext: string): string | null => {
+    try {
+      const normalizedExt = ext.toLowerCase().replace(/^\./, '');
+      const fileType = app.docRegistry.getFileTypeForModel({
+        name: `file.${normalizedExt}`
+      });
+      return fileType?.name ?? normalizedExt;
+    } catch {
+      console.warn(
+        `[jupyter-scheduler] Failed to resolve file type for extension: ${ext}`
+      );
+      return null;
+    }
+  };
+
+  /**
+   * Update context menus based on registered backends.
+   * Fetches backends from server and registers a context menu item
+   * for each unique file type that has backend support.
+   */
+  const updateContextMenus = async () => {
+    // Dispose old menu items
+    contextMenuDisposables.dispose();
+    contextMenuDisposables = new DisposableSet();
+
+    let fileTypes: Set<string>;
+
+    try {
+      const backends = await api.getBackends();
+
+      // Deduplicate by file type (multiple backends may support same extension)
+      fileTypes = new Set<string>();
+      for (const backend of backends) {
+        for (const ext of backend.file_extensions) {
+          const fileType = getFileTypeForExtension(ext);
+          if (fileType) {
+            fileTypes.add(fileType);
+          }
+        }
+      }
+
+      // No backends = no context menu
+      if (fileTypes.size === 0) {
+        console.debug(
+          '[jupyter-scheduler] No backends registered, skipping context menu'
+        );
+        return;
+      }
+    } catch (e) {
+      console.error('[jupyter-scheduler] Failed to fetch backends:', e);
+      // Fallback to notebook only on error
+      fileTypes = new Set(['notebook']);
+    }
+
+    // Register context menu for each unique file type
+    for (const fileType of fileTypes) {
+      contextMenuDisposables.add(
+        app.contextMenu.addItem({
+          command: CommandIDs.createJobFileBrowser,
+          selector: `.jp-DirListing-item[data-file-type="${fileType}"]`,
+          rank: 3.9
+        })
+      );
+    }
+
+    console.debug(
+      `[jupyter-scheduler] Registered context menu for file types: [${[
+        ...fileTypes
+      ].join(', ')}]`
+    );
+  };
+
+  // Register notebooks immediately as safe default (handles race condition
+  // where user right-clicks before getBackends() resolves)
+  contextMenuDisposables.add(
+    app.contextMenu.addItem({
+      command: CommandIDs.createJobFileBrowser,
+      selector: '.jp-DirListing-item[data-file-type="notebook"]',
+      rank: 3.9
+    })
+  );
+
+  // Update with full backend list asynchronously
+  updateContextMenus().catch(console.warn);
 }
 
 const plugins: JupyterFrontEndPlugin<any>[] = [

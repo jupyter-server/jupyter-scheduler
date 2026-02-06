@@ -23,7 +23,6 @@ class EnvironmentManager(ABC):
         supported by this environment manager. This should include all
         supported output formats, not just by individual environments.
         """
-        pass
 
 
 class CondaEnvironmentManager(EnvironmentManager):
@@ -38,9 +37,9 @@ class CondaEnvironmentManager(EnvironmentManager):
         try:
             envs = subprocess.check_output(["conda", "env", "list", "--json"])
             envs = json.loads(envs).get("envs", [])
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError:
             envs = []
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             envs = []
 
         current_python_root = sys.prefix
@@ -66,7 +65,13 @@ class CondaEnvironmentManager(EnvironmentManager):
         return ""
 
     def output_formats_mapping(self) -> Dict[str, str]:
-        return {"ipynb": "Notebook", "html": "HTML"}
+        return {
+            "ipynb": "Notebook",
+            "html": "HTML",
+            "stdout": "Output",
+            "stderr": "Errors",
+            "json": "JSON",
+        }
 
 
 class StaticEnvironmentManager(EnvironmentManager):
@@ -90,7 +95,13 @@ class StaticEnvironmentManager(EnvironmentManager):
         return ""
 
     def output_formats_mapping(self) -> Dict[str, str]:
-        return {"ipynb": "Notebook", "html": "HTML"}
+        return {
+            "ipynb": "Notebook",
+            "html": "HTML",
+            "stdout": "Output",
+            "stderr": "Errors",
+            "json": "JSON",
+        }
 
 
 class EnvironmentRetrievalError(Exception):

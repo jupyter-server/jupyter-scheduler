@@ -1,41 +1,40 @@
 import React, { ChangeEvent } from 'react';
 
-import { Checkbox, FormControlLabel, InputLabel } from '@mui/material';
+import { Checkbox, FormControlLabel, InputLabel, Tooltip } from '@mui/material';
 
 import { Stack } from './stack';
 
 import { Cluster } from './cluster';
 import { Scheduler } from '../handler';
-import { IOutputFormat } from '../model';
 
 export type OutputFormatPickerProps = {
   label: string;
   name: string;
   id: string;
-  environment: string;
-  environmentList: Scheduler.IRuntimeEnvironment[];
+  backend_id: string;
+  backendList: Scheduler.IBackend[];
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string[];
 };
 
-export function outputFormatsForEnvironment(
-  environmentList: Scheduler.IRuntimeEnvironment[],
-  environment: string
-): IOutputFormat[] | null {
-  const environmentObj = environmentList.find(env => env.name === environment);
-  if (!environmentObj || !environmentObj['output_formats']) {
+export function outputFormatsForBackend(
+  backendList: Scheduler.IBackend[],
+  backend_id: string
+): Scheduler.IOutputFormat[] | null {
+  const backendObj = backendList.find(b => b.id === backend_id);
+  if (!backendObj || !backendObj.output_formats) {
     return null;
   }
 
-  return environmentObj['output_formats'] as IOutputFormat[];
+  return backendObj.output_formats;
 }
 
 export function OutputFormatPicker(
   props: OutputFormatPickerProps
 ): JSX.Element | null {
-  const outputFormats = outputFormatsForEnvironment(
-    props.environmentList,
-    props.environment
+  const outputFormats = outputFormatsForBackend(
+    props.backendList,
+    props.backend_id
   );
 
   // Don't display anything, not even the label, if there are no output formats
@@ -48,18 +47,19 @@ export function OutputFormatPicker(
       <InputLabel>{props.label}</InputLabel>
       <Cluster gap={3} justifyContent="flex-start">
         {outputFormats.map((of, idx) => (
-          <FormControlLabel
-            key={idx}
-            control={
-              <Checkbox
-                checked={props.value.some(sof => of.name === sof)}
-                id={`${props.id}-${of.name}`}
-                value={of.name}
-                onChange={props.onChange}
-              />
-            }
-            label={of.label}
-          />
+          <Tooltip key={idx} title={of.description || ''} placement="top">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={props.value.some(sof => of.id === sof)}
+                  id={`${props.id}-${of.id}`}
+                  value={of.id}
+                  onChange={props.onChange}
+                />
+              }
+              label={of.label}
+            />
+          </Tooltip>
         ))}
       </Cluster>
     </Stack>

@@ -1,19 +1,21 @@
 import multiprocessing as mp
 import os
 import random
-import shutil
 from typing import Dict, List, Optional, Type, Union
+from uuid import uuid4
 
+import aiofiles
+import aiofiles.os
 import fsspec
 import psutil
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_server.transutils import _i18n
 from jupyter_server.utils import to_os_path
-from sqlalchemy import and_, asc, desc, func
+from sqlalchemy import and_, asc, delete, desc, func, select, update
 from traitlets import Instance
 from traitlets import Type as TType
 from traitlets import Unicode, default
-from traitlets.config import LoggingConfigurable
+from traitlets.config import Config, LoggingConfigurable
 
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.exceptions import (
@@ -21,6 +23,7 @@ from jupyter_scheduler.exceptions import (
     InputUriError,
     SchedulerError,
 )
+from jupyter_scheduler.job_id import make_job_id
 from jupyter_scheduler.models import (
     CountJobsQuery,
     CreateJob,
@@ -38,11 +41,17 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, JobDefinition, create_session
+from jupyter_scheduler.orm import (
+    Job,
+    JobDefinition,
+    create_async_session,
+    create_session,
+)
 from jupyter_scheduler.utils import (
-    copy_directory,
+    copy_directory_async,
     create_output_directory,
     create_output_filename,
+    remove_directory_async,
 )
 
 
@@ -96,35 +105,41 @@ class BaseScheduler(LoggingConfigurable):
     )
 
     def __init__(
-        self, root_dir: str, environments_manager: Type[EnvironmentManager], config=None, **kwargs
+        self,
+        root_dir: str,
+        environments_manager: Type[EnvironmentManager],
+        config: Optional[Config] = None,
+        backend_id: str = None,
+        **kwargs,
     ):
         super().__init__(config=config, **kwargs)
         self.root_dir = root_dir
         self.environments_manager = environments_manager
+        self.backend_id = backend_id
 
-    def create_job(self, model: CreateJob) -> str:
+    async def create_job(self, model: CreateJob) -> str:
         """Creates a new job record, may trigger execution of the job.
         In case a task runner is actually handling execution of the jobs,
         this method should just create the job record.
         """
         raise NotImplementedError("must be implemented by subclass")
 
-    def update_job(self, job_id: str, model: UpdateJob):
+    async def update_job(self, job_id: str, model: UpdateJob):
         """Updates job metadata in the persistence store,
         for example name, status etc. In case of status
         change to STOPPED, should call stop_job
         """
         raise NotImplementedError("must be implemented by subclass")
 
-    def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
+    async def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
         """Returns list of all jobs filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def count_jobs(self, query: CountJobsQuery) -> int:
+    async def count_jobs(self, query: CountJobsQuery) -> int:
         """Returns number of jobs filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
+    async def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
         """Returns job record for a single job.
 
         Parameters
@@ -139,11 +154,11 @@ class BaseScheduler(LoggingConfigurable):
         """
         raise NotImplementedError("must be implemented by subclass")
 
-    def delete_job(self, job_id: str):
+    async def delete_job(self, job_id: str):
         """Deletes the job record, stops the job if running"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def stop_job(self, job_id: str):
+    async def stop_job(self, job_id: str):
         """Stops the job, this is not analogous
         to the REST API that will be called to
         stop the job. Front end will call the PUT
@@ -153,38 +168,44 @@ class BaseScheduler(LoggingConfigurable):
 
         raise NotImplementedError("must be implemented by subclass")
 
-    def create_job_definition(self, model: CreateJobDefinition) -> str:
+    async def create_job_definition(self, model: CreateJobDefinition) -> str:
         """Creates a new job definition record,
         consider this as the template for creating
         recurring/scheduled jobs.
         """
         raise NotImplementedError("must be implemented by subclass")
 
-    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
+    async def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         """Updates job definition metadata in the persistence store,
         should only impact all future jobs.
         """
         raise NotImplementedError("must be implemented by subclass")
 
-    def delete_job_definition(self, job_definition_id: str):
+    async def delete_job_definition(self, job_definition_id: str):
         """Deletes the job definition record,
         implementors can optionally stop all running jobs
         """
         raise NotImplementedError("must be implemented by subclass")
 
-    def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
+    async def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
         """Returns job definition record for a single job definition"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
+    async def list_job_definitions(
+        self, query: ListJobDefinitionsQuery
+    ) -> ListJobDefinitionsResponse:
         """Returns list of all job definitions filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+    async def create_job_from_definition(
+        self, job_definition_id: str, model: CreateJobFromDefinition
+    ):
         """Creates a new job based on a job definition"""
         raise NotImplementedError("must be implemented by subclass")
 
-    def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+    async def get_staging_paths(
+        self, model: Union[DescribeJob, DescribeJobDefinition]
+    ) -> Dict[str, str]:
         """Returns full staging paths for all job files
 
         Notes
@@ -324,13 +345,16 @@ class BaseScheduler(LoggingConfigurable):
         for output_format in model.output_formats:
             filename = output_filenames[output_format]
             output_path = os.path.join(output_dir, filename)
-            job_files.append(
-                JobFile(
-                    display_name=mapping[output_format],
-                    file_format=output_format,
-                    file_path=output_path if self.file_exists(output_path) else None,
+            file_exists = self.file_exists(output_path)
+            # Only add job file if it exists (handles optional outputs like stdout/stderr)
+            if file_exists:
+                job_files.append(
+                    JobFile(
+                        display_name=mapping[output_format],
+                        file_format=output_format,
+                        file_path=output_path,
+                    )
                 )
-            )
 
         # Add input file
         filename = model.input_filename
@@ -384,6 +408,7 @@ class BaseScheduler(LoggingConfigurable):
 
 class Scheduler(BaseScheduler):
     _db_session = None
+    _async_session = None
 
     task_runner_class = TType(
         allow_none=True,
@@ -405,10 +430,15 @@ class Scheduler(BaseScheduler):
         environments_manager: Type[EnvironmentManager],
         db_url: str,
         config=None,
+        backend_id: str = None,
         **kwargs,
     ):
         super().__init__(
-            root_dir=root_dir, environments_manager=environments_manager, config=config, **kwargs
+            root_dir=root_dir,
+            environments_manager=environments_manager,
+            config=config,
+            backend_id=backend_id,
+            **kwargs,
         )
         self.db_url = db_url
         if self.task_runner_class:
@@ -416,67 +446,90 @@ class Scheduler(BaseScheduler):
 
     @property
     def db_session(self):
+        """Sync session factory (for task_runner cache and legacy compatibility)."""
         if not self._db_session:
             self._db_session = create_session(self.db_url)
-
         return self._db_session
 
-    def copy_input_file(self, input_uri: str, copy_to_path: str):
-        """Copies the input file to the staging directory"""
-        input_filepath = os.path.join(self.root_dir, input_uri)
-        with fsspec.open(input_filepath) as input_file:
-            with fsspec.open(copy_to_path, "wb") as output_file:
-                output_file.write(input_file.read())
+    @property
+    def async_session(self):
+        """Async session factory for non-blocking database operations."""
+        if not self._async_session:
+            self._async_session = create_async_session(self.db_url)
+        return self._async_session
 
-    def copy_input_folder(self, input_uri: str, nb_copy_to_path: str) -> List[str]:
-        """Copies the input file along with the input directory to the staging directory, returns the list of copied files relative to the staging directory"""
+    async def copy_input_file(self, input_uri: str, copy_to_path: str):
+        """Copies the input file to the staging directory using async I/O."""
+        input_filepath = os.path.join(self.root_dir, input_uri)
+        async with aiofiles.open(input_filepath, "rb") as input_file:
+            content = await input_file.read()
+        # Ensure parent directory exists
+        parent_dir = os.path.dirname(copy_to_path)
+        await aiofiles.os.makedirs(parent_dir, exist_ok=True)
+        async with aiofiles.open(copy_to_path, "wb") as output_file:
+            await output_file.write(content)
+
+    async def copy_input_folder(self, input_uri: str, nb_copy_to_path: str) -> List[str]:
+        """Copies the input file along with the input directory to the staging directory.
+
+        Returns the list of copied files relative to the staging directory.
+        Uses async file I/O to avoid blocking the event loop.
+        """
         input_dir_path = os.path.dirname(os.path.join(self.root_dir, input_uri))
         staging_dir = os.path.dirname(nb_copy_to_path)
-        return copy_directory(
+        return await copy_directory_async(
             source_dir=input_dir_path,
             destination_dir=staging_dir,
         )
 
-    def create_job(self, model: CreateJob) -> str:
+    async def create_job(self, model: CreateJob) -> str:
         if not model.job_definition_id and not self.file_exists(model.input_uri):
             raise InputUriError(model.input_uri)
 
         input_path = os.path.join(self.root_dir, model.input_uri)
-        if not self.execution_manager_class.validate(self.execution_manager_class, input_path):
-            raise SchedulerError(
-                """There is no kernel associated with the notebook. Please open
-                    the notebook, select a kernel, and re-submit the job to execute.
-                    """
-            )
-
-        with self.db_session() as session:
-            if model.idempotency_token:
-                job = (
-                    session.query(Job)
-                    .filter(Job.idempotency_token == model.idempotency_token)
-                    .first()
+        # Validate notebooks have a kernel (Python scripts and other file types skip this)
+        if input_path.endswith(".ipynb"):
+            if not self.execution_manager_class.validate(self.execution_manager_class, input_path):
+                raise SchedulerError(
+                    """There is no kernel associated with the notebook. Please open
+                        the notebook, select a kernel, and re-submit the job to execute.
+                        """
                 )
-                if job:
+
+        async with self.async_session() as session:
+            if model.idempotency_token:
+                result = await session.execute(
+                    select(Job).filter(Job.idempotency_token == model.idempotency_token)
+                )
+                if result.scalar_one_or_none():
                     raise IdempotencyTokenError(model.idempotency_token)
 
             if not model.output_formats:
                 model.output_formats = []
 
-            job = Job(**model.dict(exclude_none=True, exclude={"input_uri"}))
+            # Generate full job_id with backend prefix
+            uuid = str(uuid4())
+            full_job_id = make_job_id(self.backend_id, uuid) if self.backend_id else uuid
+
+            job = Job(
+                job_id=full_job_id,
+                backend_id=self.backend_id,
+                **model.dict(exclude_none=True, exclude={"input_uri", "backend_id"}),
+            )
 
             session.add(job)
-            session.commit()
+            await session.commit()
 
-            staging_paths = self.get_staging_paths(DescribeJob.from_orm(job))
+            staging_paths = await self.get_staging_paths(DescribeJob.from_orm(job))
             if model.package_input_folder:
-                copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
+                copied_files = await self.copy_input_folder(model.input_uri, staging_paths["input"])
                 input_notebook_filename = os.path.basename(model.input_uri)
                 job.packaged_files = [
                     file for file in copied_files if file != input_notebook_filename
                 ]
-                session.commit()
+                await session.commit()
             else:
-                self.copy_input_file(model.input_uri, staging_paths["input"])
+                await self.copy_input_file(model.input_uri, staging_paths["input"])
 
             # The MP context forces new processes to not be forked on Linux.
             # This is necessary because `asyncio.get_event_loop()` is bugged in
@@ -497,42 +550,47 @@ class Scheduler(BaseScheduler):
             p.start()
 
             job.pid = p.pid
-            session.commit()
+            await session.commit()
 
             job_id = job.job_id
 
         return job_id
 
-    def update_job(self, job_id: str, model: UpdateJob):
-        with self.db_session() as session:
-            session.query(Job).filter(Job.job_id == job_id).update(model.dict(exclude_none=True))
-            session.commit()
+    async def update_job(self, job_id: str, model: UpdateJob):
+        async with self.async_session() as session:
+            stmt = update(Job).where(Job.job_id == job_id).values(**model.dict(exclude_none=True))
+            await session.execute(stmt)
+            await session.commit()
 
-    def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
-        with self.db_session() as session:
-            jobs = session.query(Job)
+    async def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
+        async with self.async_session() as session:
+            stmt = select(Job)
 
             if query.status:
-                jobs = jobs.filter(Job.status == query.status)
+                stmt = stmt.filter(Job.status == query.status)
             if query.job_definition_id:
-                jobs = jobs.filter(Job.job_definition_id == query.job_definition_id)
+                stmt = stmt.filter(Job.job_definition_id == query.job_definition_id)
             if query.start_time:
-                jobs = jobs.filter(Job.start_time >= query.start_time)
+                stmt = stmt.filter(Job.start_time >= query.start_time)
             if query.name:
-                jobs = jobs.filter(Job.name.like(f"{query.name}%"))
+                stmt = stmt.filter(Job.name.like(f"{query.name}%"))
             if query.tags:
-                jobs = jobs.filter(and_(Job.tags.contains(tag) for tag in query.tags))
+                stmt = stmt.filter(and_(Job.tags.contains(tag) for tag in query.tags))
 
-            total = jobs.count()
+            # Get total count
+            count_stmt = select(func.count()).select_from(stmt.subquery())
+            total_result = await session.execute(count_stmt)
+            total = total_result.scalar()
 
             if query.sort_by:
                 for sort_field in query.sort_by:
                     direction = desc if sort_field.direction == SortDirection.desc else asc
-                    jobs = jobs.order_by(direction(getattr(Job, sort_field.name)))
+                    stmt = stmt.order_by(direction(getattr(Job, sort_field.name)))
             next_token = int(query.next_token) if query.next_token else 0
-            jobs = jobs.limit(query.max_items).offset(next_token)
+            stmt = stmt.limit(query.max_items).offset(next_token)
 
-            jobs = jobs.all()
+            result = await session.execute(stmt)
+            jobs = result.scalars().all()
 
         next_token = next_token + len(jobs)
         if next_token >= total:
@@ -552,16 +610,17 @@ class Scheduler(BaseScheduler):
 
         return list_jobs_response
 
-    def count_jobs(self, query: CountJobsQuery) -> int:
-        with self.db_session() as session:
-            count = (
-                session.query(func.count(Job.job_id)).filter(Job.status == query.status).scalar()
-            )
+    async def count_jobs(self, query: CountJobsQuery) -> int:
+        async with self.async_session() as session:
+            stmt = select(func.count(Job.job_id)).filter(Job.status == query.status)
+            result = await session.execute(stmt)
+            count = result.scalar()
             return count if count else 0
 
-    def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
-        with self.db_session() as session:
-            job_record = session.query(Job).filter(Job.job_id == job_id).one()
+    async def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
+        async with self.async_session() as session:
+            result = await session.execute(select(Job).filter(Job.job_id == job_id))
+            job_record = result.scalar_one()
 
         model = DescribeJob.from_orm(job_record)
         if job_files:
@@ -569,77 +628,87 @@ class Scheduler(BaseScheduler):
 
         return model
 
-    def delete_job(self, job_id: str):
-        with self.db_session() as session:
-            job_record = session.query(Job).filter(Job.job_id == job_id).one()
+    async def delete_job(self, job_id: str):
+        async with self.async_session() as session:
+            result = await session.execute(select(Job).filter(Job.job_id == job_id))
+            job_record = result.scalar_one()
             if Status(job_record.status) == Status.IN_PROGRESS:
-                self.stop_job(job_id)
+                await self.stop_job(job_id)
 
-            staging_paths = self.get_staging_paths(DescribeJob.from_orm(job_record))
+            staging_paths = await self.get_staging_paths(DescribeJob.from_orm(job_record))
             if staging_paths:
                 path = os.path.dirname(next(iter(staging_paths.values())))
                 if os.path.exists(path):
-                    shutil.rmtree(path)
+                    await remove_directory_async(path)
 
-            session.query(Job).filter(Job.job_id == job_id).delete()
-            session.commit()
+            stmt = delete(Job).where(Job.job_id == job_id)
+            await session.execute(stmt)
+            await session.commit()
 
-    def stop_job(self, job_id):
-        with self.db_session() as session:
-            job_record = session.query(Job).filter(Job.job_id == job_id).one()
+    async def stop_job(self, job_id):
+        async with self.async_session() as session:
+            result = await session.execute(select(Job).filter(Job.job_id == job_id))
+            job_record = result.scalar_one()
             job = DescribeJob.from_orm(job_record)
             process_id = job_record.pid
+
             if process_id and job.status == Status.IN_PROGRESS:
-                session.query(Job).filter(Job.job_id == job_id).update({"status": Status.STOPPING})
-                session.commit()
+                stmt = update(Job).where(Job.job_id == job_id).values(status=Status.STOPPING)
+                await session.execute(stmt)
+                await session.commit()
 
                 current_process = psutil.Process()
                 children = current_process.children(recursive=True)
+
                 for proc in children:
                     if process_id == proc.pid:
                         proc.kill()
-                        session.query(Job).filter(Job.job_id == job_id).update(
-                            {"status": Status.STOPPED}
-                        )
-                        session.commit()
                         break
 
-    def create_job_definition(self, model: CreateJobDefinition) -> str:
-        with self.db_session() as session:
-            if not self.file_exists(model.input_uri):
-                raise InputUriError(model.input_uri)
+                # Update status to STOPPED whether process was found or not.
+                # If process wasn't found, it likely already terminated on its own.
+                stmt = update(Job).where(Job.job_id == job_id).values(status=Status.STOPPED)
+                await session.execute(stmt)
+                await session.commit()
 
+    async def create_job_definition(self, model: CreateJobDefinition) -> str:
+        if not self.file_exists(model.input_uri):
+            raise InputUriError(model.input_uri)
+
+        async with self.async_session() as session:
             job_definition = JobDefinition(**model.dict(exclude_none=True, exclude={"input_uri"}))
             session.add(job_definition)
-            session.commit()
+            await session.commit()
 
             # copy values for use after session is closed to avoid DetachedInstanceError
             job_definition_id = job_definition.job_definition_id
             job_definition_schedule = job_definition.schedule
 
-            staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
+            staging_paths = await self.get_staging_paths(
+                DescribeJobDefinition.from_orm(job_definition)
+            )
             if model.package_input_folder:
-                copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
+                copied_files = await self.copy_input_folder(model.input_uri, staging_paths["input"])
                 input_notebook_filename = os.path.basename(model.input_uri)
                 job_definition.packaged_files = [
                     file for file in copied_files if file != input_notebook_filename
                 ]
-                session.commit()
+                await session.commit()
             else:
-                self.copy_input_file(model.input_uri, staging_paths["input"])
+                await self.copy_input_file(model.input_uri, staging_paths["input"])
 
         if self.task_runner and job_definition_schedule:
             self.task_runner.add_job_definition(job_definition_id)
 
         return job_definition_id
 
-    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
-        with self.db_session() as session:
-            filtered_query = session.query(JobDefinition).filter(
-                JobDefinition.job_definition_id == job_definition_id
+    async def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
+        async with self.async_session() as session:
+            result = await session.execute(
+                select(JobDefinition).filter(JobDefinition.job_definition_id == job_definition_id)
             )
-
-            describe_job_definition = DescribeJobDefinition.from_orm(filtered_query.one())
+            job_definition_record = result.scalar_one()
+            describe_job_definition = DescribeJobDefinition.from_orm(job_definition_record)
 
             if (
                 (
@@ -652,7 +721,7 @@ class Scheduler(BaseScheduler):
                 )
                 and describe_job_definition.schedule == model.schedule
                 and describe_job_definition.timezone == model.timezone
-                and (model.active == None or describe_job_definition.active == model.active)
+                and (model.active is None or describe_job_definition.active == model.active)
             ):
                 return
 
@@ -660,80 +729,90 @@ class Scheduler(BaseScheduler):
 
             if model.input_uri:
                 new_input_filename = os.path.basename(model.input_uri)
-                staging_paths = self.get_staging_paths(describe_job_definition)
+                staging_paths = await self.get_staging_paths(describe_job_definition)
                 staging_directory = os.path.dirname(staging_paths["input"])
-                self.copy_input_file(
+                await self.copy_input_file(
                     model.input_uri, os.path.join(staging_directory, new_input_filename)
                 )
                 updates["input_filename"] = new_input_filename
 
-            filtered_query.update(updates)
-            session.commit()
-
-            schedule = (
-                session.query(JobDefinition.schedule)
-                .filter(JobDefinition.job_definition_id == job_definition_id)
-                .scalar()
+            stmt = (
+                update(JobDefinition)
+                .where(JobDefinition.job_definition_id == job_definition_id)
+                .values(**updates)
             )
+            await session.execute(stmt)
+            await session.commit()
+
+            result = await session.execute(
+                select(JobDefinition.schedule).filter(
+                    JobDefinition.job_definition_id == job_definition_id
+                )
+            )
+            schedule = result.scalar()
 
         if self.task_runner and schedule:
             self.task_runner.update_job_definition(job_definition_id, model)
 
-    def delete_job_definition(self, job_definition_id: str):
-        with self.db_session() as session:
-            jobs = session.query(Job).filter(Job.job_definition_id == job_definition_id)
-            for job in jobs:
-                self.delete_job(job.job_id)
-
-            schedule = (
-                session.query(JobDefinition.schedule)
-                .filter(JobDefinition.job_definition_id == job_definition_id)
-                .scalar()
+    async def delete_job_definition(self, job_definition_id: str):
+        async with self.async_session() as session:
+            result = await session.execute(
+                select(Job).filter(Job.job_definition_id == job_definition_id)
             )
+            jobs = result.scalars().all()
+            for job in jobs:
+                await self.delete_job(job.job_id)
 
-            session.query(JobDefinition).filter(
-                JobDefinition.job_definition_id == job_definition_id
-            ).delete()
-            session.commit()
+            result = await session.execute(
+                select(JobDefinition.schedule).filter(
+                    JobDefinition.job_definition_id == job_definition_id
+                )
+            )
+            schedule = result.scalar()
+
+            stmt = delete(JobDefinition).where(JobDefinition.job_definition_id == job_definition_id)
+            await session.execute(stmt)
+            await session.commit()
 
         if self.task_runner and schedule:
             self.task_runner.delete_job_definition(job_definition_id)
 
-    def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
-        with self.db_session() as session:
-            job_definition = (
-                session.query(JobDefinition)
-                .filter(JobDefinition.job_definition_id == job_definition_id)
-                .one()
+    async def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
+        async with self.async_session() as session:
+            result = await session.execute(
+                select(JobDefinition).filter(JobDefinition.job_definition_id == job_definition_id)
             )
+            job_definition = result.scalar_one()
 
         return DescribeJobDefinition.from_orm(job_definition)
 
-    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
-        with self.db_session() as session:
-            definitions = session.query(JobDefinition)
+    async def list_job_definitions(
+        self, query: ListJobDefinitionsQuery
+    ) -> ListJobDefinitionsResponse:
+        async with self.async_session() as session:
+            stmt = select(JobDefinition)
 
             if query.create_time:
-                definitions = definitions.filter(JobDefinition.create_time >= query.create_time)
+                stmt = stmt.filter(JobDefinition.create_time >= query.create_time)
             if query.name:
-                definitions = definitions.filter(JobDefinition.name.like(f"{query.name}%"))
+                stmt = stmt.filter(JobDefinition.name.like(f"{query.name}%"))
             if query.tags:
-                definitions = definitions.filter(
-                    and_(JobDefinition.tags.contains(tag) for tag in query.tags)
-                )
+                stmt = stmt.filter(and_(JobDefinition.tags.contains(tag) for tag in query.tags))
 
-            total = definitions.count()
+            # Get total count
+            count_stmt = select(func.count()).select_from(stmt.subquery())
+            total_result = await session.execute(count_stmt)
+            total = total_result.scalar()
 
             if query.sort_by:
                 for sort_field in query.sort_by:
                     direction = desc if sort_field.direction == SortDirection.desc else asc
-                    definitions = definitions.order_by(
-                        direction(getattr(JobDefinition, sort_field.name))
-                    )
+                    stmt = stmt.order_by(direction(getattr(JobDefinition, sort_field.name)))
             next_token = int(query.next_token) if query.next_token else 0
-            definitions = definitions.limit(query.max_items).offset(next_token)
+            stmt = stmt.limit(query.max_items).offset(next_token)
 
-            definitions = definitions.all()
+            result = await session.execute(stmt)
+            definitions = result.scalars().all()
 
         next_token = next_token + len(definitions)
         if next_token >= total:
@@ -749,18 +828,23 @@ class Scheduler(BaseScheduler):
 
         return list_response
 
-    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+    async def create_job_from_definition(
+        self, job_definition_id: str, model: CreateJobFromDefinition
+    ):
         job_id = None
-        definition = self.get_job_definition(job_definition_id)
+        definition = await self.get_job_definition(job_definition_id)
         if definition:
-            input_uri = self.get_staging_paths(definition)["input"]
+            staging_paths = await self.get_staging_paths(definition)
+            input_uri = staging_paths["input"]
             attributes = definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
             attributes = {**attributes, **model.dict(exclude_none=True), "input_uri": input_uri}
-            job_id = self.create_job(CreateJob(**attributes))
+            job_id = await self.create_job(CreateJob(**attributes))
 
         return job_id
 
-    def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+    async def get_staging_paths(
+        self, model: Union[DescribeJob, DescribeJobDefinition]
+    ) -> Dict[str, str]:
         staging_paths = {}
         if not model:
             return staging_paths
@@ -787,7 +871,9 @@ class ArchivingScheduler(Scheduler):
         config=True,
     )
 
-    def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+    async def get_staging_paths(
+        self, model: Union[DescribeJob, DescribeJobDefinition]
+    ) -> Dict[str, str]:
         staging_paths = {}
         if not model:
             return staging_paths
@@ -829,80 +915,84 @@ class SchedulerWithErrors(Scheduler):
     def _should_raise_error(self, probability=0.5):
         return random.random() < probability
 
-    def create_job(self, model: CreateJob) -> str:
+    async def create_job(self, model: CreateJob) -> str:
         if self._should_raise_error():
             raise SchedulerError("Failed create job because of a deliberate exception.")
         else:
-            return super().create_job(model)
+            return await super().create_job(model)
 
-    def update_job(self, job_id: str, model: UpdateJob):
+    async def update_job(self, job_id: str, model: UpdateJob):
         if self._should_raise_error():
             raise SchedulerError("Failed update job because of a deliberate exception.")
         else:
-            super().update_job(job_id, model)
+            await super().update_job(job_id, model)
 
-    def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
+    async def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
         if self._should_raise_error():
             raise SchedulerError("Failed list jobs because of a deliberate exception.")
         else:
-            return super().list_jobs(query)
+            return await super().list_jobs(query)
 
-    def count_jobs(self, query: CountJobsQuery) -> int:
+    async def count_jobs(self, query: CountJobsQuery) -> int:
         if self._should_raise_error():
             raise SchedulerError("Failed count jobs because of a deliberate exception.")
         else:
-            return super().count_jobs(query)
+            return await super().count_jobs(query)
 
-    def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
+    async def get_job(self, job_id: str, job_files: Optional[bool] = True) -> DescribeJob:
         if self._should_raise_error():
             raise SchedulerError("Failed get job because of a deliberate exception.")
         else:
-            return super().get_job(job_id, job_files)
+            return await super().get_job(job_id, job_files)
 
-    def delete_job(self, job_id: str):
+    async def delete_job(self, job_id: str):
         if self._should_raise_error():
             raise SchedulerError("Failed delete job because of a deliberate exception.")
         else:
-            super().delete_job(job_id)
+            await super().delete_job(job_id)
 
-    def stop_job(self, job_id: str):
+    async def stop_job(self, job_id: str):
         if self._should_raise_error():
             raise SchedulerError("Failed stop job because of a deliberate exception.")
         else:
-            super().stop_job(job_id)
+            await super().stop_job(job_id)
 
-    def create_job_definition(self, model: CreateJobDefinition) -> str:
+    async def create_job_definition(self, model: CreateJobDefinition) -> str:
         if self._should_raise_error():
             raise SchedulerError("Failed create job definition because of a deliberate exception.")
         else:
-            return super().create_job_definition(model)
+            return await super().create_job_definition(model)
 
-    def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
+    async def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         if self._should_raise_error():
             raise SchedulerError("Failed update job definition because of a deliberate exception.")
         else:
-            super().update_job_definition(job_definition_id, model)
+            await super().update_job_definition(job_definition_id, model)
 
-    def delete_job_definition(self, job_definition_id: str):
+    async def delete_job_definition(self, job_definition_id: str):
         if self._should_raise_error():
             raise SchedulerError("Failed delete job definition because of a deliberate exception.")
         else:
-            super().delete_job_definition(job_definition_id)
+            await super().delete_job_definition(job_definition_id)
 
-    def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
+    async def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
         if self._should_raise_error():
             raise SchedulerError("Failed get job definition because of a deliberate exception.")
         else:
-            return super().get_job_definition(job_definition_id)
+            return await super().get_job_definition(job_definition_id)
 
-    def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
+    async def list_job_definitions(
+        self, query: ListJobDefinitionsQuery
+    ) -> ListJobDefinitionsResponse:
         if self._should_raise_error():
             raise SchedulerError("Failed list job definitions because of a deliberate exception.")
         else:
-            return super().list_job_definitions(query)
+            return await super().list_job_definitions(query)
 
-    def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+    async def create_job_from_definition(
+        self, job_definition_id: str, model: CreateJobFromDefinition
+    ):
         if self._should_raise_error():
             raise SchedulerError("Failed list jobs because of a deliberate exception.")
         else:
-            return super().create_job_from_definition(job_definition_id, model)
+            return await super().create_job_from_definition(job_definition_id, model)

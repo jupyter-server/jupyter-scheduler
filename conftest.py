@@ -1,4 +1,5 @@
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from sqlalchemy import create_engine
@@ -6,9 +7,25 @@ from sqlalchemy.orm import sessionmaker
 
 from jupyter_scheduler.orm import Base
 from jupyter_scheduler.scheduler import Scheduler
-from jupyter_scheduler.tests.mocks import MockEnvironmentManager
+from jupyter_scheduler.tests.mocks import MockEnvironmentManager, MockTestBackend
 
 pytest_plugins = ("jupyter_server.pytest_plugin", "pytest_jupyter.jupyter_server")
+
+
+def _mock_discover_backends(*args, **kwargs):
+    """Return test backends for testing."""
+    from jupyter_scheduler.backends import JupyterServerNotebookBackend
+
+    return {"jupyter_server_nb": JupyterServerNotebookBackend, "test": MockTestBackend}
+
+
+@pytest.fixture(autouse=True)
+def mock_backend_discovery():
+    """Patch backend discovery to include test backend for all tests."""
+    with patch(
+        "jupyter_scheduler.extension.discover_backends", side_effect=_mock_discover_backends
+    ):
+        yield
 
 
 @pytest.fixture(scope="session")
@@ -51,6 +68,7 @@ def jp_scheduler_db(jp_scheduler_db_url):
     session = Session()
     yield session
     session.close()
+    engine.dispose()
 
 
 @pytest.fixture

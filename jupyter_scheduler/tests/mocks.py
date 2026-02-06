@@ -1,9 +1,21 @@
 from typing import Dict, List
 
+from jupyter_scheduler.base_backend import BaseBackend
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.executors import ExecutionManager
 from jupyter_scheduler.models import JobFeature, RuntimeEnvironment, UpdateJobDefinition
 from jupyter_scheduler.task_runner import BaseTaskRunner
+
+
+class MockTestBackend(BaseBackend):
+    """Test backend for .ipynb files."""
+
+    id = "test"
+    name = "Test Backend"
+    description = "Mock backend for testing"
+    scheduler_class = "jupyter_scheduler.scheduler.Scheduler"
+    execution_manager_class = "jupyter_scheduler.tests.mocks.MockExecutionManager"
+    file_extensions = ["ipynb"]
 
 
 class MockExecutionManager(ExecutionManager):

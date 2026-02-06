@@ -2,9 +2,7 @@ import filecmp
 import os
 import shutil
 import tarfile
-import time
-from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -13,9 +11,10 @@ from jupyter_scheduler.models import DescribeJob, JobFile
 
 
 async def test_copy_from_staging():
+    encoded_job_id = "local:job-1"
     job = DescribeJob(
         name="job_1",
-        job_id="1",
+        job_id="job-1",
         input_filename="helloworld.ipynb",
         runtime_environment_name="env_a",
         output_formats=["ipynb", "html"],
@@ -24,40 +23,49 @@ async def test_copy_from_staging():
             JobFile(display_name="HTML", file_format="html"),
             JobFile(display_name="input", file_format="input"),
         ],
-        url="scheduler/jobs/1",
+        url=f"scheduler/jobs/{encoded_job_id}",
         create_time=1,
         update_time=1,
     )
 
     staging_paths = {
-        "ipynb": "1/helloworld-1.ipynb",
-        "html": "1/helloworld-1.html",
-        "input": "1/helloworld.ipynb",
+        "ipynb": "job-1/helloworld-1.ipynb",
+        "html": "job-1/helloworld-1.html",
+        "input": "job-1/helloworld.ipynb",
     }
     job_filenames = {
         "ipynb": "helloworld.ipynb",
         "html": "helloworld.html",
         "input": "helloworld.ipynb",
     }
-    output_dir = "jobs/1"
+    output_dir = "jobs/job-1"
     with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
-        with patch("jupyter_scheduler.job_files_manager.Process") as mock_process:
-            with patch("jupyter_scheduler.scheduler.Scheduler") as mock_scheduler:
-                mock_scheduler.get_job.return_value = job
-                mock_scheduler.get_staging_paths.return_value = staging_paths
-                mock_scheduler.get_local_output_path.return_value = output_dir
-                mock_scheduler.get_job_filenames.return_value = job_filenames
-                manager = JobFilesManager(scheduler=mock_scheduler)
-                await manager.copy_from_staging(1)
+        with patch("jupyter_scheduler.job_files_manager.Process"):
+            mock_scheduler = Mock()
+            # Async methods need AsyncMock
+            mock_scheduler.get_job = AsyncMock(return_value=job)
+            mock_scheduler.get_staging_paths = AsyncMock(return_value=staging_paths)
+            mock_scheduler.get_local_output_path.return_value = output_dir
+            mock_scheduler.get_job_filenames.return_value = job_filenames
 
-                mock_downloader.assert_called_once_with(
-                    output_formats=job.output_formats,
-                    output_filenames=job_filenames,
-                    staging_paths=staging_paths,
-                    output_dir=output_dir,
-                    redownload=False,
-                    include_staging_files=None,
-                )
+            mock_backend = Mock()
+            mock_backend.scheduler = mock_scheduler
+
+            mock_registry = Mock()
+            mock_registry.get_backend.return_value = mock_backend
+
+            manager = JobFilesManager(backend_registry=mock_registry)
+            await manager.copy_from_staging(encoded_job_id)
+
+            mock_registry.get_backend.assert_called_once_with("local")
+            mock_downloader.assert_called_once_with(
+                output_formats=job.output_formats,
+                output_filenames=job_filenames,
+                staging_paths=staging_paths,
+                output_dir=output_dir,
+                redownload=False,
+                include_staging_files=None,
+            )
 
 
 @pytest.fixture
@@ -162,3 +170,114 @@ def test_downloader_download(downloader_parameters):
                 assert filecmp.cmp(out_filepath, input_filepath)
         else:
             assert filecmp.cmp(out_filepath, staging_paths[format])
+
+
+# JobFilesManager multi-backend tests
+
+
+def test_init_with_backend_registry():
+    """Initialize with backend registry."""
+    mock_registry = Mock()
+    manager = JobFilesManager(backend_registry=mock_registry)
+
+    assert manager.backend_registry == mock_registry
+
+
+def test_get_scheduler_with_encoded_id():
+    """Routes to correct backend based on job_id prefix."""
+    mock_braket_scheduler = Mock()
+    mock_backend = Mock()
+    mock_backend.scheduler = mock_braket_scheduler
+
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = mock_backend
+
+    manager = JobFilesManager(backend_registry=mock_registry)
+
+    scheduler = manager._get_scheduler("braket_qasm_device:uuid-456")
+
+    mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
+    assert scheduler == mock_braket_scheduler
+
+
+def test_get_scheduler_handles_legacy_format():
+    """Legacy job IDs (no colon) should route to legacy job backend."""
+    mock_legacy_scheduler = Mock()
+    mock_legacy_backend = Mock()
+    mock_legacy_backend.scheduler = mock_legacy_scheduler
+
+    mock_registry = Mock()
+    mock_registry.get_legacy_job_backend.return_value = mock_legacy_backend
+
+    manager = JobFilesManager(backend_registry=mock_registry)
+    scheduler = manager._get_scheduler("uuid-789-no-colon")
+
+    mock_registry.get_legacy_job_backend.assert_called_once()
+    assert scheduler == mock_legacy_scheduler
+
+
+def test_get_scheduler_backend_not_found():
+    """Raises ValueError if specified backend not found."""
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = None  # Backend not found
+
+    manager = JobFilesManager(backend_registry=mock_registry)
+
+    with pytest.raises(ValueError, match="Backend 'nonexistent_backend' not available"):
+        manager._get_scheduler("nonexistent_backend:uuid-000")
+
+    mock_registry.get_backend.assert_called_once_with("nonexistent_backend")
+
+
+async def test_copy_from_staging_with_backend_registry():
+    """copy_from_staging routes to correct backend scheduler."""
+    encoded_job_id = "braket_qasm_device:test-uuid"
+    job = DescribeJob(
+        name="braket_job",
+        job_id="test-uuid",
+        input_filename="test.qasm",
+        runtime_environment_name="env_a",
+        output_formats=["json"],
+        job_files=[
+            JobFile(display_name="JSON", file_format="json"),
+            JobFile(display_name="input", file_format="input"),
+        ],
+        url=f"scheduler/jobs/{encoded_job_id}",
+        create_time=1,
+        update_time=1,
+    )
+
+    staging_paths = {
+        "json": "test-uuid/output.json",
+        "input": "test-uuid/test.qasm",
+    }
+    job_filenames = {
+        "json": "output.json",
+        "input": "test.qasm",
+    }
+    output_dir = "jobs/test-uuid"
+
+    mock_scheduler = Mock()
+    # Async methods need AsyncMock
+    mock_scheduler.get_job = AsyncMock(return_value=job)
+    mock_scheduler.get_staging_paths = AsyncMock(return_value=staging_paths)
+    mock_scheduler.get_local_output_path.return_value = output_dir
+    mock_scheduler.get_job_filenames.return_value = job_filenames
+
+    mock_backend = Mock()
+    mock_backend.scheduler = mock_scheduler
+
+    mock_registry = Mock()
+    mock_registry.get_backend.return_value = mock_backend
+
+    manager = JobFilesManager(backend_registry=mock_registry)
+
+    with (
+        patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader,
+        patch("jupyter_scheduler.job_files_manager.Process"),
+    ):
+        await manager.copy_from_staging(encoded_job_id)
+
+    mock_registry.get_backend.assert_called_once_with("braket_qasm_device")
+    mock_scheduler.get_job.assert_called_once_with(encoded_job_id, False)
+    mock_downloader.assert_called_once()

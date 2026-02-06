@@ -227,29 +227,35 @@ export function JobDetail(props: IJobDetailProps): JSX.Element {
     ],
     [
       {
+        value: props.model.backend_id,
+        label: trans.__('Backend')
+      },
+      {
         value: translateStatus(props.model.status),
         label: trans.__('Status')
-      },
+      }
+    ],
+    [
       {
         value: timestampLocalize(props.model.createTime ?? ''),
         label: trans.__('Created at')
-      }
-    ],
-    [
+      },
       {
         value: timestampLocalize(props.model.updateTime ?? ''),
         label: trans.__('Updated at')
-      },
-      {
-        value: timestampLocalize(props.model.startTime ?? ''),
-        label: trans.__('Start time')
       }
     ],
     [
       {
+        value: timestampLocalize(props.model.startTime ?? ''),
+        label: trans.__('Start time')
+      },
+      {
         value: timestampLocalize(props.model.endTime ?? ''),
         label: trans.__('End time')
-      },
+      }
+    ],
+    [
       {
         value: props.model.packageInputFolder
           ? trans.__('Yes')

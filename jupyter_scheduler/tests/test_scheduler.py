@@ -2,7 +2,6 @@
 
 import shutil
 from pathlib import Path
-from unittest import mock
 from unittest.mock import patch
 
 import pytest
@@ -32,18 +31,19 @@ def root_dir_with_input_folder(static_test_files_dir, jp_scheduler_root_dir):
     return Path(job_root_dir.name) / notebook_file_path.name
 
 
-def test_create_job_definition(jp_scheduler):
-    with patch("jupyter_scheduler.scheduler.fsspec") as mock_fsspec:
-        with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
-            mock_file_exists.return_value = True
-            job_definition_id = jp_scheduler.create_job_definition(
-                CreateJobDefinition(
-                    input_uri="helloworld.ipynb",
-                    runtime_environment_name="default",
-                    name="hello world",
-                    output_formats=["ipynb"],
+async def test_create_job_definition(jp_scheduler):
+    with patch("jupyter_scheduler.scheduler.aiofiles.open"):
+        with patch("jupyter_scheduler.scheduler.aiofiles.os.makedirs"):
+            with patch("jupyter_scheduler.scheduler.Scheduler.file_exists") as mock_file_exists:
+                mock_file_exists.return_value = True
+                job_definition_id = await jp_scheduler.create_job_definition(
+                    CreateJobDefinition(
+                        input_uri="helloworld.ipynb",
+                        runtime_environment_name="default",
+                        name="hello world",
+                        output_formats=["ipynb"],
+                    )
                 )
-            )
 
     with jp_scheduler.db_session() as session:
         definitions = session.query(JobDefinition).all()
@@ -56,8 +56,8 @@ def test_create_job_definition(jp_scheduler):
         assert "hello world" == definition.name
 
 
-def test_create_job_definition_with_input_folder(jp_scheduler, root_dir_with_input_folder):
-    job_definition_id = jp_scheduler.create_job_definition(
+async def test_create_job_definition_with_input_folder(jp_scheduler, root_dir_with_input_folder):
+    job_definition_id = await jp_scheduler.create_job_definition(
         CreateJobDefinition(
             input_uri=str(root_dir_with_input_folder),
             runtime_environment_name="default",
@@ -77,8 +77,8 @@ def test_create_job_definition_with_input_folder(jp_scheduler, root_dir_with_inp
         assert "a/b/helloworld.txt" in definition.packaged_files
 
 
-def test_create_job_with_input_folder(jp_scheduler, root_dir_with_input_folder):
-    job_id = jp_scheduler.create_job(
+async def test_create_job_with_input_folder(jp_scheduler, root_dir_with_input_folder):
+    job_id = await jp_scheduler.create_job(
         CreateJob(
             input_uri=str(root_dir_with_input_folder),
             runtime_environment_name="default",
@@ -181,21 +181,25 @@ def load_job_definitions(jp_scheduler_db):
         ),
     ],
 )
-def test_list_job_definitions(jp_scheduler, load_job_definitions, list_query, expected_response):
-    list_response = jp_scheduler.list_job_definitions(ListJobDefinitionsQuery(**list_query))
+async def test_list_job_definitions(
+    jp_scheduler, load_job_definitions, list_query, expected_response
+):
+    list_response = await jp_scheduler.list_job_definitions(ListJobDefinitionsQuery(**list_query))
     response = list_response.dict(exclude_none=True)
     assert expected_response == response
 
 
-def test_get_job_definition(jp_scheduler, load_job_definitions):
-    definition = jp_scheduler.get_job_definition(job_definition_1["job_definition_id"])
+async def test_get_job_definition(jp_scheduler, load_job_definitions):
+    definition = await jp_scheduler.get_job_definition(job_definition_1["job_definition_id"])
     assert job_definition_1 == definition.dict(exclude_none=True)
 
 
-def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
+async def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_2["job_definition_id"]
-    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
-        jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=False))
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner"):
+        await jp_scheduler.update_job_definition(
+            job_definition_id, UpdateJobDefinition(active=False)
+        )
 
     active = (
         jp_scheduler_db.query(JobDefinition.active)
@@ -206,10 +210,12 @@ def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     assert not active
 
 
-def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
+async def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_3["job_definition_id"]
-    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
-        jp_scheduler.update_job_definition(job_definition_id, UpdateJobDefinition(active=True))
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner"):
+        await jp_scheduler.update_job_definition(
+            job_definition_id, UpdateJobDefinition(active=True)
+        )
 
     active = (
         jp_scheduler_db.query(JobDefinition.active)
@@ -220,23 +226,23 @@ def test_resume_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):
     assert active
 
 
-def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
+async def test_update_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_1["job_definition_id"]
     schedule = "*/5 * * * *"
     timezone = "America/New_York"
-    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner") as mock_task_runner:
+    with patch("jupyter_scheduler.scheduler.Scheduler.task_runner"):
         update = UpdateJobDefinition(
             job_definition_id=job_definition_id, schedule=schedule, timezone=timezone
         )
-        jp_scheduler.update_job_definition(job_definition_id, update)
+        await jp_scheduler.update_job_definition(job_definition_id, update)
 
     definition = jp_scheduler_db.get(JobDefinition, job_definition_id)
     assert schedule == definition.schedule
     assert timezone == definition.timezone
 
 
-def test_delete_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
+async def test_delete_job_definition(jp_scheduler, load_job_definitions, jp_scheduler_db):
     job_definition_id = job_definition_1["job_definition_id"]
-    jp_scheduler.delete_job_definition(job_definition_id)
+    await jp_scheduler.delete_job_definition(job_definition_id)
     definition = jp_scheduler_db.get(JobDefinition, job_definition_id)
     assert not definition

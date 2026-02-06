@@ -6,14 +6,15 @@ import React, {
   useRef
 } from 'react';
 
+import { BackendPicker } from '../components/backend-picker';
 import { Heading } from '../components/heading';
 import { Cluster } from '../components/cluster';
 import { ComputeTypePicker } from '../components/compute-type-picker';
 import { CreateScheduleOptions } from '../components/create-schedule-options';
 import { EnvironmentPicker } from '../components/environment-picker';
 import {
-  OutputFormatPicker,
-  outputFormatsForEnvironment
+  outputFormatsForBackend,
+  OutputFormatPicker
 } from '../components/output-format-picker';
 import { ParametersPicker } from '../components/parameters-picker';
 import { Scheduler, SchedulerService } from '../handler';
@@ -21,6 +22,7 @@ import { useEventLogger, useTranslator } from '../hooks';
 import { ICreateJobModel, IJobParameter, JobsView } from '../model';
 import { Scheduler as SchedulerTokens } from '../tokens';
 import { NameError } from '../util/job-name-validation';
+import { filterBackendsByFile } from '../util/backend-utils';
 
 import { caretDownIcon } from '@jupyterlab/ui-components';
 
@@ -84,6 +86,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
     Scheduler.IRuntimeEnvironment[]
   >([]);
 
+  // Cache backend list.
+  const [backendList, setBackendList] = useState<Scheduler.IBackend[]>([]);
+
   const [advancedOptionsExpanded, setAdvancedOptionsExpanded] =
     useState<boolean>(false);
 
@@ -118,22 +123,63 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
           newComputeType = envList[0].default_compute_type;
         }
 
-        const outputFormats = outputFormatsForEnvironment(
-          envList,
-          envList[0].name
-        )?.map(format => format.name);
-
         props.handleModelChange({
           ...props.model,
           environment: envList[0].name,
-          computeType: newComputeType,
-          outputFormats: outputFormats
+          computeType: newComputeType
         });
       }
     };
 
     setList();
   }, []);
+
+  // Retrieve backend list and select appropriate backend on mount
+  useEffect(() => {
+    api
+      .getBackends()
+      .then(backends => {
+        setBackendList(backends);
+
+        if (backends.length === 0) {
+          return;
+        }
+
+        const validBackends = filterBackendsByFile(
+          backends,
+          props.model.inputFile
+        );
+
+        //  Auto-select a valid backend when preferred backend doesn't support it
+        const currentBackendIsValid = validBackends.some(
+          b => b.id === props.model.backend_id
+        );
+        if (!currentBackendIsValid && validBackends.length) {
+          props.handleModelChange({
+            ...props.model,
+            backend_id: validBackends[0].id,
+            outputFormats: validBackends[0].output_formats?.map(f => f.id)
+          });
+        }
+      })
+      .catch(e => console.error('Failed to fetch backends:', e));
+  }, []); // Intentional: fetch only on mount
+
+  // Derive display backend for BackendPicker (ensures valid value is always shown)
+  const displayBackend = useMemo(() => {
+    if (backendList.length === 0) {
+      return props.model.backend_id || '';
+    }
+
+    const validBackends = filterBackendsByFile(
+      backendList,
+      props.model.inputFile
+    );
+
+    return validBackends.some(b => b.id === props.model.backend_id)
+      ? props.model.backend_id
+      : validBackends[0]?.id || '';
+  }, [backendList, props.model.inputFile, props.model.backend_id]);
 
   const envsByName = useMemo(() => {
     const obj: Record<string, Scheduler.IRuntimeEnvironment> = {};
@@ -210,16 +256,22 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
         newComputeType = envObj.default_compute_type;
       }
 
-      const newEnvOutputFormats = outputFormatsForEnvironment(
-        environmentList,
-        target.value
-      )?.map(format => format.name);
-
       props.handleModelChange({
         ...props.model,
         environment: target.value,
-        computeType: newComputeType,
-        outputFormats: newEnvOutputFormats
+        computeType: newComputeType
+      });
+    } else if (target.name === 'backend') {
+      // When backend changes, update output formats from new backend
+      const backendObj = backendList.find(b => b.id === target.value);
+      const newOutputFormats = backendObj?.output_formats?.map(
+        format => format.id
+      );
+
+      props.handleModelChange({
+        ...props.model,
+        backend_id: target.value,
+        outputFormats: newOutputFormats
       });
     } else {
       // otherwise, just set the model
@@ -228,9 +280,9 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
   };
 
   const handleOutputFormatsChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const outputFormatsList = outputFormatsForEnvironment(
-      environmentList,
-      props.model.environment
+    const outputFormatsList = outputFormatsForBackend(
+      backendList,
+      props.model.backend_id || ''
     );
     if (outputFormatsList === null) {
       return; // No data about output formats; give up
@@ -247,12 +299,12 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
 
     // Go from unchecked to checked
     if (isChecked && !wasChecked) {
-      // Get the output format matching the given name
-      const newFormat = outputFormatsList.find(of => of.name === formatName);
+      // Get the output format matching the given id
+      const newFormat = outputFormatsList.find(of => of.id === formatName);
       if (newFormat) {
         props.handleModelChange({
           ...props.model,
-          outputFormats: [...oldOutputFormats, newFormat.name]
+          outputFormats: [...oldOutputFormats, newFormat.id]
         });
       }
     }
@@ -322,7 +374,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       idempotency_token: props.model.idempotencyToken,
       tags: props.model.tags,
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      backend_id: props.model.backend_id
     };
 
     if (props.model.parameters !== undefined) {
@@ -371,7 +424,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
       runtime_environment_parameters: props.model.runtimeEnvironmentParameters,
       schedule: props.model.schedule,
       timezone: props.model.timezone,
-      package_input_folder: props.model.packageInputFolder
+      package_input_folder: props.model.packageInputFolder,
+      backend_id: props.model.backend_id
     };
 
     if (props.model.parameters !== undefined) {
@@ -499,6 +553,15 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               startAdornment: homeAdornment
             }}
           />
+          <BackendPicker
+            label={trans.__('Execution backend')}
+            name="backend"
+            id={`${formPrefix}backend`}
+            onChange={handleSelectChange}
+            backendList={backendList}
+            value={displayBackend || ''}
+            inputFile={props.model.inputFile}
+          />
           <EnvironmentPicker
             label={trans.__('Environment')}
             name={'environment'}
@@ -516,8 +579,8 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
             name="outputFormat"
             id={`${formPrefix}outputFormat`}
             onChange={handleOutputFormatsChange}
-            environmentList={environmentList}
-            environment={props.model.environment}
+            backendList={backendList}
+            backend_id={props.model.backend_id || ''}
             value={props.model.outputFormats || []}
           />
           <ComputeTypePicker
@@ -570,13 +633,17 @@ export function CreateJob(props: ICreateJobProps): JSX.Element {
               </FormLabel>
             </AccordionSummary>
             <AccordionDetails id={`${formPrefix}create-panel-content`}>
-              <props.advancedOptions
-                jobsView={JobsView.CreateForm}
-                model={props.model}
-                handleModelChange={props.handleModelChange}
-                errors={advancedOptionsErrors}
-                handleErrorsChange={setAdvancedOptionsErrors}
-              />
+              {displayBackend ? (
+                <props.advancedOptions
+                  jobsView={JobsView.CreateForm}
+                  model={{ ...props.model, backend_id: displayBackend }}
+                  handleModelChange={props.handleModelChange}
+                  errors={advancedOptionsErrors}
+                  handleErrorsChange={setAdvancedOptionsErrors}
+                />
+              ) : (
+                <CircularProgress size={20} />
+              )}
             </AccordionDetails>
           </Accordion>
           <CreateScheduleOptions

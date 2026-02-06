@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-
 __all__ = ["__version__"]
 
 version_info = (2, 11, 0, "", "")

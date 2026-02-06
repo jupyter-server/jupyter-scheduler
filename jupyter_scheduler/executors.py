@@ -72,7 +72,6 @@ class ExecutionManager(ABC):
         add notebook execution logic within
         this method
         """
-        pass
 
     @classmethod
     @abstractmethod
@@ -82,7 +81,6 @@ class ExecutionManager(ABC):
         to override this to return a dictionary of supported
         job creation features.
         """
-        pass
 
     @classmethod
     def validate(cls, input_path: str) -> bool:
@@ -233,7 +231,7 @@ class ArchivingExecutionManager(DefaultExecutionManager):
 
         try:
             ep.preprocess(nb, {"metadata": {"path": run_dir}})
-        except CellExecutionError as e:
+        except CellExecutionError:
             pass
         finally:
             # Create all desired output files, other than "input" and "tar.gz"

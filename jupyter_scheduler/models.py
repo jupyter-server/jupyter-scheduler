@@ -11,6 +11,17 @@ EMAIL_RE = ""
 SCHEDULE_RE = ""
 
 
+class OutputFormat(BaseModel):
+    """Describes an output format a backend can produce.
+
+    Matches TypeScript IOutputFormat interface in handler.ts.
+    """
+
+    id: str  # Format identifier (e.g., "ipynb", "html", "stdout")
+    label: str  # Display name (e.g., "Notebook", "HTML")
+    description: str = ""  # Optional tooltip text
+
+
 class RuntimeEnvironment(BaseModel):
     """Defines a runtime context where job
     execution will happen. For example, conda
@@ -86,6 +97,7 @@ class CreateJob(BaseModel):
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
     compute_type: Optional[str] = None
     package_input_folder: Optional[bool] = None
+    backend_id: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -148,6 +160,7 @@ class DescribeJob(BaseModel):
     downloaded: bool = False
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
+    backend_id: Optional[str] = None
 
     class Config:
         orm_mode = True
@@ -193,6 +206,8 @@ class UpdateJob(BaseModel):
     status: Optional[Status] = None
     name: Optional[str] = None
     compute_type: Optional[str] = None
+    status_message: Optional[str] = None
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
 
 
 class DeleteJob(BaseModel):
@@ -213,6 +228,7 @@ class CreateJobDefinition(BaseModel):
     schedule: Optional[str] = None
     timezone: Optional[str] = None
     package_input_folder: Optional[bool] = None
+    backend_id: Optional[str] = None
 
     @root_validator
     def compute_input_filename(cls, values) -> Dict:
@@ -240,6 +256,7 @@ class DescribeJobDefinition(BaseModel):
     active: bool
     package_input_folder: Optional[bool] = None
     packaged_files: Optional[List[str]] = []
+    backend_id: Optional[str] = None
 
     class Config:
         orm_mode = True
