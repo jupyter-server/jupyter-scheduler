@@ -41,7 +41,12 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.orm import Job, JobDefinition, create_async_session, create_session
+from jupyter_scheduler.orm import (
+    Job,
+    JobDefinition,
+    create_async_session,
+    create_session,
+)
 from jupyter_scheduler.utils import (
     copy_directory_async,
     create_output_directory,
@@ -186,15 +191,21 @@ class BaseScheduler(LoggingConfigurable):
         """Returns job definition record for a single job definition"""
         raise NotImplementedError("must be implemented by subclass")
 
-    async def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
+    async def list_job_definitions(
+        self, query: ListJobDefinitionsQuery
+    ) -> ListJobDefinitionsResponse:
         """Returns list of all job definitions filtered by query"""
         raise NotImplementedError("must be implemented by subclass")
 
-    async def create_job_from_definition(self, job_definition_id: str, model: CreateJobFromDefinition):
+    async def create_job_from_definition(
+        self, job_definition_id: str, model: CreateJobFromDefinition
+    ):
         """Creates a new job based on a job definition"""
         raise NotImplementedError("must be implemented by subclass")
 
-    async def get_staging_paths(self, model: Union[DescribeJob, DescribeJobDefinition]) -> Dict[str, str]:
+    async def get_staging_paths(
+        self, model: Union[DescribeJob, DescribeJobDefinition]
+    ) -> Dict[str, str]:
         """Returns full staging paths for all job files
 
         Notes
@@ -648,12 +659,10 @@ class Scheduler(BaseScheduler):
 
                 current_process = psutil.Process()
                 children = current_process.children(recursive=True)
-                process_found = False
 
                 for proc in children:
                     if process_id == proc.pid:
                         proc.kill()
-                        process_found = True
                         break
 
                 # Update status to STOPPED whether process was found or not.
@@ -679,9 +688,7 @@ class Scheduler(BaseScheduler):
                 DescribeJobDefinition.from_orm(job_definition)
             )
             if model.package_input_folder:
-                copied_files = await self.copy_input_folder(
-                    model.input_uri, staging_paths["input"]
-                )
+                copied_files = await self.copy_input_folder(model.input_uri, staging_paths["input"])
                 input_notebook_filename = os.path.basename(model.input_uri)
                 job_definition.packaged_files = [
                     file for file in copied_files if file != input_notebook_filename
@@ -698,9 +705,7 @@ class Scheduler(BaseScheduler):
     async def update_job_definition(self, job_definition_id: str, model: UpdateJobDefinition):
         async with self.async_session() as session:
             result = await session.execute(
-                select(JobDefinition).filter(
-                    JobDefinition.job_definition_id == job_definition_id
-                )
+                select(JobDefinition).filter(JobDefinition.job_definition_id == job_definition_id)
             )
             job_definition_record = result.scalar_one()
             describe_job_definition = DescribeJobDefinition.from_orm(job_definition_record)
@@ -731,9 +736,11 @@ class Scheduler(BaseScheduler):
                 )
                 updates["input_filename"] = new_input_filename
 
-            stmt = update(JobDefinition).where(
-                JobDefinition.job_definition_id == job_definition_id
-            ).values(**updates)
+            stmt = (
+                update(JobDefinition)
+                .where(JobDefinition.job_definition_id == job_definition_id)
+                .values(**updates)
+            )
             await session.execute(stmt)
             await session.commit()
 
@@ -763,9 +770,7 @@ class Scheduler(BaseScheduler):
             )
             schedule = result.scalar()
 
-            stmt = delete(JobDefinition).where(
-                JobDefinition.job_definition_id == job_definition_id
-            )
+            stmt = delete(JobDefinition).where(JobDefinition.job_definition_id == job_definition_id)
             await session.execute(stmt)
             await session.commit()
 
@@ -775,9 +780,7 @@ class Scheduler(BaseScheduler):
     async def get_job_definition(self, job_definition_id: str) -> DescribeJobDefinition:
         async with self.async_session() as session:
             result = await session.execute(
-                select(JobDefinition).filter(
-                    JobDefinition.job_definition_id == job_definition_id
-                )
+                select(JobDefinition).filter(JobDefinition.job_definition_id == job_definition_id)
             )
             job_definition = result.scalar_one()
 
@@ -794,9 +797,7 @@ class Scheduler(BaseScheduler):
             if query.name:
                 stmt = stmt.filter(JobDefinition.name.like(f"{query.name}%"))
             if query.tags:
-                stmt = stmt.filter(
-                    and_(JobDefinition.tags.contains(tag) for tag in query.tags)
-                )
+                stmt = stmt.filter(and_(JobDefinition.tags.contains(tag) for tag in query.tags))
 
             # Get total count
             count_stmt = select(func.count()).select_from(stmt.subquery())

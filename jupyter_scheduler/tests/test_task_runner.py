@@ -280,9 +280,7 @@ class TestTaskRunnerAsync:
                 schedule="* * * * *",
             )
         )
-        task_runner.queue.push(
-            JobDefinitionTask(job_definition_id="def-1", next_run_time=1000)
-        )
+        task_runner.queue.push(JobDefinitionTask(job_definition_id="def-1", next_run_time=1000))
 
         await task_runner.process_queue()
 

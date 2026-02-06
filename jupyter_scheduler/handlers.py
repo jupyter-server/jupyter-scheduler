@@ -383,9 +383,7 @@ class JobFromDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandl
         payload = self.get_json_body()
         try:
             model = CreateJobFromDefinition(**payload)
-            job_id = await self.scheduler.create_job_from_definition(
-                job_definition_id, model=model
-            )
+            job_id = await self.scheduler.create_job_from_definition(job_definition_id, model=model)
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(400, f"Validation error: {e}") from e
