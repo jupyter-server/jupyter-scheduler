@@ -279,11 +279,12 @@ class TaskRunner(BaseTaskRunner):
     def delete_job_definition(self, job_definition_id: str):
         self.cache.delete(job_definition_id)
 
-    def create_job(self, job_definition_id: str):
-        definition = self.scheduler.get_job_definition(job_definition_id)
+    async def create_job(self, job_definition_id: str):
+        definition = await self.scheduler.get_job_definition(job_definition_id)
         if definition and definition.active:
-            input_uri = self.scheduler.get_staging_paths(definition)["input"]
-            self.scheduler.create_job(
+            staging_paths = await self.scheduler.get_staging_paths(definition)
+            input_uri = staging_paths["input"]
+            await self.scheduler.create_job(
                 CreateJob(
                     **definition.dict(exclude={"schedule", "timezone"}, exclude_none=True),
                     input_uri=input_uri,
@@ -294,7 +295,7 @@ class TaskRunner(BaseTaskRunner):
         local_time = get_localized_timestamp(timezone) if timezone else get_utc_timestamp()
         return local_time - queue_run_time
 
-    def process_queue(self):
+    async def process_queue(self):
         self.log.debug(self.queue)
         while not self.queue.isempty():
             task = self.queue.peek()
@@ -318,7 +319,7 @@ class TaskRunner(BaseTaskRunner):
                 break
             else:
                 try:
-                    self.create_job(task.job_definition_id)
+                    await self.create_job(task.job_definition_id)
                 except Exception as e:
                     self.log.exception(e)
                 self.queue.pop()
@@ -335,5 +336,5 @@ class TaskRunner(BaseTaskRunner):
     async def start(self):
         self.populate_cache()
         while True:
-            self.process_queue()
+            await self.process_queue()
             await asyncio.sleep(self.poll_interval)

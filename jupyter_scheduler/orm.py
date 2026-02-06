@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import sqlalchemy.types as types
 from sqlalchemy import Boolean, Column, Integer, String, create_engine, inspect
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base, declarative_mixin, registry, sessionmaker
 from sqlalchemy.sql import text
 
@@ -162,7 +163,33 @@ def create_tables(db_url, drop_tables=False, Base=Base):
 
 
 def create_session(db_url):
+    """Create sync session factory (for migrations and task_runner cache)."""
     engine = create_engine(db_url, echo=False)
     Session = sessionmaker(bind=engine)
 
     return Session
+
+
+def create_async_session(db_url: str):
+    """Create async session factory with connection pooling.
+
+    Connection pooling improves performance by reusing database connections
+    instead of creating new ones for each query. SQLite doesn't support
+    traditional connection pooling, but we configure the engine for optimal
+    async operation with aiosqlite.
+
+    Args:
+        db_url: Database URL (e.g., "sqlite:///path/to/db.sqlite")
+
+    Returns:
+        Async session factory that can be used as context manager:
+            async with session_factory() as session:
+                result = await session.execute(select(Job))
+    """
+    async_url = db_url.replace("sqlite://", "sqlite+aiosqlite://")
+    engine = create_async_engine(
+        async_url,
+        echo=False,
+        pool_pre_ping=True,
+    )
+    return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

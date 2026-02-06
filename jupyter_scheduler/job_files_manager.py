@@ -6,7 +6,6 @@ from multiprocessing import Process
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import fsspec
-from jupyter_server.utils import ensure_async
 
 from jupyter_scheduler.exceptions import SchedulerError
 from jupyter_scheduler.job_id import resolve_scheduler
@@ -45,8 +44,8 @@ class JobFilesManager:
             redownload: If True, re-download files even if they already exist locally
         """
         scheduler = self._get_scheduler(job_id)
-        job = await ensure_async(scheduler.get_job(job_id, False))
-        staging_paths = await ensure_async(scheduler.get_staging_paths(job))
+        job = await scheduler.get_job(job_id, False)
+        staging_paths = await scheduler.get_staging_paths(job)
         output_filenames = scheduler.get_job_filenames(job)
         output_dir = scheduler.get_local_output_path(model=job, root_dir_relative=True)
 
@@ -154,4 +153,4 @@ class JobFilesManagerWithErrors(JobFilesManager):
         if self._should_raise_error():
             raise SchedulerError("Failed copy_from_staging because of a deliberate exception.")
         else:
-            return super().copy_from_staging(job_id, redownload)
+            return await super().copy_from_staging(job_id, redownload)

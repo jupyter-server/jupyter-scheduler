@@ -2,7 +2,7 @@ import filecmp
 import os
 import shutil
 import tarfile
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -42,8 +42,9 @@ async def test_copy_from_staging():
     with patch("jupyter_scheduler.job_files_manager.Downloader") as mock_downloader:
         with patch("jupyter_scheduler.job_files_manager.Process"):
             mock_scheduler = Mock()
-            mock_scheduler.get_job.return_value = job
-            mock_scheduler.get_staging_paths.return_value = staging_paths
+            # Async methods need AsyncMock
+            mock_scheduler.get_job = AsyncMock(return_value=job)
+            mock_scheduler.get_staging_paths = AsyncMock(return_value=staging_paths)
             mock_scheduler.get_local_output_path.return_value = output_dir
             mock_scheduler.get_job_filenames.return_value = job_filenames
 
@@ -257,8 +258,9 @@ async def test_copy_from_staging_with_backend_registry():
     output_dir = "jobs/test-uuid"
 
     mock_scheduler = Mock()
-    mock_scheduler.get_job.return_value = job
-    mock_scheduler.get_staging_paths.return_value = staging_paths
+    # Async methods need AsyncMock
+    mock_scheduler.get_job = AsyncMock(return_value=job)
+    mock_scheduler.get_staging_paths = AsyncMock(return_value=staging_paths)
     mock_scheduler.get_local_output_path.return_value = output_dir
     mock_scheduler.get_job_filenames.return_value = job_filenames
 

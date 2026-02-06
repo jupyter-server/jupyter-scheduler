@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import shutil
@@ -5,6 +6,8 @@ from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
+import aiofiles
+import aiofiles.os
 import fsspec
 import pytz
 from croniter import croniter
@@ -111,3 +114,60 @@ def copy_directory(
             copied_files.append(rel_path)
 
     return copied_files
+
+
+async def copy_directory_async(
+    source_dir: str,
+    destination_dir: str,
+    exclude_files: Optional[List[str]] = None,
+) -> List[str]:
+    """Async version of copy_directory using aiofiles.
+
+    Copies content of source_dir to destination_dir excluding exclude_files.
+    Returns a list of relative paths to copied files from destination_dir.
+
+    Uses os.walk() for directory traversal (sync but fast metadata operation),
+    then copies file contents asynchronously using aiofiles.
+    """
+    if exclude_files is None:
+        exclude_files = []
+
+    copied_files = []
+
+    for dirpath, dirnames, filenames in os.walk(source_dir):
+        # Filter out excluded directories in-place to prevent os.walk from descending into them
+        dirnames[:] = [d for d in dirnames if d not in exclude_files]
+
+        # Compute relative path from source_dir
+        rel_dir = os.path.relpath(dirpath, source_dir)
+        dest_dir = os.path.join(destination_dir, rel_dir) if rel_dir != "." else destination_dir
+
+        # Create destination directory
+        await aiofiles.os.makedirs(dest_dir, exist_ok=True)
+
+        # Copy files asynchronously
+        for filename in filenames:
+            if filename in exclude_files:
+                continue
+
+            src_path = os.path.join(dirpath, filename)
+            dst_path = os.path.join(dest_dir, filename)
+
+            async with aiofiles.open(src_path, "rb") as src:
+                content = await src.read()
+            async with aiofiles.open(dst_path, "wb") as dst:
+                await dst.write(content)
+
+            rel_path = os.path.join(rel_dir, filename) if rel_dir != "." else filename
+            copied_files.append(rel_path)
+
+    return copied_files
+
+
+async def remove_directory_async(path: str) -> None:
+    """Async wrapper for shutil.rmtree using asyncio.to_thread.
+
+    shutil.rmtree has no native async equivalent, so we offload it to a thread
+    to avoid blocking the event loop during large directory deletions.
+    """
+    await asyncio.to_thread(shutil.rmtree, path)
