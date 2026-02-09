@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from jupyter_scheduler.base_backend import BaseBackend
 from jupyter_scheduler.models import OutputFormat
-from jupyter_scheduler.pydantic_v1 import BaseModel, Field
+from jupyter_scheduler.pydantic_v1 import BaseModel, Field, validator
 
 JUPYTER_SERVER_NB_BACKEND_ID = "jupyter_server_nb"
 JUPYTER_SERVER_PY_BACKEND_ID = "jupyter_server_py"
@@ -22,6 +22,13 @@ class BackendConfig(BaseModel):
     file_extensions: List[str] = Field(default_factory=list)
     output_formats: List[Dict[str, str]] = Field(default_factory=list)
     metadata: Optional[Dict[str, Any]] = None
+
+    @validator("id")
+    def id_must_not_contain_colon(cls, v):
+        """Colons are reserved as job_id delimiters (format: backend_id:uuid)."""
+        if ":" in v:
+            raise ValueError("Backend ID cannot contain ':'")
+        return v
 
 
 class DescribeBackendResponse(BaseModel):
