@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.12.0
+
+([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.11.0...c6fe3a24c521198b68092f697d3fc238271a6ac5))
+
+### Enhancements made
+
+- Remove `fsspec` version ceiling, set to `>=2025.3.2` [#609](https://github.com/jupyter-server/jupyter-scheduler/pull/609) ([@andrii-i](https://github.com/andrii-i), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2025-05-16&to=2026-03-04&type=c))
+
+@andrii-i ([activity](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2025-05-16..2026-03-04&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Adlqqq+updated%3A2025-05-16..2026-03-04&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.11.0
 
 ([Full Changelog](https://github.com/jupyter-server/jupyter-scheduler/compare/v2.10.0...7de27edc63b127675737388d701385a8678d3677))
@@ -22,8 +41,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyter-server/jupyter-scheduler/graphs/contributors?from=2024-11-13&to=2025-05-16&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aandrii-i+updated%3A2024-11-13..2025-05-16&type=Issues) | [@asmita-sharma1625](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aasmita-sharma1625+updated%3A2024-11-13..2025-05-16&type=Issues) | [@astitv-sh](https://github.com/search?q=repo%3Ajupyter-server%2Fjupyter-scheduler+involves%3Aastitv-sh+updated%3A2024-11-13..2025-05-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.10.0
 
