@@ -1,10 +1,11 @@
 import logging
 from typing import Any, Dict, List, Optional, Type
 
+from pydantic import BaseModel
+
 from jupyter_scheduler.backends import BackendConfig, DescribeBackendResponse
 from jupyter_scheduler.environments import EnvironmentManager
 from jupyter_scheduler.orm import create_tables
-from jupyter_scheduler.pydantic_v1 import BaseModel
 
 logger = logging.getLogger(__name__)
 

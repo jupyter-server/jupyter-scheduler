@@ -40,7 +40,7 @@ class ExecutionManager(ABC):
         if self._model is None:
             with self.db_session() as session:
                 job = session.query(Job).filter(Job.job_id == self.job_id).first()
-                self._model = DescribeJob.from_orm(job)
+                self._model = DescribeJob.model_validate(job)
         return self._model
 
     @property

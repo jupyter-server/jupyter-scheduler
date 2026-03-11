@@ -182,13 +182,13 @@ def load_job_definitions(jp_scheduler_db):
 )
 def test_list_job_definitions(jp_scheduler, load_job_definitions, list_query, expected_response):
     list_response = jp_scheduler.list_job_definitions(ListJobDefinitionsQuery(**list_query))
-    response = list_response.dict(exclude_none=True)
+    response = list_response.model_dump(exclude_none=True)
     assert expected_response == response
 
 
 def test_get_job_definition(jp_scheduler, load_job_definitions):
     definition = jp_scheduler.get_job_definition(job_definition_1["job_definition_id"])
-    assert job_definition_1 == definition.dict(exclude_none=True)
+    assert job_definition_1 == definition.model_dump(exclude_none=True)
 
 
 def test_pause_jobs(jp_scheduler, load_job_definitions, jp_scheduler_db):

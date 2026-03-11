@@ -1,8 +1,15 @@
 import os
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Annotated, Dict, List, Optional, Union
 
-from jupyter_scheduler.pydantic_v1 import BaseModel, root_validator
+from pydantic import BaseModel, BeforeValidator, ConfigDict, model_validator
+
+
+def _coerce_str(v):
+    return str(v) if v is not None else v
+
+
+CoercedStr = Annotated[str, BeforeValidator(_coerce_str)]
 
 Tags = List[str]
 EnvironmentParameterValues = Union[int, float, bool, str]
@@ -33,23 +40,23 @@ class RuntimeEnvironment(BaseModel):
     description: str
     file_extensions: List[str]  # Supported input file types
     output_formats: List[str]  # Supported output formats
-    metadata: Optional[Dict[str, str]]  # Optional metadata
-    compute_types: Optional[List[str]]
-    default_compute_type: Optional[str]  # Should be a member of the compute_types list
-    utc_only: Optional[bool]
+    metadata: Optional[Dict[str, str]] = None  # Optional metadata
+    compute_types: Optional[List[str]] = None
+    default_compute_type: Optional[str] = None  # Should be a member of the compute_types list
+    utc_only: Optional[bool] = None
 
     def __str__(self):
-        return self.json()
+        return self.model_dump_json()
 
 
 class EmailNotifications(BaseModel):
-    on_start: Optional[List[str]]
-    on_success: Optional[List[str]]
-    on_failure: Optional[List[str]]
+    on_start: Optional[List[str]] = None
+    on_success: Optional[List[str]] = None
+    on_failure: Optional[List[str]] = None
     no_alert_for_skipped_runs: bool = True
 
     def __str__(self) -> str:
-        return self.json()
+        return self.model_dump_json()
 
 
 class Status(str, Enum):
@@ -85,13 +92,13 @@ class CreateJob(BaseModel):
     """Defines the model for creating a new job"""
 
     input_uri: str
-    input_filename: str = None
+    input_filename: Optional[str] = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
-    parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
     tags: Optional[Tags] = None
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -99,9 +106,10 @@ class CreateJob(BaseModel):
     package_input_folder: Optional[bool] = None
     backend_id: Optional[str] = None
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def compute_input_filename(cls, values) -> Dict:
-        if not values["input_filename"] and values["input_uri"]:
+        if not values.get("input_filename") and values.get("input_uri"):
             values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values
@@ -137,13 +145,13 @@ class JobFile(BaseModel):
 
 
 class DescribeJob(BaseModel):
-    input_filename: str = None
+    input_filename: Optional[str] = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
     output_formats: Optional[List[str]] = None
     idempotency_token: Optional[str] = None
     job_definition_id: Optional[str] = None
-    parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
     tags: Optional[Tags] = None
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -162,8 +170,7 @@ class DescribeJob(BaseModel):
     packaged_files: Optional[List[str]] = []
     backend_id: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SortDirection(Enum):
@@ -216,11 +223,11 @@ class DeleteJob(BaseModel):
 
 class CreateJobDefinition(BaseModel):
     input_uri: str
-    input_filename: str = None
+    input_filename: Optional[str] = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
     output_formats: Optional[List[str]] = None
-    parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
     tags: Optional[Tags] = None
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -230,20 +237,21 @@ class CreateJobDefinition(BaseModel):
     package_input_folder: Optional[bool] = None
     backend_id: Optional[str] = None
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def compute_input_filename(cls, values) -> Dict:
-        if not values["input_filename"] and "input_uri" in values and values["input_uri"]:
+        if not values.get("input_filename") and "input_uri" in values and values.get("input_uri"):
             values["input_filename"] = os.path.basename(values["input_uri"])
 
         return values
 
 
 class DescribeJobDefinition(BaseModel):
-    input_filename: str = None
+    input_filename: Optional[str] = None
     runtime_environment_name: str
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
     output_formats: Optional[List[str]] = None
-    parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
     tags: Optional[Tags] = None
     name: str
     output_filename_template: Optional[str] = OUTPUT_FILENAME_TEMPLATE
@@ -258,15 +266,14 @@ class DescribeJobDefinition(BaseModel):
     packaged_files: Optional[List[str]] = []
     backend_id: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpdateJobDefinition(BaseModel):
-    runtime_environment_name: Optional[str]
-    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]]
+    runtime_environment_name: Optional[str] = None
+    runtime_environment_parameters: Optional[Dict[str, EnvironmentParameterValues]] = None
     output_formats: Optional[List[str]] = None
-    parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
     tags: Optional[Tags] = None
     name: Optional[str] = None
     url: Optional[str] = None
@@ -284,17 +291,17 @@ class ListJobDefinitionsQuery(BaseModel):
     tags: Optional[Tags] = None
     sort_by: List[SortField] = [DEFAULT_SORT]
     max_items: Optional[int] = DEFAULT_MAX_ITEMS
-    next_token: Optional[str] = None
+    next_token: Optional[CoercedStr] = None
 
 
 class ListJobDefinitionsResponse(BaseModel):
     job_definitions: List[DescribeJobDefinition] = []
     total_count: int = 0
-    next_token: Optional[str] = None
+    next_token: Optional[CoercedStr] = None
 
 
 class CreateJobFromDefinition(BaseModel):
-    parameters: Optional[Dict[str, str]] = None
+    parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
 
 
 class JobFeature(str, Enum):

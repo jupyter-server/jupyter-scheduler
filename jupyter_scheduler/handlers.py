@@ -6,6 +6,7 @@ from typing import Optional
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
+from pydantic import ValidationError
 from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.backend_registry import BackendInstance, BackendRegistry
@@ -31,7 +32,6 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from jupyter_scheduler.pydantic_v1 import ValidationError
 from jupyter_scheduler.scheduler import BaseScheduler
 
 logger = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     500, f"Unexpected error while getting job definition details: {e}"
                 ) from e
             else:
-                self.finish(job_definition.json())
+                self.finish(job_definition.model_dump_json())
         else:
             create_time = self.get_query_argument("create_time", None)
             sort_by = compute_sort_model(self.get_query_arguments("sort_by"))
@@ -153,7 +153,7 @@ class JobDefinitionHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                     500, f"Unexpected error while getting job definition list: {e}"
                 ) from e
             else:
-                self.finish(list_response.json(exclude_none=True))
+                self.finish(list_response.model_dump_json(exclude_none=True))
 
     @authenticated
     async def post(self):
@@ -238,7 +238,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 self.log.exception(e)
                 raise HTTPError(500, f"Unexpected error while getting job details: {e}") from e
             else:
-                self.finish(job.json())
+                self.finish(job.model_dump_json())
         else:
             status = self.get_query_argument("status", None)
             start_time = self.get_query_argument("start_time", None)
@@ -295,7 +295,7 @@ class JobHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 self.log.exception(e)
                 raise HTTPError(500, f"Unexpected error while getting jobs list: {e}") from e
             else:
-                self.finish(list_jobs_response.json(exclude_none=True))
+                self.finish(list_jobs_response.model_dump_json(exclude_none=True))
 
     @authenticated
     async def post(self):
@@ -456,7 +456,7 @@ class RuntimeEnvironmentsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHan
 
         response = []
         for environment in environments:
-            env = environment.dict()
+            env = environment.model_dump()
             formats = env["output_formats"]
             env["output_formats"] = [{"id": f, "label": output_formats[f]} for f in formats]
             response.append(env)
@@ -522,7 +522,7 @@ class BackendsHandler(ExtensionHandlerMixin, JobHandlersMixin, APIHandler):
                 raise HTTPError(500, "Backend registry not initialized")
 
             backends = registry.describe_backends()
-            self.finish(json.dumps([b.dict() for b in backends]))
+            self.finish(json.dumps([b.model_dump() for b in backends]))
         except SchedulerError as e:
             self.log.exception(e)
             raise HTTPError(500, f"Unexpected error while listing backends: {e}") from e
