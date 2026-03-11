@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from jupyter_scheduler.base_backend import BaseBackend
 from jupyter_scheduler.models import OutputFormat
-from jupyter_scheduler.pydantic_v1 import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 JUPYTER_SERVER_NB_BACKEND_ID = "jupyter_server_nb"
 JUPYTER_SERVER_PY_BACKEND_ID = "jupyter_server_py"
@@ -37,8 +37,7 @@ class DescribeBackendResponse(BaseModel):
     file_extensions: List[str]
     output_formats: List[OutputFormat]
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class JupyterServerNotebookBackend(BaseBackend):

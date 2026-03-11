@@ -54,7 +54,7 @@ class EmailNotificationType(types.TypeDecorator):
             return None
 
         if isinstance(value, EmailNotifications):
-            return json.dumps(value.dict(exclude_none=True))
+            return json.dumps(value.model_dump(exclude_none=True))
         else:
             return value
 

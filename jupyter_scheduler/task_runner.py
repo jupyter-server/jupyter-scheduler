@@ -12,7 +12,7 @@ from traitlets.config import LoggingConfigurable
 
 from jupyter_scheduler.models import CreateJob, UpdateJobDefinition
 from jupyter_scheduler.orm import JobDefinition, declarative_base
-from jupyter_scheduler.pydantic_v1 import BaseModel
+from pydantic import BaseModel, ConfigDict
 from jupyter_scheduler.utils import (
     compute_next_run_time,
     get_localized_timestamp,
@@ -38,8 +38,7 @@ class DescribeJobDefinitionCache(BaseModel):
     timezone: Optional[str] = None
     schedule: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpdateJobDefinitionCache(BaseModel):
@@ -105,7 +104,7 @@ class Cache:
     def load(self, models: List[DescribeJobDefinitionCache]):
         with self.session() as session:
             for model in models:
-                session.add(JobDefinitionCache(**model.dict()))
+                session.add(JobDefinitionCache(**model.model_dump()))
             session.commit()
 
     def get(self, job_definition_id: str) -> DescribeJobDefinitionCache:
@@ -117,20 +116,20 @@ class Cache:
             )
 
         if definition:
-            return DescribeJobDefinitionCache.from_orm(definition)
+            return DescribeJobDefinitionCache.model_validate(definition)
         else:
             return None
 
     def put(self, model: DescribeJobDefinitionCache):
         with self.session() as session:
-            session.add(JobDefinitionCache(**model.dict()))
+            session.add(JobDefinitionCache(**model.model_dump()))
             session.commit()
 
     def update(self, job_definition_id: str, model: UpdateJobDefinitionCache):
         with self.session() as session:
             session.query(JobDefinitionCache).filter(
                 JobDefinitionCache.job_definition_id == job_definition_id
-            ).update(model.dict(exclude_none=True))
+            ).update(model.model_dump(exclude_none=True))
             session.commit()
 
     def delete(self, job_definition_id: str):
@@ -285,7 +284,7 @@ class TaskRunner(BaseTaskRunner):
             input_uri = self.scheduler.get_staging_paths(definition)["input"]
             self.scheduler.create_job(
                 CreateJob(
-                    **definition.dict(exclude={"schedule", "timezone"}, exclude_none=True),
+                    **definition.model_dump(exclude={"schedule", "timezone"}, exclude_none=True),
                     input_uri=input_uri,
                 )
             )

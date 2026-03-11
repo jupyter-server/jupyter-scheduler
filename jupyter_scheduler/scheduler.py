@@ -487,13 +487,13 @@ class Scheduler(BaseScheduler):
             job = Job(
                 job_id=full_job_id,
                 backend_id=self.backend_id,
-                **model.dict(exclude_none=True, exclude={"input_uri", "backend_id"}),
+                **model.model_dump(exclude_none=True, exclude={"input_uri", "backend_id"}),
             )
 
             session.add(job)
             session.commit()
 
-            staging_paths = self.get_staging_paths(DescribeJob.from_orm(job))
+            staging_paths = self.get_staging_paths(DescribeJob.model_validate(job))
             if model.package_input_folder:
                 copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
                 input_notebook_filename = os.path.basename(model.input_uri)
@@ -531,7 +531,7 @@ class Scheduler(BaseScheduler):
 
     def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:
-            session.query(Job).filter(Job.job_id == job_id).update(model.dict(exclude_none=True))
+            session.query(Job).filter(Job.job_id == job_id).update(model.model_dump(exclude_none=True))
             session.commit()
 
     def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
@@ -566,7 +566,7 @@ class Scheduler(BaseScheduler):
 
         jobs_list = []
         for job in jobs:
-            model = DescribeJob.from_orm(job)
+            model = DescribeJob.model_validate(job)
             self.add_job_files(model=model)
             jobs_list.append(model)
 
@@ -589,7 +589,7 @@ class Scheduler(BaseScheduler):
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
 
-        model = DescribeJob.from_orm(job_record)
+        model = DescribeJob.model_validate(job_record)
         if job_files:
             self.add_job_files(model=model)
 
@@ -601,7 +601,7 @@ class Scheduler(BaseScheduler):
             if Status(job_record.status) == Status.IN_PROGRESS:
                 self.stop_job(job_id)
 
-            staging_paths = self.get_staging_paths(DescribeJob.from_orm(job_record))
+            staging_paths = self.get_staging_paths(DescribeJob.model_validate(job_record))
             if staging_paths:
                 path = os.path.dirname(next(iter(staging_paths.values())))
                 if os.path.exists(path):
@@ -613,7 +613,7 @@ class Scheduler(BaseScheduler):
     def stop_job(self, job_id):
         with self.db_session() as session:
             job_record = session.query(Job).filter(Job.job_id == job_id).one()
-            job = DescribeJob.from_orm(job_record)
+            job = DescribeJob.model_validate(job_record)
             process_id = job_record.pid
             if process_id and job.status == Status.IN_PROGRESS:
                 session.query(Job).filter(Job.job_id == job_id).update({"status": Status.STOPPING})
@@ -635,7 +635,7 @@ class Scheduler(BaseScheduler):
             if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
 
-            job_definition = JobDefinition(**model.dict(exclude_none=True, exclude={"input_uri"}))
+            job_definition = JobDefinition(**model.model_dump(exclude_none=True, exclude={"input_uri"}))
             session.add(job_definition)
             session.commit()
 
@@ -643,7 +643,7 @@ class Scheduler(BaseScheduler):
             job_definition_id = job_definition.job_definition_id
             job_definition_schedule = job_definition.schedule
 
-            staging_paths = self.get_staging_paths(DescribeJobDefinition.from_orm(job_definition))
+            staging_paths = self.get_staging_paths(DescribeJobDefinition.model_validate(job_definition))
             if model.package_input_folder:
                 copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
                 input_notebook_filename = os.path.basename(model.input_uri)
@@ -665,7 +665,7 @@ class Scheduler(BaseScheduler):
                 JobDefinition.job_definition_id == job_definition_id
             )
 
-            describe_job_definition = DescribeJobDefinition.from_orm(filtered_query.one())
+            describe_job_definition = DescribeJobDefinition.model_validate(filtered_query.one())
 
             if (
                 (
@@ -682,7 +682,7 @@ class Scheduler(BaseScheduler):
             ):
                 return
 
-            updates = model.dict(exclude_none=True, exclude={"input_uri"})
+            updates = model.model_dump(exclude_none=True, exclude={"input_uri"})
 
             if model.input_uri:
                 new_input_filename = os.path.basename(model.input_uri)
@@ -733,7 +733,7 @@ class Scheduler(BaseScheduler):
                 .one()
             )
 
-        return DescribeJobDefinition.from_orm(job_definition)
+        return DescribeJobDefinition.model_validate(job_definition)
 
     def list_job_definitions(self, query: ListJobDefinitionsQuery) -> ListJobDefinitionsResponse:
         with self.db_session() as session:
@@ -767,7 +767,7 @@ class Scheduler(BaseScheduler):
 
         list_response = ListJobDefinitionsResponse(
             job_definitions=[
-                DescribeJobDefinition.from_orm(definition) for definition in definitions or []
+                DescribeJobDefinition.model_validate(definition) for definition in definitions or []
             ],
             next_token=next_token,
             total_count=total,
@@ -780,8 +780,8 @@ class Scheduler(BaseScheduler):
         definition = self.get_job_definition(job_definition_id)
         if definition:
             input_uri = self.get_staging_paths(definition)["input"]
-            attributes = definition.dict(exclude={"schedule", "timezone"}, exclude_none=True)
-            attributes = {**attributes, **model.dict(exclude_none=True), "input_uri": input_uri}
+            attributes = definition.model_dump(exclude={"schedule", "timezone"}, exclude_none=True)
+            attributes = {**attributes, **model.model_dump(exclude_none=True), "input_uri": input_uri}
             job_id = self.create_job(CreateJob(**attributes))
 
         return job_id
