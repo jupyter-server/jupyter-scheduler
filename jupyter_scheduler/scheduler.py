@@ -531,7 +531,9 @@ class Scheduler(BaseScheduler):
 
     def update_job(self, job_id: str, model: UpdateJob):
         with self.db_session() as session:
-            session.query(Job).filter(Job.job_id == job_id).update(model.model_dump(exclude_none=True))
+            session.query(Job).filter(Job.job_id == job_id).update(
+                model.model_dump(exclude_none=True)
+            )
             session.commit()
 
     def list_jobs(self, query: ListJobsQuery) -> ListJobsResponse:
@@ -635,7 +637,9 @@ class Scheduler(BaseScheduler):
             if not self.file_exists(model.input_uri):
                 raise InputUriError(model.input_uri)
 
-            job_definition = JobDefinition(**model.model_dump(exclude_none=True, exclude={"input_uri"}))
+            job_definition = JobDefinition(
+                **model.model_dump(exclude_none=True, exclude={"input_uri"})
+            )
             session.add(job_definition)
             session.commit()
 
@@ -643,7 +647,9 @@ class Scheduler(BaseScheduler):
             job_definition_id = job_definition.job_definition_id
             job_definition_schedule = job_definition.schedule
 
-            staging_paths = self.get_staging_paths(DescribeJobDefinition.model_validate(job_definition))
+            staging_paths = self.get_staging_paths(
+                DescribeJobDefinition.model_validate(job_definition)
+            )
             if model.package_input_folder:
                 copied_files = self.copy_input_folder(model.input_uri, staging_paths["input"])
                 input_notebook_filename = os.path.basename(model.input_uri)
@@ -781,7 +787,11 @@ class Scheduler(BaseScheduler):
         if definition:
             input_uri = self.get_staging_paths(definition)["input"]
             attributes = definition.model_dump(exclude={"schedule", "timezone"}, exclude_none=True)
-            attributes = {**attributes, **model.model_dump(exclude_none=True), "input_uri": input_uri}
+            attributes = {
+                **attributes,
+                **model.model_dump(exclude_none=True),
+                "input_uri": input_uri,
+            }
             job_id = self.create_job(CreateJob(**attributes))
 
         return job_id

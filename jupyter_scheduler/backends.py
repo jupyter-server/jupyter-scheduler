@@ -1,8 +1,9 @@
 from typing import Any, Dict, List, Optional
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from jupyter_scheduler.base_backend import BaseBackend
 from jupyter_scheduler.models import OutputFormat
-from pydantic import BaseModel, ConfigDict, Field
 
 JUPYTER_SERVER_NB_BACKEND_ID = "jupyter_server_nb"
 JUPYTER_SERVER_PY_BACKEND_ID = "jupyter_server_py"

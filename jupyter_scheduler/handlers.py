@@ -6,6 +6,7 @@ from typing import Optional
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.extension.handler import ExtensionHandlerMixin
 from jupyter_server.utils import ensure_async
+from pydantic import ValidationError
 from tornado.web import HTTPError, authenticated
 
 from jupyter_scheduler.backend_registry import BackendInstance, BackendRegistry
@@ -31,7 +32,6 @@ from jupyter_scheduler.models import (
     UpdateJob,
     UpdateJobDefinition,
 )
-from pydantic import ValidationError
 from jupyter_scheduler.scheduler import BaseScheduler
 
 logger = logging.getLogger(__name__)

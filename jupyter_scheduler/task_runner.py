@@ -6,13 +6,13 @@ from typing import List, Optional
 
 import traitlets
 from jupyter_server.transutils import _i18n
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Boolean, Column, Integer, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from traitlets.config import LoggingConfigurable
 
 from jupyter_scheduler.models import CreateJob, UpdateJobDefinition
 from jupyter_scheduler.orm import JobDefinition, declarative_base
-from pydantic import BaseModel, ConfigDict
 from jupyter_scheduler.utils import (
     compute_next_run_time,
     get_localized_timestamp,

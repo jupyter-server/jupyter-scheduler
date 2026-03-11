@@ -8,6 +8,7 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, model_validator
 def _coerce_str(v):
     return str(v) if v is not None else v
 
+
 CoercedStr = Annotated[str, BeforeValidator(_coerce_str)]
 
 Tags = List[str]
@@ -105,7 +106,7 @@ class CreateJob(BaseModel):
     package_input_folder: Optional[bool] = None
     backend_id: Optional[str] = None
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def compute_input_filename(cls, values) -> Dict:
         if not values.get("input_filename") and values.get("input_uri"):
@@ -236,7 +237,7 @@ class CreateJobDefinition(BaseModel):
     package_input_folder: Optional[bool] = None
     backend_id: Optional[str] = None
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def compute_input_filename(cls, values) -> Dict:
         if not values.get("input_filename") and "input_uri" in values and values.get("input_uri"):
