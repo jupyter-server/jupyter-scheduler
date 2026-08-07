@@ -37,7 +37,7 @@ dependencies = [
     "croniter~=1.4",
     "pytz>=2023.3,<=2024.2",
     "fsspec>=2025.3.2",
-    "psutil~=5.9"
+    "psutil>=5.9"
 ]
 
 [project.optional-dependencies]
