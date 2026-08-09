@@ -10,6 +10,9 @@ You can configure the server extension to replace the Scheduler server API,
 replace the execution engine, re-create the database tables, and select a
 database path.
 
+For server configuration options that are not specific to Jupyter Scheduler,
+see the [Jupyter Server configuration documentation](https://jupyter-server.readthedocs.io/en/latest/other/full-config.html#config-file-and-command-line-options).
+
 ### drop_tables
 
 Setting this value to `True` will re-create the database tables on each
